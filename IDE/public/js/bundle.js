@@ -9333,12 +9333,8 @@ return jQuery;
 })( window ); }));
 
 },{}],2:[function(require,module,exports){
-// singleton IDE controller
-
-class IDE {
-  constructor() {}
-}
-module.exports = new IDE();
+// IDE controller
+module.exports = {};
 
 var Model = require('./Models/Model');
 
@@ -9350,50 +9346,172 @@ models.project = new Model();
 models.settings = new Model();
 
 // set up views
+// tab view
 var tabView = require('./Views/TabView');
 tabView.on('change', () => editor.resize());
 
-},{"./Models/Model":3,"./Views/TabView":4}],3:[function(require,module,exports){
-var EventEmitter = require('events').EventEmitter;
+// project view
+var projectView = new (require('./Views/ProjectView'))('projectManager', [models.project]);
+projectView.on('message', (event, data) => {
+	if (!data.currentProject && models.project.getKey('currentProject')) {
+		data.currentProject = models.project.getKey('currentProject');
+	}
+	socket.emit(event, data);
+});
 
-// private variables
-var data = {};
+// setup socket
+var socket = io('/IDE');
+
+// socket events
+socket.on('init', (projectList, exampleList, currentProject, settings) => {
+	models.project.setData({ projectList, exampleList, currentProject });
+	models.settings.setData(settings);
+});
+
+socket.on('project-data', data => {
+	models.project.setData(data);
+	models.project.print();
+});
+
+},{"./Models/Model":3,"./Views/ProjectView":4,"./Views/TabView":5}],3:[function(require,module,exports){
+var EventEmitter = require('events').EventEmitter;
 
 class Model extends EventEmitter {
 
-	constructor() {
+	constructor(data) {
 		super();
+		var _data = data || {};
+		this._getData = () => _data;
+	}
+
+	getKey(key) {
+		return this._getData()[key];
 	}
 
 	setData(newData) {
 		var newKeys = [];
 		for (let key in newData) {
-			if (newData[key] !== data[key]) {
+			if (newData[key] !== this._getData()[key]) {
 				newKeys.push(key);
-				data[key] = newData[key];
+				this._getData()[key] = newData[key];
 			}
 		}
 		if (newKeys.length) {
-			this.emit('change', data, newKeys);
+			this.emit('change', this._getData(), newKeys);
 		}
 	}
 
 	setKey(key, value) {
-		if (value !== data[key]) {
-			data[key] = value;
-			this.emit('change', data, [key]);
+		if (value !== this._getData()[key]) {
+			this._getData()[key] = value;
+			this.emit('change', this._getData(), [key]);
 		}
 	}
 
 	print() {
-		console.log(data);
+		console.log(this._getData());
 	}
 
 }
 
 module.exports = Model;
 
-},{"events":7}],4:[function(require,module,exports){
+},{"events":8}],4:[function(require,module,exports){
+var View = require('./View');
+
+class ProjectView extends View {
+
+	constructor(className, models) {
+		super(className, models);
+	}
+
+	// UI events
+	selectChanged($element, e) {
+		this.emit('message', 'project-event', { func: $element.data().func, currentProject: $element.val() });
+	}
+	buttonClicked($element, e) {
+		var func = $element.data().func;
+		if (func && this[func]) {
+			this[func](func);
+		}
+	}
+
+	newProject(func) {
+		var name = prompt("Enter the name of the new project");
+		if (name !== null) {
+			this.emit('message', 'project-event', { func, newProject: name });
+		}
+	}
+	saveAs(func) {
+		var name = prompt("Enter the name of the new project");
+		if (name !== null) {
+			this.emit('message', 'project-event', { func, newProject: name });
+		}
+	}
+	deleteProject(func) {
+		var cont = confirm("This can't be undone! Continue?");
+		if (cont) {
+			this.emit('message', 'project-event', { func });
+		}
+	}
+
+	// model events
+	modelChanged(data, changedKeys) {
+		for (let value of changedKeys) {
+			if (this[value]) {
+				this[value](data[value]);
+			}
+		}
+	}
+
+	projectList(projects) {
+
+		var $projects = $('#projects');
+		$projects.empty();
+
+		// add an empty option to menu and select it
+		var opt = $('<option></option>').attr({ 'value': '', 'selected': 'selected' }).html('--Projects--').appendTo($projects);
+
+		// fill project menu with projects
+		for (let i = 0; i < projects.length; i++) {
+			if (projects[i] && projects[i] !== 'undefined' && projects[i] !== 'exampleTempProject' && projects[i][0] !== '.') {
+				var opt = $('<option></option>').attr('value', projects[i]).html(projects[i]).appendTo($projects);
+			}
+		}
+	}
+	exampleList(examples) {
+
+		var $examples = $('#examples');
+		$examples.empty();
+
+		// add an empty option to menu and select it
+		var opt = $('<option></option>').attr({ 'value': '', 'selected': 'selected' }).html('--Examples--').appendTo($examples);
+
+		// fill project menu with examples
+		for (let i = 0; i < examples.length; i++) {
+			if (examples[i] && examples[i] !== 'undefined' && examples[i] !== 'exampleTempProject' && examples[i][0] !== '.') {
+				var opt = $('<option></option>').attr('value', examples[i]).html(examples[i]).appendTo($examples);
+			}
+		}
+	}
+	currentProject(project) {
+		if (project !== 'exampleTempProject') {
+			// unselect currently selected project
+			$('#projects').find('option').filter(':selected').attr('selected', '');
+			// select new project
+			$('#projects option[value="' + project + '"]').attr('selected', 'selected');
+			// unselect currently selected example
+			$('#examples').find('option').filter(':selected').attr('selected', '');
+			// select no example
+			$('#examples option:first-child').attr('selected', 'selected');
+		}
+	}
+
+}
+
+module.exports = ProjectView;
+
+},{"./View":6}],5:[function(require,module,exports){
 var View = require('./View');
 
 // private variables
@@ -9440,20 +9558,36 @@ class TabView extends View {
 
 module.exports = new TabView();
 
-},{"./View":5}],5:[function(require,module,exports){
+},{"./View":6}],6:[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter;
 var $ = require('jquery-browserify');
 
-// private variables
-
 class View extends EventEmitter {
 
-	constructor(CSSClassName) {
+	constructor(CSSClassName, models) {
 		super();
 		this.className = CSSClassName;
+		this.models = models;
 		this.$elements = $('.' + CSSClassName);
 		this.$parents = $('.' + CSSClassName + '-parent');
+
+		if (models) {
+
+			for (var i = 0; i < models.length; i++) {
+				models[i].on('change', (data, changedKeys) => {
+					this.modelChanged(data, changedKeys);
+				});
+			}
+		}
+
+		this.$elements.filter('select').on('change', e => this.selectChanged($(e.currentTarget), e));
+		this.$elements.filter('button').on('click', e => this.buttonClicked($(e.currentTarget), e));
 	}
+
+	modelChanged(data, changedKeys) {}
+
+	selectChanged(element, e) {}
+	buttonClicked(element, e) {}
 
 	printElements() {
 		console.log('elements:', this.$elements, 'parents:', this.$parents);
@@ -9463,7 +9597,7 @@ class View extends EventEmitter {
 
 module.exports = View;
 
-},{"events":7,"jquery-browserify":1}],6:[function(require,module,exports){
+},{"events":8,"jquery-browserify":1}],7:[function(require,module,exports){
 var $ = require('jquery-browserify');
 var IDE;
 
@@ -9471,7 +9605,7 @@ $(() => {
 	IDE = require('./IDE-browser');
 });
 
-},{"./IDE-browser":2,"jquery-browserify":1}],7:[function(require,module,exports){
+},{"./IDE-browser":2,"jquery-browserify":1}],8:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -9771,7 +9905,7 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}]},{},[6])
+},{}]},{},[7])
 
 
 //# sourceMappingURL=bundle.js.map

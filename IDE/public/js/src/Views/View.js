@@ -1,16 +1,33 @@
 var EventEmitter = require('events').EventEmitter;
 var $ = require('jquery-browserify');
 
-// private variables
-
 class View extends EventEmitter{
 
-	constructor(CSSClassName){
+	constructor(CSSClassName, models){
 		super();
 		this.className = CSSClassName;
+		this.models = models;
 		this.$elements = $('.'+CSSClassName);
 		this.$parents = $('.'+CSSClassName+'-parent');
+		
+		if (models){
+			
+			for (var i=0; i<models.length; i++){
+				models[i].on('change', (data, changedKeys) => {
+					this.modelChanged(data, changedKeys);
+				});
+			}
+		}
+		
+		this.$elements.filter('select').on('change', (e) => this.selectChanged($(e.currentTarget), e));
+		this.$elements.filter('button').on('click', (e) => this.buttonClicked($(e.currentTarget), e));
+		
 	}
+	
+	modelChanged(data, changedKeys){}
+	
+	selectChanged(element, e){}
+	buttonClicked(element, e){}
 	
 	printElements(){
 		console.log('elements:', this.$elements, 'parents:', this.$parents);

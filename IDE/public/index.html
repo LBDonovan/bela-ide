@@ -143,44 +143,47 @@
 				    <div class="tab">
 				        <input type="radio" id="tab-2" name="tab-group-1">
 				        <label for="tab-2"><span id="file-explorer" title="File Explorer" /></label>
-				        <div class="tabContent">
-				        	<h1>Project Explorer</h1>
-				        
-				        	<h1>Open Project:</h1>
-				        	<select id="projects"></select>
-				           <button id="new">new project</button>
-				           <button id="saveas">save as</button>
-				           <button id="deleteProject">delete project</button>
-				           <button id="cleanProject">clean</button>
-				           
-				           <h1>Open Example:</h1>
-				        	<select id="examples"></select>
-				           
-				           <h2 id="fileListTitle">Files:</h2>
-				           <button id="newFileTab">new</button>
-				           <button id="uploadFile">upload</button>
-				           <a id="downloadFileLink" href="/download" download><button id="downloadFile">download</button></a>
-				           <button id="renameFile">rename</button>
-				           <button id="deleteFile">delete</button>
-				           <input type="file" id="uploadFileInput"></input>
-				           <ul id="fileList"></ul>
-				           
-				           <div id="git-container">
+				        <div class="tabContent"> 
+				        	<div class="projectManager-parent">
+								<h1>Project Explorer</h1>
+
+								<h1>Open Project:</h1>
+								<select class="projectManager" id="projects" data-func="openProject"></select>
+								<button class="projectManager" id="new" data-func="newProject">new project</button>
+								<button class="projectManager" id="saveas" data-func="saveAs">save as</button>
+								<button class="projectManager" id="deleteProject" data-func="deleteProject">delete project</button>
+								<button id="cleanProject" data-func="cleanProject">clean</button>
+
+								<h1>Open Example:</h1>
+								<select class="projectManager" id="examples" data-func="openExample"></select>
+							</div>
+
+							<div class="fileManager-parent">
+								<h2 id="fileListTitle">Files:</h2>
+								<button id="newFileTab">new</button>
+								<button id="uploadFile">upload</button>
+								<a id="downloadFileLink" href="/download" download><button id="downloadFile">download</button></a>
+								<button id="renameFile">rename</button>
+								<button id="deleteFile">delete</button>
+								<input type="file" id="uploadFileInput"></input>
+								<ul id="fileList"></ul>
+							</div>
+						   
+							<div class="gitParent">
 							   <h2>Git:</h2>
 							   <button class="gitButton" data-command="status">status</button>
 							   <button class="gitButton" data-command="log --pretty=oneline">log</button></br>
-						   
+
 							   <select id="branches"></select>
 							   <button id="newBranch">new branch</button>
 							   <button id="gitMerge">merge</button></br>
-						   
+
 							   <button id="gitCommit">commit</button>
 							   <button id="gitDiscard">discard changes</button>
 							   <button class="gitButton" data-command="revert HEAD">revert previous commit</button></br>
-						   
+
 							   <select id="commits"></select>
-							</div>
-				           
+							</div>				           
 				           </br></br></br>
 				        </div> 
 				    </div>

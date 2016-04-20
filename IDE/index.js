@@ -1,3 +1,1 @@
-var fileServer = require('./libs/fileServer');
-
-fileServer.start(3000);
+var IDE = require('./libs/IDE-node');

@@ -1,0 +1,17 @@
+{
+  "name": "bela_ide",
+  "version": "0.1.0",
+  "description": "IDE for Bela",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Liam Donovan",
+  "license": "ISC",
+  "dependencies": {
+    "bluebird": "^3.3.5",
+    "express": "^4.13.4",
+    "fs-extra": "^0.28.0",
+    "socket.io": "^1.4.5"
+  }
+}

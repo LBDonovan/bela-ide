@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Bela IDE</title>
+		<link rel="stylesheet" type="text/css" href="stylesheet.css" />
+
+
+		
+	</head>
+	
+	<body>
+<!-- 		<div id="topBar">
+			<div id="logo">
+				<img src="images/logo4.png">
+			</div> <!-- end logo -->
+			 
+
+		<!-- start flex stuff -->
+
+		<!-- <div id="content"> -->
+			<div id="innerContent">
+
+			<pre id="editor"></pre> <!-- this is the whole left pane -->
+			<div id="right">
+				<div id="tabs">
+
+					<div class="tab" id="flexit">
+					   <input type="radio" id="exp" name="tab-group-1" checked>
+				       <label for="tab-0"><span id="open-tabs" title="Open Tabs" /></label>
+				       <div class="tabContent">
+				    	</div> 
+				    </div>
+				   
+				   	<div class="tab">
+				        <input type="radio" id="tab-1" name="tab-group-1">
+				        <label for="tab-1"><span id="settings" title="Project Settings" /></label>
+				        <div id="settingsTab" class="tabContent">
+				        	<h1>Project Settings</h1>
+				        	<button id="restoreDefaultCLArgs">restore defaults</button></br>
+				        	Buffer size (audio samples): <select id="buffer-size" class="C_L_ARG" data-key="-p">
+				           		<option value="2">2</option>
+				           		<option value="4">4</option>
+				           		<option value="8">8</option>
+				           		<option value="16">16</option>
+				           		<option value="32">32</option>
+				           		<option value="64">64</option>
+				           		<option value="128">128</option>
+				           </select></br>
+				           Analog Channels: <select id="analog-channels" class="C_L_ARG" data-key="-C">
+				           		<option value="2">2</option>
+				           		<option value="4">4</option>
+				           		<option value="8">8</option>
+				           </select></br>
+				           Analog Sample Rate (Hz): <select id="analog-samplerate" class="C_L_ARG" data-key="-C">
+				           		<option value="2">88200</option>
+				           		<option value="4">44100</option>
+				           		<option value="8">22050</option>
+				           </select></br>
+				           Digital Channels: <select id="digital-channels" class="C_L_ARG" data-key="-B">
+				           		<option value="2">2</option>
+				           		<option value="4">4</option>
+				           		<option value="8">8</option>
+				           		<option value="16">16</option>
+				           </select></br>
+				           Headphone level (dB): <input id="hp-level" class="C_L_ARG" type="number" max="0" min="-63.5" step="0.1" data-key="-H"></input></br>
+				        	Use Analogue: <select id="use-analog" class="C_L_ARG" data-key="-N">
+				           		<option value="1">Yes</option>
+				           		<option value="0">No</option>
+				           </select></br>
+				           Use Digital: <select id="use-digital" class="C_L_ARG" data-key="-G">
+				           		<option value="1">Yes</option>
+				           		<option value="0">No</option>
+				           </select></br>
+				           Mute Speaker: <select id="mute-speaker" class="C_L_ARG" data-key="-M">
+				           		<option value="1">Yes</option>
+				           		<option value="0">No</option>
+				           </select></br>
+				           DAC level (dB): <input id="dac-level" class="C_L_ARG" type="number" max="0" min="-63.5" step="0.1" data-key="-D"></input></br>
+				           ADC level (dB): <input id="adc-level" class="C_L_ARG" type="number" max="0" min="-63.5" step="0.1" data-key="-A"></input></br>
+				           Receive Port: <input id="receive-port" class="C_L_ARG" type="number" max="9999" min="0" step="1" data-key="-R"></input></br>
+				           Transmit Port: <input id="transmit-port" class="C_L_ARG" type="number" max="9999" min="0" step="1" data-key="-T"></input></br>
+				           IP Address: <input id="ip-address" class="C_L_ARG" type="text" data-key="-S"></input><br>
+				           PGA Gain left (dB): <input id="pga-left" class="C_L_ARG" type="number" min="0" max="63.5" step="0.1" data-key="--pga-gain-left"></input></br>
+				           PGA Gain right (dB): <input id="pga-right" class="C_L_ARG" type="number" min="0" max="63.5" step="0.1" data-key="--pga-gain-right"></input></br>
+				           User Command Line Arguments: <input id="user-clargs" class="C_L_ARG" type="text" data-key="user"></input><br>
+				        	Full Command Line String:
+				        	</br><input id="C_L_ARGS" type="text" placeholder="C_L_ARGS" readonly></input><br>
+				        	
+				        	<h1>IDE Settings</h1>
+				        	<button id="restoreDefaultIDESettings">restore defaults</button></br>
+				        	Autocomplete: <select id="liveAutocompletion" class="IDEsettings">
+				           		<option value="true">On</option>
+				           		<option value="false">Off</option>
+				           </select></br>
+				           Syntax Checking: <select id="liveSyntaxChecking" class="IDEsettings">
+				           		<option value="true">On</option>
+				           		<option value="false">Off</option>
+				           </select></br>
+				           Verbose build errors: <select id="verboseErrors" class="IDEsettings">
+				           		<option value="true">On</option>
+				           		<option value="false">Off</option>
+				           </select></br>
+				           CPU Monitoring: <select id="cpuMonitoring" class="IDEsettings">
+				           		<option value="true">On</option>
+				           		<option value="false">Off</option>
+				           </select></br>
+				           Verbose CPU Monitoring: <select id="cpuMonitoringVerbose" class="IDEsettings">
+				           		<option value="true">On</option>
+				           		<option value="false">Off</option>
+				           </select></br>
+				           Acknowledge Upload: <select id="ackUpload" class="IDEsettings">
+				           		<option value="true">On</option>
+				           		<option value="false">Off</option>
+				           </select></br>
+				           Remove Notifications: <select id="removeNotifications" class="IDEsettings">
+				           		<option value="true">On</option>
+				           		<option value="false">Off</option>
+				           </select></br>
+				           Console Animations: <select id="consoleAnimations" class="IDEsettings">
+				           		<option value="true">On</option>
+				           		<option value="false">Off</option>
+				           </select></br>
+				           Delete old console records: <select id="consoleDelete" class="IDEsettings">
+				           		<option value="true">On</option>
+				           		<option value="false">Off</option>
+				           </select></br>
+				           
+				           <h1>Git Settings</h1>
+				           Use git: <select id="useGit" class="IDEsettings">
+				           		<option value="true">On</option>
+				           		<option value="false">Off</option>
+				           </select></br>
+				           Auto-stage all files: <select id="gitAutostage" class="IDEsettings">
+				           		<option value="true">On</option>
+				           		<option value="false">Off</option>
+				           </select></br>
+				           
+				        	</br></br></br>
+				        </div> 
+				    </div>
+				    
+				    <div class="tab">
+				        <input type="radio" id="tab-2" name="tab-group-1">
+				        <label for="tab-2"><span id="file-explorer" title="File Explorer" /></label>
+				        <div class="tabContent">
+				        	<h1>Project Explorer</h1>
+				        
+				        	<h1>Open Project:</h1>
+				        	<select id="projects"></select>
+				           <button id="new">new project</button>
+				           <button id="saveas">save as</button>
+				           <button id="deleteProject">delete project</button>
+				           <button id="cleanProject">clean</button>
+				           
+				           <h1>Open Example:</h1>
+				        	<select id="examples"></select>
+				           
+				           <h2 id="fileListTitle">Files:</h2>
+				           <button id="newFileTab">new</button>
+				           <button id="uploadFile">upload</button>
+				           <a id="downloadFileLink" href="/download" download><button id="downloadFile">download</button></a>
+				           <button id="renameFile">rename</button>
+				           <button id="deleteFile">delete</button>
+				           <input type="file" id="uploadFileInput"></input>
+				           <ul id="fileList"></ul>
+				           
+				           <div id="git-container">
+							   <h2>Git:</h2>
+							   <button class="gitButton" data-command="status">status</button>
+							   <button class="gitButton" data-command="log --pretty=oneline">log</button></br>
+						   
+							   <select id="branches"></select>
+							   <button id="newBranch">new branch</button>
+							   <button id="gitMerge">merge</button></br>
+						   
+							   <button id="gitCommit">commit</button>
+							   <button id="gitDiscard">discard changes</button>
+							   <button class="gitButton" data-command="revert HEAD">revert previous commit</button></br>
+						   
+							   <select id="commits"></select>
+							</div>
+				           
+				           </br></br></br>
+				        </div> 
+				    </div>
+				    
+				    <div class="tab">
+				       <input type="radio" id="tab-3" name="tab-group-1">
+				       <label for="tab-3"><span id="code-examples" title="Code Examples" /></label>
+				       <div class="tabContent">
+				           Debug mode: <select id="debugMode" class="IDEsettings">
+				           		<option value="true">On</option>
+				           		<option value="false">Off</option>
+				           </select>
+				           <button id="debugContinue">continue</button>
+				           <button id="debugStep">step into</button>
+				           <button id="debugNext">step over</button></br>
+				           Debugger status: <span id="debuggerStatus">inactive</span></br>
+				           Location: <span id="debuggerLocation">n/a</span>
+				           <div id="listContainer">
+								<ul id="expList">
+							   </ul>
+							</div>
+							</br></br></br>
+				       </div> 
+				   </div>
+
+				   	<div class="tab">
+				       <input type="radio" id="tab-4" name="tab-group-1">
+				       <label for="tab-4"><span id="gpio-ref" title="GPIO Pin Reference" /></label>
+				       <div class="tabContent">
+				           <a href="http://bela.io/belaDiagram/" target="_blank" ><p>GPIO Pin Reference</p></a>
+				       </div> 
+				    </div>
+
+				    <div class="tab">
+				       <input type="radio" id="tab-5" name="tab-group-1">
+				       <label for="tab-5"><span id="api-ref" title="API Reference" /></label>
+				       <div class="tabContent">
+				           <a href="https://code.soundsoftware.ac.uk/projects/beaglert/embedded/index.html" target="_blank" ><p>API Reference</p></a>
+				       </div> 
+				    </div>
+				    
+				</div>
+			</div> <!-- end right -->
+
+			
+		</div> <!-- end innerContent -->
+	<!-- </div> --> <!-- end content -->
+
+		<div id="toolbar">
+			<div id="control">
+				<div class="controlPair">
+					<div class="controlButtons">
+						<span id="run"></span>
+						<span id="stop"></span>
+					</div>
+					<div class="controlText one">
+					</div>
+				</div>
+
+				<div class="controlPair">
+					<div class="controlButtons">
+						<a href="" target="_blank" ><span id="newTab"></span></a>
+						<a id="downloadLink" href="/download" download><span id="download"></span></a>
+					</div>
+					<div class="controlText two">
+					</div>
+				</div>
+
+				<div class="controlPair">
+					<div class="controlButtons">
+						<span id="console"></span>
+						<a href="beagleRTScope" target="_blank"><span id="scope"></span></a>
+					</div>
+					<div class="controlText three">
+					</div>
+					<span class="controlText" id="statusText"></span>
+					<span class="controlText" id="ide-cpu"></span>
+					<span class="controlText" id="bela-cpu"></span>
+				</div>
+				<div class="controlPair">
+					<div class="controlButtons">
+						<span id="status" title="Syntax status check"></span>
+					</div>
+				</div>
+
+			</div>
+			
+			<div id="logo">
+				<img src="images/logo_bar3.png">
+			</div>
+
+		</div>
+		
+		
+		
+		<div id="beaglert-console">
+			<div id="beaglert-consoleWrapper"></div>
+			<form id="beaglert-consoleForm">
+				<input id="beaglert-consoleInput" type="text" autocomplete="off" />
+				<div id="beaglert-consoleInput-pre">&gt</div>
+				<input type="submit" style="visibility: hidden; display: none;" />
+			</form>
+		</div>
+
+		<script src="js/ace/ace.js"></script>
+		<script src="js/ace/ext-language_tools.js"></script>
+		<script src="http://192.168.1.2:3000/socket.io/socket.io.js"></script>
+		<script src="js/bundle.js"></script>
+	</body>
+	
+</html>

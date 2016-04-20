@@ -1,0 +1,771 @@
+/* http://meyerweb.com/eric/tools/css/reset/ 
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+@font-face {
+    font-family: 'inconsolata';
+    src: url('./fonts/inconsolata-webfont.eot');
+    src: url('./fonts/inconsolata-webfont.eot?#iefix') format('embedded-opentype'),
+         url('./fonts/inconsolata-webfont.woff2') format('woff2'),
+         url('./fonts/inconsolata-webfont.woff') format('woff'),
+         url('./fonts/inconsolata-webfont.ttf') format('truetype'),
+         url('./fonts/inconsolata-webfont.svg#inconsolatamedium') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+#drop_zone{
+	width: 100%;
+	height: 50px;
+	border: 1px dashed black;
+}
+
+#beaglert-console{
+	height: 150px;
+	border: 1px solid black;
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+	overflow-x: hidden;
+	overflow-y: auto;
+	box-sizing: border-box;
+	z-index: 100;
+}
+#beaglert-consoleForm{
+	height: 21px;
+}
+#beaglert-consoleWrapper{
+	width: 100%;
+	font-family: inconsolata;
+	font-size: 10pt;
+}
+.beaglert-console-log-in::before{
+	content: '>';
+	color: inherit;
+	padding-right: 0.65em;
+	opacity: 0.6;
+}
+.beaglert-console-log-in{
+	text-indent: -1.65em;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+	padding: 4px 30px;	
+}
+.beaglert-console-log{
+	border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+	padding: 4px 30px;	
+}
+.beaglert-console-warning::before{
+	content: '!';
+	color: yellow;
+	padding-right: 0.65em;
+}
+.beaglert-console-warning{
+	text-indent: -1.65em;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+	padding: 4px 30px;	
+	background-color: rgba(255, 255, 0, 0.2);
+}
+.beaglert-console-error::before{
+	content: '!';
+	color: red;
+	padding-right: 0.65em;
+}
+.beaglert-console-error{
+	text-indent: -1.65em;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+	padding: 4px 30px;	
+	background-color: rgba(255, 0, 0, 0.2);
+}
+
+.beaglert-console-iwarning::before{
+	content: '!';
+	color: yellow;
+	padding-right: 0.65em;
+}
+.beaglert-console-iwarning{
+	text-indent: -1.65em;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+	padding: 4px 30px;	
+	background-color: rgba(255, 255, 0, 0.2);
+}
+.beaglert-console-ierror::before{
+	content: '!';
+	color: red;
+	padding-right: 0.65em;
+}
+.beaglert-console-ierror{
+	text-indent: -1.65em;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+	padding: 4px 30px;	
+	background-color: rgba(255, 0, 0, 0.2);
+}
+.beaglert-console-notify::before{
+	content: 'i';
+	color: green;
+	padding-right: 0.65em;
+}
+.beaglert-console-notify{
+	text-indent: -1.65em;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+	padding: 4px 30px;	
+	background-color: rgba(0, 255, 0, 0.2);
+}
+
+.beaglert-console-ierror, .beaglert-console-iwarning, .beaglert-console-warning, .beaglert-console-error{
+	cursor: pointer;
+	transition: transform 0.1s ease-out;
+}
+.beaglert-console-notify{
+	cursor: pointer;
+	transition: transform 0.5s ease-out, background-color 0.5s ease-out;
+}
+.beaglert-console-ierror:hover a, .beaglert-console-iwarning:hover a{
+	text-decoration: underline;
+}
+
+.beaglert-console-collapsed{
+	transform: scaleY(0);
+}
+.beaglert-console-faded{
+	background-color: rgba(255, 255, 255, 0.2);
+}
+
+#beaglert-consoleInput{
+	position: relative;
+	width: 100%;
+	background-color: inherit;
+	border: inherit;
+	color: inherit;
+	padding: 4px 23px;	
+}
+#beaglert-consoleInput-pre{
+	color: inherit;
+	font: inherit;
+	font-size: 0.8em;
+	position: relative;
+	top: -1.4em;
+	left: 8px;
+	width: 10px;
+}
+
+/*======= OLD TOOLBAR ========*/
+
+/*#toolbar{
+	position: absolute;
+	bottom: 150px;
+	width: 100%;
+	height: 40px;
+	font-family: inconsolata;
+	font-size: 10pt;
+	box-sizing: border-box;
+	border-top: 1px groove black;
+	border-bottom: 1px groove black;
+	z-index: 99;
+}
+#toolbar.toolbar-dark{
+	border-color: none;
+}
+.toolbar-underlay{
+	position: absolute;
+	top: 0;
+	left: 0;
+	background-color: #d8d8d8;
+	width: 100%;
+	height: 100%;
+	z-index: 0;
+}*/
+.toolbar-dark .toolbar-underlay{
+	background-color: #d8d8d8;
+}
+/*
+.mainButton{
+	width: 30px;
+	height: 30px;
+	border-radius: 15px;
+	background-color: red;
+	margin: 4px 18px;
+	cursor: pointer;
+}
+.mainButton-running{
+	background-color: green;
+}
+.horizontalDivider{
+	position: absolute;
+	width: 100%;
+	height: 2px;
+	background-color: black;
+	left: 66px;
+	top: 18px;
+	cursor: ns-resize;
+}
+.toolbar-dark .horizontalDivider{
+	background-color: white;
+}
+.toolbar-top, .toolbar-bottom{
+	position: absolute;
+	width: 100%;
+	left: 66px;
+	margin-left: 20px;
+}
+.toolbar-top{
+	top: 0;
+	bottom: 18px;
+}
+.toolbar-bottom{
+	bottom: 0;
+	top: 20px;
+}
+.no-user-select{
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-o-user-select: none;
+	user-select: none;
+}*/
+
+/*====== NEW TOOLBAR ======*/
+
+@keyframes spin {
+  from {
+    transform: rotateZ(0);
+  }
+
+  to {
+    transform: rotateZ(360deg);
+  }
+}
+.spinning{
+	animation-duration: 0.5s;
+	animation-name: spin;
+	animation-iteration-count: infinite;
+	animation-timing-function: linear;
+}
+
+#toolbar {
+	position: absolute;
+	bottom: 150px;
+	width: 100%;
+	height: 40px;
+	font-family: inconsolata;
+	font-size: 10pt;
+	z-index: 99;
+	background-color: #d8d8d8;
+	
+}
+
+#control {
+	margin: 0 0 0 20px;
+	float: left;
+	display: inline-block;
+	
+}
+
+	.controlPair{
+		float: left;
+	}
+		.controlButtons {
+			width: 75px;
+			float: left;
+			cursor: pointer;
+		}
+		.controlButtons span {
+			display: inline-block;
+		}
+			#run {
+				background: url("images/toolbar.png") 0 30px;
+				width: 30px;
+				height: 30px;
+				margin-top: 4px;
+			}
+			#run:hover {
+				background: url("images/toolbar.png") -35px 30px;
+			}
+			#stop {
+				background: url("images/toolbar.png") -70px 30px;	
+				width: 30px;
+				height: 30px;
+				margin-top: 4px;
+			}
+			#stop:hover {
+				background: url("images/toolbar.png") -105px 30px;	
+			}
+			.one {
+				margin: 0;
+			}
+
+			#newTab {
+				background: url("images/toolbar.png") -245px 0;
+				width: 30px;
+				height: 30px;
+				margin-top: 4px;
+			}
+			#newTab:hover {
+				background: url("images/toolbar.png") -210px 0;
+			}
+			#download {
+				background: url("images/toolbar.png") 0 0;	
+				width: 30px;
+				height: 30px;
+			}
+			#download:hover {
+				background: url("images/toolbar.png") -35px 0;	
+			}
+				.two {
+					margin: 0;
+				}
+			#console {
+				background: url("images/toolbar.png") -70px 0;
+				width: 30px;
+				height: 35px;
+				margin-top: 4px;
+			}
+			#console:hover {
+				background: url("images/toolbar.png") -105px 0;
+			}
+			#scope {
+				background: url("images/toolbar.png") -140px 0;	
+				width: 30px;
+				height: 35px;
+			}
+			#scope:hover {
+				background: url("images/toolbar.png") -175px 0;	
+			}
+				.three {
+					margin: 0;
+				}
+			#status {
+				position: absolute;
+				width: 30px;
+				height: 35px;
+				left: calc(100% - 225px);
+				background: url("images/toolbar.png") -140px 35px;
+				cursor: initial;
+			}
+			.controlText {
+				font-family: inconsolata;
+				font-size: 14px;
+				color: white;
+				height: 15px;
+				width: 120px;
+				display: inline-block;
+				margin-top: 12px;
+			}
+
+
+#logo {
+	position: absolute;
+	top: -25px;
+	left: calc(100% - 160px);
+	margin-right: 20px;
+	
+	width: 140px;
+	float: right;
+	display: inline-block;
+
+	/*background: url("images/logo_bar.png");*/
+}
+
+body {
+	overflow: hidden;
+}
+
+#editor {
+	position: absolute;
+	overflow: hidden;
+	/*width: calc(100% - 62px);
+	height: calc(100% - 220px);
+	*/
+	top: 0;
+	left: 0;
+	right: 63px;
+	bottom: 0;
+	}
+#right {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	right: 0;
+	left: calc(100% - 63px);
+	background: transparent;
+
+}
+#saveAsName{
+	height: 8px;
+}
+
+/* breakpoints */
+.ace_gutter-cell.ace_breakpoint{ 
+    border-radius: 20px 0px 0px 20px; 
+    box-shadow: 0px 0px 1px 1px red inset; 
+} 
+.breakpointMarker {
+  position:absolute;
+  background:rgba(100,200,100,0.5);
+  z-index:20
+}
+#listContainer{
+  margin-top:15px;
+}
+ 
+#expList ul, li {
+    list-style: none;
+    margin:0;
+    padding:0;
+    cursor: pointer;
+}
+#expList p {
+    margin:0;
+    display:block;
+}
+#expList p:hover {
+    background-color:#121212;
+}
+#expList li {
+    line-height:140%;
+    text-indent:0px;
+    background-position: 1px 8px;
+    padding-left: 20px;
+    background-repeat: no-repeat;
+}
+ 
+/* Collapsed state for list element */
+#expList .collapsed {
+    background-image: url(../images/collapsed.png);
+}
+/* Expanded state for list element
+/* NOTE: This class must be located UNDER the collapsed one */
+#expList .expanded {
+    background-image: url(../images/expanded.png);
+}
+
+#expList table {
+	border-collapse: initial;
+    border-spacing: 10px 0;
+}
+.debuggerType{
+	color: blue;
+}
+.debuggerName{
+	color: green;
+}
+.debuggerValue{
+	color: red;
+}
+.debuggerOutOfScope{
+	opacity: 0.5;
+}
+/*
+#topBar {
+  margin: 0 50px;
+  height: 30px;
+}
+	#logo {
+		width: 90%;
+		float: left;
+	}
+	#menu {
+		width: 10%;
+		float: right;
+	}*/
+		.svg {
+			width: auto;
+			height: 25px;
+			float: right;
+			clear: right;
+			margin-top: 3px;
+		}
+
+/* ======= FLEX STUFF ====== */
+
+
+#flexit {
+display: inline-block;
+margin: 0;
+}
+#innerContent {
+position: absolute;
+top: 0;
+left: 0;
+right: 0;
+bottom: 190px;
+overflow: hidden;
+}
+
+
+/* animations */
+.left-out {
+left: 300px;
+/*animation: left-out 1s both;*/
+}
+.left-in {
+left: 62px;
+/*animation: left-in 1s both;*/
+}
+.right-out {
+right: calc(100% - 300px);
+/*animation: right-out 1s both;*/
+}
+.right-in {
+right: calc(100% - 62px);
+/*animation: right-in 1s both;*/
+}
+@keyframes left-out {
+0% {
+  width: 67%;
+  }
+100% {
+  width: 100%;
+  }
+}
+@keyframes left-in {
+0% {
+  width: 100%;
+  }
+100% {
+  width: 67%;
+  }
+}
+@keyframes right-out {
+0% {
+  right: 0;
+  }
+100% {
+  right: -33%;
+  }
+}
+@keyframes right-in {
+0% {
+  right: -33%;
+  }
+100% {
+  right: 0;
+  }
+}
+
+
+/* ======= IT'S TABS ======== */
+
+
+#tabs {
+    margin: 0; 
+	position: relative;   
+	width: 100%;
+	height: 100%;
+	top: 0;
+    z-index: 98;
+    }
+    /* == Style for each pullout tab == */
+    .tab label {
+      background: #eee; 
+      /*padding: 10px 10px 20px 0; */
+      padding: 10px 5px;
+      border: 1px solid #ccc; 
+      margin-left: -1px; 
+      position: relative;
+      left: 1px;        
+      width: 50px;
+      display: block;
+    }
+    .tab [type=radio] {
+      display: none;   
+    }
+    /* == Style for the content pane of each tab == */
+    .tabContent {
+      position: absolute;
+      height: calc(100% - 20px);
+      top: 0px;
+      width: 100%;
+      left: 63px;
+      background: white;
+      right: 0;
+      bottom: 0;
+      padding: 20px;
+      border: 1px solid #ccc;    
+      visibility: hidden;   
+      overflow: scroll;
+    }
+    /* ======== IMAGES IN EACH TAB FROM SPRITE ======== */
+    
+    #open-tabs{
+    	width: 28px;
+    	height: 28px;
+    	background: url("images/tabSprite.png") 0px 0px;
+    	display: block;
+    	margin: 0 auto;
+    }
+    
+    #settings {
+    	width: 28px;
+    	height: 28px;
+    	background: url("images/tabSprite.png") -30px 0px;
+    	display: block;
+    	margin: 0 auto;
+    }
+    #tab-1:checked + label>span{
+    	background: url("images/tabSprite.png") -60px 0px;
+    }
+    
+    #file-explorer {
+    	width: 28px;
+    	height: 28px;
+    	background: url("images/tabSprite.png") -90px 0px;
+    	display: block;
+    	margin: 0 auto;
+    }
+    #tab-2:checked + label>span{
+    	background: url("images/tabSprite.png") -120px 0px;
+    }
+    
+    #code-examples {
+    	width: 28px;
+    	height: 28px;
+    	background: url("images/tabSprite.png") 0px -30px;
+    	display: block;
+    	margin: 0 auto;
+    }
+    #tab-3:checked + label>span{
+    	background: url("images/tabSprite.png") -30px -30px;
+    }
+    
+    #gpio-ref {
+    	width: 28px;
+    	height: 28px;
+    	background: url("images/tabSprite.png") -90px -30px;
+    	display: block;
+    	margin: 0 auto;
+    }
+    #tab-4:checked + label>span{
+    	background: url("images/tabSprite.png") -60px -30px;
+    }
+    
+    #api-ref {
+    	width: 28px;
+    	height: 28px;
+    	background: url("images/tabSprite.png") -120px -30px;
+    	display: block;
+    	margin: 0 auto;
+    }
+    #tab-5:checked + label>span{
+    	background: url("images/tabSprite.png") -150px -30px;
+    }
+
+    [type=radio]:checked ~ label {
+      background: white;
+      /*border-bottom: 1px solid white;*/
+      z-index: 2;
+    }
+    [type=radio]:checked ~ label ~ .tabContent {
+      z-index: 1;
+      visibility: visible;
+    }
+    .holder {
+    	display: inline;
+    	color: transparent;
+    }
+
+/* tab content */
+
+.tabContent > h1{
+	margin: 10px 0;
+}
+
+.tabContent > h2{
+	margin: 8px 0;
+}
+
+/* file manager tab */
+
+#fileList {
+    margin: 5px 0;
+    list-style: none;
+}
+#fileList > li{
+	margin-top: 0.2em;
+	width: 50%
+}
+.sourceFile{
+	cursor: pointer;
+}
+.resourceFile, .sourceFile{
+	margin-left: 1em;
+}
+.sourceFile:before, .resourceFile:before { 
+    content: "-";
+    display: block;
+    height: 0;
+    width: 0;
+    left: -0.75em;
+    position: relative;
+}
+.sourceFile:hover { 
+    background-color: #d8d8d8;
+}
+.selectedFile{
+	border: 1px solid green;
+}
+#uploadFileInput{
+	display: none;
+}
+
+#commits{
+	max-width: 50%;
+}
+
+/* settings tab */
+#settingsTab{
+	width: 400px;
+	line-height: 1.5;
+}
+#settingsTab>input, #settingsTab>select{
+	position: absolute;
+	right: 50px;
+}
+#C_L_ARGS{
+	left: 20px;
+    width: 360px;
+    margin-bottom: 60px;
+}

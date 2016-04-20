@@ -15,9 +15,9 @@ var user = 'root';
 var pass = 'a';
 var remotePath = '/root/BeagleRT/IDE/';
 
-gulp.task('default', ['killnode', 'upload', 'restartnode', 'watch']);
+gulp.task('default', ['killnode', 'browserify', 'upload', 'restartnode', 'watch']);
 
-gulp.task('watch', function(){
+gulp.task('watch', ['killnode', 'browserify', 'upload', 'restartnode'], function(){
 
 	livereload.listen();
 	
@@ -38,7 +38,7 @@ gulp.task('watch', function(){
 	
 });
 
-gulp.task('upload', ['killnode'], () => {
+gulp.task('upload', ['killnode', 'browserify'], () => {
 	return gulp.src(['../IDE/**', '!../IDE/public/js/src/**', '!../IDE/node_modules/**', '!../IDE/public/js/ace/**'])
 		.pipe(cache('IDE'))
 		.pipe(sftp({host, user, pass, remotePath}));
@@ -53,10 +53,34 @@ gulp.task('upload-no-kill', () => {
 		});
 });
 
-gulp.task('nodemodules', () => {
+gulp.task('nodemodules', ['upload-nodemodules', 'rebuild-nodemodules']);
+
+gulp.task('upload-nodemodules', () => {
 	return gulp.src(['../IDE/node_modules/**'])
 		.pipe(cache('IDE'))
 		.pipe(sftp({host, user, pass, remotePath: remotePath+'node_modules/'}));
+});
+
+gulp.task('rebuild-nodemodules', ['upload-nodemodules'], (callback) => {
+
+	console.log('rebuilding node modules');
+
+	var ssh = spawn('ssh', [user+'@'+host, 'cd', remotePath+';', 'npm', 'rebuild']);
+	
+	ssh.stdout.setEncoding('utf8');
+	ssh.stdout.on('data', function(data){
+		process.stdout.write(data);
+	});
+	
+	ssh.stderr.setEncoding('utf8');
+	ssh.stderr.on('data', function(data){
+		process.stdout.write('error: '+data);
+	});
+	
+	ssh.on('exit', function(){
+		callback();
+	});
+	
 });
 
 gulp.task('killnode', (callback) => {

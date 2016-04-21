@@ -7,6 +7,14 @@ class FileView extends View {
 	
 	constructor(className, models){
 		super(className, models);
+		
+		// hack to upload file
+		$('#uploadFileInput').on('change', (e) => {
+			var reader = new FileReader();
+			reader.onload = (ev) => this.emit('message', 'project-event', {func: 'uploadFile', newFile: e.target.files[0].name, fileData: ev.target.result} );
+			reader.readAsArrayBuffer(e.target.files[0]);
+		});
+	
 	}
 	
 	// UI events
@@ -24,7 +32,7 @@ class FileView extends View {
 		}
 	}
 	uploadFile(func){
-		//TODO this requires a hack
+		$('#uploadFileInput').trigger('click');
 	}
 	renameFile(func){
 		var name = prompt("Enter the new name of the file");
@@ -93,7 +101,7 @@ class FileView extends View {
 		
 		if (data && data.fileName) this._fileName(data.fileName);
 	}
-	_fileName(file){
+	_fileName(file, data){
 
 		// select the opened file in the file manager tab
 		$('.selectedFile').removeClass('selectedFile');
@@ -102,6 +110,11 @@ class FileView extends View {
 				$(this).addClass('selectedFile');
 			}
 		});
+		
+		if (data && data.currentProject){
+			// set download link
+			$('#downloadFileLink').attr('href', '/download?project='+data.currentProject+'&file='+file);
+		}
 	}
 	
 }

@@ -1,6 +1,7 @@
 var express = require('express'); 
 var fs = require('fs');
-//var archiver = require('archiver');
+var archiver = require('archiver');
+var mime = require('mime');
 
 var app = express();
 var http = require('http').Server(app);
@@ -13,25 +14,30 @@ function listen(port){
 
 app.use(express.static('public'));	//path to IDE index.html
 
-/*app.get('/download', function(req, res){
+app.get('/download', function(req, res){
 
-	console.log('hi'); 
-	console.log(settings.global.project);
+	if (req.query.project){
+		if (req.query.file){
+		
+			var file = '/root/BeagleRT/projects/'+req.query.project+'/'+req.query.file;
+			res.setHeader('Content-disposition', 'attachment; filename='+req.query.file);
+			res.setHeader('Content-type', mime.lookup(file));
+			
+			fs.createReadStream(file).pipe(res);
+			
+		} else {
+		
+			res.setHeader('Content-disposition', 'attachment; filename='+req.query.project+'.zip');
+			res.setHeader('Content-type', 'application/zip');
 	
-	//var file = '/root/BeagleRT/projects/'+req.params.project+'/source/render.cpp';
-
-	res.setHeader('Content-disposition', 'attachment; filename='+settings.global.project+'.zip');
-	res.setHeader('Content-type', 'application/zip');
+			var archive = archiver('zip');
+			archive.pipe(res);
+			archive.directory('/root/BeagleRT/projects/'+req.query.project, req.query.project, {name: req.query.project+'.zip'});
+			archive.finalize();
+		}
+	}
 	
-	var archive = archiver('zip');
-	archive.pipe(res);
-	archive.directory('/root/node/projects/'+settings.global.project, settings.global.project, {name: settings.global.project+'.zip'});
-	archive.finalize();
-
-	//var filestream = fs.createReadStream(file);
-	//filestream.pipe(res);
-	
-});*/
+});
 
 module.exports = {
 	http: http,

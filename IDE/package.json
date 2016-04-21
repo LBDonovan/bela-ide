@@ -9,6 +9,7 @@
   "author": "Liam Donovan",
   "license": "ISC",
   "dependencies": {
+    "archiver": "^1.0.0",
     "bluebird": "^3.3.5",
     "express": "^4.13.4",
     "fs-extra": "^0.28.0",

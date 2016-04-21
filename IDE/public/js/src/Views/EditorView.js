@@ -15,7 +15,8 @@ class EditorView extends View {
 	
 	// model events
 	_fileData(data){
-	console.log('putting file');
+	console.log('putting file:', data instanceof ArrayBuffer);
+		if (data instanceof ArrayBuffer) data = String.fromCharCode.apply(null, new Uint8Array(data));
 		// put the file into the editor
 		this.editor.session.setValue(data, -1);
 		this.editor.focus();

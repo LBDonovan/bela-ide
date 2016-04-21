@@ -77,8 +77,10 @@ class ProjectView extends View {
 		
 	}
 	_currentProject(project){
-			// unselect currently selected project
-			$('#projects').find('option').filter(':selected').attr('selected', '');
+	
+		// unselect currently selected project
+		$('#projects').find('option').filter(':selected').attr('selected', '');
+		
 		if (project === 'exampleTempProject'){
 			// select no project
 			$('#projects option:first-child').attr('selected', 'selected');
@@ -90,6 +92,9 @@ class ProjectView extends View {
 			// select no example
 			$('#examples option:first-child').attr('selected', 'selected');
 		}
+		
+		// set download link
+		$('#downloadLink').attr('href', '/download?project='+project);
 	}
 	
 }

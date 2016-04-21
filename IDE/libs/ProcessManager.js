@@ -32,8 +32,10 @@ module.exports = {
 			console.log('running', proc);
 		} else {
 
-			proc = spawn('make', ['--no-print-directory', '-C', makePath,  'syntax',  'PROJECT='+data.currentProject]);
+			proc = spawn('make', [/*'--no-print-directory', */'-C', makePath,  'all',  'PROJECT='+data.currentProject]);
 			
+			proc.stdout.setEncoding('utf8');
+			proc.stderr.setEncoding('utf8');
 			proc.stdout.on('data', console.log );
 			proc.stderr.on('data', console.log );
 			proc.on('close', (code) => console.log('syntax check ended', code) );

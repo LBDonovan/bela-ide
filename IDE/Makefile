@@ -13,7 +13,7 @@ endif
 PROJECT_DIR := $(abspath ../projects/$(PROJECT))
 
 RM := rm -rf
-STATIC_LIBS := ./libNE10.a
+STATIC_LIBS := ../libNE10.a
 LIBS := -lrt -lnative -lxenomai -lbeaglert -lprussdrv -lsndfile -lpd
 
 INCLUDES := -I/usr/include/ne10 -I/usr/xenomai/include -I$(PROJECT_DIR) -I../include

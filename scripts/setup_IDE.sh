@@ -4,7 +4,7 @@
 # in preparation for building projects. It will remove any existing
 # BeagleRT directory before copying the files over
 
-BBB_ADDRESS="root@192.168.1.2"
+BBB_ADDRESS="root@192.168.7.2"
 BBB_PATH="~/BeagleRT"
 
 function usage

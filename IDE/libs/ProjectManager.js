@@ -18,7 +18,7 @@ var exampleTempProject = 'exampleTempProject';
 module.exports = {
 	
 	// returns array of project names
-	listProjects(){
+	listProjects: function(){
 		return fs.readdirAsync(projectPath)
 			.catch((err) => console.error(err));
 	},

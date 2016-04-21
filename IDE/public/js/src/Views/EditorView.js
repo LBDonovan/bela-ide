@@ -15,6 +15,7 @@ class EditorView extends View {
 	
 	// model events
 	_fileData(data){
+	console.log('putting file');
 		// put the file into the editor
 		this.editor.session.setValue(data, -1);
 		this.editor.focus();

@@ -22,7 +22,7 @@ var belaPath = '/root/BeagleRT/';
 function IDE(){
 
 	console.log('starting IDE');
-	
+
 	// setup the projects and examples objects
 	// then load the global settings and start the IDE
 	Promise.all([listProjects(), listExamples()])

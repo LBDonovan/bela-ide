@@ -4,7 +4,7 @@ module.exports = {};
 var Model = require('./Models/Model');
 
 // set up models
-var models = {};
+models = {};
 models.project = new Model();
 models.settings = new Model();
 

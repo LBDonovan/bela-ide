@@ -8,6 +8,8 @@ var belaPath = '/root/BeagleRT/';
 var blockedFiles = ['build', 'settings.json'];
 var exampleTempProject = 'exampleTempProject';
 
+var projects = {};
+
 class Project {
 
 	constructor(name){
@@ -46,6 +48,23 @@ class Project {
 		return Promise.coroutine(obj[func]).bind(obj)(args);
 	}
 	
+	// instantiates any new projects and adds them to projects object
+	// returns array of project names
+	static listProjects(){
+		return fs.readdirAsync(belaPath+'projects/')
+		.map((projectName) => {
+			if (projectName && !projects[projectName] && projectName[0] !== '.'){
+				projects[projectName] = new Project(projectName);
+			}
+			return projectName;
+		})
+		.catch((err) => console.error(err));
+	}
+	
+	static get projects(){
+		return projects;
+	}
+	
 	// functions called directly over websocket
 	*openProject(data){
 		data.fileList = yield this.listFiles();
@@ -53,7 +72,6 @@ class Project {
 		data.fileName = data.settings.fileName;
 		return yield Project.co(this, 'openFile', data);
 	}
-
 	*openFile(data){
 		data.fileData = yield fs.readFileAsync(this.Path()+'/'+data.fileName, 'utf8');
 		yield Project.co(this, 'setFile', data.fileName);
@@ -67,6 +85,13 @@ class Project {
 					throw error;
 				}
 			});*/
+	}
+	*saveAs(data){
+		yield fs.copyAsync(this.Path(), belaPath+'projects/'+data.newProject);
+		data.projectList = yield Project.listProjects();
+		data.currentProject = data.newProject;
+		data.newProject = undefined;
+		return yield Project.co(projects[data.currentProject], 'openProject', data);
 	}
 	
 	// internal functions

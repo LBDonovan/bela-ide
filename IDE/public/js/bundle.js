@@ -9339,7 +9339,7 @@ module.exports = {};
 var Model = require('./Models/Model');
 
 // set up models
-var models = {};
+models = {};
 models.project = new Model();
 models.settings = new Model();
 
@@ -9471,6 +9471,7 @@ class EditorView extends View {
 
 	// model events
 	_fileData(data) {
+		console.log('putting file');
 		// put the file into the editor
 		this.editor.session.setValue(data, -1);
 		this.editor.focus();

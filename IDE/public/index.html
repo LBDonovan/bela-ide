@@ -160,13 +160,13 @@
 
 							<div class="fileManager-parent">
 								<h2 id="fileListTitle">Files:</h2>
-								<button id="newFileTab">new</button>
-								<button id="uploadFile">upload</button>
+								<button class="fileManager" data-func="newFile">new</button>
+								<button class="fileManager" data-func="uploadFile">upload</button>
 								<a id="downloadFileLink" href="/download" download><button id="downloadFile">download</button></a>
-								<button id="renameFile">rename</button>
-								<button id="deleteFile">delete</button>
+								<button class="fileManager" data-func="renameFile">rename</button>
+								<button class="fileManager" data-func="deleteFile">delete</button>
 								<input type="file" id="uploadFileInput"></input>
-								<ul id="fileList"></ul>
+								<ul class="fileManager" id="fileList" data-func="openFile"></ul>
 							</div>
 						   
 							<div class="gitParent">

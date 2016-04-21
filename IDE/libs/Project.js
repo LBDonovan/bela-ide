@@ -6,6 +6,7 @@ var fs = Promise.promisifyAll(require('fs-extra'));
 // module variables
 var belaPath = '/root/BeagleRT/';
 var blockedFiles = ['build', 'settings.json'];
+var exampleTempProject = 'exampleTempProject';
 
 class Project {
 
@@ -45,20 +46,17 @@ class Project {
 		return Promise.coroutine(obj[func]).bind(obj)(args);
 	}
 	
-	// couroutines
-	// open project
+	// functions called directly over websocket
 	*openProject(data){
 		data.fileList = yield this.listFiles();
 		data.settings = yield this.getSettings();
 		data.fileName = data.settings.fileName;
-		data.file = yield fs.readFileAsync(this.Path()+'/'+data.settings.fileName, 'utf8')
-		return data;
+		return yield Project.co(this, 'openFile', data);
 	}
-	
-	// open file
+
 	*openFile(data){
-		data.file = yield fs.readFileAsync(this.Path()+'/'+data.fileName, 'utf8');
-		this.setFile(data.fileName);
+		data.fileData = yield fs.readFileAsync(this.Path()+'/'+data.fileName, 'utf8');
+		yield Project.co(this, 'setFile', data.fileName);
 		return data;
 			/*.catch((error) => {
 				console.log(error);
@@ -71,14 +69,12 @@ class Project {
 			});*/
 	}
 	
-	// promises
+	// internal functions
 	// save the last opened file
-	setFile(fileName){
-		this.getSettings()
-			.then((settings) => {
-				settings.fileName = fileName;
-				return this.saveSettings(settings);
-			});
+	*setFile(fileName){
+		var settings = yield this.getSettings()
+		settings.fileName = fileName;
+		return yield this.saveSettings(settings);
 	}
 	
 	// return the project settings
@@ -95,7 +91,8 @@ class Project {
 	// save the project settings
 	saveSettings(settings){
 		return fs.outputJSONAsync(this.Path()+'/settings.json', settings)
-			//.then(() => {return settings} );
+			.then( () => settings )
+			.catch( (e) => console.log(e) );
 	}
 	
 	// list all files in project, excluding blocked & hidden files or directories
@@ -114,6 +111,21 @@ class Example extends Project {
 		this.Path = () => belaPath+'examples/'+name;
 	}
 
+	*openExample(){
+		yield fs.emptyDirAsync(belaPath+'projects/'+exampleTempProject);
+		return yield fs.copyAsync(this.Path(), belaPath+'projects/'+exampleTempProject, {clobber: true});
+	}
+	
+	*newProject(data){
+		return yield fs.copyAsync(this.Path(), belaPath+'projects/'+data.newProject, {clobber: true});
+	}
+	
 }
 
 module.exports = {Project, Example};
+
+
+
+
+
+

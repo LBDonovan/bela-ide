@@ -9338,8 +9338,6 @@ module.exports = {};
 
 var Model = require('./Models/Model');
 
-var editor = ace.edit('editor');
-
 // set up models
 var models = {};
 models.project = new Model();
@@ -9348,7 +9346,7 @@ models.settings = new Model();
 // set up views
 // tab view
 var tabView = require('./Views/TabView');
-tabView.on('change', () => editor.resize());
+tabView.on('change', () => editorView.emit('resize'));
 
 // project view
 var projectView = new (require('./Views/ProjectView'))('projectManager', [models.project]);
@@ -9356,24 +9354,44 @@ projectView.on('message', (event, data) => {
 	if (!data.currentProject && models.project.getKey('currentProject')) {
 		data.currentProject = models.project.getKey('currentProject');
 	}
+	console.log(event, data);
 	socket.emit(event, data);
 });
+
+// file view
+var fileView = new (require('./Views/FileView'))('fileManager', [models.project]);
+fileView.on('message', (event, data) => {
+	if (!data.currentProject && models.project.getKey('currentProject')) {
+		data.currentProject = models.project.getKey('currentProject');
+	}
+	if (!data.fileName && models.project.getKey('fileName')) {
+		data.fileName = models.project.getKey('fileName');
+	}
+	socket.emit(event, data);
+});
+
+// editor view
+var editorView = new (require('./Views/EditorView'))('editor', [models.project, models.settings]);
 
 // setup socket
 var socket = io('/IDE');
 
 // socket events
+socket.on('report-error', error => console.error(error));
+
 socket.on('init', (projectList, exampleList, currentProject, settings) => {
 	models.project.setData({ projectList, exampleList, currentProject });
+	socket.emit('project-event', { func: 'openProject', currentProject });
 	models.settings.setData(settings);
+	console.log(projectList, exampleList, currentProject, settings);
 });
 
 socket.on('project-data', data => {
 	models.project.setData(data);
-	models.project.print();
+	console.log(data);
 });
 
-},{"./Models/Model":3,"./Views/ProjectView":4,"./Views/TabView":5}],3:[function(require,module,exports){
+},{"./Models/Model":3,"./Views/EditorView":4,"./Views/FileView":5,"./Views/ProjectView":6,"./Views/TabView":7}],3:[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter;
 
 class Model extends EventEmitter {
@@ -9391,7 +9409,7 @@ class Model extends EventEmitter {
 	setData(newData) {
 		var newKeys = [];
 		for (let key in newData) {
-			if (newData[key] !== this._getData()[key]) {
+			if (!_equals(newData[key], this._getData()[key], false)) {
 				newKeys.push(key);
 				this._getData()[key] = newData[key];
 			}
@@ -9416,7 +9434,163 @@ class Model extends EventEmitter {
 
 module.exports = Model;
 
-},{"events":8}],4:[function(require,module,exports){
+function _equals(a, b, log) {
+	if (log) console.log('a:', a, 'b:', b);
+	if (a instanceof Array && b instanceof Array) {
+		return a.length === b.length && a.every(function (element, index) {
+			element === b[index];
+		});
+	} else if (a instanceof Object && b instanceof Object) {
+		if (log) console.log('objects', 'a:', a, 'b:', b);
+		for (let c in a) {
+			if (log) console.log('a[c]:', a[c], 'b[c]:', b[c], 'c:', c);
+			if (!_equals(a[c], b[c], log)) return false;
+		}
+		return true;
+	} else {
+		if (log) console.log('a:', a, 'b:', b, Object.is(a, b), a === b);
+		return Object.is(a, b);
+	}
+}
+
+},{"events":10}],4:[function(require,module,exports){
+var View = require('./View');
+
+class EditorView extends View {
+
+	constructor(className, models) {
+		super(className, models);
+
+		this.editor = ace.edit('editor');
+		this.editor.session.setMode('ace/mode/c_cpp');
+		this.editor.$blockScrolling = Infinity;
+		this.editor.setTheme('ace/theme/github');
+
+		this.on('resize', () => this.editor.resize());
+	}
+
+	// model events
+	_fileData(data) {
+		// put the file into the editor
+		this.editor.session.setValue(data, -1);
+		this.editor.focus();
+	}
+
+}
+
+module.exports = EditorView;
+
+},{"./View":8}],5:[function(require,module,exports){
+var View = require('./View');
+
+var sourceIndeces = ['cpp', 'c', 'S'];
+var headerIndeces = ['h', 'hh', 'hpp'];
+
+class FileView extends View {
+
+	constructor(className, models) {
+		super(className, models);
+	}
+
+	// UI events
+	buttonClicked($element, e) {
+		var func = $element.data().func;
+		if (func && this[func]) {
+			this[func](func);
+		}
+	}
+
+	newFile(func) {
+		var name = prompt("Enter the name of the new file");
+		if (name !== null) {
+			this.emit('message', 'project-event', { func, newFile: name });
+		}
+	}
+	uploadFile(func) {
+		//TODO this requires a hack
+	}
+	renameFile(func) {
+		var name = prompt("Enter the new name of the file");
+		if (name !== null) {
+			this.emit('message', 'project-event', { func, newFile: name });
+		}
+	}
+	deleteFile(func) {
+		var cont = confirm("This can't be undone! Continue?");
+		if (cont) {
+			this.emit('message', 'project-event', { func });
+		}
+	}
+	openFile(e) {
+		this.emit('message', 'project-event', { func: 'openFile', fileName: $(e.currentTarget).html() });
+	}
+
+	// model events
+	_fileList(files, data) {
+
+		var $files = $('#fileList');
+		$files.empty();
+
+		var headers = [];
+		var sources = [];
+		var resources = [];
+
+		for (let i = 0; i < files.length; i++) {
+
+			let ext = files[i].split('.')[1];
+
+			if (sourceIndeces.indexOf(ext) !== -1) {
+				sources.push(files[i]);
+			} else if (headerIndeces.indexOf(ext) !== -1) {
+				headers.push(files[i]);
+			} else if (files[i]) {
+				resources.push(files[i]);
+			}
+		}
+
+		headers.sort();
+		sources.sort();
+		resources.sort();
+
+		if (headers.length) {
+			$('<li></li>').html('Headers:').appendTo($files);
+		}
+		for (let i = 0; i < headers.length; i++) {
+			$('<li></li>').addClass('sourceFile').html(headers[i]).appendTo($files).on('click', e => this.openFile(e));
+		}
+
+		if (sources.length) {
+			$('<li></li>').html('Sources:').appendTo($files);
+		}
+		for (let i = 0; i < sources.length; i++) {
+			$('<li></li>').addClass('sourceFile').html(sources[i]).appendTo($files).on('click', e => this.openFile(e));
+		}
+
+		if (resources.length) {
+			$('<li></li>').html('Resources:').appendTo($files);
+		}
+		for (let i = 0; i < resources.length; i++) {
+			$('<li></li>').addClass('sourceFile').html(resources[i]).appendTo($files).on('click', e => this.openFile(e));
+		}
+
+		if (data && data.fileName) this._fileName(data.fileName);
+	}
+	_fileName(file) {
+
+		// select the opened file in the file manager tab
+		$('.selectedFile').removeClass('selectedFile');
+		$('#fileList>li').each(function () {
+			if ($(this).html() === file) {
+				$(this).addClass('selectedFile');
+			}
+		});
+	}
+
+}
+
+module.exports = FileView;
+
+},{"./View":8}],6:[function(require,module,exports){
 var View = require('./View');
 
 class ProjectView extends View {
@@ -9427,7 +9601,12 @@ class ProjectView extends View {
 
 	// UI events
 	selectChanged($element, e) {
-		this.emit('message', 'project-event', { func: $element.data().func, currentProject: $element.val() });
+		console.log($element.prop('id'));
+		if ($element.prop('id') === 'projects') {
+			this.emit('message', 'project-event', { func: $element.data().func, currentProject: $element.val() });
+		} else if ($element.prop('id') === 'examples') {
+			this.emit('message', 'example-event', { func: $element.data().func, example: $element.val() });
+		}
 	}
 	buttonClicked($element, e) {
 		var func = $element.data().func;
@@ -9439,7 +9618,7 @@ class ProjectView extends View {
 	newProject(func) {
 		var name = prompt("Enter the name of the new project");
 		if (name !== null) {
-			this.emit('message', 'project-event', { func, newProject: name });
+			this.emit('message', 'example-event', { func, newProject: name, example: 'minimal' });
 		}
 	}
 	saveAs(func) {
@@ -9456,15 +9635,7 @@ class ProjectView extends View {
 	}
 
 	// model events
-	modelChanged(data, changedKeys) {
-		for (let value of changedKeys) {
-			if (this[value]) {
-				this[value](data[value]);
-			}
-		}
-	}
-
-	projectList(projects) {
+	_projectList(projects, data) {
 
 		var $projects = $('#projects');
 		$projects.empty();
@@ -9478,8 +9649,10 @@ class ProjectView extends View {
 				var opt = $('<option></option>').attr('value', projects[i]).html(projects[i]).appendTo($projects);
 			}
 		}
+
+		if (data && data.currentProject) this._currentProject(data.currentProject);
 	}
-	exampleList(examples) {
+	_exampleList(examples) {
 
 		var $examples = $('#examples');
 		$examples.empty();
@@ -9494,10 +9667,13 @@ class ProjectView extends View {
 			}
 		}
 	}
-	currentProject(project) {
-		if (project !== 'exampleTempProject') {
-			// unselect currently selected project
-			$('#projects').find('option').filter(':selected').attr('selected', '');
+	_currentProject(project) {
+		// unselect currently selected project
+		$('#projects').find('option').filter(':selected').attr('selected', '');
+		if (project === 'exampleTempProject') {
+			// select no project
+			$('#projects option:first-child').attr('selected', 'selected');
+		} else {
 			// select new project
 			$('#projects option[value="' + project + '"]').attr('selected', 'selected');
 			// unselect currently selected example
@@ -9511,7 +9687,7 @@ class ProjectView extends View {
 
 module.exports = ProjectView;
 
-},{"./View":6}],5:[function(require,module,exports){
+},{"./View":8}],7:[function(require,module,exports){
 var View = require('./View');
 
 // private variables
@@ -9558,7 +9734,7 @@ class TabView extends View {
 
 module.exports = new TabView();
 
-},{"./View":6}],6:[function(require,module,exports){
+},{"./View":8}],8:[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter;
 var $ = require('jquery-browserify');
 
@@ -9572,7 +9748,6 @@ class View extends EventEmitter {
 		this.$parents = $('.' + CSSClassName + '-parent');
 
 		if (models) {
-
 			for (var i = 0; i < models.length; i++) {
 				models[i].on('change', (data, changedKeys) => {
 					this.modelChanged(data, changedKeys);
@@ -9584,7 +9759,13 @@ class View extends EventEmitter {
 		this.$elements.filter('button').on('click', e => this.buttonClicked($(e.currentTarget), e));
 	}
 
-	modelChanged(data, changedKeys) {}
+	modelChanged(data, changedKeys) {
+		for (let value of changedKeys) {
+			if (this['_' + value]) {
+				this['_' + value](data[value], data);
+			}
+		}
+	}
 
 	selectChanged(element, e) {}
 	buttonClicked(element, e) {}
@@ -9597,7 +9778,7 @@ class View extends EventEmitter {
 
 module.exports = View;
 
-},{"events":8,"jquery-browserify":1}],7:[function(require,module,exports){
+},{"events":10,"jquery-browserify":1}],9:[function(require,module,exports){
 var $ = require('jquery-browserify');
 var IDE;
 
@@ -9605,7 +9786,7 @@ $(() => {
 	IDE = require('./IDE-browser');
 });
 
-},{"./IDE-browser":2,"jquery-browserify":1}],8:[function(require,module,exports){
+},{"./IDE-browser":2,"jquery-browserify":1}],10:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -9905,7 +10086,7 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}]},{},[7])
+},{}]},{},[9])
 
 
 //# sourceMappingURL=bundle.js.map

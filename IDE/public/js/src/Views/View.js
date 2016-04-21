@@ -11,7 +11,6 @@ class View extends EventEmitter{
 		this.$parents = $('.'+CSSClassName+'-parent');
 		
 		if (models){
-			
 			for (var i=0; i<models.length; i++){
 				models[i].on('change', (data, changedKeys) => {
 					this.modelChanged(data, changedKeys);
@@ -24,7 +23,13 @@ class View extends EventEmitter{
 		
 	}
 	
-	modelChanged(data, changedKeys){}
+	modelChanged(data, changedKeys){
+		for (let value of changedKeys){
+			if (this['_'+value]){
+				this['_'+value](data[value], data);
+			}
+		}
+	}
 	
 	selectChanged(element, e){}
 	buttonClicked(element, e){}

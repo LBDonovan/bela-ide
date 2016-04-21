@@ -102,14 +102,43 @@ function socketEvents(socket){
 		exec('date '+time, console.log);
 	});
 	
-	// open project
+	// project events
 	socket.on('project-event', (data) => {
 	console.log('project-event', data);
 		if (!data.currentProject || !projects[data.currentProject] || !data.func || !projects[data.currentProject][data.func]) return;
-
+		
+		setProject(data.currentProject);
+		
 		co(projects[data.currentProject], data.func, data)
 			.then((result) => socket.emit('project-data', result) )
-			.catch((error) => socket.emit('report-error', error.toString()) );
+			.catch((error) => {
+				console.log(error, error.stack.split('\n'), error.toString());
+				socket.emit('report-error', error.toString() );
+			});
+			
+	});
+	// example events
+	socket.on('example-event', (data) => {
+	console.log('example-event', data);
+		if (!data.example || !examples[data.example] || !data.func || !examples[data.example][data.func]) return;
+		
+		if (data.func === 'openExample') data.currentProject = 'exampleTempProject';
+		else if (data.func === 'newProject') data.currentProject = data.newProject;
+		
+		co(examples[data.example], data.func, data)
+			.then(listProjects)
+			.then((projectList) => {
+				setProject(data.currentProject);
+				data.func = 'openProject';
+				data.projectList = projectList;
+				console.log('HERERE', data);
+				return co(projects[data.currentProject], data.func, data);
+			})
+			.then((result) => socket.emit('project-data', result) )
+			.catch((error) => {
+				console.log(error, error.stack.split('\n'), error.toString());
+				socket.emit('report-error', error.toString() );
+			});
 			
 	});
 	

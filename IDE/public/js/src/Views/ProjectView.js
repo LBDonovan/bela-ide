@@ -8,7 +8,12 @@ class ProjectView extends View {
 	
 	// UI events
 	selectChanged($element, e){
-		this.emit('message', 'project-event', {func: $element.data().func, currentProject: $element.val()})
+		console.log($element.prop('id'));
+		if ($element.prop('id') === 'projects'){
+			this.emit('message', 'project-event', {func: $element.data().func, currentProject: $element.val()})
+		} else if ($element.prop('id') === 'examples'){
+			this.emit('message', 'example-event', {func: $element.data().func, example: $element.val()})
+		}
 	}
 	buttonClicked($element, e){
 		var func = $element.data().func;
@@ -20,7 +25,7 @@ class ProjectView extends View {
 	newProject(func){
 		var name = prompt("Enter the name of the new project");
 		if (name !== null){
-			this.emit('message', 'project-event', {func, newProject: name})
+			this.emit('message', 'example-event', {func, newProject: name, example: 'minimal'})
 		}
 	}
 	saveAs(func){
@@ -37,16 +42,8 @@ class ProjectView extends View {
 	}
 	
 	// model events
-	modelChanged(data, changedKeys){
-		for (let value of changedKeys){
-			if (this[value]){
-				this[value](data[value]);
-			}
-		}
-	}
-	
-	projectList(projects){
-	
+	_projectList(projects, data){
+
 		var $projects = $('#projects');
 		$projects.empty();
 		
@@ -60,8 +57,10 @@ class ProjectView extends View {
 			}
 		}
 		
+		if (data && data.currentProject) this._currentProject(data.currentProject);
+		
 	}
-	exampleList(examples){
+	_exampleList(examples){
 	
 		var $examples = $('#examples');
 		$examples.empty();
@@ -77,10 +76,13 @@ class ProjectView extends View {
 		}
 		
 	}
-	currentProject(project){
-		if (project !== 'exampleTempProject'){
+	_currentProject(project){
 			// unselect currently selected project
 			$('#projects').find('option').filter(':selected').attr('selected', '');
+		if (project === 'exampleTempProject'){
+			// select no project
+			$('#projects option:first-child').attr('selected', 'selected');
+		} else {
 			// select new project
 			$('#projects option[value="'+project+'"]').attr('selected', 'selected');
 			// unselect currently selected example

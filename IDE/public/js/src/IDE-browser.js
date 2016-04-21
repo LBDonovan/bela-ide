@@ -37,6 +37,14 @@ fileView.on('message', (event, data) => {
 
 // editor view
 var editorView = new (require('./Views/EditorView'))('editor', [models.project, models.settings]);
+editorView.on('change', (fileData) => {
+	socket.emit('process-event', {
+		currentProject	: models.project.getKey('currentProject'),
+		newFile			: models.project.getKey('fileName'),
+		fileData,
+		checkSyntax		: models.settings.getKey('liveSyntaxChecking')
+	});
+});
 
 // setup socket
 var socket = io('/IDE');

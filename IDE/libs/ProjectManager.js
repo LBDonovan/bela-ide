@@ -106,7 +106,6 @@ module.exports = {
 	},
 	
 	*uploadFile(data){
-		console.log(data);
 		yield fs.outputFileAsync(projectPath+data.currentProject+'/'+data.newFile, data.fileData);
 		data.fileName = data.newFile;
 		data.newFile = undefined;

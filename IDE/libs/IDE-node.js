@@ -8,7 +8,7 @@ var exec = require('child_process').exec;
 
 // sub_modules
 var ProjectManager = require('./ProjectManager');
-var Example = require('./Project').Example;
+var ProcessManager = require('./ProcessManager');
 var server = require('./fileServer');
 
 // module variables - only accesible from this file
@@ -82,8 +82,9 @@ function socketEvents(socket){
 	
 	// project events
 	socket.on('project-event', (data) => {
-	console.log('project-event', data);
-		//if (!data.currentProject || !projects[data.currentProject] || !data.func || !projects[data.currentProject][data.func]) return;
+	
+		console.log('project-event', data);
+
 		if ((!data.currentProject && !data.newProject) || !data.func) {
 			console.log('bad', data);
 			return;
@@ -98,8 +99,36 @@ function socketEvents(socket){
 			});
 			
 	});
+	
+	// process events
+	socket.on('process-event', (data) => {
+	
+		console.log('process-event', data);
+		
+		if (!data.currentProject){
+			console.log('bad');
+			return;
+		}
+		
+		co(ProcessManager, 'process', data)
+			.then( console.log );
+		//Promise.coroutine(ProcessEvent)(data);
+
+		
+
+		/*co(ProcessManager, data.func, data)
+			.then(setProject)
+			.then((result) => socket.emit('project-data', result) )
+			.catch((error) => {
+				console.log(error, error.stack.split('\n'), error.toString());
+				socket.emit('report-error', error.toString() );
+			});*/
+			
+	});
 
 }
+
+
 
 // module functions - only accesible from this file
 

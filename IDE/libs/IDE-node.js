@@ -7,12 +7,11 @@ var fs = Promise.promisifyAll(require('fs-extra'));
 var exec = require('child_process').exec;
 
 // sub_modules
-var Project = require('./Project').Project;
+var ProjectManager = require('./ProjectManager');
 var Example = require('./Project').Example;
 var server = require('./fileServer');
 
 // module variables - only accesible from this file
-var projects = {}, examples = {};
 var allSockets;
 var IDESettings;
 var currentProject;
@@ -25,7 +24,7 @@ function IDE(){
 
 	// setup the projects and examples objects
 	// then load the global settings and start the IDE
-	Promise.all([listProjects(), listExamples()])
+	Promise.all([ProjectManager.listProjects(), ProjectManager.listExamples()])
 		.then(() => fs.readJsonAsync('./settings.json'))
 		.catch((error) => {
 			console.log('settings.json error', error, error.stack);
@@ -51,27 +50,6 @@ function IDE(){
 // export a singleton IDE object
 module.exports = new IDE();
 
-function listProjects(){
-	return fs.readdirAsync(belaPath+'projects/')
-		.map((project) => {
-			if (project && !projects[project] && project[0] !== '.'){
-				projects[project] = new Project(project);
-			}
-			return project;
-		})
-		.catch(reportError);
-}
-function listExamples(){
-	return fs.readdirAsync(belaPath+'examples/')
-		.map((example) => {
-			if (example && !examples[example] && example[0] !== '.'){
-				examples[example] = new Example(example);
-			}
-			return example;
-		})
-		.catch(reportError);
-}
-
 function reportError(error){
 	console.error(error, error.stack.split('\n'));
 	return;
@@ -80,7 +58,7 @@ function reportError(error){
 function socketConnected(socket){
 	
 	// send project lists and settings to the browser
-	Promise.join(listProjects(), listExamples(),
+	Promise.join(ProjectManager.listProjects(), ProjectManager.listExamples(),
 		(projectList, exampleList) => {
 			socket.emit('init', projectList, exampleList, IDESettings.project, IDESettings);
 		});
@@ -105,11 +83,14 @@ function socketEvents(socket){
 	// project events
 	socket.on('project-event', (data) => {
 	console.log('project-event', data);
-		if (!data.currentProject || !projects[data.currentProject] || !data.func || !projects[data.currentProject][data.func]) return;
-		
-		setProject(data.currentProject);
-		
-		co(projects[data.currentProject], data.func, data)
+		//if (!data.currentProject || !projects[data.currentProject] || !data.func || !projects[data.currentProject][data.func]) return;
+		if ((!data.currentProject && !data.newProject) || !data.func) {
+			console.log('bad', data);
+			return;
+		}
+
+		co(ProjectManager, data.func, data)
+			.then(setProject)
 			.then((result) => socket.emit('project-data', result) )
 			.catch((error) => {
 				console.log(error, error.stack.split('\n'), error.toString());
@@ -117,36 +98,7 @@ function socketEvents(socket){
 			});
 			
 	});
-	// example events
-	socket.on('example-event', (data) => {
-	console.log('example-event', data);
-		if (!data.example || !examples[data.example] || !data.func || !examples[data.example][data.func]) return;
-		
-		if (data.func === 'openExample') data.currentProject = 'exampleTempProject';
-		else if (data.func === 'newProject') data.currentProject = data.newProject;
-		
-		co(examples[data.example], data.func, data)
-			.then(listProjects)
-			.then((projectList) => {
-				setProject(data.currentProject);
-				data.func = 'openProject';
-				data.projectList = projectList;
-				console.log('HERERE', data);
-				return co(projects[data.currentProject], data.func, data);
-			})
-			.then((result) => socket.emit('project-data', result) )
-			.catch((error) => {
-				console.log(error, error.stack.split('\n'), error.toString());
-				socket.emit('report-error', error.toString() );
-			});
-			
-	});
-	
-	
-	socket.on('open-example', (name) => {
-		if (examples[name]) examples[name].open()
-			.then((reply) => console.log(reply));
-	});
+
 }
 
 // module functions - only accesible from this file
@@ -172,16 +124,17 @@ function defaultSettings(){
 
 // save the IDE settings and set the open project
 function setSettings(settings){
-	console.log('setting settings:', settings);
+	//console.log('setting settings:', settings);
 	IDESettings = settings;
-	return setProject(settings.project)
+	return setProject({currentProject: settings.project})
 }
 
 // change the open project and save the settings JSON
-function setProject(project){
-	currentProject = project;
-	IDESettings.project = project;
+function setProject(data){
+	if (!data) return;
+	IDESettings.project = data.currentProject;
 	return fs.writeJsonAsync('./settings.json', IDESettings)
+		.then( () => data )
 		.catch((error) => console.log('unable to save IDE settings JSON', error, error.stack));
 }
 

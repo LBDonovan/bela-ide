@@ -9,11 +9,11 @@ class ProjectView extends View {
 	// UI events
 	selectChanged($element, e){
 		console.log($element.prop('id'));
-		if ($element.prop('id') === 'projects'){
+		//if ($element.prop('id') === 'projects'){
 			this.emit('message', 'project-event', {func: $element.data().func, currentProject: $element.val()})
-		} else if ($element.prop('id') === 'examples'){
-			this.emit('message', 'example-event', {func: $element.data().func, example: $element.val()})
-		}
+		//} else if ($element.prop('id') === 'examples'){
+			//this.emit('message', 'example-event', {func: $element.data().func, example: $element.val()})
+		//}
 	}
 	buttonClicked($element, e){
 		var func = $element.data().func;
@@ -25,7 +25,7 @@ class ProjectView extends View {
 	newProject(func){
 		var name = prompt("Enter the name of the new project");
 		if (name !== null){
-			this.emit('message', 'example-event', {func, newProject: name, example: 'minimal'})
+			this.emit('message', 'project-event', {func, newProject: name})
 		}
 	}
 	saveAs(func){

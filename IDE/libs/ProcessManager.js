@@ -20,19 +20,19 @@ module.exports = {
 		}
 	
 		if (data.checkSyntax){
-			console.log('check dat syntax');
+			console.log('check dat syntax', data.currentProject);
 			return yield _co(this, 'checkSyntax', data.currentProject);
 		}
 	
 	},
 	
-	*checkSyntax(data){
+	*checkSyntax(currentProject){
 		
 		if (running){
 			console.log('running', proc);
 		} else {
 
-			proc = spawn('make', [/*'--no-print-directory', */'-C', makePath,  'all',  'PROJECT='+data.currentProject]);
+			proc = spawn('make', ['--no-print-directory', '-C', makePath,  'syntax',  'PROJECT='+currentProject]);
 			
 			proc.stdout.setEncoding('utf8');
 			proc.stderr.setEncoding('utf8');
@@ -44,7 +44,7 @@ module.exports = {
 		
 	}
 	
-};
+}; 
 
 // coroutine factory and binder
 function _co(obj, func, args){

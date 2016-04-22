@@ -4,7 +4,7 @@
 # in preparation for building projects. It will remove any existing
 # BeagleRT directory before copying the files over
 
-BBB_ADDRESS="root@192.168.7.2"
+BBB_ADDRESS="root@192.168.1.2"
 BBB_PATH="~/BeagleRT"
 
 function usage
@@ -49,10 +49,10 @@ then
 # Copy relevant files to BeagleBone Black
   echo "Copying new files to BeagleBone..."
   scp -r $SCRIPTDIR/../projects $SCRIPTDIR/../examples $SCRIPTDIR/../IDE $BBB_ADDRESS:$BBB_PATH
-
+echo $?
   if [ $? -ne 0 ]
   then 
-	  echo "Error while copying files"
+	  echo "Error while copying files $?" 
 	  exit
   fi
 # Make remaining directories needed for building

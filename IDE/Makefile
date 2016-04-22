@@ -14,7 +14,7 @@ PROJECT_DIR := $(abspath ../projects/$(PROJECT))
 
 RM := rm -rf
 STATIC_LIBS := ../libNE10.a
-LIBS := -lrt -lnative -lxenomai -lbeaglert -lprussdrv -lsndfile -lpd
+LIBS := -lrt -lnative -lxenomai -lbeaglert
 
 INCLUDES := -I/usr/include/ne10 -I/usr/xenomai/include -I$(PROJECT_DIR) -I../include
 

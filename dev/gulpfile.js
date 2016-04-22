@@ -109,7 +109,7 @@ gulp.task('browserify', () => {
 });
 
 function startNode(callback){
-	var ssh = spawn('ssh', [user+'@'+host, 'cd', remotePath+';', 'node', '/root/BeagleRT/IDE/index.js']);
+	var ssh = spawn('ssh', [user+'@'+host, 'cd', remotePath+';', 'node', '--harmony-destructuring', '/root/BeagleRT/IDE/index.js']);
 	
 	ssh.stdout.setEncoding('utf8');
 	ssh.stdout.on('data', function(data){

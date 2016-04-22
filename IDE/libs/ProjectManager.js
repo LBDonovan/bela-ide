@@ -37,7 +37,6 @@ module.exports = {
 	},
 	
 	*openExample(data){
-		console.log(data);
 		yield fs.emptyDirAsync(projectPath+exampleTempProject);
 		yield fs.copyAsync(examplePath+data.currentProject, projectPath+exampleTempProject);
 		data.currentProject = exampleTempProject;
@@ -45,7 +44,6 @@ module.exports = {
 	},
 	
 	*newProject(data){
-		console.log(data);
 		yield fs.copyAsync(newProjectPath, projectPath+data.newProject, {clobber: true});
 		data.projectList = yield this.listProjects();
 		data.currentProject = data.newProject;
@@ -54,7 +52,6 @@ module.exports = {
 	},
 	
 	*saveAs(data){
-		console.log(data);
 		yield fs.copyAsync(projectPath+data.currentProject, projectPath+data.newProject);
 		data.projectList = yield this.listProjects();
 		data.currentProject = data.newProject;
@@ -63,7 +60,6 @@ module.exports = {
 	},
 	
 	*deleteProject(data){
-		console.log(data);
 		yield fs.removeAsync(projectPath+data.currentProject);
 		data.projectList = yield this.listProjects();
 		console.log(data.projectList);

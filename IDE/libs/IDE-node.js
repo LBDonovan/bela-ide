@@ -3,6 +3,7 @@
 
 // node_modules
 var Promise = require('bluebird');
+Promise.config({cancellation: true});
 var fs = Promise.promisifyAll(require('fs-extra'));
 var exec = require('child_process').exec;
 
@@ -16,6 +17,8 @@ var allSockets;
 var IDESettings;
 var currentProject;
 var belaPath = '/root/BeagleRT/';
+var childPromise = Promise.resolve();
+var childProcess;
 
 // constructor function for IDE object
 function IDE(){
@@ -68,10 +71,6 @@ function socketConnected(socket){
 
 }
 
-function co(obj, func, args){
-	return Promise.coroutine(obj[func]).bind(obj)(args);
-}
-
 // listen for all websocket messages
 function socketEvents(socket){
 
@@ -103,34 +102,39 @@ function socketEvents(socket){
 	// process events
 	socket.on('process-event', (data) => {
 	
-		console.log('process-event', data);
+		//console.log('process-event');
 		
 		if (!data.currentProject){
-			console.log('bad');
+			console.log('bad', data);
 			return;
 		}
 		
-		co(ProcessManager, 'process', data)
-			.then( console.log );
-		//Promise.coroutine(ProcessEvent)(data);
+		ProcessManager.newProcess(data);
 
-		
-
-		/*co(ProcessManager, data.func, data)
-			.then(setProject)
-			.then((result) => socket.emit('project-data', result) )
-			.catch((error) => {
-				console.log(error, error.stack.split('\n'), error.toString());
-				socket.emit('report-error', error.toString() );
-			});*/
-			
 	});
 
 }
 
 
+ProcessManager.on('stdout', (data) => console.log('stdout') );
+ProcessManager.on('stderr', (data) => console.log('stderr') );
+ProcessManager.on('closed', (data) => {
+	if (data.childProcess && data.childProcess.spawnargs && data.childProcess.spawnargs[4]){
+		console.log('closed', data.childProcess.pid);//data.childProcess.spawnargs[4]);
+	}
+});
+ProcessManager.on('error', (error) => {
+	//console.error('child process error:', error.message, error.code);
+	if (error.childProcess && error.childProcess.spawnargs && error.childProcess.spawnargs[4]){
+		console.log('error', error.childProcess.pid);//error.childProcess.spawnargs[4]);
+	}
+});
 
 // module functions - only accesible from this file
+
+function co(obj, func, args){
+	return Promise.coroutine(obj[func]).bind(obj)(args);
+}
 
 // create the default IDE settings object
 function defaultSettings(){

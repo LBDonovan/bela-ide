@@ -57,6 +57,8 @@ socket.on('init', (projectList, exampleList, currentProject, settings) => {
 	socket.emit('project-event', {func: 'openProject', currentProject})
 	models.settings.setData(settings);
 	console.log(projectList, exampleList, currentProject, settings);
+	
+	socket.emit('set-time', getDateString());
 });
 
 socket.on('project-data', (data) => {
@@ -70,7 +72,56 @@ socket.on('project-data', (data) => {
 
 
 
+function getDateString(){
 
+	var str = '';
+	
+	// get browser's system's time
+	var date = new Date();
+	
+	// format into string suitable for linux date command
+	var month = date.getMonth() + 1;
+	if (month < 10){
+		str += '0'+month;
+	} else {
+		str += month;
+	}
+	
+	var day = date.getDate();
+	if (day < 10){
+		str += '0'+day;
+	} else {
+		str += day;
+	}
+	
+	var hour = date.getHours();
+	if (hour < 10){
+		str += '0'+hour;
+	} else {
+		str += hour;
+	}
+	
+	var minutes = date.getMinutes();
+	if (minutes < 10){
+		str += '0'+minutes;
+	} else {
+		str += minutes;
+	}
+	
+	str += date.getFullYear();
+	
+	str += '.';
+	
+	var seconds = date.getSeconds();
+	if (seconds < 10){
+		str += '0'+seconds;
+	} else {
+		str += seconds;
+	}
+	
+	return str;
+	
+}
 
 
 

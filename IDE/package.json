@@ -11,9 +11,11 @@
   "dependencies": {
     "archiver": "^1.0.0",
     "bluebird": "^3.3.5",
+    "child-process-promise": "^2.0.1",
     "express": "^4.13.4",
     "fs-extra": "^0.28.0",
     "jquery-browserify": "^1.8.1",
-    "socket.io": "^1.4.5"
+    "socket.io": "^1.4.5",
+    "tree-kill": "^1.0.0"
   }
 }

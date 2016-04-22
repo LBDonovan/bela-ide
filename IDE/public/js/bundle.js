@@ -9392,12 +9392,64 @@ socket.on('init', (projectList, exampleList, currentProject, settings) => {
 	socket.emit('project-event', { func: 'openProject', currentProject });
 	models.settings.setData(settings);
 	console.log(projectList, exampleList, currentProject, settings);
+
+	socket.emit('set-time', getDateString());
 });
 
 socket.on('project-data', data => {
 	models.project.setData(data);
 	console.log(data);
 });
+
+function getDateString() {
+
+	var str = '';
+
+	// get browser's system's time
+	var date = new Date();
+
+	// format into string suitable for linux date command
+	var month = date.getMonth() + 1;
+	if (month < 10) {
+		str += '0' + month;
+	} else {
+		str += month;
+	}
+
+	var day = date.getDate();
+	if (day < 10) {
+		str += '0' + day;
+	} else {
+		str += day;
+	}
+
+	var hour = date.getHours();
+	if (hour < 10) {
+		str += '0' + hour;
+	} else {
+		str += hour;
+	}
+
+	var minutes = date.getMinutes();
+	if (minutes < 10) {
+		str += '0' + minutes;
+	} else {
+		str += minutes;
+	}
+
+	str += date.getFullYear();
+
+	str += '.';
+
+	var seconds = date.getSeconds();
+	if (seconds < 10) {
+		str += '0' + seconds;
+	} else {
+		str += seconds;
+	}
+
+	return str;
+}
 
 },{"./Models/Model":3,"./Views/EditorView":4,"./Views/FileView":5,"./Views/ProjectView":6,"./Views/TabView":7}],3:[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter;
@@ -9464,7 +9516,9 @@ function _equals(a, b, log) {
 },{"events":10}],4:[function(require,module,exports){
 var View = require('./View');
 
-var syntaxCheckBlocked = false;
+const uploadDelay = 50;
+
+var uploadBlocked = false;
 
 class EditorView extends View {
 
@@ -9483,10 +9537,16 @@ class EditorView extends View {
 
 		// this function is called when the user modifies the editor
 		this.editor.session.on('change', e => {
-			if (!syntaxCheckBlocked) this.emit('change', this.editor.getValue());
+			console.log('upload blocked', uploadBlocked);
+			if (!uploadBlocked) this.editorChanged();
 		});
 
 		this.on('resize', () => this.editor.resize());
+	}
+
+	editorChanged() {
+		clearTimeout(this.uploadTimeout);
+		this.uploadTimeout = setTimeout(() => this.emit('change', this.editor.getValue()), uploadDelay);
 	}
 
 	// model events
@@ -9494,14 +9554,14 @@ class EditorView extends View {
 
 		if (data instanceof ArrayBuffer) data = String.fromCharCode.apply(null, new Uint8Array(data));
 
-		// block syntax check
-		syntaxCheckBlocked = true;
+		// block upload
+		uploadBlocked = true;
 
 		// put the file into the editor
 		this.editor.session.setValue(data, -1);
 
-		// unblock syntax check
-		syntaxCheckBlocked = false;
+		// unblock upload
+		uploadBlocked = false;
 
 		// force a syntax check
 		this.emit('change');

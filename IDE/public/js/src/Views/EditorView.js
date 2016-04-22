@@ -1,6 +1,8 @@
 var View = require('./View');
 
-var syntaxCheckBlocked = false;
+const uploadDelay = 50;
+
+var uploadBlocked = false;
 
 class EditorView extends View {
 	
@@ -19,11 +21,17 @@ class EditorView extends View {
 		
 		// this function is called when the user modifies the editor
 		this.editor.session.on('change', (e) => {
-			if (!syntaxCheckBlocked) this.emit('change', this.editor.getValue());
+			console.log('upload blocked', uploadBlocked);
+			if (!uploadBlocked) this.editorChanged();
 		});
 		
 		this.on('resize', () => this.editor.resize() );
 		
+	}
+	
+	editorChanged(){
+		clearTimeout(this.uploadTimeout);
+		this.uploadTimeout = setTimeout( () => this.emit('change', this.editor.getValue()), uploadDelay );
 	}
 	
 	// model events
@@ -31,14 +39,14 @@ class EditorView extends View {
 	
 		if (data instanceof ArrayBuffer) data = String.fromCharCode.apply(null, new Uint8Array(data));
 		
-		// block syntax check
-		syntaxCheckBlocked = true;
+		// block upload
+		uploadBlocked = true;
 		
 		// put the file into the editor
 		this.editor.session.setValue(data, -1);
 		
-		// unblock syntax check
-		syntaxCheckBlocked = false;
+		// unblock upload
+		uploadBlocked = false;
 		
 		// force a syntax check
 		this.emit('change');

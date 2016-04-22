@@ -44,7 +44,7 @@ class SyntaxCheckProcess extends ChildProcess{
 class buildProcess extends ChildProcess{
 
 	constructor(){
-		super('make', ['--no-print-directory', '-C', makePath,  'syntax',  'PROJECT=']);
+		super('make', ['--no-print-directory', '-C', makePath,  'syntax',  'PROJECT=']);	//TODO target
 	}
 	
 	execute(project){

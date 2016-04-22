@@ -104,12 +104,12 @@ function socketEvents(socket){
 	
 		console.log('process-event');
 		
-		if (!data.currentProject){
+		if (!data || !data.currentProject || !data.event || !ProcessManager[data.event]){
 			console.log('bad', data);
 			return;
 		}
 		
-		ProcessManager.checkSyntax(data.currentProject, data);
+		ProcessManager[data.event](data.currentProject, data);
 
 	});
 

@@ -39,12 +39,30 @@ fileView.on('message', (event, data) => {
 var editorView = new (require('./Views/EditorView'))('editor', [models.project, models.settings]);
 editorView.on('change', (fileData) => {
 	socket.emit('process-event', {
+		event			: 'upload',
 		currentProject	: models.project.getKey('currentProject'),
 		newFile			: models.project.getKey('fileName'),
 		fileData,
 		checkSyntax		: models.settings.getKey('liveSyntaxChecking')
 	});
 });
+
+// toolbar view
+var toolbarView = new (require('./Views/ToolbarView'))('toolBar', [models.project, models.settings]);
+toolbarView.on('process-event', (event) => {
+	socket.emit('process-event', {
+		event,
+		currentProject	: models.project.getKey('currentProject')
+	});
+});
+/*editorView.on('change', (fileData) => {
+	socket.emit('process-event', {
+		currentProject	: models.project.getKey('currentProject'),
+		newFile			: models.project.getKey('fileName'),
+		fileData,
+		checkSyntax		: models.settings.getKey('liveSyntaxChecking')
+	});
+});*/
 
 // setup socket
 var socket = io('/IDE');

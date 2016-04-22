@@ -9374,12 +9374,30 @@ fileView.on('message', (event, data) => {
 var editorView = new (require('./Views/EditorView'))('editor', [models.project, models.settings]);
 editorView.on('change', fileData => {
 	socket.emit('process-event', {
+		event: 'upload',
 		currentProject: models.project.getKey('currentProject'),
 		newFile: models.project.getKey('fileName'),
 		fileData,
 		checkSyntax: models.settings.getKey('liveSyntaxChecking')
 	});
 });
+
+// toolbar view
+var toolbarView = new (require('./Views/ToolbarView'))('toolBar', [models.project, models.settings]);
+toolbarView.on('process-event', event => {
+	socket.emit('process-event', {
+		event,
+		currentProject: models.project.getKey('currentProject')
+	});
+});
+/*editorView.on('change', (fileData) => {
+	socket.emit('process-event', {
+		currentProject	: models.project.getKey('currentProject'),
+		newFile			: models.project.getKey('fileName'),
+		fileData,
+		checkSyntax		: models.settings.getKey('liveSyntaxChecking')
+	});
+});*/
 
 // setup socket
 var socket = io('/IDE');
@@ -9451,7 +9469,7 @@ function getDateString() {
 	return str;
 }
 
-},{"./Models/Model":3,"./Views/EditorView":4,"./Views/FileView":5,"./Views/ProjectView":6,"./Views/TabView":7}],3:[function(require,module,exports){
+},{"./Models/Model":3,"./Views/EditorView":4,"./Views/FileView":5,"./Views/ProjectView":6,"./Views/TabView":7,"./Views/ToolbarView":8}],3:[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter;
 
 class Model extends EventEmitter {
@@ -9513,7 +9531,7 @@ function _equals(a, b, log) {
 	}
 }
 
-},{"events":10}],4:[function(require,module,exports){
+},{"events":11}],4:[function(require,module,exports){
 var View = require('./View');
 
 const uploadDelay = 50;
@@ -9574,7 +9592,7 @@ class EditorView extends View {
 
 module.exports = EditorView;
 
-},{"./View":8}],5:[function(require,module,exports){
+},{"./View":9}],5:[function(require,module,exports){
 var View = require('./View');
 
 var sourceIndeces = ['cpp', 'c', 'S'];
@@ -9696,7 +9714,7 @@ class FileView extends View {
 
 module.exports = FileView;
 
-},{"./View":8}],6:[function(require,module,exports){
+},{"./View":9}],6:[function(require,module,exports){
 var View = require('./View');
 
 class ProjectView extends View {
@@ -9798,7 +9816,7 @@ class ProjectView extends View {
 
 module.exports = ProjectView;
 
-},{"./View":8}],7:[function(require,module,exports){
+},{"./View":9}],7:[function(require,module,exports){
 var View = require('./View');
 
 // private variables
@@ -9845,7 +9863,39 @@ class TabView extends View {
 
 module.exports = new TabView();
 
-},{"./View":8}],8:[function(require,module,exports){
+},{"./View":9}],8:[function(require,module,exports){
+var View = require('./View');
+
+class ToolbarView extends View {
+
+	constructor(className, models) {
+		super(className, models);
+		this.$elements.filter('span').on('click', e => this.buttonClicked($(e.currentTarget), e));
+	}
+
+	// UI events
+	buttonClicked($element, e) {
+		var func = $element.data().func;
+		if (func && this[func]) {
+			this[func](func);
+		}
+	}
+
+	run(func) {
+		this.emit('process-event', func);
+	}
+
+	stop(func) {
+		this.emit('process-event', func);
+	}
+
+	// model events
+
+}
+
+module.exports = ToolbarView;
+
+},{"./View":9}],9:[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter;
 var $ = require('jquery-browserify');
 
@@ -9889,7 +9939,7 @@ class View extends EventEmitter {
 
 module.exports = View;
 
-},{"events":10,"jquery-browserify":1}],9:[function(require,module,exports){
+},{"events":11,"jquery-browserify":1}],10:[function(require,module,exports){
 var $ = require('jquery-browserify');
 var IDE;
 
@@ -9897,7 +9947,7 @@ $(() => {
 	IDE = require('./IDE-browser');
 });
 
-},{"./IDE-browser":2,"jquery-browserify":1}],10:[function(require,module,exports){
+},{"./IDE-browser":2,"jquery-browserify":1}],11:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -10197,7 +10247,7 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}]},{},[9])
+},{}]},{},[10])
 
 
 //# sourceMappingURL=bundle.js.map

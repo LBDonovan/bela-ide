@@ -8,13 +8,18 @@ var treeKill = require('tree-kill');
 
 // child processes
 var syntaxCheckProcess = require('./IDEProcesses').syntax;
-var buildProcess = require('./IDEProcesses').build;
-
 syntaxCheckProcess.on('started', (data) => console.log('syntaxCheckProcess: started') );
 syntaxCheckProcess.on('stdout', (data) => console.log('syntaxCheckProcess: stdout') );
 syntaxCheckProcess.on('stderr', (data) => console.log('syntaxCheckProcess: stderr') );
 syntaxCheckProcess.on('cancelled', (data) => console.log('syntaxCheckProcess: cancelled') );
 syntaxCheckProcess.on('finished', (data) => console.log('syntaxCheckProcess: finished', data) );
+
+var buildProcess = require('./IDEProcesses').build;
+buildProcess.on('started', (data) => console.log('buildProcess: started') );
+buildProcess.on('stdout', (data) => console.log('buildProcess: stdout') );
+buildProcess.on('stderr', (data) => console.log('buildProcess: stderr') );
+buildProcess.on('cancelled', (data) => console.log('buildProcess: cancelled') );
+buildProcess.on('finished', (data) => console.log('buildProcess: finished', data) );
 
 class ProcessManager extends EventEmitter {
 	
@@ -22,7 +27,7 @@ class ProcessManager extends EventEmitter {
 		super();
 	}
 	
-	checkSyntax(project, upload){
+	upload(project, upload){
 	console.log('checkSyntax', this.checkingSyntax());
 		if (this.checkingSyntax()){
 			syntaxCheckProcess.kill().queue(function(){
@@ -30,7 +35,7 @@ class ProcessManager extends EventEmitter {
 			});
 		} else if(this.building()){
 			buildProcess.kill().queue(function(){
-				syntaxCheckProcess.execute(project, upload).bind(syntaxCheckProcess);
+				syntaxCheckProcess.execute(project, upload);//.bind(syntaxCheckProcess, project, upload);
 			});
 		} else {
 			this.emptyAllQueues();
@@ -40,10 +45,10 @@ class ProcessManager extends EventEmitter {
 	}
 	
 	build(project){
-	
+	console.log('build', this.building());
 		if (this.checkingSyntax()){
 			syntaxCheckProcess.kill().queue(function(){
-				buildProcess.execute(project).bind(buildProcess);
+				buildProcess.execute(project);//.bind(buildProcess);
 			});
 		} else if(this.building()){
 			buildProcess.kill().queue(function(){
@@ -54,6 +59,10 @@ class ProcessManager extends EventEmitter {
 			buildProcess.execute(project);
 		}
 	
+	}
+	
+	run(project){
+		this.build(project);
 	}
 	
 	checkingSyntax(){

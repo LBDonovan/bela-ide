@@ -6,13 +6,15 @@ var Promise = require('bluebird');
 var spawn = require('child_process').spawn;
 var treeKill = require('tree-kill');
 
-var ProjectManager = require('./ProjectManager');
+// child processes
+var syntaxCheckProcess = require('./IDEProcesses').syntax;
+var buildProcess = require('./IDEProcesses').build;
 
-var makePath = '/root/BeagleRT/IDE/';
-
-var PID;
-var running = false;
-var queuedProcess;
+syntaxCheckProcess.on('started', (data) => console.log('syntaxCheckProcess: started') );
+syntaxCheckProcess.on('stdout', (data) => console.log('syntaxCheckProcess: stdout') );
+syntaxCheckProcess.on('stderr', (data) => console.log('syntaxCheckProcess: stderr') );
+syntaxCheckProcess.on('cancelled', (data) => console.log('syntaxCheckProcess: cancelled') );
+syntaxCheckProcess.on('finished', (data) => console.log('syntaxCheckProcess: finished', data) );
 
 class ProcessManager extends EventEmitter {
 	
@@ -20,7 +22,54 @@ class ProcessManager extends EventEmitter {
 		super();
 	}
 	
-	newProcess(data){
+	checkSyntax(project, upload){
+	console.log('checkSyntax', this.checkingSyntax());
+		if (this.checkingSyntax()){
+			syntaxCheckProcess.kill().queue(function(){
+				syntaxCheckProcess.execute(project, upload);
+			});
+		} else if(this.building()){
+			buildProcess.kill().queue(function(){
+				syntaxCheckProcess.execute(project, upload).bind(syntaxCheckProcess);
+			});
+		} else {
+			this.emptyAllQueues();
+			syntaxCheckProcess.execute(project, upload);
+		}
+		
+	}
+	
+	build(project){
+	
+		if (this.checkingSyntax()){
+			syntaxCheckProcess.kill().queue(function(){
+				buildProcess.execute(project).bind(buildProcess);
+			});
+		} else if(this.building()){
+			buildProcess.kill().queue(function(){
+				buildProcess.execute(project);
+			});
+		} else {
+			this.emptyAllQueues();
+			buildProcess.execute(project);
+		}
+	
+	}
+	
+	checkingSyntax(){
+		return syntaxCheckProcess.active;
+	}
+	
+	building(){
+		return buildProcess.active;
+	}
+	
+	emptyAllQueues(){
+		syntaxCheckProcess.emptyQueue();
+		buildProcess.emptyQueue();
+	}
+	
+	/*newProcess(data){
 		if (running){
 			queuedProcess = data;
 			this.killProcess();
@@ -103,7 +152,7 @@ class ProcessManager extends EventEmitter {
 			treeKill(PID, 'SIGTERM');
 			PID = undefined;
 		}
-	}
+	}*/
 	
 };
 

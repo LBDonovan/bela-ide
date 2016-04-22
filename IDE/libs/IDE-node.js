@@ -102,14 +102,14 @@ function socketEvents(socket){
 	// process events
 	socket.on('process-event', (data) => {
 	
-		//console.log('process-event');
+		console.log('process-event');
 		
 		if (!data.currentProject){
 			console.log('bad', data);
 			return;
 		}
 		
-		ProcessManager.newProcess(data);
+		ProcessManager.checkSyntax(data.currentProject, data);
 
 	});
 

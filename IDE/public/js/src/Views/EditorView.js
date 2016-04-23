@@ -21,7 +21,7 @@ class EditorView extends View {
 		
 		// this function is called when the user modifies the editor
 		this.editor.session.on('change', (e) => {
-			console.log('upload blocked', uploadBlocked);
+			//console.log('upload blocked', uploadBlocked);
 			if (!uploadBlocked) this.editorChanged();
 		});
 		

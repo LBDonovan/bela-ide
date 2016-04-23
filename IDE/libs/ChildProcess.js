@@ -50,16 +50,22 @@ class ChildProcess extends EventEmitter{
 		childProcess.on('close', (code, signal) => {
 			console.log('close', childProcess.pid, code, signal);
 			if (this.dying){
+				this.closed();
 				this.emit('cancelled');
 			} else {
-				this.emit('finished', {stdout: this.stdout, stderr: this.stderr});
+				let stdout = this.stdout;
+				let stderr = this.stderr;
+				this.closed();
+				this.emit('finished', {stdout, stderr});
 			}
-			this.closed();
+			
+			if (this.next) this.dequeue();
 		});
 		childProcess.on('error', (err) => {
 			console.log('error', childProcess.pid, err);
 			this.emit('error', err);
 			this.closed();
+			if (this.next) this.dequeue();
 		});
 		
 	}
@@ -94,7 +100,6 @@ class ChildProcess extends EventEmitter{
 		this.stderr = [];
 		this.active = false;
 		this.dying = false;
-		if (this.next) this.dequeue();
 	}
 		
 }

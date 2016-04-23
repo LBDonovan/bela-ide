@@ -116,7 +116,7 @@ function socketEvents(socket){
 }
 
 
-ProcessManager.on('stdout', (data) => console.log('stdout') );
+/*ProcessManager.on('stdout', (data) => console.log('stdout') );
 ProcessManager.on('stderr', (data) => console.log('stderr') );
 ProcessManager.on('closed', (data) => {
 	if (data.childProcess && data.childProcess.spawnargs && data.childProcess.spawnargs[4]){
@@ -128,7 +128,8 @@ ProcessManager.on('error', (error) => {
 	if (error.childProcess && error.childProcess.spawnargs && error.childProcess.spawnargs[4]){
 		console.log('error', error.childProcess.pid);//error.childProcess.spawnargs[4]);
 	}
-});
+});*/
+ProcessManager.on('status', (status) => allSockets.emit('status', status) );
 
 // module functions - only accesible from this file
 

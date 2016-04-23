@@ -7,6 +7,7 @@ var Model = require('./Models/Model');
 models = {};
 models.project = new Model();
 models.settings = new Model();
+models.status = new Model();
 
 // set up views
 // tab view
@@ -48,21 +49,17 @@ editorView.on('change', (fileData) => {
 });
 
 // toolbar view
-var toolbarView = new (require('./Views/ToolbarView'))('toolBar', [models.project, models.settings]);
+var toolbarView = new (require('./Views/ToolbarView'))('toolBar', [models.project, models.settings, models.status]);
 toolbarView.on('process-event', (event) => {
 	socket.emit('process-event', {
 		event,
 		currentProject	: models.project.getKey('currentProject')
 	});
 });
-/*editorView.on('change', (fileData) => {
-	socket.emit('process-event', {
-		currentProject	: models.project.getKey('currentProject'),
-		newFile			: models.project.getKey('fileName'),
-		fileData,
-		checkSyntax		: models.settings.getKey('liveSyntaxChecking')
-	});
-});*/
+
+// console view
+var consoleView = new (require('./Views/ConsoleView'))('IDEconsole', [models.status]);
+
 
 // setup socket
 var socket = io('/IDE');
@@ -74,14 +71,19 @@ socket.on('init', (projectList, exampleList, currentProject, settings) => {
 	models.project.setData({projectList, exampleList, currentProject});
 	socket.emit('project-event', {func: 'openProject', currentProject})
 	models.settings.setData(settings);
-	console.log(projectList, exampleList, currentProject, settings);
+	//console.log(projectList, exampleList, currentProject, settings);
 	
 	socket.emit('set-time', getDateString());
 });
 
 socket.on('project-data', (data) => {
 	models.project.setData(data);
-	console.log(data);
+	//console.log(data);
+});
+
+socket.on('status', (status) => {
+	models.status.setData(status);
+	//console.log('status', status)
 });
 
 

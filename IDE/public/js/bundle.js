@@ -9342,6 +9342,7 @@ var Model = require('./Models/Model');
 models = {};
 models.project = new Model();
 models.settings = new Model();
+models.status = new Model();
 
 // set up views
 // tab view
@@ -9383,21 +9384,16 @@ editorView.on('change', fileData => {
 });
 
 // toolbar view
-var toolbarView = new (require('./Views/ToolbarView'))('toolBar', [models.project, models.settings]);
+var toolbarView = new (require('./Views/ToolbarView'))('toolBar', [models.project, models.settings, models.status]);
 toolbarView.on('process-event', event => {
 	socket.emit('process-event', {
 		event,
 		currentProject: models.project.getKey('currentProject')
 	});
 });
-/*editorView.on('change', (fileData) => {
-	socket.emit('process-event', {
-		currentProject	: models.project.getKey('currentProject'),
-		newFile			: models.project.getKey('fileName'),
-		fileData,
-		checkSyntax		: models.settings.getKey('liveSyntaxChecking')
-	});
-});*/
+
+// console view
+var consoleView = new (require('./Views/ConsoleView'))('IDEconsole', [models.status]);
 
 // setup socket
 var socket = io('/IDE');
@@ -9409,14 +9405,19 @@ socket.on('init', (projectList, exampleList, currentProject, settings) => {
 	models.project.setData({ projectList, exampleList, currentProject });
 	socket.emit('project-event', { func: 'openProject', currentProject });
 	models.settings.setData(settings);
-	console.log(projectList, exampleList, currentProject, settings);
+	//console.log(projectList, exampleList, currentProject, settings);
 
 	socket.emit('set-time', getDateString());
 });
 
 socket.on('project-data', data => {
 	models.project.setData(data);
-	console.log(data);
+	//console.log(data);
+});
+
+socket.on('status', status => {
+	models.status.setData(status);
+	//console.log('status', status)
 });
 
 function getDateString() {
@@ -9469,7 +9470,7 @@ function getDateString() {
 	return str;
 }
 
-},{"./Models/Model":3,"./Views/EditorView":4,"./Views/FileView":5,"./Views/ProjectView":6,"./Views/TabView":7,"./Views/ToolbarView":8}],3:[function(require,module,exports){
+},{"./Models/Model":3,"./Views/ConsoleView":4,"./Views/EditorView":5,"./Views/FileView":6,"./Views/ProjectView":7,"./Views/TabView":8,"./Views/ToolbarView":9}],3:[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter;
 
 class Model extends EventEmitter {
@@ -9531,7 +9532,43 @@ function _equals(a, b, log) {
 	}
 }
 
-},{"events":11}],4:[function(require,module,exports){
+},{"events":12}],4:[function(require,module,exports){
+'use strict';
+
+var View = require('./View');
+
+class ConsoleView extends View {
+	constructor(className, models) {
+		super(className, models);
+	}
+
+	// model events
+	_checkingSyntax(status) {
+		if (status) {
+			console.log('checking syntax');
+		} else {
+			console.log('not checking syntax');
+		}
+	}
+	_building(status) {
+		if (status) {
+			console.log('building');
+		} else {
+			console.log('not building');
+		}
+	}
+	_running(status) {
+		if (status) {
+			console.log('running');
+		} else {
+			console.log('not running');
+		}
+	}
+}
+
+module.exports = ConsoleView;
+
+},{"./View":10}],5:[function(require,module,exports){
 var View = require('./View');
 
 const uploadDelay = 50;
@@ -9555,7 +9592,7 @@ class EditorView extends View {
 
 		// this function is called when the user modifies the editor
 		this.editor.session.on('change', e => {
-			console.log('upload blocked', uploadBlocked);
+			//console.log('upload blocked', uploadBlocked);
 			if (!uploadBlocked) this.editorChanged();
 		});
 
@@ -9592,7 +9629,7 @@ class EditorView extends View {
 
 module.exports = EditorView;
 
-},{"./View":9}],5:[function(require,module,exports){
+},{"./View":10}],6:[function(require,module,exports){
 var View = require('./View');
 
 var sourceIndeces = ['cpp', 'c', 'S'];
@@ -9714,7 +9751,7 @@ class FileView extends View {
 
 module.exports = FileView;
 
-},{"./View":9}],6:[function(require,module,exports){
+},{"./View":10}],7:[function(require,module,exports){
 var View = require('./View');
 
 class ProjectView extends View {
@@ -9816,7 +9853,7 @@ class ProjectView extends View {
 
 module.exports = ProjectView;
 
-},{"./View":9}],7:[function(require,module,exports){
+},{"./View":10}],8:[function(require,module,exports){
 var View = require('./View');
 
 // private variables
@@ -9863,7 +9900,7 @@ class TabView extends View {
 
 module.exports = new TabView();
 
-},{"./View":9}],8:[function(require,module,exports){
+},{"./View":10}],9:[function(require,module,exports){
 var View = require('./View');
 
 class ToolbarView extends View {
@@ -9895,7 +9932,7 @@ class ToolbarView extends View {
 
 module.exports = ToolbarView;
 
-},{"./View":9}],9:[function(require,module,exports){
+},{"./View":10}],10:[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter;
 var $ = require('jquery-browserify');
 
@@ -9939,7 +9976,7 @@ class View extends EventEmitter {
 
 module.exports = View;
 
-},{"events":11,"jquery-browserify":1}],10:[function(require,module,exports){
+},{"events":12,"jquery-browserify":1}],11:[function(require,module,exports){
 var $ = require('jquery-browserify');
 var IDE;
 
@@ -9947,7 +9984,7 @@ $(() => {
 	IDE = require('./IDE-browser');
 });
 
-},{"./IDE-browser":2,"jquery-browserify":1}],11:[function(require,module,exports){
+},{"./IDE-browser":2,"jquery-browserify":1}],12:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -10247,7 +10284,7 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}]},{},[10])
+},{}]},{},[11])
 
 
 //# sourceMappingURL=bundle.js.map

@@ -5,11 +5,12 @@ var treeKill = require('tree-kill');
 
 class ChildProcess extends EventEmitter{
 
-	constructor(cmd, args){
+	constructor(cmd, args, opts){
 		super();
 		this.active = false;
 		this.command = cmd;
 		this.args = args;
+		this.opts = opts;
 		this.stdout = [];
 		this.stderr = [];
 	}
@@ -29,8 +30,8 @@ class ChildProcess extends EventEmitter{
 		
 		this.emit('started');
 		
-		var childProcess = spawn(this.command, this.args);
-	console.log('spawning', childProcess.pid);
+		var childProcess = spawn(this.command, this.args, this.opts);
+	console.log('spawning', this.command, this.args, this.opts, childProcess.pid);
 		this.pid = childProcess.pid;
 		
 		childProcess.stdout.setEncoding('utf8');

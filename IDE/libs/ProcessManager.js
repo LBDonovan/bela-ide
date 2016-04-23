@@ -21,6 +21,15 @@ buildProcess.on('stderr', (data) => console.log('buildProcess: stderr') );
 buildProcess.on('cancelled', (data) => console.log('buildProcess: cancelled') );
 buildProcess.on('finished', (data) => console.log('buildProcess: finished', data) );
 
+var belaProcess = require('./IDEProcesses').bela;
+belaProcess.on('started', (data) => console.log('belaProcess: started') );
+belaProcess.on('stdout', (data) => console.log('belaProcess: stdout') );
+belaProcess.on('stderr', (data) => console.log('belaProcess: stderr') );
+belaProcess.on('cancelled', (data) => console.log('belaProcess: cancelled') );
+belaProcess.on('finished', (data) => console.log('belaProcess: finished', data) );
+
+var childProcesses = {syntaxCheckProcess, buildProcess};
+
 class ProcessManager extends EventEmitter {
 	
 	constructor(){
@@ -35,12 +44,14 @@ class ProcessManager extends EventEmitter {
 			});
 		} else if(this.building()){
 			buildProcess.kill().queue(function(){
-				syntaxCheckProcess.execute(project, upload);//.bind(syntaxCheckProcess, project, upload);
+				syntaxCheckProcess.execute(project, upload);
 			});
 		} else {
 			this.emptyAllQueues();
 			syntaxCheckProcess.execute(project, upload);
 		}
+		
+		return syntaxCheckProcess;
 		
 	}
 	
@@ -48,7 +59,7 @@ class ProcessManager extends EventEmitter {
 	console.log('build', this.building());
 		if (this.checkingSyntax()){
 			syntaxCheckProcess.kill().queue(function(){
-				buildProcess.execute(project);//.bind(buildProcess);
+				buildProcess.execute(project);
 			});
 		} else if(this.building()){
 			buildProcess.kill().queue(function(){
@@ -58,11 +69,22 @@ class ProcessManager extends EventEmitter {
 			this.emptyAllQueues();
 			buildProcess.execute(project);
 		}
+		
+		return buildProcess;
 	
 	}
 	
 	run(project){
-		this.build(project);
+		this.build(project).queue(function(){
+			belaProcess.execute(project);
+		});
+	}
+	
+	stop(project){
+		for (let proc in childProcesses){
+			childProcesses[proc].kill();
+		}
+		this.emptyAllQueues();
 	}
 	
 	checkingSyntax(){
@@ -74,8 +96,9 @@ class ProcessManager extends EventEmitter {
 	}
 	
 	emptyAllQueues(){
-		syntaxCheckProcess.emptyQueue();
-		buildProcess.emptyQueue();
+		for (let proc in childProcesses){
+			childProcesses[proc].emptyQueue();
+		}
 	}
 	
 	/*newProcess(data){

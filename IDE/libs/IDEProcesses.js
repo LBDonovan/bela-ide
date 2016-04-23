@@ -2,8 +2,11 @@
 var Promise = require('bluebird');
 var ChildProcess = require('./ChildProcess');
 var ProjectManager = require('./ProjectManager');
+var execSync = require('child_process').execSync;
 
-var makePath = '/root/BeagleRT/IDE/';
+var belaPath = '/root/BeagleRT/';
+var makePath = belaPath+'IDE/';
+var projectPath = belaPath+'projects/';
 
 class SyntaxCheckProcess extends ChildProcess{
 	
@@ -44,7 +47,7 @@ class SyntaxCheckProcess extends ChildProcess{
 class buildProcess extends ChildProcess{
 
 	constructor(){
-		super('make', ['--no-print-directory', '-C', makePath,  'syntax',  'PROJECT=']);	//TODO target
+		super('make', ['--no-print-directory', '-C', makePath,  'all',  'PROJECT=']);
 	}
 	
 	execute(project){
@@ -55,9 +58,25 @@ class buildProcess extends ChildProcess{
 
 }
 
+class belaProcess extends ChildProcess{
+
+	constructor(){
+		super('stdbuf');
+	}
+	
+	execute(project){
+		if (this.active) return;
+		this.args = ['-i0', '-o0', '-e0', projectPath+project+'/'+project];
+		this.opts = {cwd: projectPath+project+'/'};
+		this.start();
+	}
+
+}
+
 module.exports = {
 	syntax	: new SyntaxCheckProcess(),
-	build	: new buildProcess()
+	build	: new buildProcess(),
+	bela	: new belaProcess()
 }
 
 // coroutine factory and binder

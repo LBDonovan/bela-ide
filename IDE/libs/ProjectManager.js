@@ -77,6 +77,12 @@ module.exports = {
 		return data;
 	},
 	
+	*cleanProject(data){
+		yield fs.removeAsync(projectPath+data.currentProject+'/build/*');
+		yield fs.removeAsync(projectPath+data.currentProject+'/'+data.currentProject);
+		return data;
+	},
+	
 	// file events
 	*openFile(data){
 		data.fileData = yield fs.readFileAsync(projectPath+data.currentProject+'/'+data.fileName, 'utf8');

@@ -40,6 +40,9 @@ class ProjectView extends View {
 			this.emit('message', 'project-event', {func})
 		}
 	}
+	cleanProject(func){
+		this.emit('message', 'project-event', {func});
+	}
 	
 	// model events
 	_projectList(projects, data){

@@ -58,7 +58,7 @@ toolbarView.on('process-event', (event) => {
 });
 
 // console view
-var consoleView = new (require('./Views/ConsoleView'))('IDEconsole', [models.status]);
+var consoleView = new (require('./Views/ConsoleView'))('IDEconsole', [models.status, models.settings], models.settings);
 
 
 // setup socket

@@ -24,6 +24,27 @@ class ToolbarView extends View {
 	}
 	
 	// model events
+	_running(status){
+		if (status){
+			if (!$('#run').hasClass('spinning')){
+				$('#run').addClass('spinning');
+			}
+		} else {
+			if ($('#run').hasClass('spinning')){
+				$('#run').removeClass('spinning');
+			}
+		}
+	}
+	_checkingSyntax(status){
+		if (status){
+			$('#status').css('background', 'url("images/toolbar.png") -210px 35px');
+		} else {
+			// clear
+			$('#status').css('background', 'url("images/toolbar.png") -140px 35px');
+			// errors
+			// $('#status').css('background', 'url("images/toolbar.png") -175px 35px');
+		}
+	}
 	
 }
 

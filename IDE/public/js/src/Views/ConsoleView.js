@@ -1,32 +1,61 @@
 'use strict';
 var View = require('./View');
+var _console = require('../console');
 
 class ConsoleView extends View{
-	constructor(className, models){
-		super(className, models);
+
+	constructor(className, models, settings){
+		super(className, models, settings);
 	}
 	
 	// model events
+	// syntax
 	_checkingSyntax(status){
 		if (status){
-			console.log('checking syntax');
+			_console.log('checking syntax');
 		} else {
-			console.log('not checking syntax');
+			_console.log('not checking syntax');
 		}
 	}
+	_syntaxLog(log, data){
+		if (this.settings.fullSyntaxCheckOutput){
+			_console.log(log);
+		}
+	}
+	_syntaxResult(result, data){
+		//_console.log('result stdout:', result.stdout, 'stderr', result.stderr);
+	}
+	
+	// build
 	_building(status){
 		if (status){
-			console.log('building');
+			_console.log('building');
 		} else {
-			console.log('not building');
+			_console.log('not building');
 		}
 	}
+	_buildLog(log, data){
+		if (this.settings.fullBuildOutput){
+			_console.log(log);
+		}
+	}
+	_buildResult(result, data){
+		//_console.log('result stdout:', result.stdout, 'stderr', result.stderr);
+	}
+	
+	// bela
 	_running(status){
 		if (status){
-			console.log('running');
+			_console.log('running');
 		} else {
-			console.log('not running');
+			_console.log('not running');
 		}
+	}
+	_belaLog(log, data){
+		_console.log(log);
+	}
+	_belaResult(result, data){
+		_console.log('result stdout:', result.stdout, 'stderr', result.stderr);
 	}
 }
 

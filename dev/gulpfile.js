@@ -47,10 +47,10 @@ gulp.task('upload', ['killnode', 'browserify'], () => {
 gulp.task('upload-no-kill', () => {
 	return gulp.src(['../IDE/**', '!../IDE/public/js/src/**', '!../IDE/node_modules/**', '!../IDE/public/js/ace/**'])
 		.pipe(cache('IDE'))
-		.pipe(sftp({host, user, pass, remotePath}))
-		.on('end', () => {
+		.pipe(sftp({host, user, pass, remotePath}));
+		/*.on('end', () => {
 			livereload.reload();
-		});
+		});*/
 });
 
 gulp.task('nodemodules', ['upload-nodemodules', 'rebuild-nodemodules']);

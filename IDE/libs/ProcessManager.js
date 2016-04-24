@@ -8,25 +8,8 @@ var treeKill = require('tree-kill');
 
 // child processes
 var syntaxCheckProcess = require('./IDEProcesses').syntax;
-/*syntaxCheckProcess.on('started', (data) => {console.log('syntaxCheckProcess: started') );
-syntaxCheckProcess.on('stdout', (data) => console.log('syntaxCheckProcess: stdout') );
-syntaxCheckProcess.on('stderr', (data) => console.log('syntaxCheckProcess: stderr') );
-syntaxCheckProcess.on('cancelled', (data) => console.log('syntaxCheckProcess: cancelled') );
-syntaxCheckProcess.on('finished', (data) => console.log('syntaxCheckProcess: finished', data) );*/
-
 var buildProcess = require('./IDEProcesses').build;
-/*buildProcess.on('started', (data) => console.log('buildProcess: started') );
-buildProcess.on('stdout', (data) => console.log('buildProcess: stdout') );
-buildProcess.on('stderr', (data) => console.log('buildProcess: stderr') );
-buildProcess.on('cancelled', (data) => console.log('buildProcess: cancelled') );
-buildProcess.on('finished', (data) => console.log('buildProcess: finished', data) );*/
-
 var belaProcess = require('./IDEProcesses').bela;
-/*belaProcess.on('started', (data) => console.log('belaProcess: started') );
-belaProcess.on('stdout', (data) => console.log('belaProcess: stdout') );
-belaProcess.on('stderr', (data) => console.log('belaProcess: stderr') );
-belaProcess.on('cancelled', (data) => console.log('belaProcess: cancelled') );
-belaProcess.on('finished', (data) => console.log('belaProcess: finished', data) );*/
 
 var childProcesses = {syntaxCheckProcess, buildProcess, belaProcess};
 
@@ -110,7 +93,7 @@ class ProcessManager extends EventEmitter {
 		};	
 	}
 	
-	// utility events
+	// utility functions
 	processEvents(childProcesses){
 		
 		// status events
@@ -121,7 +104,19 @@ class ProcessManager extends EventEmitter {
 		}
 		
 		// syntax events
+		syntaxCheckProcess.on('stdout', (data) => this.emit('status', {syntaxLog: data}) );
+		syntaxCheckProcess.on('stderr', (data) => this.emit('status', {syntaxLog: data}) );
+		syntaxCheckProcess.on('finished', (data) => this.emit('status', {syntaxResult: data}) );
 		
+		// build events
+		buildProcess.on('stdout', (data) => this.emit('status', {buildLog: data}) );
+		buildProcess.on('stderr', (data) => this.emit('status', {buildLog: data}) );
+		buildProcess.on('finished', (data) => this.emit('status', {buildResult: data}) );
+		
+		// bela events
+		belaProcess.on('stdout', (data) => this.emit('status', {belaLog: data}) );
+		belaProcess.on('stderr', (data) => this.emit('status', {belaLog: data}) );
+		belaProcess.on('finished', (data) => this.emit('status', {belaResult: data}) );
 		
 	}
 	

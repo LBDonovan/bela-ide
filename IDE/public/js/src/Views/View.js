@@ -3,10 +3,11 @@ var $ = require('jquery-browserify');
 
 class View extends EventEmitter{
 
-	constructor(CSSClassName, models){
+	constructor(CSSClassName, models, settings){
 		super();
 		this.className = CSSClassName;
 		this.models = models;
+		this.settings = settings;
 		this.$elements = $('.'+CSSClassName);
 		this.$parents = $('.'+CSSClassName+'-parent');
 		

@@ -9393,7 +9393,7 @@ toolbarView.on('process-event', event => {
 });
 
 // console view
-var consoleView = new (require('./Views/ConsoleView'))('IDEconsole', [models.status]);
+var consoleView = new (require('./Views/ConsoleView'))('IDEconsole', [models.status, models.settings], models.settings);
 
 // setup socket
 var socket = io('/IDE');
@@ -9532,43 +9532,72 @@ function _equals(a, b, log) {
 	}
 }
 
-},{"events":12}],4:[function(require,module,exports){
+},{"events":13}],4:[function(require,module,exports){
 'use strict';
 
 var View = require('./View');
+var _console = require('../console');
 
 class ConsoleView extends View {
-	constructor(className, models) {
-		super(className, models);
+
+	constructor(className, models, settings) {
+		super(className, models, settings);
 	}
 
 	// model events
+	// syntax
 	_checkingSyntax(status) {
 		if (status) {
-			console.log('checking syntax');
+			_console.log('checking syntax');
 		} else {
-			console.log('not checking syntax');
+			_console.log('not checking syntax');
 		}
 	}
+	_syntaxLog(log, data) {
+		if (this.settings.fullSyntaxCheckOutput) {
+			_console.log(log);
+		}
+	}
+	_syntaxResult(result, data) {}
+	//_console.log('result stdout:', result.stdout, 'stderr', result.stderr);
+
+
+	// build
 	_building(status) {
 		if (status) {
-			console.log('building');
+			_console.log('building');
 		} else {
-			console.log('not building');
+			_console.log('not building');
 		}
 	}
+	_buildLog(log, data) {
+		if (this.settings.fullBuildOutput) {
+			_console.log(log);
+		}
+	}
+	_buildResult(result, data) {}
+	//_console.log('result stdout:', result.stdout, 'stderr', result.stderr);
+
+
+	// bela
 	_running(status) {
 		if (status) {
-			console.log('running');
+			_console.log('running');
 		} else {
-			console.log('not running');
+			_console.log('not running');
 		}
+	}
+	_belaLog(log, data) {
+		_console.log(log);
+	}
+	_belaResult(result, data) {
+		_console.log('result stdout:', result.stdout, 'stderr', result.stderr);
 	}
 }
 
 module.exports = ConsoleView;
 
-},{"./View":10}],5:[function(require,module,exports){
+},{"../console":11,"./View":10}],5:[function(require,module,exports){
 var View = require('./View');
 
 const uploadDelay = 50;
@@ -9930,6 +9959,27 @@ class ToolbarView extends View {
 	}
 
 	// model events
+	_running(status) {
+		if (status) {
+			if (!$('#run').hasClass('spinning')) {
+				$('#run').addClass('spinning');
+			}
+		} else {
+			if ($('#run').hasClass('spinning')) {
+				$('#run').removeClass('spinning');
+			}
+		}
+	}
+	_checkingSyntax(status) {
+		if (status) {
+			$('#status').css('background', 'url("images/toolbar.png") -210px 35px');
+		} else {
+			// clear
+			$('#status').css('background', 'url("images/toolbar.png") -140px 35px');
+			// errors
+			// $('#status').css('background', 'url("images/toolbar.png") -175px 35px');
+		}
+	}
 
 }
 
@@ -9941,10 +9991,11 @@ var $ = require('jquery-browserify');
 
 class View extends EventEmitter {
 
-	constructor(CSSClassName, models) {
+	constructor(CSSClassName, models, settings) {
 		super();
 		this.className = CSSClassName;
 		this.models = models;
+		this.settings = settings;
 		this.$elements = $('.' + CSSClassName);
 		this.$parents = $('.' + CSSClassName + '-parent');
 
@@ -9979,7 +10030,89 @@ class View extends EventEmitter {
 
 module.exports = View;
 
-},{"events":12,"jquery-browserify":1}],11:[function(require,module,exports){
+},{"events":13,"jquery-browserify":1}],11:[function(require,module,exports){
+'use strict';
+
+var EventEmitter = require('events').EventEmitter;
+var $ = require('jquery-browserify');
+
+// module variables
+var numElements = 0,
+    maxElements = 200;
+
+class Console extends EventEmitter {
+
+	constructor() {
+		super();
+		this.$element = $('#beaglert-consoleWrapper');
+		this.parent = document.getElementById('beaglert-console');
+	}
+
+	print(text, className, id, onClick) {
+		var el = $('<div></div>').addClass('beaglert-console-' + className).appendTo(this.$element);
+		if (id) el.prop('id', id);
+		$('<span></span>').html(text).appendTo(el);
+		if (numElements++ > maxElements) clear();
+		if (onClick) el.on('click', onClick);
+		return el;
+	}
+
+	// log an unhighlighted message to the console
+	log(text) {
+		var msgs = text.split('\n');
+		for (let i = 0; i < msgs.length; i++) {
+			if (msgs[i] !== '') {
+				this.print(msgs[i], 'log');
+			}
+		}
+		this.scroll();
+	}
+
+	// log a positive notification to the console
+	// if persist is not true, the notification will be removed quickly
+	// otherwise it will just fade
+	/*notify(notice, persist){
+ 
+ 	var el = print(notice, 'notify', null, dismiss);
+ 		if (IDE.getSetting('consoleAnimations')){
+ 		setTimeout(function(){
+ 			if (persist){
+ 				el.addClass('beaglert-console-faded');
+ 			} else {
+ 				el.addClass('beaglert-console-collapsed');
+ 				setTimeout(function(){
+ 					if ($.contains($element, el)){
+ 						$element.removeChild(el);
+ 					}
+ 				}, 500);
+ 			}
+ 		}, 1000);
+ 	}
+ 	
+ 	scroll();
+ }*/
+
+	// force the console to scroll to the bottom
+	scroll() {
+		setTimeout(() => this.parent.scrollTop = this.parent.scrollHeight, 0);
+	}
+
+};
+
+module.exports = new Console();
+
+// gracefully remove a console element after an event ((this) must be bound to the element)
+function dismiss() {
+	if (IDE.getSetting('consoleAnimations')) $(this).addClass('beaglert-console-collapsed');
+	setTimeout(() => {
+		if ($.contains(parent, this)) {
+			$(this).remove();
+			numElements -= 1;
+		}
+	}, 500);
+}
+
+},{"events":13,"jquery-browserify":1}],12:[function(require,module,exports){
 var $ = require('jquery-browserify');
 var IDE;
 
@@ -9987,7 +10120,7 @@ $(() => {
 	IDE = require('./IDE-browser');
 });
 
-},{"./IDE-browser":2,"jquery-browserify":1}],12:[function(require,module,exports){
+},{"./IDE-browser":2,"jquery-browserify":1}],13:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -10287,7 +10420,7 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}]},{},[11])
+},{}]},{},[12])
 
 
 //# sourceMappingURL=bundle.js.map

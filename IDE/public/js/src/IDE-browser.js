@@ -8,7 +8,8 @@ models = {};
 models.project = new Model();
 models.settings = new Model();
 models.status = new Model();
-
+models.error = new Model();
+ 
 // set up views
 // tab view
 var tabView = require('./Views/TabView');
@@ -37,7 +38,7 @@ fileView.on('message', (event, data) => {
 });
 
 // editor view
-var editorView = new (require('./Views/EditorView'))('editor', [models.project, models.settings]);
+var editorView = new (require('./Views/EditorView'))('editor', [models.project, models.error]);
 editorView.on('change', (fileData) => {
 	socket.emit('process-event', {
 		event			: 'upload',
@@ -58,7 +59,7 @@ toolbarView.on('process-event', (event) => {
 });
 
 // console view
-var consoleView = new (require('./Views/ConsoleView'))('IDEconsole', [models.status, models.settings], models.settings);
+//var consoleView = new (require('./Views/ConsoleView'))('IDEconsole', [models.status, models.settings], models.settings);
 
 
 // setup socket
@@ -86,10 +87,79 @@ socket.on('status', (status) => {
 	//console.log('status', status)
 });
 
+// build errors
+models.status.on('change', (data, changedKeys) => {
+	if (changedKeys.indexOf('syntaxError') !== -1){
+		parseErrors(data.syntaxError);
+	}
+});
 
+// parse errors from g++
+function parseErrors(data){
 
+	var errors = [];
+	for (let i=0; i<data.length; i++){
 
+		// ignore errors which begin with 'make'
+		if (data[i].length > 1 && data[i].slice(0,4) !== 'make'){
+	
+			var msg = data[i].split('\n');
+		
+			for (let j=0; j<msg.length; j++){
+		
+				var str = msg[j].split(':');
+				//console.log(str);
+				// str[0] -> file name + path
+				// str[1] -> row number
+				// str[2] -> column number
+				// str[3] -> type of error
+				// str[4+] > error message
+			
+				if (str[3] === ' error'){
+					errors.push({
+						file: str[0].split('/').pop(),
+						row: str[1]-1,
+						column: str[2],
+						text: str.slice(4).join(':').slice(1) + '\ncolumn: '+str[2],
+						type: "error"
+					});
+				} else if (str[3] == ' fatal error'){
+					errors.push({
+						file: str[0].split('/').pop(),
+						row: str[1]-1,
+						column: str[2],
+						text: str.slice(4).join(':').slice(1) + '\ncolumn: '+str[2],
+						type: "error"
+					});
+				} else if (str[3] == ' warning'){
+					errors.push({
+						file: str[0].split('/').pop(),
+						row: str[1]-1,
+						column: str[2],
+						text: str.slice(4).join(':').slice(1) + '\ncolumn: '+str[2],
+						type: "warning"
+					});
+				} else {
+					//console.log('rejected error string: '+str);
+				}
+			}
+		}
+	}
 
+	//console.log(errors);
+
+	// if no gcc errors have been parsed correctly, but make still thinks there is an error
+	// error will contain string 'make: *** [<path>] Error 1'
+	if (!errors.length && (error.indexOf('make: *** ') !== -1) && (error.indexOf('Error 1') !== -1)){
+		errors.push({
+			text: error,
+			type: 'error'
+		});
+	}
+	
+	models.error.setKey('syntaxErrors', errors);
+
+}
 
 
 function getDateString(){

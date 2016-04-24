@@ -11,11 +11,11 @@ class ConsoleView extends View{
 	// model events
 	// syntax
 	_checkingSyntax(status){
-		if (status){
+		/*if (status){
 			_console.log('checking syntax');
 		} else {
 			_console.log('not checking syntax');
-		}
+		}*/
 	}
 	_syntaxLog(log, data){
 		if (this.settings.fullSyntaxCheckOutput){
@@ -28,34 +28,37 @@ class ConsoleView extends View{
 	
 	// build
 	_building(status){
-		if (status){
+		/*if (status){
 			_console.log('building');
 		} else {
 			_console.log('not building');
-		}
+		}*/
 	}
 	_buildLog(log, data){
-		if (this.settings.fullBuildOutput){
+		//if (this.settings.fullBuildOutput){
 			_console.log(log);
-		}
+		//}
 	}
 	_buildResult(result, data){
-		//_console.log('result stdout:', result.stdout, 'stderr', result.stderr);
+		if (this.settings.verboseBuildErrors){
+			_console.log(result.stderr);
+		}
 	}
 	
 	// bela
 	_running(status){
-		if (status){
+		/*if (status){
 			_console.log('running');
 		} else {
 			_console.log('not running');
-		}
+		}*/
 	}
 	_belaLog(log, data){
 		_console.log(log);
 	}
 	_belaResult(result, data){
-		_console.log('result stdout:', result.stdout, 'stderr', result.stderr);
+		//console.log(result.stdout);
+		//console.log(result.stderr);
 	}
 }
 

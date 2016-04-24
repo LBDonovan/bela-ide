@@ -54,7 +54,44 @@ class EditorView extends View {
 		// focus the editor
 		this.editor.focus();
 	}
-	
+	_fileName(data){
+		this.currentFile = data;
+	}
+	_syntaxErrors(errors){
+
+		// clear any error annotations on the ace editor
+		this.editor.session.clearAnnotations();
+
+		if (errors.length >= 1){		
+			// errors exist!
+			
+			var currentFileErrors = [], otherErrors = [];
+			var realErrors = [], warnings = [];
+			
+			for (var i=0; i<errors.length; i++){
+			
+				// sort the errors into those in the current file and those not
+				if (errors[i].file === this.currentFile){
+					currentFileErrors.push(errors[i]);
+				} else {
+					otherErrors.push(errors[i]);
+					errors[i].text = 'In file '+errors[i].file+': '+errors[i].text;
+				}
+				
+				// sort the errors into real errors and warnings
+				if (errors[i].type === 'error'){
+					realErrors.push(errors[i]);
+				} else {
+					warnings.push(errors[i]);
+				}
+			
+			}
+			
+			// annotate the errors in this file
+			this.editor.session.setAnnotations(currentFileErrors);
+						
+		}
+	}	
 }
 
 module.exports = EditorView;

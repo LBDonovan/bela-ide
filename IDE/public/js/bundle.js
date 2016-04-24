@@ -9343,6 +9343,7 @@ models = {};
 models.project = new Model();
 models.settings = new Model();
 models.status = new Model();
+models.error = new Model();
 
 // set up views
 // tab view
@@ -9372,7 +9373,7 @@ fileView.on('message', (event, data) => {
 });
 
 // editor view
-var editorView = new (require('./Views/EditorView'))('editor', [models.project, models.settings]);
+var editorView = new (require('./Views/EditorView'))('editor', [models.project, models.error]);
 editorView.on('change', fileData => {
 	socket.emit('process-event', {
 		event: 'upload',
@@ -9393,7 +9394,7 @@ toolbarView.on('process-event', event => {
 });
 
 // console view
-var consoleView = new (require('./Views/ConsoleView'))('IDEconsole', [models.status, models.settings], models.settings);
+//var consoleView = new (require('./Views/ConsoleView'))('IDEconsole', [models.status, models.settings], models.settings);
 
 // setup socket
 var socket = io('/IDE');
@@ -9419,6 +9420,79 @@ socket.on('status', status => {
 	models.status.setData(status);
 	//console.log('status', status)
 });
+
+// build errors
+models.status.on('change', (data, changedKeys) => {
+	if (changedKeys.indexOf('syntaxError') !== -1) {
+		parseErrors(data.syntaxError);
+	}
+});
+
+// parse errors from g++
+function parseErrors(data) {
+
+	var errors = [];
+	for (let i = 0; i < data.length; i++) {
+
+		// ignore errors which begin with 'make'
+		if (data[i].length > 1 && data[i].slice(0, 4) !== 'make') {
+
+			var msg = data[i].split('\n');
+
+			for (let j = 0; j < msg.length; j++) {
+
+				var str = msg[j].split(':');
+				//console.log(str);
+				// str[0] -> file name + path
+				// str[1] -> row number
+				// str[2] -> column number
+				// str[3] -> type of error
+				// str[4+] > error message
+
+				if (str[3] === ' error') {
+					errors.push({
+						file: str[0].split('/').pop(),
+						row: str[1] - 1,
+						column: str[2],
+						text: str.slice(4).join(':').slice(1) + '\ncolumn: ' + str[2],
+						type: "error"
+					});
+				} else if (str[3] == ' fatal error') {
+					errors.push({
+						file: str[0].split('/').pop(),
+						row: str[1] - 1,
+						column: str[2],
+						text: str.slice(4).join(':').slice(1) + '\ncolumn: ' + str[2],
+						type: "error"
+					});
+				} else if (str[3] == ' warning') {
+					errors.push({
+						file: str[0].split('/').pop(),
+						row: str[1] - 1,
+						column: str[2],
+						text: str.slice(4).join(':').slice(1) + '\ncolumn: ' + str[2],
+						type: "warning"
+					});
+				} else {
+					//console.log('rejected error string: '+str);
+				}
+			}
+		}
+	}
+
+	//console.log(errors);
+
+	// if no gcc errors have been parsed correctly, but make still thinks there is an error
+	// error will contain string 'make: *** [<path>] Error 1'
+	if (!errors.length && error.indexOf('make: *** ') !== -1 && error.indexOf('Error 1') !== -1) {
+		errors.push({
+			text: error,
+			type: 'error'
+		});
+	}
+
+	models.error.setKey('syntaxErrors', errors);
+}
 
 function getDateString() {
 
@@ -9470,7 +9544,7 @@ function getDateString() {
 	return str;
 }
 
-},{"./Models/Model":3,"./Views/ConsoleView":4,"./Views/EditorView":5,"./Views/FileView":6,"./Views/ProjectView":7,"./Views/TabView":8,"./Views/ToolbarView":9}],3:[function(require,module,exports){
+},{"./Models/Model":3,"./Views/EditorView":4,"./Views/FileView":5,"./Views/ProjectView":6,"./Views/TabView":7,"./Views/ToolbarView":8}],3:[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter;
 
 class Model extends EventEmitter {
@@ -9532,72 +9606,7 @@ function _equals(a, b, log) {
 	}
 }
 
-},{"events":13}],4:[function(require,module,exports){
-'use strict';
-
-var View = require('./View');
-var _console = require('../console');
-
-class ConsoleView extends View {
-
-	constructor(className, models, settings) {
-		super(className, models, settings);
-	}
-
-	// model events
-	// syntax
-	_checkingSyntax(status) {
-		if (status) {
-			_console.log('checking syntax');
-		} else {
-			_console.log('not checking syntax');
-		}
-	}
-	_syntaxLog(log, data) {
-		if (this.settings.fullSyntaxCheckOutput) {
-			_console.log(log);
-		}
-	}
-	_syntaxResult(result, data) {}
-	//_console.log('result stdout:', result.stdout, 'stderr', result.stderr);
-
-
-	// build
-	_building(status) {
-		if (status) {
-			_console.log('building');
-		} else {
-			_console.log('not building');
-		}
-	}
-	_buildLog(log, data) {
-		if (this.settings.fullBuildOutput) {
-			_console.log(log);
-		}
-	}
-	_buildResult(result, data) {}
-	//_console.log('result stdout:', result.stdout, 'stderr', result.stderr);
-
-
-	// bela
-	_running(status) {
-		if (status) {
-			_console.log('running');
-		} else {
-			_console.log('not running');
-		}
-	}
-	_belaLog(log, data) {
-		_console.log(log);
-	}
-	_belaResult(result, data) {
-		_console.log('result stdout:', result.stdout, 'stderr', result.stderr);
-	}
-}
-
-module.exports = ConsoleView;
-
-},{"../console":11,"./View":10}],5:[function(require,module,exports){
+},{"events":11}],4:[function(require,module,exports){
 var View = require('./View');
 
 const uploadDelay = 50;
@@ -9653,12 +9662,49 @@ class EditorView extends View {
 		// focus the editor
 		this.editor.focus();
 	}
+	_fileName(data) {
+		this.currentFile = data;
+	}
+	_syntaxErrors(errors) {
 
+		// clear any error annotations on the ace editor
+		this.editor.session.clearAnnotations();
+
+		if (errors.length >= 1) {
+			// errors exist!
+
+			var currentFileErrors = [],
+			    otherErrors = [];
+			var realErrors = [],
+			    warnings = [];
+
+			for (var i = 0; i < errors.length; i++) {
+
+				// sort the errors into those in the current file and those not
+				if (errors[i].file === this.currentFile) {
+					currentFileErrors.push(errors[i]);
+				} else {
+					otherErrors.push(errors[i]);
+					errors[i].text = 'In file ' + errors[i].file + ': ' + errors[i].text;
+				}
+
+				// sort the errors into real errors and warnings
+				if (errors[i].type === 'error') {
+					realErrors.push(errors[i]);
+				} else {
+					warnings.push(errors[i]);
+				}
+			}
+
+			// annotate the errors in this file
+			this.editor.session.setAnnotations(currentFileErrors);
+		}
+	}
 }
 
 module.exports = EditorView;
 
-},{"./View":10}],6:[function(require,module,exports){
+},{"./View":9}],5:[function(require,module,exports){
 var View = require('./View');
 
 var sourceIndeces = ['cpp', 'c', 'S'];
@@ -9780,7 +9826,7 @@ class FileView extends View {
 
 module.exports = FileView;
 
-},{"./View":10}],7:[function(require,module,exports){
+},{"./View":9}],6:[function(require,module,exports){
 var View = require('./View');
 
 class ProjectView extends View {
@@ -9885,7 +9931,7 @@ class ProjectView extends View {
 
 module.exports = ProjectView;
 
-},{"./View":10}],8:[function(require,module,exports){
+},{"./View":9}],7:[function(require,module,exports){
 var View = require('./View');
 
 // private variables
@@ -9932,7 +9978,7 @@ class TabView extends View {
 
 module.exports = new TabView();
 
-},{"./View":10}],9:[function(require,module,exports){
+},{"./View":9}],8:[function(require,module,exports){
 var View = require('./View');
 
 class ToolbarView extends View {
@@ -9985,7 +10031,7 @@ class ToolbarView extends View {
 
 module.exports = ToolbarView;
 
-},{"./View":10}],10:[function(require,module,exports){
+},{"./View":9}],9:[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter;
 var $ = require('jquery-browserify');
 
@@ -10030,89 +10076,7 @@ class View extends EventEmitter {
 
 module.exports = View;
 
-},{"events":13,"jquery-browserify":1}],11:[function(require,module,exports){
-'use strict';
-
-var EventEmitter = require('events').EventEmitter;
-var $ = require('jquery-browserify');
-
-// module variables
-var numElements = 0,
-    maxElements = 200;
-
-class Console extends EventEmitter {
-
-	constructor() {
-		super();
-		this.$element = $('#beaglert-consoleWrapper');
-		this.parent = document.getElementById('beaglert-console');
-	}
-
-	print(text, className, id, onClick) {
-		var el = $('<div></div>').addClass('beaglert-console-' + className).appendTo(this.$element);
-		if (id) el.prop('id', id);
-		$('<span></span>').html(text).appendTo(el);
-		if (numElements++ > maxElements) clear();
-		if (onClick) el.on('click', onClick);
-		return el;
-	}
-
-	// log an unhighlighted message to the console
-	log(text) {
-		var msgs = text.split('\n');
-		for (let i = 0; i < msgs.length; i++) {
-			if (msgs[i] !== '') {
-				this.print(msgs[i], 'log');
-			}
-		}
-		this.scroll();
-	}
-
-	// log a positive notification to the console
-	// if persist is not true, the notification will be removed quickly
-	// otherwise it will just fade
-	/*notify(notice, persist){
- 
- 	var el = print(notice, 'notify', null, dismiss);
- 		if (IDE.getSetting('consoleAnimations')){
- 		setTimeout(function(){
- 			if (persist){
- 				el.addClass('beaglert-console-faded');
- 			} else {
- 				el.addClass('beaglert-console-collapsed');
- 				setTimeout(function(){
- 					if ($.contains($element, el)){
- 						$element.removeChild(el);
- 					}
- 				}, 500);
- 			}
- 		}, 1000);
- 	}
- 	
- 	scroll();
- }*/
-
-	// force the console to scroll to the bottom
-	scroll() {
-		setTimeout(() => this.parent.scrollTop = this.parent.scrollHeight, 0);
-	}
-
-};
-
-module.exports = new Console();
-
-// gracefully remove a console element after an event ((this) must be bound to the element)
-function dismiss() {
-	if (IDE.getSetting('consoleAnimations')) $(this).addClass('beaglert-console-collapsed');
-	setTimeout(() => {
-		if ($.contains(parent, this)) {
-			$(this).remove();
-			numElements -= 1;
-		}
-	}, 500);
-}
-
-},{"events":13,"jquery-browserify":1}],12:[function(require,module,exports){
+},{"events":11,"jquery-browserify":1}],10:[function(require,module,exports){
 var $ = require('jquery-browserify');
 var IDE;
 
@@ -10120,7 +10084,7 @@ $(() => {
 	IDE = require('./IDE-browser');
 });
 
-},{"./IDE-browser":2,"jquery-browserify":1}],13:[function(require,module,exports){
+},{"./IDE-browser":2,"jquery-browserify":1}],11:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -10420,7 +10384,7 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}]},{},[12])
+},{}]},{},[10])
 
 
 //# sourceMappingURL=bundle.js.map

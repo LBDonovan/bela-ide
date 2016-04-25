@@ -15,6 +15,14 @@ models.error = new Model();
 var tabView = require('./Views/TabView');
 tabView.on('change', () => editorView.emit('resize') );
 
+// settings view
+var settingsView = new (require('./Views/SettingsView'))('settingsManager', [models.project, models.settings]);
+settingsView.on('project-settings', (data) => {
+	data.currentProject = models.project.getKey('currentProject');
+	//console.log('project-settings', data);
+	socket.emit('project-settings', data);
+});
+
 // project view
 var projectView = new (require('./Views/ProjectView'))('projectManager', [models.project]);
 projectView.on('message', (event, data) => {
@@ -61,11 +69,7 @@ toolbarView.on('clear-console', () => consoleView.emit('clear') );
 
 // console view
 var consoleView = new (require('./Views/ConsoleView'))('IDEconsole', [models.status, models.project, models.error], models.settings);
-consoleView.on('focus', (focus) => {
-	console.log(focus);
-	models.project.setKey('focus', focus);
-	models.project.print();
-});
+consoleView.on('focus', (focus) =>  models.project.setKey('focus', focus) );
 consoleView.on('open-file', (fileName, focus) => {
 	var data = {
 		func: 'openFile',
@@ -73,7 +77,6 @@ consoleView.on('open-file', (fileName, focus) => {
 		focus, 
 		currentProject: models.project.getKey('currentProject')
 	};
-	console.log(data);
 	socket.emit('project-event', data);
 });
 
@@ -94,13 +97,16 @@ socket.on('init', (projectList, exampleList, currentProject, settings) => {
 
 socket.on('project-data', (data) => {
 	models.project.setData(data);
-	//console.log(data);
+	models.settings.setData(data.settings);
+	//models.settings.print();
 });
 
 socket.on('status', (status) => {
 	models.status.setData(status);
 	//console.log('status', status)
 });
+
+socket.on('project-settings-data', (settings) =>  models.settings.setData(settings) );
 
 // build errors
 models.status.on('change', (data, changedKeys) => {

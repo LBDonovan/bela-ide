@@ -9350,6 +9350,14 @@ models.error = new Model();
 var tabView = require('./Views/TabView');
 tabView.on('change', () => editorView.emit('resize'));
 
+// settings view
+var settingsView = new (require('./Views/SettingsView'))('settingsManager', [models.project, models.settings]);
+settingsView.on('project-settings', data => {
+	data.currentProject = models.project.getKey('currentProject');
+	//console.log('project-settings', data);
+	socket.emit('project-settings', data);
+});
+
 // project view
 var projectView = new (require('./Views/ProjectView'))('projectManager', [models.project]);
 projectView.on('message', (event, data) => {
@@ -9396,11 +9404,7 @@ toolbarView.on('clear-console', () => consoleView.emit('clear'));
 
 // console view
 var consoleView = new (require('./Views/ConsoleView'))('IDEconsole', [models.status, models.project, models.error], models.settings);
-consoleView.on('focus', focus => {
-	console.log(focus);
-	models.project.setKey('focus', focus);
-	models.project.print();
-});
+consoleView.on('focus', focus => models.project.setKey('focus', focus));
 consoleView.on('open-file', (fileName, focus) => {
 	var data = {
 		func: 'openFile',
@@ -9408,7 +9412,6 @@ consoleView.on('open-file', (fileName, focus) => {
 		focus,
 		currentProject: models.project.getKey('currentProject')
 	};
-	console.log(data);
 	socket.emit('project-event', data);
 });
 
@@ -9429,13 +9432,16 @@ socket.on('init', (projectList, exampleList, currentProject, settings) => {
 
 socket.on('project-data', data => {
 	models.project.setData(data);
-	//console.log(data);
+	models.settings.setData(data.settings);
+	//models.settings.print();
 });
 
 socket.on('status', status => {
 	models.status.setData(status);
 	//console.log('status', status)
 });
+
+socket.on('project-settings-data', settings => models.settings.setData(settings));
 
 // build errors
 models.status.on('change', (data, changedKeys) => {
@@ -9573,7 +9579,7 @@ function getDateString() {
 	return str;
 }
 
-},{"./Models/Model":3,"./Views/ConsoleView":4,"./Views/EditorView":5,"./Views/FileView":6,"./Views/ProjectView":7,"./Views/TabView":8,"./Views/ToolbarView":9}],3:[function(require,module,exports){
+},{"./Models/Model":3,"./Views/ConsoleView":4,"./Views/EditorView":5,"./Views/FileView":6,"./Views/ProjectView":7,"./Views/SettingsView":8,"./Views/TabView":9,"./Views/ToolbarView":10}],3:[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter;
 
 class Model extends EventEmitter {
@@ -9635,7 +9641,7 @@ function _equals(a, b, log) {
 	}
 }
 
-},{"events":13}],4:[function(require,module,exports){
+},{"events":14}],4:[function(require,module,exports){
 'use strict';
 
 var View = require('./View');
@@ -9686,7 +9692,7 @@ class ConsoleView extends View {
 
 module.exports = ConsoleView;
 
-},{"../console":11,"./View":10}],5:[function(require,module,exports){
+},{"../console":12,"./View":11}],5:[function(require,module,exports){
 var View = require('./View');
 
 const uploadDelay = 50;
@@ -9763,7 +9769,7 @@ class EditorView extends View {
 
 module.exports = EditorView;
 
-},{"./View":10}],6:[function(require,module,exports){
+},{"./View":11}],6:[function(require,module,exports){
 var View = require('./View');
 
 var sourceIndeces = ['cpp', 'c', 'S'];
@@ -9885,7 +9891,7 @@ class FileView extends View {
 
 module.exports = FileView;
 
-},{"./View":10}],7:[function(require,module,exports){
+},{"./View":11}],7:[function(require,module,exports){
 var View = require('./View');
 
 class ProjectView extends View {
@@ -9990,7 +9996,47 @@ class ProjectView extends View {
 
 module.exports = ProjectView;
 
-},{"./View":10}],8:[function(require,module,exports){
+},{"./View":11}],8:[function(require,module,exports){
+var View = require('./View');
+
+class SettingsView extends View {
+
+	constructor(className, models) {
+		super(className, models);
+		this.$elements.filter('input').on('change', e => this.selectChanged($(e.currentTarget), e));
+	}
+
+	selectChanged($element, e) {
+		var data = $element.data();
+		var func = data.func;
+		var key = data.key;
+		if (func && this[func]) {
+			this[func](key, $element.val());
+		}
+	}
+
+	projectSettings(key, value) {
+		this.emit('project-settings', { key, value });
+	}
+
+	// model events
+	_CLArgs(data) {
+		console.log(data);
+		for (let key in data) {
+			this.$elements.filterByData('key', key).val(data[key]);
+		}
+	}
+}
+
+module.exports = SettingsView;
+
+$.fn.filterByData = function (prop, val) {
+	return this.filter(function () {
+		return $(this).data(prop) == val;
+	});
+};
+
+},{"./View":11}],9:[function(require,module,exports){
 var View = require('./View');
 
 // private variables
@@ -10037,7 +10083,7 @@ class TabView extends View {
 
 module.exports = new TabView();
 
-},{"./View":10}],9:[function(require,module,exports){
+},{"./View":11}],10:[function(require,module,exports){
 var View = require('./View');
 
 class ToolbarView extends View {
@@ -10101,7 +10147,7 @@ class ToolbarView extends View {
 
 module.exports = ToolbarView;
 
-},{"./View":10}],10:[function(require,module,exports){
+},{"./View":11}],11:[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter;
 var $ = require('jquery-browserify');
 
@@ -10146,7 +10192,7 @@ class View extends EventEmitter {
 
 module.exports = View;
 
-},{"events":13,"jquery-browserify":1}],11:[function(require,module,exports){
+},{"events":14,"jquery-browserify":1}],12:[function(require,module,exports){
 'use strict';
 
 var EventEmitter = require('events').EventEmitter;
@@ -10261,7 +10307,7 @@ module.exports = new Console();
 	}, 500);
 }*/
 
-},{"events":13,"jquery-browserify":1}],12:[function(require,module,exports){
+},{"events":14,"jquery-browserify":1}],13:[function(require,module,exports){
 var $ = require('jquery-browserify');
 var IDE;
 
@@ -10269,7 +10315,7 @@ $(() => {
 	IDE = require('./IDE-browser');
 });
 
-},{"./IDE-browser":2,"jquery-browserify":1}],13:[function(require,module,exports){
+},{"./IDE-browser":2,"jquery-browserify":1}],14:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -10569,7 +10615,7 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}]},{},[12])
+},{}]},{},[13])
 
 
 //# sourceMappingURL=bundle.js.map

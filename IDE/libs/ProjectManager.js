@@ -134,6 +134,13 @@ module.exports = {
 		data.fileName = '';
 		data.fileData = '';
 		return data;
+	},
+	
+	*setProjectSetting(data){
+		var settings = yield _getSettings(data.currentProject);
+		//console.log(settings);
+		settings.CLArgs[data.key] = data.value;
+		return yield _saveSettings(settings, data);
 	}
 }
 

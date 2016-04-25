@@ -99,6 +99,16 @@ function socketEvents(socket){
 			
 	});
 	
+	// project settings
+	socket.on('project-settings', (data) => {
+		co(ProjectManager, 'setProjectSetting', data)
+			.then((result) => socket.emit('project-settings-data', result) )
+			.catch((error) => {
+				console.log(error, error.stack.split('\n'), error.toString());
+				socket.emit('report-error', error.toString() );
+			});
+	});
+	
 	// process events
 	socket.on('process-event', (data) => {
 	

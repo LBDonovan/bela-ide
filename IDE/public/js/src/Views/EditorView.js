@@ -73,6 +73,9 @@ class EditorView extends View {
 						
 		}
 	}	
+	_IDESettings(data, key){
+		console.log(data);
+	}
 }
 
 module.exports = EditorView;

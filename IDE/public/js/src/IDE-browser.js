@@ -24,7 +24,7 @@ settingsView.on('project-settings', (data) => {
 });
 settingsView.on('IDE-settings', (data) => {
 	data.currentProject = models.project.getKey('currentProject');
-	console.log('IDE-settings', data);
+	//console.log('IDE-settings', data);
 	socket.emit('IDE-settings', data);
 });
 
@@ -51,7 +51,7 @@ fileView.on('message', (event, data) => {
 });
 
 // editor view
-var editorView = new (require('./Views/EditorView'))('editor', [models.project, models.error]);
+var editorView = new (require('./Views/EditorView'))('editor', [models.project, models.error, models.settings], models.settings);
 editorView.on('change', (fileData) => {
 	socket.emit('process-event', {
 		event			: 'upload',
@@ -92,13 +92,13 @@ var socket = io('/IDE');
 socket.on('report-error', (error) => console.error(error) );
 
 socket.on('init', (data) => {
-	console.log(data);
+	//console.log(data);
 	models.project.setData({projectList: data[0], exampleList: data[1], currentProject: data[2].project});
 	socket.emit('project-event', {func: 'openProject', currentProject: data[2].project})
 	models.settings.setKey('IDESettings', data[2]);
 	
-	models.project.print();
-	models.settings.print();
+	//models.project.print();
+	//models.settings.print();
 	
 	socket.emit('set-time', getDateString());
 });
@@ -115,11 +115,7 @@ socket.on('status', (status) => {
 });
 
 socket.on('project-settings-data', (settings) =>  models.settings.setData(settings) );
-socket.on('IDE-settings-data', (settings) =>  {
-	console.log(settings);
-	models.settings.setKey('IDESettings', settings);
-	models.settings.print();
-});
+socket.on('IDE-settings-data', (settings) =>   models.settings.setKey('IDESettings', settings) );
 
 // build errors
 models.status.on('change', (data, changedKeys) => {

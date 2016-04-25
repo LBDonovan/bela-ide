@@ -175,7 +175,7 @@ var SettingsManager = {
 
 	// load the IDE settings JSON from disk
 	getSettings(){
-		console.log('reading settings');
+		//console.log('reading settings');
 		// load the global settings
 		return fs.readJsonAsync('./settings.json')
 			.catch((error) => {
@@ -188,7 +188,7 @@ var SettingsManager = {
 
 	// save the IDE settings JSON
 	setSettings(settings){
-		console.log('saving settings', settings);
+		//console.log('saving settings', settings);
 		return fs.writeJsonAsync('./settings.json', settings)
 			.then( () => settings )
 			.catch((error) => console.log('unable to save IDE settings JSON', error, error.stack));
@@ -201,6 +201,15 @@ var SettingsManager = {
 			.then((settings) => {
 				settings[data.key] = data.value;
 				return this.setSettings(settings);
+			});
+	},
+	
+	restoreDefaultIDESettings(data){
+		return this.getSettings()
+			.then((oldSettings) => {
+				var newSettings = this.defaultSettings();
+				newSettings.project = oldSettings.project;
+				return this.setSettings(newSettings);
 			});
 	}
 

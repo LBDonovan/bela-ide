@@ -44,7 +44,7 @@ class SettingsView extends View {
 	}
 	_IDESettings(data){
 		for (let key in data){
-			this.$elements.filterByData('key', key).val(data[key]);
+			this.$elements.filterByData('key', key).val(data[key].toString());
 		}
 	}
 }

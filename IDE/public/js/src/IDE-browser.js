@@ -50,16 +50,17 @@ editorView.on('change', (fileData) => {
 });
 
 // toolbar view
-var toolbarView = new (require('./Views/ToolbarView'))('toolBar', [models.project, models.settings, models.status]);
+var toolbarView = new (require('./Views/ToolbarView'))('toolBar', [models.project, models.error, models.status]);
 toolbarView.on('process-event', (event) => {
 	socket.emit('process-event', {
 		event,
 		currentProject	: models.project.getKey('currentProject')
 	});
 });
+toolbarView.on('clear-console', () => consoleView.emit('clear') );
 
 // console view
-//var consoleView = new (require('./Views/ConsoleView'))('IDEconsole', [models.status, models.settings], models.settings);
+var consoleView = new (require('./Views/ConsoleView'))('IDEconsole', [models.status, models.project, models.error], models.settings);
 
 
 // setup socket
@@ -146,18 +147,30 @@ function parseErrors(data){
 		}
 	}
 
-	//console.log(errors);
-
 	// if no gcc errors have been parsed correctly, but make still thinks there is an error
 	// error will contain string 'make: *** [<path>] Error 1'
-	if (!errors.length && (error.indexOf('make: *** ') !== -1) && (error.indexOf('Error 1') !== -1)){
+	if (!errors.length && (data.indexOf('make: *** ') !== -1) && (data.indexOf('Error 1') !== -1)){
 		errors.push({
-			text: error,
+			text: data,
 			type: 'error'
 		});
 	}
 	
-	models.error.setKey('syntaxErrors', errors);
+	var currentFileErrors = [], otherFileErrors = [];
+	for (let err of errors){
+		if (!err.file || err.file === models.project.getKey('fileName')){
+			err.currentFile = true;
+			currentFileErrors.push(err);
+		} else {
+			err.currentFile = false;
+			err.text = 'In file '+err.file+': '+err.text;
+			otherFileErrors.push(err);
+		}
+	}
+	
+	models.error.setKey('allErrors', errors);
+	models.error.setKey('currentFileErrors', currentFileErrors);
+	models.error.setKey('otherFileErrors', otherFileErrors);
 
 }
 

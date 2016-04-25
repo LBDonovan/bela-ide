@@ -106,7 +106,7 @@ class ProcessManager extends EventEmitter {
 		// syntax events
 		syntaxCheckProcess.on('stdout', (data) => this.emit('status', {syntaxLog: data}) );
 		//syntaxCheckProcess.on('stderr', (data) => this.emit('status', {syntaxLog: data}) );
-		syntaxCheckProcess.on('finished', (data) => { if (data.stderr.length) this.emit('status', {syntaxError: data.stderr}) });
+		syntaxCheckProcess.on('finished', (data) => this.emit('status', {syntaxError: data.stderr}) );
 		
 		// build events
 		buildProcess.on('stdout', (data) => this.emit('status', {buildLog: data}) );

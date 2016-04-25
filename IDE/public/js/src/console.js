@@ -17,7 +17,7 @@ class Console extends EventEmitter {
 		var el = $('<div></div>').addClass('beaglert-console-'+className).appendTo(this.$element);
 		if (id) el.prop('id', id);
 		$('<span></span>').html(text).appendTo(el);
-		if (numElements++ > maxElements) clear();
+		if (numElements++ > maxElements) this.clear(numElements/4);
 		if (onClick) el.on('click', onClick);
 		return el;
 	}
@@ -31,6 +31,23 @@ class Console extends EventEmitter {
 			}
 		}
 		this.scroll();
+	}
+	
+	newErrors(errors){
+	
+		$('.beaglert-console-ierror, .beaglert-console-iwarning').remove();
+		
+		for (let err of errors){
+		
+			// create the element and add it to the error object
+			var div = $('<div></div>').addClass('beaglert-console-i'+err.type)
+			
+			// create the link and add it to the element
+			var anchor = $('<a></a>').html(err.text).appendTo(div);
+			
+			div.appendTo(this.$element);
+			
+		}
 	}
 	
 	// log a positive notification to the console
@@ -58,9 +75,20 @@ class Console extends EventEmitter {
 		scroll();
 	}*/
 	
+	// clear the console
+	clear(number){
+		if (number){
+			$("#beaglert-consoleWrapper > div:lt("+parseInt(number)+")").remove();
+			numElements -= parseInt(number);
+		} else {
+			$('#beaglert-consoleWrapper').empty();
+			numElements = 0;
+		}
+	}
+	
 	// force the console to scroll to the bottom
 	scroll(){
-		setTimeout(() => this.parent.scrollTop = this.parent.scrollHeight, 0);
+		setTimeout((() => this.parent.scrollTop = this.parent.scrollHeight), 0);
 	}
 	
 };
@@ -68,7 +96,7 @@ class Console extends EventEmitter {
 module.exports = new Console();
 
 // gracefully remove a console element after an event ((this) must be bound to the element)
-function dismiss(){
+/*function dismiss(){
 	if (IDE.getSetting('consoleAnimations')) $(this).addClass('beaglert-console-collapsed');
 	setTimeout(() => {
 		if ($.contains(parent, this)){
@@ -76,4 +104,4 @@ function dismiss(){
 			numElements -= 1;
 		}
 	}, 500);
-}
+}*/

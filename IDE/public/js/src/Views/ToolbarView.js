@@ -23,6 +23,10 @@ class ToolbarView extends View {
 		this.emit('process-event', func);
 	}
 	
+	clearConsole(){
+		this.emit('clear-console');
+	}
+	
 	// model events
 	_running(status){
 		if (status){
@@ -40,9 +44,16 @@ class ToolbarView extends View {
 			$('#status').css('background', 'url("images/toolbar.png") -210px 35px');
 		} else {
 			// clear
-			$('#status').css('background', 'url("images/toolbar.png") -140px 35px');
+			//$('#status').css('background', 'url("images/toolbar.png") -140px 35px');
 			// errors
 			// $('#status').css('background', 'url("images/toolbar.png") -175px 35px');
+		}
+	}
+	_allErrors(errors){
+		if (errors.length){
+			$('#status').css('background', 'url("images/toolbar.png") -175px 35px');
+		} else {
+			$('#status').css('background', 'url("images/toolbar.png") -140px 35px');
 		}
 	}
 	

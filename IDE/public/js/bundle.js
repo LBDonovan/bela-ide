@@ -9385,16 +9385,17 @@ editorView.on('change', fileData => {
 });
 
 // toolbar view
-var toolbarView = new (require('./Views/ToolbarView'))('toolBar', [models.project, models.settings, models.status]);
+var toolbarView = new (require('./Views/ToolbarView'))('toolBar', [models.project, models.error, models.status]);
 toolbarView.on('process-event', event => {
 	socket.emit('process-event', {
 		event,
 		currentProject: models.project.getKey('currentProject')
 	});
 });
+toolbarView.on('clear-console', () => consoleView.emit('clear'));
 
 // console view
-//var consoleView = new (require('./Views/ConsoleView'))('IDEconsole', [models.status, models.settings], models.settings);
+var consoleView = new (require('./Views/ConsoleView'))('IDEconsole', [models.status, models.project, models.error], models.settings);
 
 // setup socket
 var socket = io('/IDE');
@@ -9480,18 +9481,31 @@ function parseErrors(data) {
 		}
 	}
 
-	//console.log(errors);
-
 	// if no gcc errors have been parsed correctly, but make still thinks there is an error
 	// error will contain string 'make: *** [<path>] Error 1'
-	if (!errors.length && error.indexOf('make: *** ') !== -1 && error.indexOf('Error 1') !== -1) {
+	if (!errors.length && data.indexOf('make: *** ') !== -1 && data.indexOf('Error 1') !== -1) {
 		errors.push({
-			text: error,
+			text: data,
 			type: 'error'
 		});
 	}
 
-	models.error.setKey('syntaxErrors', errors);
+	var currentFileErrors = [],
+	    otherFileErrors = [];
+	for (let err of errors) {
+		if (!err.file || err.file === models.project.getKey('fileName')) {
+			err.currentFile = true;
+			currentFileErrors.push(err);
+		} else {
+			err.currentFile = false;
+			err.text = 'In file ' + err.file + ': ' + err.text;
+			otherFileErrors.push(err);
+		}
+	}
+
+	models.error.setKey('allErrors', errors);
+	models.error.setKey('currentFileErrors', currentFileErrors);
+	models.error.setKey('otherFileErrors', otherFileErrors);
 }
 
 function getDateString() {
@@ -9544,7 +9558,7 @@ function getDateString() {
 	return str;
 }
 
-},{"./Models/Model":3,"./Views/EditorView":4,"./Views/FileView":5,"./Views/ProjectView":6,"./Views/TabView":7,"./Views/ToolbarView":8}],3:[function(require,module,exports){
+},{"./Models/Model":3,"./Views/ConsoleView":4,"./Views/EditorView":5,"./Views/FileView":6,"./Views/ProjectView":7,"./Views/TabView":8,"./Views/ToolbarView":9}],3:[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter;
 
 class Model extends EventEmitter {
@@ -9606,7 +9620,56 @@ function _equals(a, b, log) {
 	}
 }
 
-},{"events":11}],4:[function(require,module,exports){
+},{"events":13}],4:[function(require,module,exports){
+'use strict';
+
+var View = require('./View');
+var _console = require('../console');
+
+class ConsoleView extends View {
+
+	constructor(className, models, settings) {
+		super(className, models, settings);
+		this.on('clear', () => _console.clear());
+	}
+
+	// model events
+	// syntax
+	_syntaxLog(log, data) {
+		if (this.settings.fullSyntaxCheckOutput) {
+			_console.log(log);
+		}
+	}
+	_allErrors(errors) {
+		_console.newErrors(errors);
+	}
+
+	// build
+	_buildLog(log, data) {
+		//if (this.settings.fullBuildOutput){
+		_console.log(log);
+		//}
+	}
+	_buildResult(result, data) {
+		if (this.settings.verboseBuildErrors) {
+			_console.log(result.stderr);
+		}
+	}
+
+	// bela
+	_belaLog(log, data) {
+		_console.log(log);
+	}
+	_belaResult(result, data) {
+		//_console.log(result.stdout);
+		//_console.log(result.stderr);
+	}
+
+}
+
+module.exports = ConsoleView;
+
+},{"../console":11,"./View":10}],5:[function(require,module,exports){
 var View = require('./View');
 
 const uploadDelay = 50;
@@ -9665,46 +9728,22 @@ class EditorView extends View {
 	_fileName(data) {
 		this.currentFile = data;
 	}
-	_syntaxErrors(errors) {
+	_currentFileErrors(errors) {
 
 		// clear any error annotations on the ace editor
 		this.editor.session.clearAnnotations();
 
 		if (errors.length >= 1) {
 			// errors exist!
-
-			var currentFileErrors = [],
-			    otherErrors = [];
-			var realErrors = [],
-			    warnings = [];
-
-			for (var i = 0; i < errors.length; i++) {
-
-				// sort the errors into those in the current file and those not
-				if (errors[i].file === this.currentFile) {
-					currentFileErrors.push(errors[i]);
-				} else {
-					otherErrors.push(errors[i]);
-					errors[i].text = 'In file ' + errors[i].file + ': ' + errors[i].text;
-				}
-
-				// sort the errors into real errors and warnings
-				if (errors[i].type === 'error') {
-					realErrors.push(errors[i]);
-				} else {
-					warnings.push(errors[i]);
-				}
-			}
-
 			// annotate the errors in this file
-			this.editor.session.setAnnotations(currentFileErrors);
+			this.editor.session.setAnnotations(errors);
 		}
 	}
 }
 
 module.exports = EditorView;
 
-},{"./View":9}],5:[function(require,module,exports){
+},{"./View":10}],6:[function(require,module,exports){
 var View = require('./View');
 
 var sourceIndeces = ['cpp', 'c', 'S'];
@@ -9826,7 +9865,7 @@ class FileView extends View {
 
 module.exports = FileView;
 
-},{"./View":9}],6:[function(require,module,exports){
+},{"./View":10}],7:[function(require,module,exports){
 var View = require('./View');
 
 class ProjectView extends View {
@@ -9931,7 +9970,7 @@ class ProjectView extends View {
 
 module.exports = ProjectView;
 
-},{"./View":9}],7:[function(require,module,exports){
+},{"./View":10}],8:[function(require,module,exports){
 var View = require('./View');
 
 // private variables
@@ -9978,7 +10017,7 @@ class TabView extends View {
 
 module.exports = new TabView();
 
-},{"./View":9}],8:[function(require,module,exports){
+},{"./View":10}],9:[function(require,module,exports){
 var View = require('./View');
 
 class ToolbarView extends View {
@@ -10004,6 +10043,10 @@ class ToolbarView extends View {
 		this.emit('process-event', func);
 	}
 
+	clearConsole() {
+		this.emit('clear-console');
+	}
+
 	// model events
 	_running(status) {
 		if (status) {
@@ -10021,9 +10064,16 @@ class ToolbarView extends View {
 			$('#status').css('background', 'url("images/toolbar.png") -210px 35px');
 		} else {
 			// clear
-			$('#status').css('background', 'url("images/toolbar.png") -140px 35px');
+			//$('#status').css('background', 'url("images/toolbar.png") -140px 35px');
 			// errors
 			// $('#status').css('background', 'url("images/toolbar.png") -175px 35px');
+		}
+	}
+	_allErrors(errors) {
+		if (errors.length) {
+			$('#status').css('background', 'url("images/toolbar.png") -175px 35px');
+		} else {
+			$('#status').css('background', 'url("images/toolbar.png") -140px 35px');
 		}
 	}
 
@@ -10031,7 +10081,7 @@ class ToolbarView extends View {
 
 module.exports = ToolbarView;
 
-},{"./View":9}],9:[function(require,module,exports){
+},{"./View":10}],10:[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter;
 var $ = require('jquery-browserify');
 
@@ -10076,7 +10126,116 @@ class View extends EventEmitter {
 
 module.exports = View;
 
-},{"events":11,"jquery-browserify":1}],10:[function(require,module,exports){
+},{"events":13,"jquery-browserify":1}],11:[function(require,module,exports){
+'use strict';
+
+var EventEmitter = require('events').EventEmitter;
+var $ = require('jquery-browserify');
+
+// module variables
+var numElements = 0,
+    maxElements = 200;
+
+class Console extends EventEmitter {
+
+	constructor() {
+		super();
+		this.$element = $('#beaglert-consoleWrapper');
+		this.parent = document.getElementById('beaglert-console');
+	}
+
+	print(text, className, id, onClick) {
+		var el = $('<div></div>').addClass('beaglert-console-' + className).appendTo(this.$element);
+		if (id) el.prop('id', id);
+		$('<span></span>').html(text).appendTo(el);
+		if (numElements++ > maxElements) this.clear(numElements / 4);
+		if (onClick) el.on('click', onClick);
+		return el;
+	}
+
+	// log an unhighlighted message to the console
+	log(text) {
+		var msgs = text.split('\n');
+		for (let i = 0; i < msgs.length; i++) {
+			if (msgs[i] !== '') {
+				this.print(msgs[i], 'log');
+			}
+		}
+		this.scroll();
+	}
+
+	newErrors(errors) {
+
+		$('.beaglert-console-ierror, .beaglert-console-iwarning').remove();
+
+		for (let err of errors) {
+
+			// create the element and add it to the error object
+			var div = $('<div></div>').addClass('beaglert-console-i' + err.type);
+
+			// create the link and add it to the element
+			var anchor = $('<a></a>').html(err.text).appendTo(div);
+
+			div.appendTo(this.$element);
+		}
+	}
+
+	// log a positive notification to the console
+	// if persist is not true, the notification will be removed quickly
+	// otherwise it will just fade
+	/*notify(notice, persist){
+ 
+ 	var el = print(notice, 'notify', null, dismiss);
+ 		if (IDE.getSetting('consoleAnimations')){
+ 		setTimeout(function(){
+ 			if (persist){
+ 				el.addClass('beaglert-console-faded');
+ 			} else {
+ 				el.addClass('beaglert-console-collapsed');
+ 				setTimeout(function(){
+ 					if ($.contains($element, el)){
+ 						$element.removeChild(el);
+ 					}
+ 				}, 500);
+ 			}
+ 		}, 1000);
+ 	}
+ 	
+ 	scroll();
+ }*/
+
+	// clear the console
+	clear(number) {
+		if (number) {
+			$("#beaglert-consoleWrapper > div:lt(" + parseInt(number) + ")").remove();
+			numElements -= parseInt(number);
+		} else {
+			$('#beaglert-consoleWrapper').empty();
+			numElements = 0;
+		}
+	}
+
+	// force the console to scroll to the bottom
+	scroll() {
+		setTimeout(() => this.parent.scrollTop = this.parent.scrollHeight, 0);
+	}
+
+};
+
+module.exports = new Console();
+
+// gracefully remove a console element after an event ((this) must be bound to the element)
+/*function dismiss(){
+	if (IDE.getSetting('consoleAnimations')) $(this).addClass('beaglert-console-collapsed');
+	setTimeout(() => {
+		if ($.contains(parent, this)){
+			$(this).remove();
+			numElements -= 1;
+		}
+	}, 500);
+}*/
+
+},{"events":13,"jquery-browserify":1}],12:[function(require,module,exports){
 var $ = require('jquery-browserify');
 var IDE;
 
@@ -10084,7 +10243,7 @@ $(() => {
 	IDE = require('./IDE-browser');
 });
 
-},{"./IDE-browser":2,"jquery-browserify":1}],11:[function(require,module,exports){
+},{"./IDE-browser":2,"jquery-browserify":1}],13:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -10384,7 +10543,7 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}]},{},[10])
+},{}]},{},[12])
 
 
 //# sourceMappingURL=bundle.js.map

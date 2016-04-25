@@ -65,10 +65,30 @@ class belaProcess extends ChildProcess{
 	}
 	
 	execute(project){
+	
 		if (this.active) return;
-		this.args = ['-i0', '-o0', '-e0', projectPath+project+'/'+project];
-		this.opts = {cwd: projectPath+project+'/'};
-		this.start();
+		this.active = true;
+		
+		_co(ProjectManager, 'getCLArgs', project)
+			.then( (CLArgs) => {
+				this.active = false;
+				if (this.next) {
+					this.dequeue();
+				} else {
+					this.args = ['-i0', '-o0', '-e0', projectPath+project+'/'+project];
+					for (let key in CLArgs) {
+						if (key[0] === '-' && key[1] === '-'){
+							this.args.push(key+'='+CLArgs[key]);
+						} else {
+							this.args.push(key+CLArgs[key]);
+						}
+					}
+					this.opts = {cwd: projectPath+project+'/'};
+					this.start();
+				}
+			})
+			.catch( (err) => this.emit('upload-error', err) );
+
 	}
 
 }

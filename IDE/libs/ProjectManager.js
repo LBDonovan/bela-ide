@@ -147,6 +147,11 @@ module.exports = {
 		newSettings.fileName = oldSettings.fileName;
 		newSettings.breakpoints = oldSettings.breakpoints;
 		return yield _saveSettings(newSettings, data);
+	},
+	
+	*getCLArgs(project){
+		var settings = yield _getSettings(project);
+		return settings.CLArgs;
 	}
 }
 

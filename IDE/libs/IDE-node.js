@@ -3,7 +3,6 @@
 
 // node_modules
 var Promise = require('bluebird');
-Promise.config({cancellation: true});
 var fs = Promise.promisifyAll(require('fs-extra'));
 var exec = require('child_process').exec;
 
@@ -14,39 +13,20 @@ var server = require('./fileServer');
 
 // module variables - only accesible from this file
 var allSockets;
-var IDESettings;
-var currentProject;
 var belaPath = '/root/BeagleRT/';
-var childPromise = Promise.resolve();
-var childProcess;
 
 // constructor function for IDE object
 function IDE(){
 
 	console.log('starting IDE');
-
-	// setup the projects and examples objects
-	// then load the global settings and start the IDE
-	Promise.all([ProjectManager.listProjects(), ProjectManager.listExamples()])
-		.then(() => fs.readJsonAsync('./settings.json'))
-		.catch((error) => {
-			console.log('settings.json error', error, error.stack);
-			console.log('creating default settings');
-			// if there is an error loading the settings object, create a new default one
-			return defaultSettings();
-		})
-		.then(setSettings)
-		.then(() => {
-
-			// start serving the IDE
-			server.start(3000);
 	
-			// open websocket in namespace /IDE
-			var io = require('socket.io')(server.http);
-			allSockets = io.of('/IDE');
-			allSockets.on('connection', socketConnected);
-			
-		});
+	// start serving the IDE
+	server.start(3000);
+
+	// open websocket in namespace /IDE
+	var io = require('socket.io')(server.http);
+	allSockets = io.of('/IDE');
+	allSockets.on('connection', socketConnected);
 	
 }
 
@@ -61,10 +41,8 @@ function reportError(error){
 function socketConnected(socket){
 	
 	// send project lists and settings to the browser
-	Promise.join(ProjectManager.listProjects(), ProjectManager.listExamples(),
-		(projectList, exampleList) => {
-			socket.emit('init', projectList, exampleList, IDESettings.project, IDESettings);
-		});
+	Promise.all([ProjectManager.listProjects(), ProjectManager.listExamples(), SettingsManager.getSettings()])
+		.then( (result) => socket.emit('init', result) );
 	
 	// listen for messages
 	socketEvents(socket);
@@ -84,13 +62,14 @@ function socketEvents(socket){
 	
 		console.log('project-event', data);
 
-		if ((!data.currentProject && !data.newProject) || !data.func) {
+		if ((!data.currentProject && !data.newProject) || !data.func || !ProjectManager[data.func]) {
 			console.log('bad', data);
 			return;
 		}
+		
+		SettingsManager.setIDESetting({key: 'project', value: data.currentProject});
 
 		co(ProjectManager, data.func, data)
-			.then(setProject)
 			.then((result) => socket.emit('project-data', result) )
 			.catch((error) => {
 				console.log(error, error.stack.split('\n'), error.toString());
@@ -101,8 +80,16 @@ function socketEvents(socket){
 	
 	// project settings
 	socket.on('project-settings', (data) => {
-		co(ProjectManager, 'setProjectSetting', data)
-			.then((result) => socket.emit('project-settings-data', result) )
+	
+		if (!data.currentProject || !data.func || !ProjectManager[data.func]) {
+			console.log('bad project-settings', data);
+			return;
+		}
+		
+		co(ProjectManager, data.func, data)
+			.then((result) => {
+				socket.emit('project-settings-data', result);
+			})
 			.catch((error) => {
 				console.log(error, error.stack.split('\n'), error.toString());
 				socket.emit('report-error', error.toString() );
@@ -115,12 +102,30 @@ function socketEvents(socket){
 		console.log('process-event');
 		
 		if (!data || !data.currentProject || !data.event || !ProcessManager[data.event]){
-			console.log('bad', data);
+			console.log('bad process-event', data);
 			return;
 		}
 		
 		ProcessManager[data.event](data.currentProject, data);
 
+	});
+	
+	// IDE settings
+	socket.on('IDE-settings', (data) => {
+	
+		if (!data.func || !SettingsManager[data.func]) {
+			console.log('bad IDE-settings', data);
+			return;
+		}
+
+		SettingsManager[data.func](data)
+			.then((result) => {
+				socket.emit('IDE-settings-data', result);
+			})
+			.catch((error) => {
+				console.log(error, error.stack.split('\n'), error.toString());
+				socket.emit('report-error', error.toString() );
+			});
 	});
 
 }
@@ -142,43 +147,62 @@ ProcessManager.on('error', (error) => {
 ProcessManager.on('status', (status) => allSockets.emit('status', status) );
 
 // module functions - only accesible from this file
-
 function co(obj, func, args){
 	return Promise.coroutine(obj[func]).bind(obj)(args);
 }
 
-// create the default IDE settings object
-function defaultSettings(){
-	return {
-		'project'				: undefined,
-		'liveAutocompletion'	: true,
-		'liveSyntaxChecking'	: true,
-		'verboseErrors'			: false,
-		'cpuMonitoring'			: true,
-		'cpuMonitoringVerbose'	: false,
-		'ackUpload'				: false,
-		'removeNotifications'	: true,
-		'consoleAnimations'		: true,
-		'consoleDelete'			: true,
-		'useGit'				: true,
-		'gitAutostage'			: true,
-		'debugMode'				: false
-	};
-}
+// global settings
+var SettingsManager = {
 
-// save the IDE settings and set the open project
-function setSettings(settings){
-	//console.log('setting settings:', settings);
-	IDESettings = settings;
-	return setProject({currentProject: settings.project})
-}
+	// create the default IDE settings object
+	defaultSettings(){
+		return {
+			'project'				: undefined,
+			'liveAutocompletion'	: true,
+			'liveSyntaxChecking'	: true,
+			'verboseErrors'			: false,
+			'cpuMonitoring'			: true,
+			'cpuMonitoringVerbose'	: false,
+			'ackUpload'				: false,
+			'removeNotifications'	: true,
+			'consoleAnimations'		: true,
+			'consoleDelete'			: true,
+			'useGit'				: true,
+			'gitAutostage'			: true,
+			'debugMode'				: false
+		};
+	},
 
-// change the open project and save the settings JSON
-function setProject(data){
-	if (!data) return;
-	IDESettings.project = data.currentProject;
-	return fs.writeJsonAsync('./settings.json', IDESettings)
-		.then( () => data )
-		.catch((error) => console.log('unable to save IDE settings JSON', error, error.stack));
-}
+	// load the IDE settings JSON from disk
+	getSettings(){
+		console.log('reading settings');
+		// load the global settings
+		return fs.readJsonAsync('./settings.json')
+			.catch((error) => {
+				console.log('global settings.json error', error, error.stack);
+				console.log('creating default global settings');
+				// if there is an error loading the settings object, create a new default one
+				return this.defaultSettings();
+			});
+	},
+
+	// save the IDE settings JSON
+	setSettings(settings){
+		console.log('saving settings', settings);
+		return fs.writeJsonAsync('./settings.json', settings)
+			.then( () => settings )
+			.catch((error) => console.log('unable to save IDE settings JSON', error, error.stack));
+	},
+
+	// change a single settings parameter and save the settings JSON
+	setIDESetting(data){
+		if (!data || !data.key || !data.value) return;
+		return this.getSettings()
+			.then((settings) => {
+				settings[data.key] = data.value;
+				return this.setSettings(settings);
+			});
+	}
+
+};
 

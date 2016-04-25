@@ -38,8 +38,8 @@
 				        <div id="settingsTab" class="tabContent">
 				        	<div class="settingsManager-parent">
 								<h1>Project Settings</h1>
-								<button id="restoreDefaultCLArgs">restore defaults</button></br>
-								Buffer size (audio samples): <select id="buffer-size" class="settingsManager" data-func="projectSettings" data-key="-p">
+								<button class="settingsManager" data-func="restoreDefaultCLArgs">restore defaults</button></br>
+								Buffer size (audio samples): <select id="buffer-size" class="settingsManager" data-func="setProjectSetting" data-key="-p">
 									<option value="2">2</option>
 									<option value="4">4</option>
 									<option value="8">8</option>
@@ -48,91 +48,91 @@
 									<option value="64">64</option>
 									<option value="128">128</option>
 							   </select></br>
-							   Analog Channels: <select id="analog-channels" class="settingsManager" data-func="projectSettings" data-key="-C">
+							   Analog Channels: <select id="analog-channels" class="settingsManager" data-func="setProjectSetting" data-key="-C">
 									<option value="2">2</option>
 									<option value="4">4</option>
 									<option value="8">8</option>
 							   </select></br>
-							   Analog Sample Rate (Hz): <select id="analog-samplerate" class="settingsManager" data-func="projectSettings" data-key="-C">
+							   Analog Sample Rate (Hz): <select id="analog-samplerate" class="settingsManager" data-func="setProjectSetting" data-key="-C">
 									<option value="2">88200</option>
 									<option value="4">44100</option>
 									<option value="8">22050</option>
 							   </select></br>
-							   Digital Channels: <select id="digital-channels" class="settingsManager" data-func="projectSettings" data-key="-B">
+							   Digital Channels: <select id="digital-channels" class="settingsManager" data-func="setProjectSetting" data-key="-B">
 									<option value="2">2</option>
 									<option value="4">4</option>
 									<option value="8">8</option>
 									<option value="16">16</option>
 							   </select></br>
-							   Headphone level (dB): <input id="hp-level" class="settingsManager" data-func="projectSettings" type="number" max="0" min="-63.5" step="0.1" data-key="-H"></input></br>
-								Use Analogue: <select id="use-analog" class="settingsManager" data-func="projectSettings" data-key="-N">
+							   Headphone level (dB): <input id="hp-level" class="settingsManager" data-func="setProjectSetting" type="number" max="0" min="-63.5" step="0.1" data-key="-H"></input></br>
+								Use Analogue: <select id="use-analog" class="settingsManager" data-func="setProjectSetting" data-key="-N">
 									<option value="1">Yes</option>
 									<option value="0">No</option>
 							   </select></br>
-							   Use Digital: <select id="use-digital" class="settingsManager" data-func="projectSettings" data-key="-G">
+							   Use Digital: <select id="use-digital" class="settingsManager" data-func="setProjectSetting" data-key="-G">
 									<option value="1">Yes</option>
 									<option value="0">No</option>
 							   </select></br>
-							   Mute Speaker: <select id="mute-speaker" class="settingsManager" data-func="projectSettings" data-key="-M">
+							   Mute Speaker: <select id="mute-speaker" class="settingsManager" data-func="setProjectSetting" data-key="-M">
 									<option value="1">Yes</option>
 									<option value="0">No</option>
 							   </select></br>
-							   DAC level (dB): <input id="dac-level" class="settingsManager" data-func="projectSettings" type="number" max="0" min="-63.5" step="0.1" data-key="-D"></input></br>
-							   ADC level (dB): <input id="adc-level" class="settingsManager" data-func="projectSettings" type="number" max="0" min="-63.5" step="0.1" data-key="-A"></input></br>
-							   Receive Port: <input id="receive-port" class="settingsManager" data-func="projectSettings" type="number" max="9999" min="0" step="1" data-key="-R"></input></br>
-							   Transmit Port: <input id="transmit-port" class="settingsManager" data-func="projectSettings" type="number" max="9999" min="0" step="1" data-key="-T"></input></br>
-							   IP Address: <input id="ip-address" class="settingsManager" data-func="projectSettings" type="text" data-key="-S"></input><br>
-							   PGA Gain left (dB): <input id="pga-left" class="settingsManager" data-func="projectSettings" type="number" min="0" max="63.5" step="0.1" data-key="--pga-gain-left"></input></br>
-							   PGA Gain right (dB): <input id="pga-right" class="settingsManager" data-func="projectSettings" type="number" min="0" max="63.5" step="0.1" data-key="--pga-gain-right"></input></br>
-							   User Command Line Arguments: <input id="user-clargs" class="settingsManager" data-func="projectSettings" type="text" data-key="user"></input><br>
+							   DAC level (dB): <input id="dac-level" class="settingsManager" data-func="setProjectSetting" type="number" max="0" min="-63.5" step="0.1" data-key="-D"></input></br>
+							   ADC level (dB): <input id="adc-level" class="settingsManager" data-func="setProjectSetting" type="number" max="0" min="-63.5" step="0.1" data-key="-A"></input></br>
+							   Receive Port: <input id="receive-port" class="settingsManager" data-func="setProjectSetting" type="number" max="9999" min="0" step="1" data-key="-R"></input></br>
+							   Transmit Port: <input id="transmit-port" class="settingsManager" data-func="setProjectSetting" type="number" max="9999" min="0" step="1" data-key="-T"></input></br>
+							   IP Address: <input id="ip-address" class="settingsManager" data-func="setProjectSetting" type="text" data-key="-S"></input><br>
+							   PGA Gain left (dB): <input id="pga-left" class="settingsManager" data-func="setProjectSetting" type="number" min="0" max="63.5" step="0.1" data-key="--pga-gain-left"></input></br>
+							   PGA Gain right (dB): <input id="pga-right" class="settingsManager" data-func="setProjectSetting" type="number" min="0" max="63.5" step="0.1" data-key="--pga-gain-right"></input></br>
+							   User Command Line Arguments: <input id="user-clargs" class="settingsManager" data-func="setProjectSetting" type="text" data-key="user"></input><br>
 								Full Command Line String:
 								</br><input id="C_L_ARGS" type="text" placeholder="C_L_ARGS" readonly></input><br>
 							
 								<h1>IDE Settings</h1>
-								<button id="restoreDefaultIDESettings">restore defaults</button></br>
-								Autocomplete: <select id="liveAutocompletion" class="IDEsettings">
+								<button class="settingsManager" data-func="restoreDefaultIDESettings">restore defaults</button></br>
+								Autocomplete: <select id="liveAutocompletion" class="settingsManager" data-func="setIDESetting" data-key="liveAutocompletion">
 									<option value="true">On</option>
 									<option value="false">Off</option>
 							   </select></br>
-							   Syntax Checking: <select id="liveSyntaxChecking" class="IDEsettings">
+							   Syntax Checking: <select id="liveSyntaxChecking" class="settingsManager" data-func="setIDESetting" data-key="liveSyntaxChecking">
 									<option value="true">On</option>
 									<option value="false">Off</option>
 							   </select></br>
-							   Verbose build errors: <select id="verboseErrors" class="IDEsettings">
+							   Verbose build errors: <select id="verboseErrors" class="settingsManager" data-func="setIDESetting" data-key="verboseErrors">
 									<option value="true">On</option>
 									<option value="false">Off</option>
 							   </select></br>
-							   CPU Monitoring: <select id="cpuMonitoring" class="IDEsettings">
+							   CPU Monitoring: <select id="cpuMonitoring" class="settingsManager" data-func="setIDESetting" data-key="cpuMonitoring">
 									<option value="true">On</option>
 									<option value="false">Off</option>
 							   </select></br>
-							   Verbose CPU Monitoring: <select id="cpuMonitoringVerbose" class="IDEsettings">
+							   Verbose CPU Monitoring: <select id="cpuMonitoringVerbose" class="settingsManager" data-func="setIDESetting" data-key="cpuMonitoringVerbose">
 									<option value="true">On</option>
 									<option value="false">Off</option>
 							   </select></br>
-							   Acknowledge Upload: <select id="ackUpload" class="IDEsettings">
+							   Acknowledge Upload: <select id="ackUpload" class="settingsManager" data-func="setIDESetting" data-key="ackUpload">
 									<option value="true">On</option>
 									<option value="false">Off</option>
 							   </select></br>
-							   Remove Notifications: <select id="removeNotifications" class="IDEsettings">
+							   Remove Notifications: <select id="removeNotifications" class="settingsManager" data-func="setIDESetting" data-key="removeNotifications">
 									<option value="true">On</option>
 									<option value="false">Off</option>
 							   </select></br>
-							   Console Animations: <select id="consoleAnimations" class="IDEsettings">
+							   Console Animations: <select id="consoleAnimations" class="settingsManager" data-func="setIDESetting" data-key="consoleAnimations">
 									<option value="true">On</option>
 									<option value="false">Off</option>
 							   </select></br>
-							   Delete old console records: <select id="consoleDelete" class="IDEsettings">
+							   Delete old console records: <select id="consoleDelete" class="settingsManager" data-func="setIDESetting" data-key="consoleDelete">
 									<option value="true">On</option>
 									<option value="false">Off</option>
 							   </select></br>
 						   
 							   <h1>Git Settings</h1>
-							   Use git: <select id="useGit" class="IDEsettings">
+							   Use git: <select id="useGit" class="settingsManager" data-func="setIDESetting" data-key="useGit">
 									<option value="true">On</option>
 									<option value="false">Off</option>
 							   </select></br>
-							   Auto-stage all files: <select id="gitAutostage" class="IDEsettings">
+							   Auto-stage all files: <select id="gitAutostage" class="settingsManager" data-func="setIDESetting" data-key="gitAutostage">
 									<option value="true">On</option>
 									<option value="false">Off</option>
 							   </select></br>
@@ -194,7 +194,7 @@
 				       <input type="radio" id="tab-3" name="tab-group-1">
 				       <label for="tab-3"><span id="code-examples" title="Code Examples" /></label>
 				       <div class="tabContent">
-				           Debug mode: <select id="debugMode" class="IDEsettings">
+				           Debug mode: <select id="debugMode" class="settingsManager" data-func="setIDESetting" data-key="">
 				           		<option value="true">On</option>
 				           		<option value="false">Off</option>
 				           </select>

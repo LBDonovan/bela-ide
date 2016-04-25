@@ -9357,6 +9357,11 @@ settingsView.on('project-settings', data => {
 	//console.log('project-settings', data);
 	socket.emit('project-settings', data);
 });
+settingsView.on('IDE-settings', data => {
+	data.currentProject = models.project.getKey('currentProject');
+	console.log('IDE-settings', data);
+	socket.emit('IDE-settings', data);
+});
 
 // project view
 var projectView = new (require('./Views/ProjectView'))('projectManager', [models.project]);
@@ -9421,11 +9426,14 @@ var socket = io('/IDE');
 // socket events
 socket.on('report-error', error => console.error(error));
 
-socket.on('init', (projectList, exampleList, currentProject, settings) => {
-	models.project.setData({ projectList, exampleList, currentProject });
-	socket.emit('project-event', { func: 'openProject', currentProject });
-	models.settings.setData(settings);
-	//console.log(projectList, exampleList, currentProject, settings);
+socket.on('init', data => {
+	console.log(data);
+	models.project.setData({ projectList: data[0], exampleList: data[1], currentProject: data[2].project });
+	socket.emit('project-event', { func: 'openProject', currentProject: data[2].project });
+	models.settings.setKey('IDESettings', data[2]);
+
+	models.project.print();
+	models.settings.print();
 
 	socket.emit('set-time', getDateString());
 });
@@ -9442,6 +9450,11 @@ socket.on('status', status => {
 });
 
 socket.on('project-settings-data', settings => models.settings.setData(settings));
+socket.on('IDE-settings-data', settings => {
+	console.log(settings);
+	models.settings.setKey('IDESettings', settings);
+	models.settings.print();
+});
 
 // build errors
 models.status.on('change', (data, changedKeys) => {
@@ -10011,17 +10024,37 @@ class SettingsView extends View {
 		var func = data.func;
 		var key = data.key;
 		if (func && this[func]) {
-			this[func](key, $element.val());
+			this[func](func, key, $element.val());
+		}
+	}
+	buttonClicked($element, e) {
+		var func = $element.data().func;
+		if (func && this[func]) {
+			this[func](func);
 		}
 	}
 
-	projectSettings(key, value) {
-		this.emit('project-settings', { key, value });
+	setProjectSetting(func, key, value) {
+		this.emit('project-settings', { func, key, value });
+	}
+	restoreDefaultCLArgs(func) {
+		this.emit('project-settings', { func });
+	}
+
+	setIDESetting(func, key, value) {
+		this.emit('IDE-settings', { func, key, value });
+	}
+	restoreDefaultIDESettings(func) {
+		this.emit('IDE-settings', { func });
 	}
 
 	// model events
 	_CLArgs(data) {
-		console.log(data);
+		for (let key in data) {
+			this.$elements.filterByData('key', key).val(data[key]);
+		}
+	}
+	_IDESettings(data) {
 		for (let key in data) {
 			this.$elements.filterByData('key', key).val(data[key]);
 		}

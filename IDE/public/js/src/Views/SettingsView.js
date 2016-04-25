@@ -12,17 +12,37 @@ class SettingsView extends View {
 		var func = data.func;
 		var key = data.key;
 		if (func && this[func]){
-			this[func](key, $element.val());
+			this[func](func, key, $element.val());
+		}
+	}
+	buttonClicked($element, e){
+		var func = $element.data().func;
+		if (func && this[func]){
+			this[func](func);
 		}
 	}
 	
-	projectSettings(key, value){
-		this.emit('project-settings', {key, value});
+	setProjectSetting(func, key, value){
+		this.emit('project-settings', {func, key, value});
+	}
+	restoreDefaultCLArgs(func){
+		this.emit('project-settings', {func});
+	}
+	
+	setIDESetting(func, key, value){
+		this.emit('IDE-settings', {func, key, value});
+	}
+	restoreDefaultIDESettings(func){
+		this.emit('IDE-settings', {func});
 	}
 	
 	// model events
 	_CLArgs(data){
-		console.log(data);
+		for (let key in data){
+			this.$elements.filterByData('key', key).val(data[key]);
+		}
+	}
+	_IDESettings(data){
 		for (let key in data){
 			this.$elements.filterByData('key', key).val(data[key]);
 		}

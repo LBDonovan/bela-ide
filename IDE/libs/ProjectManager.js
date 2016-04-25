@@ -62,7 +62,6 @@ module.exports = {
 	*deleteProject(data){
 		yield fs.removeAsync(projectPath+data.currentProject);
 		data.projectList = yield this.listProjects();
-		console.log(data.projectList);
 		for (let proj of data.projectList){
 			//console.log(proj, (proj === undefined), (proj === 'undefined'), (proj !== exampleTempProject));
 			if ((proj) && (proj !== 'undefined') && (proj !== exampleTempProject)){
@@ -138,9 +137,16 @@ module.exports = {
 	
 	*setProjectSetting(data){
 		var settings = yield _getSettings(data.currentProject);
-		//console.log(settings);
 		settings.CLArgs[data.key] = data.value;
 		return yield _saveSettings(settings, data);
+	},
+	
+	*restoreDefaultCLArgs(data){
+		var oldSettings = yield _getSettings(data.currentProject);
+		var newSettings = _defaultSettings();
+		newSettings.fileName = oldSettings.fileName;
+		newSettings.breakpoints = oldSettings.breakpoints;
+		return yield _saveSettings(newSettings, data);
 	}
 }
 
@@ -148,7 +154,7 @@ module.exports = {
 // private functions
 // save the last opened file
 function *_setFile(data){
-	var settings = yield _getSettings()
+	var settings = yield _getSettings(data.currentProject)
 	settings.fileName = data.fileName;
 	return yield _saveSettings(settings, data);
 }

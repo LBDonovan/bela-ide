@@ -34,7 +34,7 @@ projectView.on('message', (event, data) => {
 	if (!data.currentProject && models.project.getKey('currentProject')){
 		data.currentProject = models.project.getKey('currentProject');
 	}
-	console.log(event, data);
+	//console.log(event, data);
 	socket.emit(event, data);
 });
 
@@ -110,13 +110,14 @@ socket.on('project-data', (data) => {
 });
 
 socket.on('status', (status) => {
-	models.status.setData(status);
+	models.status.setData(status, true);
 	//console.log('status', status)
 });
 
 socket.on('project-settings-data', (settings) =>  models.settings.setData(settings) );
 socket.on('IDE-settings-data', (settings) =>   models.settings.setKey('IDESettings', settings) );
 
+// model events
 // build errors
 models.status.on('change', (data, changedKeys) => {
 	if (changedKeys.indexOf('syntaxError') !== -1){
@@ -124,6 +125,14 @@ models.status.on('change', (data, changedKeys) => {
 	}
 });
 
+// file / project changed
+models.project.on('change', (data, changedKeys) => {
+	if (changedKeys.indexOf('currentProject') !== -1 || changedKeys.indexOf('fileName') !== -1){
+		$('title').html(data.fileName+', '+data.currentProject);
+	}
+});
+
+// local functions
 // parse errors from g++
 function parseErrors(data){
 
@@ -197,12 +206,11 @@ function parseErrors(data){
 		}
 	}
 	
-	models.error.setKey('allErrors', errors);
+	models.error.setKey('allErrors', errors, true);
 	models.error.setKey('currentFileErrors', currentFileErrors);
 	models.error.setKey('otherFileErrors', otherFileErrors);
 
 }
-
 
 function getDateString(){
 

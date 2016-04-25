@@ -30,7 +30,7 @@ class SettingsView extends View {
 	}
 	
 	setIDESetting(func, key, value){
-		this.emit('IDE-settings', {func, key, value});
+		this.emit('IDE-settings', {func, key, value: value});
 	}
 	restoreDefaultIDESettings(func){
 		this.emit('IDE-settings', {func});

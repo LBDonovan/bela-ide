@@ -2,7 +2,7 @@ var View = require('./View');
 
 const uploadDelay = 50;
 
-var uploadBlocked = false;
+var uploadBlocked = false, autoCompleteEnabled = false;
 
 class EditorView extends View {
 	
@@ -18,6 +18,13 @@ class EditorView extends View {
 		
 		// set theme
 		this.editor.setTheme("ace/theme/github");
+		
+		// autocomplete settings
+		this.editor.setOptions({
+			enableBasicAutocompletion: true,
+			enableLiveAutocompletion: autoCompleteEnabled,
+			enableSnippets: true
+		});
 		
 		// this function is called when the user modifies the editor
 		this.editor.session.on('change', (e) => {
@@ -73,8 +80,13 @@ class EditorView extends View {
 						
 		}
 	}	
-	_IDESettings(data, key){
-		console.log(data);
+	_IDESettings(data){
+		if (data.liveAutocompletion != autoCompleteEnabled){
+			this.editor.setOptions({
+				enableLiveAutocompletion: (data.liveAutocompletion.toString() === 'true')
+			});
+			autoCompleteEnabled = data.liveAutocompletion;
+		}
 	}
 }
 

@@ -9369,7 +9369,7 @@ projectView.on('message', (event, data) => {
 	if (!data.currentProject && models.project.getKey('currentProject')) {
 		data.currentProject = models.project.getKey('currentProject');
 	}
-	console.log(event, data);
+	//console.log(event, data);
 	socket.emit(event, data);
 });
 
@@ -9445,13 +9445,14 @@ socket.on('project-data', data => {
 });
 
 socket.on('status', status => {
-	models.status.setData(status);
+	models.status.setData(status, true);
 	//console.log('status', status)
 });
 
 socket.on('project-settings-data', settings => models.settings.setData(settings));
 socket.on('IDE-settings-data', settings => models.settings.setKey('IDESettings', settings));
 
+// model events
 // build errors
 models.status.on('change', (data, changedKeys) => {
 	if (changedKeys.indexOf('syntaxError') !== -1) {
@@ -9459,6 +9460,14 @@ models.status.on('change', (data, changedKeys) => {
 	}
 });
 
+// file / project changed
+models.project.on('change', (data, changedKeys) => {
+	if (changedKeys.indexOf('currentProject') !== -1 || changedKeys.indexOf('fileName') !== -1) {
+		$('title').html(data.fileName + ', ' + data.currentProject);
+	}
+});
+
+// local functions
 // parse errors from g++
 function parseErrors(data) {
 
@@ -9533,7 +9542,7 @@ function parseErrors(data) {
 		}
 	}
 
-	models.error.setKey('allErrors', errors);
+	models.error.setKey('allErrors', errors, true);
 	models.error.setKey('currentFileErrors', currentFileErrors);
 	models.error.setKey('otherFileErrors', otherFileErrors);
 }
@@ -9603,10 +9612,10 @@ class Model extends EventEmitter {
 		return this._getData()[key];
 	}
 
-	setData(newData) {
+	setData(newData, force) {
 		var newKeys = [];
 		for (let key in newData) {
-			if (!_equals(newData[key], this._getData()[key], false)) {
+			if (!_equals(newData[key], this._getData()[key], false) || force) {
 				newKeys.push(key);
 				this._getData()[key] = newData[key];
 			}
@@ -9616,8 +9625,8 @@ class Model extends EventEmitter {
 		}
 	}
 
-	setKey(key, value) {
-		if (value !== this._getData()[key]) {
+	setKey(key, value, force) {
+		if (!_equals(value, this._getData()[key]) || force) {
 			this._getData()[key] = value;
 			this.emit('change', this._getData(), [key]);
 		}
@@ -9706,7 +9715,8 @@ var View = require('./View');
 
 const uploadDelay = 50;
 
-var uploadBlocked = false;
+var uploadBlocked = false,
+    autoCompleteEnabled = false;
 
 class EditorView extends View {
 
@@ -9722,6 +9732,13 @@ class EditorView extends View {
 
 		// set theme
 		this.editor.setTheme("ace/theme/github");
+
+		// autocomplete settings
+		this.editor.setOptions({
+			enableBasicAutocompletion: true,
+			enableLiveAutocompletion: autoCompleteEnabled,
+			enableSnippets: true
+		});
 
 		// this function is called when the user modifies the editor
 		this.editor.session.on('change', e => {
@@ -9774,8 +9791,13 @@ class EditorView extends View {
 			this.editor.session.setAnnotations(errors);
 		}
 	}
-	_IDESettings(data, key) {
-		console.log(data);
+	_IDESettings(data) {
+		if (data.liveAutocompletion != autoCompleteEnabled) {
+			this.editor.setOptions({
+				enableLiveAutocompletion: data.liveAutocompletion.toString() === 'true'
+			});
+			autoCompleteEnabled = data.liveAutocompletion;
+		}
 	}
 }
 
@@ -9914,7 +9936,7 @@ class ProjectView extends View {
 
 	// UI events
 	selectChanged($element, e) {
-		console.log($element.prop('id'));
+		//console.log($element.prop('id'));
 		//if ($element.prop('id') === 'projects'){
 		this.emit('message', 'project-event', { func: $element.data().func, currentProject: $element.val() });
 		//} else if ($element.prop('id') === 'examples'){
@@ -10041,7 +10063,7 @@ class SettingsView extends View {
 	}
 
 	setIDESetting(func, key, value) {
-		this.emit('IDE-settings', { func, key, value });
+		this.emit('IDE-settings', { func, key, value: value });
 	}
 	restoreDefaultIDESettings(func) {
 		this.emit('IDE-settings', { func });
@@ -10160,11 +10182,6 @@ class ToolbarView extends View {
 	_checkingSyntax(status) {
 		if (status) {
 			$('#status').css('background', 'url("images/toolbar.png") -210px 35px');
-		} else {
-			// clear
-			//$('#status').css('background', 'url("images/toolbar.png") -140px 35px');
-			// errors
-			// $('#status').css('background', 'url("images/toolbar.png") -175px 35px');
 		}
 	}
 	_allErrors(errors) {

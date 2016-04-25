@@ -8,7 +8,7 @@ class ProjectView extends View {
 	
 	// UI events
 	selectChanged($element, e){
-		console.log($element.prop('id'));
+		//console.log($element.prop('id'));
 		//if ($element.prop('id') === 'projects'){
 			this.emit('message', 'project-event', {func: $element.data().func, currentProject: $element.val()})
 		//} else if ($element.prop('id') === 'examples'){

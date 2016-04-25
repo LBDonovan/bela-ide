@@ -12,10 +12,10 @@ class Model extends EventEmitter{
 		return this._getData()[key];
 	}
 	
-	setData(newData){
+	setData(newData, force){
 		var newKeys = [];
 		for (let key in newData){
-			if (!_equals(newData[key], this._getData()[key], false)){
+			if (!_equals(newData[key], this._getData()[key], false) || force){
 				newKeys.push(key);
 				this._getData()[key] = newData[key];
 			}
@@ -25,8 +25,8 @@ class Model extends EventEmitter{
 		}
 	}
 	
-	setKey(key, value){
-		if (value !== this._getData()[key]){
+	setKey(key, value, force){
+		if (!_equals(value, this._getData()[key]) || force){
 			this._getData()[key] = value;
 			this.emit('change', this._getData(), [key]);
 		}

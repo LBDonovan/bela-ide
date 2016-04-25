@@ -120,7 +120,7 @@ function socketEvents(socket){
 
 		SettingsManager[data.func](data)
 			.then((result) => {
-				socket.emit('IDE-settings-data', result);
+				allSockets.emit('IDE-settings-data', result);
 			})
 			.catch((error) => {
 				console.log(error, error.stack.split('\n'), error.toString());

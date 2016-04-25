@@ -47,6 +47,12 @@ class Console extends EventEmitter {
 			
 			div.appendTo(this.$element);
 			
+			if (err.currentFile){
+				div.on('click', () => this.emit('focus', {line: err.row+1, column: err.column-1}) );
+			} else {
+				div.on('click', () => this.emit('open-file', err.file, {line: err.row+1, column: err.column-1}) );
+			}
+			
 		}
 	}
 	

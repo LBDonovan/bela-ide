@@ -7,6 +7,8 @@ class ConsoleView extends View{
 	constructor(className, models, settings){
 		super(className, models, settings);
 		this.on('clear', () => _console.clear() );
+		_console.on('focus', (focus) => this.emit('focus', focus) );
+		_console.on('open-file', (fileName, focus) => this.emit('open-file', fileName, focus) );
 	}
 	
 	// model events

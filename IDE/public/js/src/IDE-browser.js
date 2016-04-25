@@ -61,7 +61,21 @@ toolbarView.on('clear-console', () => consoleView.emit('clear') );
 
 // console view
 var consoleView = new (require('./Views/ConsoleView'))('IDEconsole', [models.status, models.project, models.error], models.settings);
-
+consoleView.on('focus', (focus) => {
+	console.log(focus);
+	models.project.setKey('focus', focus);
+	models.project.print();
+});
+consoleView.on('open-file', (fileName, focus) => {
+	var data = {
+		func: 'openFile',
+		fileName, 
+		focus, 
+		currentProject: models.project.getKey('currentProject')
+	};
+	console.log(data);
+	socket.emit('project-event', data);
+});
 
 // setup socket
 var socket = io('/IDE');

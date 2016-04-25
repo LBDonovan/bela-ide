@@ -9396,6 +9396,21 @@ toolbarView.on('clear-console', () => consoleView.emit('clear'));
 
 // console view
 var consoleView = new (require('./Views/ConsoleView'))('IDEconsole', [models.status, models.project, models.error], models.settings);
+consoleView.on('focus', focus => {
+	console.log(focus);
+	models.project.setKey('focus', focus);
+	models.project.print();
+});
+consoleView.on('open-file', (fileName, focus) => {
+	var data = {
+		func: 'openFile',
+		fileName,
+		focus,
+		currentProject: models.project.getKey('currentProject')
+	};
+	console.log(data);
+	socket.emit('project-event', data);
+});
 
 // setup socket
 var socket = io('/IDE');
@@ -9631,6 +9646,8 @@ class ConsoleView extends View {
 	constructor(className, models, settings) {
 		super(className, models, settings);
 		this.on('clear', () => _console.clear());
+		_console.on('focus', focus => this.emit('focus', focus));
+		_console.on('open-file', (fileName, focus) => this.emit('open-file', fileName, focus));
 	}
 
 	// model events
@@ -9706,7 +9723,7 @@ class EditorView extends View {
 	}
 
 	// model events
-	_fileData(data) {
+	_fileData(data, opts) {
 
 		if (data instanceof ArrayBuffer) data = String.fromCharCode.apply(null, new Uint8Array(data));
 
@@ -9723,10 +9740,13 @@ class EditorView extends View {
 		this.emit('change');
 
 		// focus the editor
-		this.editor.focus();
+		this._focus(opts.focus);
 	}
-	_fileName(data) {
-		this.currentFile = data;
+	_focus(data) {
+
+		if (data && data.line !== undefined && data.column !== undefined) this.editor.gotoLine(data.line, data.column);
+
+		this.editor.focus();
 	}
 	_currentFileErrors(errors) {
 
@@ -10177,6 +10197,12 @@ class Console extends EventEmitter {
 			var anchor = $('<a></a>').html(err.text).appendTo(div);
 
 			div.appendTo(this.$element);
+
+			if (err.currentFile) {
+				div.on('click', () => this.emit('focus', { line: err.row + 1, column: err.column - 1 }));
+			} else {
+				div.on('click', () => this.emit('open-file', err.file, { line: err.row + 1, column: err.column - 1 }));
+			}
 		}
 	}
 

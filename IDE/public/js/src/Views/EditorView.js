@@ -35,7 +35,7 @@ class EditorView extends View {
 	}
 	
 	// model events
-	_fileData(data){
+	_fileData(data, opts){
 	
 		if (data instanceof ArrayBuffer) data = String.fromCharCode.apply(null, new Uint8Array(data));
 		
@@ -52,10 +52,14 @@ class EditorView extends View {
 		this.emit('change');
 		
 		// focus the editor
-		this.editor.focus();
+		this._focus(opts.focus);
 	}
-	_fileName(data){
-		this.currentFile = data;
+	_focus(data){
+
+		if (data && data.line !== undefined && data.column !== undefined)
+			this.editor.gotoLine(data.line, data.column);
+			
+		this.editor.focus();
 	}
 	_currentFileErrors(errors){
 

@@ -100,10 +100,11 @@ module.exports = {
 	},
 	
 	*newFile(data){
-		yield fs.outputFileAsync(projectPath+data.currentProject+'/'+data.newFile, '/***** '+data.newFile+' *****/');
+		yield fs.outputFileAsync(projectPath+data.currentProject+'/'+data.newFile, '/***** '+data.newFile+' *****/\n');
 		data.fileName = data.newFile;
 		data.newFile = undefined;
 		data.fileList = yield _listFiles(data.currentProject);
+		data.focus = {line: 2, column: 1};
 		return yield _co(this, 'openFile', data);
 	},
 	

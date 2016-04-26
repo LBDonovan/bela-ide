@@ -97,20 +97,31 @@ module.exports = {
 			data.fileData = resourceData;
 			data.readOnly = true;
 		} else {
-			data.fileData = yield fs.readFileAsync(projectPath+data.currentProject+'/'+data.fileName, 'utf8');
 			data.readOnly = false;
+			data.fileData = yield fs.readFileAsync(projectPath+data.currentProject+'/'+data.fileName, 'utf8')
+				.catch((error) => {
+					if (error.code === 'ENOENT'){
+						data.error = 'Could not find file '+data.fileName;
+						return _listFiles(data.currentProject)
+							.then((fileList) => {
+								data.fileList = fileList;
+								if (data.fileList && data.fileList.length){
+									data.fileName = data.fileList[0];
+									data.error += ', opening '+data.fileName;
+									return fs.readFileAsync(projectPath+data.currentProject+'/'+data.fileName, 'utf8');
+								} else {
+									data.readOnly = true;
+									return 'no files found in project';
+								}
+							});
+					}
+					throw error;
+				});
+			
 		}
 		yield Promise.coroutine(_setFile)(data);
 		return data;
-			/*.catch((error) => {
-				console.log(error);
-				if (error.code === 'ENOENT'){
-					fileName = 'render.cpp';
-					return fs.readFileAsync(this.Path()+'/render.cpp', 'utf8');
-				} else {
-					throw error;
-				}
-			});*/
+			/**/
 	},
 	
 	*newFile(data){

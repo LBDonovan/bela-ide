@@ -63,7 +63,7 @@ function socketEvents(socket){
 		console.log('project-event', data);
 
 		if ((!data.currentProject && !data.newProject) || !data.func || !ProjectManager[data.func]) {
-			console.log('bad', data);
+			console.log('bad project-event', data);
 			return;
 		}
 
@@ -86,7 +86,9 @@ function socketEvents(socket){
 			})
 			.catch((error) => {
 				console.log(error, error.stack.split('\n'), error.toString());
-				socket.emit('report-error', error.toString() );
+				//socket.emit('report-error', error.toString() );
+				data.error = error.toString();
+				socket.emit('project-data', data);
 			});
 			
 	});

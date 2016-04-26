@@ -79,6 +79,26 @@ class Console extends EventEmitter {
 		}
 	}
 	
+	reject(message, id){
+		var el = document.getElementById(id);
+		var $el = $(el);
+		if (el){
+			$el.html($el.html()+message);
+			$el.addClass('beaglert-console-rejectnotification');
+			$el.on('click', () => {
+				console.log('click');
+				$el.addClass('beaglert-console-collapsed');
+				$el.on('transitionend', () => {
+					if ($el.hasClass('beaglert-console-collapsed')){
+						$el.remove();
+					} else {
+						$el.addClass('beaglert-console-collapsed');
+					}
+				});
+			});
+		}
+	}
+	
 	// clear the console
 	clear(number){
 		if (number){

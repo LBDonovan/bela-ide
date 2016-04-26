@@ -9718,7 +9718,11 @@ class ConsoleView extends View {
 		_console.notify(funcKey[data.func], data.timestamp);
 	}
 	closeNotification(data) {
-		_console.fulfill(' done', data.timestamp);
+		if (data.error) {
+			_console.reject(' ' + data.error, data.timestamp);
+		} else {
+			_console.fulfill(' done', data.timestamp);
+		}
 	}
 
 	// model events
@@ -10399,6 +10403,26 @@ class Console extends EventEmitter {
 				} else {
 					$el.addClass('beaglert-console-collapsed');
 				}
+			});
+		}
+	}
+
+	reject(message, id) {
+		var el = document.getElementById(id);
+		var $el = $(el);
+		if (el) {
+			$el.html($el.html() + message);
+			$el.addClass('beaglert-console-rejectnotification');
+			$el.on('click', () => {
+				console.log('click');
+				$el.addClass('beaglert-console-collapsed');
+				$el.on('transitionend', () => {
+					if ($el.hasClass('beaglert-console-collapsed')) {
+						$el.remove();
+					} else {
+						$el.addClass('beaglert-console-collapsed');
+					}
+				});
 			});
 		}
 	}

@@ -19,7 +19,11 @@ class ConsoleView extends View{
 		_console.notify(funcKey[data.func], data.timestamp);
 	}
 	closeNotification(data){
-		_console.fulfill(' done', data.timestamp);
+		if (data.error){
+			_console.reject(' '+data.error, data.timestamp);
+		} else {
+			_console.fulfill(' done', data.timestamp);
+		}
 	}
 	
 	// model events

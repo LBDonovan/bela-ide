@@ -16,6 +16,9 @@ class View extends EventEmitter{
 				models[i].on('change', (data, changedKeys) => {
 					this.modelChanged(data, changedKeys);
 				});
+				models[i].on('force', (data, changedKeys) => {
+					this.modelForced(data, changedKeys);
+				});
 			}
 		}
 		
@@ -28,6 +31,13 @@ class View extends EventEmitter{
 		for (let value of changedKeys){
 			if (this['_'+value]){
 				this['_'+value](data[value], data);
+			}
+		}
+	}
+	modelForced(data, changedKeys){
+		for (let value of changedKeys){
+			if (this['_F_'+value]){
+				this['_F_'+value](data[value], data);
 			}
 		}
 	}

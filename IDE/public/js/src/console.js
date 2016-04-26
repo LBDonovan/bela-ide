@@ -61,33 +61,17 @@ class Console extends EventEmitter {
 	// otherwise it will just fade
 	notify(notice, id){
 		var el = this.print(notice, 'notify', id);
+		this.scroll();
 	}
 	
-	fulfill(message, id){
+	fulfill(message, id, persist){
 		var el = document.getElementById(id);
 		var $el = $(el);
 		if (el){
+			$el.appendTo(this.$element).removeAttr('id');
 			$el.html($el.html()+message);
 			setTimeout( () => $el.addClass('beaglert-console-faded'), 500);
-			$el.on('transitionend', () => {
-				if ($el.hasClass('beaglert-console-collapsed')){
-					$el.remove();
-				} else {
-					$el.addClass('beaglert-console-collapsed');
-				}
-			});
-		}
-	}
-	
-	reject(message, id){
-		var el = document.getElementById(id);
-		var $el = $(el);
-		if (el){
-			$el.html($el.html()+message);
-			$el.addClass('beaglert-console-rejectnotification');
-			$el.on('click', () => {
-				console.log('click');
-				$el.addClass('beaglert-console-collapsed');
+			if (!persist){
 				$el.on('transitionend', () => {
 					if ($el.hasClass('beaglert-console-collapsed')){
 						$el.remove();
@@ -95,6 +79,29 @@ class Console extends EventEmitter {
 						$el.addClass('beaglert-console-collapsed');
 					}
 				});
+			}
+		}
+	}
+	
+	reject(message, id, persist){
+		var el = document.getElementById(id);
+		var $el = $(el);
+		if (el){
+			$el.appendTo(this.$element).removeAttr('id');
+			$el.html($el.html()+message);
+			$el.addClass('beaglert-console-rejectnotification');
+			$el.on('click', () => {
+				console.log('click');
+				$el.addClass('beaglert-console-collapsed');
+				if (!persist){
+					$el.on('transitionend', () => {
+						if ($el.hasClass('beaglert-console-collapsed')){
+							$el.remove();
+						} else {
+							$el.addClass('beaglert-console-collapsed');
+						}
+					});
+				}
 			});
 		}
 	}

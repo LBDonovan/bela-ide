@@ -58,6 +58,21 @@ class ConsoleView extends View{
 		//_console.log(result.stdout);
 		//_console.log(result.stderr);
 	}
+	
+	_building(status){
+		if (status){
+			_console.notify('Building project...', 'build-notification', true);
+		} else {
+			_console.fulfill(' done', 'build-notification', true);
+		}
+	}
+	_running(status){
+		if (status){
+			_console.notify('Running project...', 'run-notification', true);
+		} else {
+			_console.fulfill(' done', 'run-notification', true);
+		}
+	}
 
 	
 }

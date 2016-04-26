@@ -15,7 +15,7 @@ class Model extends EventEmitter{
 	setData(newData, force){
 		var newKeys = [];
 		for (let key in newData){
-			if (!_equals(newData[key], this._getData()[key], false) || force){
+			if (!_equals(newData[key], this._getData()[key], false)){
 				newKeys.push(key);
 				this._getData()[key] = newData[key];
 			}
@@ -25,11 +25,27 @@ class Model extends EventEmitter{
 		}
 	}
 	
-	setKey(key, value, force){
-		if (!_equals(value, this._getData()[key]) || force){
+	forceData(newData){
+		var newKeys = [];
+		for (let key in newData){
+			newKeys.push(key);
+			this._getData()[key] = newData[key];
+		}
+		if (newKeys.length) {
+			this.emit('force', this._getData(), newKeys);
+		}
+	}
+	
+	setKey(key, value){
+		if (!_equals(value, this._getData()[key])){
 			this._getData()[key] = value;
 			this.emit('change', this._getData(), [key]);
 		}
+	}
+	
+	forceKey(key, value){
+		this._getData()[key] = value;
+		this.emit('force', this._getData(), [key]);
 	}
 	
 	print(){

@@ -9478,7 +9478,8 @@ socket.on('file-changed', (project, fileName) => {
 
 socket.on('status', (status, project) => {
 	if (project === models.project.getKey('currentProject') || project === undefined) {
-		models.status.setData(status, true);
+		models.status.setData(status);
+		models.status.forceData(status);
 		//console.log('status', status);
 	}
 });
@@ -9490,7 +9491,7 @@ socket.on('IDE-settings-data', settings => models.settings.setKey('IDESettings',
 
 // model events
 // build errors
-models.status.on('change', (data, changedKeys) => {
+models.status.on('force', (data, changedKeys) => {
 	if (changedKeys.indexOf('syntaxError') !== -1) {
 		parseErrors(data.syntaxError);
 	}
@@ -9578,7 +9579,9 @@ function parseErrors(data) {
 		}
 	}
 
-	models.error.setKey('allErrors', errors, true);
+	//models.error.setKey('allErrors', errors);
+	console.log('allErrors', errors);
+	models.error.forceKey('allErrors', errors);
 	models.error.setKey('currentFileErrors', currentFileErrors);
 	models.error.setKey('otherFileErrors', otherFileErrors);
 }
@@ -9651,7 +9654,7 @@ class Model extends EventEmitter {
 	setData(newData, force) {
 		var newKeys = [];
 		for (let key in newData) {
-			if (!_equals(newData[key], this._getData()[key], false) || force) {
+			if (!_equals(newData[key], this._getData()[key], false)) {
 				newKeys.push(key);
 				this._getData()[key] = newData[key];
 			}
@@ -9661,11 +9664,27 @@ class Model extends EventEmitter {
 		}
 	}
 
-	setKey(key, value, force) {
-		if (!_equals(value, this._getData()[key]) || force) {
+	forceData(newData) {
+		var newKeys = [];
+		for (let key in newData) {
+			newKeys.push(key);
+			this._getData()[key] = newData[key];
+		}
+		if (newKeys.length) {
+			this.emit('force', this._getData(), newKeys);
+		}
+	}
+
+	setKey(key, value) {
+		if (!_equals(value, this._getData()[key])) {
 			this._getData()[key] = value;
 			this.emit('change', this._getData(), [key]);
 		}
+	}
+
+	forceKey(key, value) {
+		this._getData()[key] = value;
+		this.emit('force', this._getData(), [key]);
 	}
 
 	print() {
@@ -9756,6 +9775,21 @@ class ConsoleView extends View {
 	_belaResult(result, data) {
 		//_console.log(result.stdout);
 		//_console.log(result.stderr);
+	}
+
+	_building(status) {
+		if (status) {
+			_console.notify('Building project...', 'build-notification', true);
+		} else {
+			_console.fulfill(' done', 'build-notification', true);
+		}
+	}
+	_running(status) {
+		if (status) {
+			_console.notify('Running project...', 'run-notification', true);
+		} else {
+			_console.fulfill(' done', 'run-notification', true);
+		}
 	}
 
 }
@@ -10248,7 +10282,7 @@ class ToolbarView extends View {
 	}
 
 	// model events
-	_running(status) {
+	_F_running(status) {
 		if (status) {
 			if (!$('#run').hasClass('spinning')) {
 				$('#run').addClass('spinning');
@@ -10259,14 +10293,16 @@ class ToolbarView extends View {
 			}
 		}
 	}
-	_checkingSyntax(status) {
+	_F_checkingSyntax(status) {
+		console.log('_F_checkingSyntax', status);
 		if (status) {
 			$('#status').css('background', 'url("images/toolbar.png") -210px 35px');
 		} else {
 			//this.syntaxTimeout = setTimeout(() => $('#status').css('background', 'url("images/toolbar.png") -140px 35px'), 10);
 		}
 	}
-	_allErrors(errors) {
+	_F_allErrors(errors) {
+		console.log('_F_allErrors');
 		//if (this.syntaxTimeout) clearTimeout(this.syntaxTimeout);
 		if (errors.length) {
 			$('#status').css('background', 'url("images/toolbar.png") -175px 35px');
@@ -10298,6 +10334,9 @@ class View extends EventEmitter {
 				models[i].on('change', (data, changedKeys) => {
 					this.modelChanged(data, changedKeys);
 				});
+				models[i].on('force', (data, changedKeys) => {
+					this.modelForced(data, changedKeys);
+				});
 			}
 		}
 
@@ -10309,6 +10348,13 @@ class View extends EventEmitter {
 		for (let value of changedKeys) {
 			if (this['_' + value]) {
 				this['_' + value](data[value], data);
+			}
+		}
+	}
+	modelForced(data, changedKeys) {
+		for (let value of changedKeys) {
+			if (this['_F_' + value]) {
+				this['_F_' + value](data[value], data);
 			}
 		}
 	}
@@ -10389,33 +10435,17 @@ class Console extends EventEmitter {
 	// otherwise it will just fade
 	notify(notice, id) {
 		var el = this.print(notice, 'notify', id);
+		this.scroll();
 	}
 
-	fulfill(message, id) {
+	fulfill(message, id, persist) {
 		var el = document.getElementById(id);
 		var $el = $(el);
 		if (el) {
+			$el.appendTo(this.$element).removeAttr('id');
 			$el.html($el.html() + message);
 			setTimeout(() => $el.addClass('beaglert-console-faded'), 500);
-			$el.on('transitionend', () => {
-				if ($el.hasClass('beaglert-console-collapsed')) {
-					$el.remove();
-				} else {
-					$el.addClass('beaglert-console-collapsed');
-				}
-			});
-		}
-	}
-
-	reject(message, id) {
-		var el = document.getElementById(id);
-		var $el = $(el);
-		if (el) {
-			$el.html($el.html() + message);
-			$el.addClass('beaglert-console-rejectnotification');
-			$el.on('click', () => {
-				console.log('click');
-				$el.addClass('beaglert-console-collapsed');
+			if (!persist) {
 				$el.on('transitionend', () => {
 					if ($el.hasClass('beaglert-console-collapsed')) {
 						$el.remove();
@@ -10423,6 +10453,29 @@ class Console extends EventEmitter {
 						$el.addClass('beaglert-console-collapsed');
 					}
 				});
+			}
+		}
+	}
+
+	reject(message, id, persist) {
+		var el = document.getElementById(id);
+		var $el = $(el);
+		if (el) {
+			$el.appendTo(this.$element).removeAttr('id');
+			$el.html($el.html() + message);
+			$el.addClass('beaglert-console-rejectnotification');
+			$el.on('click', () => {
+				console.log('click');
+				$el.addClass('beaglert-console-collapsed');
+				if (!persist) {
+					$el.on('transitionend', () => {
+						if ($el.hasClass('beaglert-console-collapsed')) {
+							$el.remove();
+						} else {
+							$el.addClass('beaglert-console-collapsed');
+						}
+					});
+				}
 			});
 		}
 	}

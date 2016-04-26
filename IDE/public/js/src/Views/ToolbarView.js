@@ -28,7 +28,7 @@ class ToolbarView extends View {
 	}
 	
 	// model events
-	_running(status){
+	_F_running(status){
 		if (status){
 			if (!$('#run').hasClass('spinning')){
 				$('#run').addClass('spinning');
@@ -39,14 +39,16 @@ class ToolbarView extends View {
 			}
 		}
 	}
-	_checkingSyntax(status){
+	_F_checkingSyntax(status){
+		console.log('_F_checkingSyntax', status);
 		if (status){
 			$('#status').css('background', 'url("images/toolbar.png") -210px 35px');
 		} else {
 			//this.syntaxTimeout = setTimeout(() => $('#status').css('background', 'url("images/toolbar.png") -140px 35px'), 10);
 		}
 	}
-	_allErrors(errors){
+	_F_allErrors(errors){
+	console.log('_F_allErrors');
 		//if (this.syntaxTimeout) clearTimeout(this.syntaxTimeout); 
 		if (errors.length){
 			$('#status').css('background', 'url("images/toolbar.png") -175px 35px');

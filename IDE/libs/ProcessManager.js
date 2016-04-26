@@ -23,18 +23,18 @@ class ProcessManager extends EventEmitter {
 	
 	// process functions
 	upload(project, upload){
-	//console.log('checkSyntax', this.checkingSyntax());
+
 		if (this.checkingSyntax()){
 			syntaxCheckProcess.kill().queue(function(){
-				syntaxCheckProcess.execute(project, upload);
+				syntaxCheckProcess.execute(project, upload, upload.checkSyntax);
 			});
 		} else if(this.building()){
 			buildProcess.kill().queue(function(){
-				syntaxCheckProcess.execute(project, upload);
+				syntaxCheckProcess.execute(project, upload, upload.checkSyntax);
 			});
 		} else {
 			this.emptyAllQueues();
-			syntaxCheckProcess.execute(project, upload);
+			syntaxCheckProcess.execute(project, upload, upload.checkSyntax);
 		}
 		
 		return syntaxCheckProcess;

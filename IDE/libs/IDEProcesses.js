@@ -16,7 +16,7 @@ class SyntaxCheckProcess extends ChildProcess{
 		super('make', ['--no-print-directory', '-C', makePath,  'syntax',  'PROJECT=']);
 	}
 	
-	execute(project, upload){
+	execute(project, upload, checkSyntax){
 		if (this.active) return;
 		
 		this.args[this.args.length-1] = 'PROJECT='+project;
@@ -24,25 +24,28 @@ class SyntaxCheckProcess extends ChildProcess{
 		if (upload && upload.newFile && upload.fileData){
 
 			this.active = true;
-			
+
 			_co(ProjectManager, 'uploadFile', upload)
 				.then( () => {
 
 					this.active = false;
 					if (this.next) {
 						this.dequeue();
-					} else {
+					} else if (checkSyntax == 'true') {
 						this.project = project;
 						this.start();
+					} else {
+						this.closed();
 					}
 				})
 				.catch( (err) => this.emit('upload-error', err) );
 				
-		} else {
-
+		} else if (checkSyntax == 'true') {
 			this.project = project;
 			this.start();
 			
+		} else {
+			this.closed();
 		}
 	}
 	

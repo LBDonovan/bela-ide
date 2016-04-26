@@ -130,7 +130,7 @@ function socketEvents(socket){
 			console.log('bad process-event', data);
 			return;
 		}
-		
+
 		if (data.event === 'upload' && data.fileData){
 			// notify other browser tabs that the file has been updated
 			socket.broadcast.emit('file-changed', data.currentProject, data.newFile);

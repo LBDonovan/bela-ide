@@ -62,7 +62,7 @@ editorView.on('change', (fileData) => {
 		currentProject	: models.project.getKey('currentProject'),
 		newFile			: models.project.getKey('fileName'),
 		fileData,
-		checkSyntax		: models.settings.getKey('liveSyntaxChecking')
+		checkSyntax		: models.settings.getKey('IDESettings')['liveSyntaxChecking']
 	});
 });
 

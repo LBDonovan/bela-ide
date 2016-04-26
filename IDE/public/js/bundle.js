@@ -9397,7 +9397,7 @@ editorView.on('change', fileData => {
 		currentProject: models.project.getKey('currentProject'),
 		newFile: models.project.getKey('fileName'),
 		fileData,
-		checkSyntax: models.settings.getKey('liveSyntaxChecking')
+		checkSyntax: models.settings.getKey('IDESettings')['liveSyntaxChecking']
 	});
 });
 
@@ -9752,7 +9752,7 @@ class ConsoleView extends View {
 			_console.log(log);
 		}
 	}
-	_allErrors(errors, data) {
+	_F_allErrors(errors, data) {
 		//console.log(data);
 		_console.newErrors(errors);
 	}

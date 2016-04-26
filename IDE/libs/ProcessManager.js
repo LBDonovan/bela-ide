@@ -22,7 +22,7 @@ class ProcessManager extends EventEmitter {
 	
 	// process functions
 	upload(project, upload){
-	console.log('checkSyntax', this.checkingSyntax());
+	//console.log('checkSyntax', this.checkingSyntax());
 		if (this.checkingSyntax()){
 			syntaxCheckProcess.kill().queue(function(){
 				syntaxCheckProcess.execute(project, upload);
@@ -41,7 +41,7 @@ class ProcessManager extends EventEmitter {
 	}
 	
 	build(project){
-	console.log('build', this.building());
+	//console.log('build', this.building());
 		if (this.checkingSyntax()){
 			syntaxCheckProcess.kill().queue(function(){
 				buildProcess.execute(project);
@@ -97,26 +97,53 @@ class ProcessManager extends EventEmitter {
 	processEvents(childProcesses){
 		
 		// status events
-		for (let proc in childProcesses){
-			childProcesses[proc].on('started', () => this.emit('status', this.getStatus()) );
-			childProcesses[proc].on('cancelled', () => this.emit('status', this.getStatus()) );
-			childProcesses[proc].on('finished', () => this.emit('status', this.getStatus()) );
-		}
+		/*for (let proc in childProcesses){
+			childProcesses[proc].on('started', () => this.emit('status', childProcesses[proc].project, this.getStatus()) );
+			childProcesses[proc].on('cancelled', () => this.emit('status', childProcesses[proc].project, this.getStatus()) );
+			childProcesses[proc].on('finished', () => this.emit('status', childProcesses[proc].project, this.getStatus()) );
+		}*/
 		
 		// syntax events
-		syntaxCheckProcess.on('stdout', (data) => this.emit('status', {syntaxLog: data}) );
-		//syntaxCheckProcess.on('stderr', (data) => this.emit('status', {syntaxLog: data}) );
-		syntaxCheckProcess.on('finished', (data) => this.emit('status', {syntaxError: data.stderr}) );
+		syntaxCheckProcess.on('started', () => this.emit('status', syntaxCheckProcess.project, this.getStatus()) );
+		syntaxCheckProcess.on('stdout', (data) => this.emit('status', syntaxCheckProcess.project, {syntaxLog: data}) );
+		syntaxCheckProcess.on('cancelled', (data) => {
+			var status = this.getStatus();
+			status.syntaxError = data.stderr;
+			this.emit('status', syntaxCheckProcess.project, status);
+		});
+		syntaxCheckProcess.on('finished', (data) => {
+			var status = this.getStatus();
+			status.syntaxError = data.stderr;
+			this.emit('status', syntaxCheckProcess.project, status);
+		});
 		
 		// build events
-		buildProcess.on('stdout', (data) => this.emit('status', {buildLog: data}) );
+		buildProcess.on('started', () => this.emit('status', buildProcess.project, this.getStatus()) );
+		buildProcess.on('stdout', (data) => this.emit('status', buildProcess.project, {buildLog: data}) );
 		//buildProcess.on('stderr', (data) => this.emit('status', {buildLog: data}) );
-		buildProcess.on('finished', (data) => {if (data.stderr.length) this.emit('status', {syntaxError: data.stderr}) });
+		buildProcess.on('cancelled', (data) => {
+			var status = this.getStatus();
+			status.syntaxError = data.stderr;
+			this.emit('status', buildProcess.project, status);
+		});
+		buildProcess.on('finished', (data) => {
+			var status = this.getStatus();
+			status.syntaxError = data.stderr;
+			this.emit('status', buildProcess.project, status);
+		});
+		//buildProcess.on('finished', (data) => {if (data.stderr.length) this.emit('status', buildProcess.project, {syntaxError: data.stderr}) });
+
 		
 		// bela events
-		belaProcess.on('stdout', (data) => this.emit('status', {belaLog: data}) );
-		belaProcess.on('stderr', (data) => this.emit('status', {belaLog: data}) );
-		belaProcess.on('finished', (data) => this.emit('status', {belaResult: data}) );
+		belaProcess.on('started', () => this.emit('broadcast-status', this.getStatus()) );
+		belaProcess.on('stdout', (data) => this.emit('broadcast-status', {belaLog: data}) );
+		belaProcess.on('stderr', (data) => this.emit('broadcast-status', {belaLogErr: data}) );
+		belaProcess.on('cancelled', () => this.emit('broadcast-status', this.getStatus()) );
+		belaProcess.on('finished', (data) => {
+			var status = this.getStatus();
+			status.belaResult = data;
+			this.emit('broadcast-status', status);
+		});
 		
 	}
 	

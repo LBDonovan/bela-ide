@@ -66,11 +66,24 @@ function socketEvents(socket){
 			console.log('bad', data);
 			return;
 		}
-		
-		SettingsManager.setIDESetting({key: 'project', value: data.currentProject});
 
 		co(ProjectManager, data.func, data)
-			.then((result) => socket.emit('project-data', result) )
+			.then((result) => {
+			
+				// send result to the tab that asked for it
+				socket.emit('project-data', result);
+				
+				// send relevant info to any other tabs
+				if (result.currentProject){
+					if (result.projectList){
+						socket.broadcast.emit('project-list', result.currentProject, result.projectList);
+					}
+					if (result.fileList){
+						socket.broadcast.emit('file-list', result.currentProject, result.fileList);
+					}
+					SettingsManager.setIDESetting({key: 'project', value: result.currentProject});
+				}
+			})
 			.catch((error) => {
 				console.log(error, error.stack.split('\n'), error.toString());
 				socket.emit('report-error', error.toString() );
@@ -88,7 +101,7 @@ function socketEvents(socket){
 		
 		co(ProjectManager, data.func, data)
 			.then((result) => {
-				socket.emit('project-settings-data', result);
+				allSockets.emit('project-settings-data', data.currentProject, result);
 			})
 			.catch((error) => {
 				console.log(error, error.stack.split('\n'), error.toString());
@@ -104,6 +117,11 @@ function socketEvents(socket){
 		if (!data || !data.currentProject || !data.event || !ProcessManager[data.event]){
 			console.log('bad process-event', data);
 			return;
+		}
+		
+		if (data.event === 'upload' && data.fileData){
+			// notify other browser tabs that the file has been updated
+			socket.broadcast.emit('file-changed', data.currentProject, data.newFile);
 		}
 		
 		ProcessManager[data.event](data.currentProject, data);
@@ -144,7 +162,8 @@ ProcessManager.on('error', (error) => {
 		console.log('error', error.childProcess.pid);//error.childProcess.spawnargs[4]);
 	}
 });*/
-ProcessManager.on('status', (status) => allSockets.emit('status', status) );
+ProcessManager.on('status', (status, project) => allSockets.emit('status', project, status) );
+ProcessManager.on('broadcast-status', (status) => allSockets.emit('status', status) );
 
 // module functions - only accesible from this file
 function co(obj, func, args){

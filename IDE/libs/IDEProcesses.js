@@ -30,6 +30,7 @@ class SyntaxCheckProcess extends ChildProcess{
 					if (this.next) {
 						this.dequeue();
 					} else {
+						this.project = project;
 						this.start();
 					}
 				})
@@ -37,6 +38,7 @@ class SyntaxCheckProcess extends ChildProcess{
 				
 		} else {
 
+			this.project = project;
 			this.start();
 			
 		}
@@ -53,6 +55,7 @@ class buildProcess extends ChildProcess{
 	execute(project){
 		if (this.active) return;
 		this.args[this.args.length-1] = 'PROJECT='+project;
+		this.project = project;
 		this.start();
 	}
 
@@ -84,6 +87,7 @@ class belaProcess extends ChildProcess{
 						}
 					}
 					this.opts = {cwd: projectPath+project+'/'};
+					this.project = project;
 					this.start();
 				}
 			})

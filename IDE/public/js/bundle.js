@@ -9438,18 +9438,50 @@ socket.on('init', data => {
 	socket.emit('set-time', getDateString());
 });
 
+// project events
 socket.on('project-data', data => {
+	//models.project.setKey('readOnly', false);
 	models.project.setData(data);
 	models.settings.setData(data.settings);
 	//models.settings.print();
 });
-
-socket.on('status', status => {
-	models.status.setData(status, true);
-	//console.log('status', status)
+socket.on('project-list', (project, list) => {
+	if (list.indexOf(models.project.getKey('currentProject')) === -1) {
+		// this project has just been deleted
+		console.log('project-list', 'openProject');
+		socket.emit('project-event', { func: 'openProject', currentProject: project });
+	}
+	models.project.setKey('projectList', list);
+});
+socket.on('file-list', (project, list) => {
+	if (project === models.project.getKey('currentProject')) {
+		if (list.indexOf(models.project.getKey('fileName')) === -1) {
+			// this file has just been deleted
+			console.log('file-list', 'openProject');
+			socket.emit('project-event', { func: 'openProject', currentProject: project });
+		}
+		models.project.setKey('fileList', list);
+	}
+});
+socket.on('file-changed', (project, fileName) => {
+	if (project === models.project.getKey('currentProject') && fileName === models.project.getKey('fileName')) {
+		console.log('file changed!');
+		models.project.setKey('readOnly', true);
+		models.project.setKey('fileData', 'This file has been edited in another window. Reopen the file to continue');
+		//socket.emit('project-event', {func: 'openFile', currentProject: project, fileName: fileName});
+	}
 });
 
-socket.on('project-settings-data', settings => models.settings.setData(settings));
+socket.on('status', (status, project) => {
+	if (project === models.project.getKey('currentProject') || project === undefined) {
+		models.status.setData(status, true);
+		//console.log('status', status);
+	}
+});
+
+socket.on('project-settings-data', (project, settings) => {
+	if (project === models.project.getKey('currentProject')) models.settings.setData(settings);
+});
 socket.on('IDE-settings-data', settings => models.settings.setKey('IDESettings', settings));
 
 // model events
@@ -9681,7 +9713,8 @@ class ConsoleView extends View {
 			_console.log(log);
 		}
 	}
-	_allErrors(errors) {
+	_allErrors(errors, data) {
+		//console.log(data);
 		_console.newErrors(errors);
 	}
 
@@ -9742,7 +9775,7 @@ class EditorView extends View {
 
 		// this function is called when the user modifies the editor
 		this.editor.session.on('change', e => {
-			//console.log('upload blocked', uploadBlocked);
+			//console.log('upload', !uploadBlocked);
 			if (!uploadBlocked) this.editorChanged();
 		});
 
@@ -9757,7 +9790,15 @@ class EditorView extends View {
 	// model events
 	_fileData(data, opts) {
 
-		if (data instanceof ArrayBuffer) data = String.fromCharCode.apply(null, new Uint8Array(data));
+		if (data instanceof ArrayBuffer) {
+			//console.log('arraybuffer');
+			try {
+				data = String.fromCharCode.apply(null, new Uint8Array(data));
+			} catch (e) {
+				console.log(e);
+				return;
+			}
+		}
 
 		// block upload
 		uploadBlocked = true;
@@ -9797,6 +9838,13 @@ class EditorView extends View {
 				enableLiveAutocompletion: data.liveAutocompletion.toString() === 'true'
 			});
 			autoCompleteEnabled = data.liveAutocompletion;
+		}
+	}
+	_readOnly(status) {
+		if (status) {
+			this.editor.setReadOnly(true);
+		} else {
+			this.editor.setReadOnly(false);
 		}
 	}
 }
@@ -10182,9 +10230,12 @@ class ToolbarView extends View {
 	_checkingSyntax(status) {
 		if (status) {
 			$('#status').css('background', 'url("images/toolbar.png") -210px 35px');
+		} else {
+			//this.syntaxTimeout = setTimeout(() => $('#status').css('background', 'url("images/toolbar.png") -140px 35px'), 10);
 		}
 	}
 	_allErrors(errors) {
+		//if (this.syntaxTimeout) clearTimeout(this.syntaxTimeout);
 		if (errors.length) {
 			$('#status').css('background', 'url("images/toolbar.png") -175px 35px');
 		} else {

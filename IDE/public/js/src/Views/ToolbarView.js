@@ -42,9 +42,12 @@ class ToolbarView extends View {
 	_checkingSyntax(status){
 		if (status){
 			$('#status').css('background', 'url("images/toolbar.png") -210px 35px');
+		} else {
+			//this.syntaxTimeout = setTimeout(() => $('#status').css('background', 'url("images/toolbar.png") -140px 35px'), 10);
 		}
 	}
 	_allErrors(errors){
+		//if (this.syntaxTimeout) clearTimeout(this.syntaxTimeout); 
 		if (errors.length){
 			$('#status').css('background', 'url("images/toolbar.png") -175px 35px');
 		} else {

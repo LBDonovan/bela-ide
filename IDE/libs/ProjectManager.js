@@ -13,6 +13,13 @@ var newProjectPath = examplePath+'minimal';
 //files
 var blockedFiles = ['build', 'settings.json'];
 var exampleTempProject = 'exampleTempProject';
+var sourceIndeces = ['cpp', 'c', 'S'];
+var headerIndeces = ['h', 'hh', 'hpp'];
+var resourceIndeces = ['txt', 'json', 'xml'];
+//var allowedIndeces = [...sourceIndeces, ...headerIndeces, ...resourceIndeces];
+var allowedIndeces = sourceIndeces.concat(headerIndeces, resourceIndeces);
+
+var resourceData = 'This file type cannot be opened';
 
 // public functions
 module.exports = {
@@ -53,6 +60,7 @@ module.exports = {
 	
 	*saveAs(data){
 		yield fs.copyAsync(projectPath+data.currentProject, projectPath+data.newProject);
+		yield fs.removeAsync(projectPath+data.newProject+'/'+data.currentProject);
 		data.projectList = yield this.listProjects();
 		data.currentProject = data.newProject;
 		data.newProject = undefined;
@@ -84,7 +92,14 @@ module.exports = {
 	
 	// file events
 	*openFile(data){
-		data.fileData = yield fs.readFileAsync(projectPath+data.currentProject+'/'+data.fileName, 'utf8');
+		var splitName = data.fileName.split('.');
+		if (!splitName.length>1 || allowedIndeces.indexOf(splitName[splitName.length-1]) === -1){
+			data.fileData = resourceData;
+			data.readOnly = true;
+		} else {
+			data.fileData = yield fs.readFileAsync(projectPath+data.currentProject+'/'+data.fileName, 'utf8');
+			data.readOnly = false;
+		}
 		yield Promise.coroutine(_setFile)(data);
 		return data;
 			/*.catch((error) => {
@@ -112,7 +127,7 @@ module.exports = {
 		data.fileName = data.newFile;
 		data.newFile = undefined;
 		data.fileList = yield _listFiles(data.currentProject);
-		return data;
+		return yield _co(this, 'openFile', data);
 	},
 	
 	*renameFile(data){

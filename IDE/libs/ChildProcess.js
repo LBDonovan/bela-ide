@@ -31,7 +31,7 @@ class ChildProcess extends EventEmitter{
 		this.emit('started');
 		
 		var childProcess = spawn(this.command, this.args, this.opts);
-	console.log('spawning', this.command, this.args, this.opts, childProcess.pid);
+	//console.log('spawning', this.command, this.args, this.opts, childProcess.pid);
 		this.pid = childProcess.pid;
 		
 		childProcess.stdout.setEncoding('utf8');
@@ -48,13 +48,13 @@ class ChildProcess extends EventEmitter{
 		
 		//childProcess.on('exit', (code, signal) => console.log('exit', childProcess.pid, code, signal) );
 		childProcess.on('close', (code, signal) => {
-			console.log('close', childProcess.pid, code, signal);
+			//console.log('close', childProcess.pid, code, signal);
+			var stdout = this.stdout;
+			var stderr = this.stderr;
 			if (this.dying){
 				this.closed();
-				this.emit('cancelled');
+				this.emit('cancelled', {stdout, stderr});
 			} else {
-				let stdout = this.stdout;
-				let stderr = this.stderr;
 				this.closed();
 				this.emit('finished', {stdout, stderr});
 			}
@@ -72,7 +72,7 @@ class ChildProcess extends EventEmitter{
 	
 	kill(){
 		if (this.pid) {
-			console.log('killing', this.pid);
+			//console.log('killing', this.pid);
 			this.dying = true;
 			treeKill(this.pid, 'SIGTERM');
 			this.pid = undefined;
@@ -81,7 +81,7 @@ class ChildProcess extends EventEmitter{
 	}
 	
 	queue(next){
-		console.log('queueing');
+		//console.log('queueing');
 		this.next = next;
 	}
 	

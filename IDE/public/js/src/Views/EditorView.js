@@ -28,7 +28,7 @@ class EditorView extends View {
 		
 		// this function is called when the user modifies the editor
 		this.editor.session.on('change', (e) => {
-			//console.log('upload blocked', uploadBlocked);
+			//console.log('upload', !uploadBlocked);
 			if (!uploadBlocked) this.editorChanged();
 		});
 		
@@ -44,7 +44,16 @@ class EditorView extends View {
 	// model events
 	_fileData(data, opts){
 	
-		if (data instanceof ArrayBuffer) data = String.fromCharCode.apply(null, new Uint8Array(data));
+		if (data instanceof ArrayBuffer){
+			//console.log('arraybuffer');
+			try{
+				data = String.fromCharCode.apply(null, new Uint8Array(data));
+			}
+			catch(e){
+				console.log(e);
+				return;
+			}
+		}
 		
 		// block upload
 		uploadBlocked = true;
@@ -54,12 +63,13 @@ class EditorView extends View {
 		
 		// unblock upload
 		uploadBlocked = false;
-		
+
 		// force a syntax check
 		this.emit('change');
-		
+	
 		// focus the editor
 		this._focus(opts.focus);
+		
 	}
 	_focus(data){
 
@@ -86,6 +96,13 @@ class EditorView extends View {
 				enableLiveAutocompletion: (data.liveAutocompletion.toString() === 'true')
 			});
 			autoCompleteEnabled = data.liveAutocompletion;
+		}
+	}
+	_readOnly(status){
+		if (status){
+			this.editor.setReadOnly(true);
+		} else {
+			this.editor.setReadOnly(false);
 		}
 	}
 }

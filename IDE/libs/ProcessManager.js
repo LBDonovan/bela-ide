@@ -5,6 +5,7 @@ var util = require('util');
 var Promise = require('bluebird');
 var spawn = require('child_process').spawn;
 var treeKill = require('tree-kill');
+var pusage = Promise.promisifyAll(require('pidusage'));
 
 // child processes
 var syntaxCheckProcess = require('./IDEProcesses').syntax;
@@ -153,7 +154,15 @@ class ProcessManager extends EventEmitter {
 		}
 	}
 	
-	
+	*checkCPU(){
+		var output = {};
+		//console.log(this);
+		output.syntaxCheckProcess = yield syntaxCheckProcess.CPU();
+		output.buildProcess = yield buildProcess.CPU();
+		output.bela = yield belaProcess.CPU();
+		output.node = (yield pusage.statAsync(process.pid)).cpu;
+		return output;
+	}
 	
 };
 

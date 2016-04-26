@@ -73,6 +73,12 @@ class ConsoleView extends View{
 			_console.fulfill(' done', 'run-notification', true);
 		}
 	}
+	
+	_CPU(data){
+		if (this.settings.getKey('IDESettings').cpuMonitoringVerbose && data.bela != 0){
+			_console.log(data.bela.split(' ').join('&nbsp;'));
+		}
+	}
 
 	
 }

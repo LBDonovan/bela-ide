@@ -2,6 +2,8 @@
 var EventEmitter = require('events').EventEmitter;
 var spawn = require('child_process').spawn;
 var treeKill = require('tree-kill');
+var Promise = require('bluebird');
+var pusage = Promise.promisifyAll(require('pidusage'));
 
 class ChildProcess extends EventEmitter{
 
@@ -100,6 +102,17 @@ class ChildProcess extends EventEmitter{
 		this.stderr = [];
 		this.active = false;
 		this.dying = false;
+	}
+	
+	CPU(){
+		if (!this.active || !this.pid) return Promise.resolve(0);
+		//console.log(this.active, this.pid);
+		return pusage.statAsync(this.pid)
+			.then((stat) => stat.cpu )
+			.catch((e) => {
+				console.log('error calculating cpu', this.command, e);
+				return Promise.resolve(0);
+			});
 	}
 		
 }

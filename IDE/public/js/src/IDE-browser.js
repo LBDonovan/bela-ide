@@ -155,6 +155,8 @@ socket.on('project-settings-data', (project, settings) => {
 });
 socket.on('IDE-settings-data', (settings) => models.settings.setKey('IDESettings', settings) );
 
+socket.on('cpu-usage', (data) => models.status.setKey('CPU', data) );
+
 // model events
 // build errors
 models.status.on('force', (data, changedKeys) => {
@@ -245,7 +247,6 @@ function parseErrors(data){
 	}
 	
 	//models.error.setKey('allErrors', errors);
-	console.log('allErrors', errors);
 	models.error.forceKey('allErrors', errors);
 	models.error.setKey('currentFileErrors', currentFileErrors);
 	models.error.setKey('otherFileErrors', otherFileErrors);

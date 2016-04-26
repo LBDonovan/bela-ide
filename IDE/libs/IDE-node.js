@@ -15,6 +15,9 @@ var server = require('./fileServer');
 var allSockets;
 var belaPath = '/root/BeagleRT/';
 
+// settings
+var cpuMonitoring = false;
+
 // constructor function for IDE object
 function IDE(){
 
@@ -27,6 +30,13 @@ function IDE(){
 	var io = require('socket.io')(server.http);
 	allSockets = io.of('/IDE');
 	allSockets.on('connection', socketConnected);
+	
+	// CPU monitoring
+	setInterval(function(){
+		//if (!cpuMonitoring) return;
+		co(ProcessManager, 'checkCPU')
+			.then((output) => allSockets.emit('cpu-usage', output));
+	}, 1000);
 	
 }
 
@@ -235,4 +245,34 @@ var SettingsManager = {
 	}
 
 };
+
+/*// record the compiler's CPU usage
+function cc1plusCPU(callback){
+
+	// lookup the PID of the compiler's process
+	exec('pgrep cc1plus', function(err, stdout) {
+	
+		if (err) console.log('pgrep '+err);
+
+		// record the compiler's CPU usage
+		if (stdout){
+			pusage.stat(stdout.trim(), function(err, stat) {
+				if (err) console.log('pusage cc1plus '+err);
+				if (!err && stat){
+					callback(null, {'name': 'compiler', 'value': stat.cpu});
+				} else {
+					callback(null, {'name': 'compiler', 'value': 0});
+				}
+			});
+		} else {
+			callback(null, {'name': 'compiler', 'value': 0});
+		}
+		
+	});
+}
+
+function CPUbyPID(pid){
+	return pusage(pid)
+		.then((stat) => stat.cpu);
+}*/
 

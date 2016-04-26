@@ -9489,6 +9489,8 @@ socket.on('project-settings-data', (project, settings) => {
 });
 socket.on('IDE-settings-data', settings => models.settings.setKey('IDESettings', settings));
 
+socket.on('cpu-usage', data => models.status.setKey('CPU', data));
+
 // model events
 // build errors
 models.status.on('force', (data, changedKeys) => {
@@ -9580,7 +9582,6 @@ function parseErrors(data) {
 	}
 
 	//models.error.setKey('allErrors', errors);
-	console.log('allErrors', errors);
 	models.error.forceKey('allErrors', errors);
 	models.error.setKey('currentFileErrors', currentFileErrors);
 	models.error.setKey('otherFileErrors', otherFileErrors);
@@ -9789,6 +9790,12 @@ class ConsoleView extends View {
 			_console.notify('Running project...', 'run-notification', true);
 		} else {
 			_console.fulfill(' done', 'run-notification', true);
+		}
+	}
+
+	_CPU(data) {
+		if (this.settings.getKey('IDESettings').cpuMonitoringVerbose && data.bela != 0) {
+			_console.log(data.bela.split(' ').join('&nbsp;'));
 		}
 	}
 
@@ -10294,7 +10301,6 @@ class ToolbarView extends View {
 		}
 	}
 	_F_checkingSyntax(status) {
-		console.log('_F_checkingSyntax', status);
 		if (status) {
 			$('#status').css('background', 'url("images/toolbar.png") -210px 35px');
 		} else {
@@ -10302,13 +10308,59 @@ class ToolbarView extends View {
 		}
 	}
 	_F_allErrors(errors) {
-		console.log('_F_allErrors');
 		//if (this.syntaxTimeout) clearTimeout(this.syntaxTimeout);
 		if (errors.length) {
 			$('#status').css('background', 'url("images/toolbar.png") -175px 35px');
 		} else {
 			$('#status').css('background', 'url("images/toolbar.png") -140px 35px');
 		}
+	}
+
+	_CPU(data) {
+
+		var ide = data.syntaxCheckProcess + data.buildProcess + data.node;
+		var bela = 0;
+
+		if (data.bela != 0) {
+
+			// extract the data from the output
+			var lines = data.bela.split('\n');
+			var taskData = [],
+			    output = [];
+			for (var j = 0; j < lines.length; j++) {
+				taskData.push([]);
+				lines[j] = lines[j].split(' ');
+				for (var k = 0; k < lines[j].length; k++) {
+					if (lines[j][k]) {
+						taskData[j].push(lines[j][k]);
+					}
+				}
+			}
+
+			for (var j = 0; j < taskData.length; j++) {
+				if (taskData[j].length) {
+					var proc = {
+						'name': taskData[j][7],
+						'cpu': taskData[j][6],
+						'msw': taskData[j][2],
+						'csw': taskData[j][3]
+					};
+					// ignore uninteresting data
+					if (proc && proc.name && proc.name !== 'ROOT' && proc.name !== 'NAME' && proc.name !== 'IRQ29:') {
+						output.push(proc);
+					}
+				}
+			}
+
+			for (var j = 0; j < output.length; j++) {
+				if (output[j].cpu) {
+					bela += parseFloat(output[j].cpu);
+				}
+			}
+		}
+
+		$('#ide-cpu').html('IDE: ' + ide.toFixed(1) + '%');
+		$('#bela-cpu').html('Bela: ' + bela.toFixed(1) + '%');
 	}
 
 }

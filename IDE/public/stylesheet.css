@@ -154,15 +154,12 @@ table {
 	border-bottom: 1px solid rgba(0, 0, 0, 0.2);
 	padding: 4px 30px;	
 	background-color: rgba(0, 255, 0, 0.2);
+	transition: transform 0.2s ease-out, background-color 1s ease-out;
 }
 
 .beaglert-console-ierror, .beaglert-console-iwarning, .beaglert-console-warning, .beaglert-console-error{
 	cursor: pointer;
 	transition: transform 0.1s ease-out;
-}
-.beaglert-console-notify{
-	cursor: pointer;
-	transition: transform 0.5s ease-out, background-color 0.5s ease-out;
 }
 .beaglert-console-ierror:hover a, .beaglert-console-iwarning:hover a{
 	text-decoration: underline;

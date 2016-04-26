@@ -9,6 +9,7 @@ models.project = new Model();
 models.settings = new Model();
 models.status = new Model();
 models.error = new Model();
+models.notify = new Model();
  
 // set up views
 // tab view
@@ -34,7 +35,8 @@ projectView.on('message', (event, data) => {
 	if (!data.currentProject && models.project.getKey('currentProject')){
 		data.currentProject = models.project.getKey('currentProject');
 	}
-	//console.log(event, data);
+	data.timestamp = performance.now();
+	consoleView.emit('openNotification', data);
 	socket.emit(event, data);
 });
 
@@ -47,6 +49,8 @@ fileView.on('message', (event, data) => {
 	if (!data.fileName && models.project.getKey('fileName')){
 		data.fileName = models.project.getKey('fileName');
 	}
+	data.timestamp = performance.now();
+	consoleView.emit('openNotification', data);
 	socket.emit(event, data);
 });
 
@@ -73,7 +77,7 @@ toolbarView.on('process-event', (event) => {
 toolbarView.on('clear-console', () => consoleView.emit('clear') );
 
 // console view
-var consoleView = new (require('./Views/ConsoleView'))('IDEconsole', [models.status, models.project, models.error], models.settings);
+var consoleView = new (require('./Views/ConsoleView'))('IDEconsole', [models.status, models.project, models.error, models.notify], models.settings);
 consoleView.on('focus', (focus) =>  models.project.setKey('focus', focus) );
 consoleView.on('open-file', (fileName, focus) => {
 	var data = {
@@ -105,7 +109,7 @@ socket.on('init', (data) => {
 
 // project events
 socket.on('project-data', (data) => {
-	//models.project.setKey('readOnly', false);
+	consoleView.emit('closeNotification', data)
 	models.project.setData(data);
 	models.settings.setData(data.settings);
 	//models.settings.print();

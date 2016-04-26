@@ -9344,6 +9344,7 @@ models.project = new Model();
 models.settings = new Model();
 models.status = new Model();
 models.error = new Model();
+models.notify = new Model();
 
 // set up views
 // tab view
@@ -9369,7 +9370,8 @@ projectView.on('message', (event, data) => {
 	if (!data.currentProject && models.project.getKey('currentProject')) {
 		data.currentProject = models.project.getKey('currentProject');
 	}
-	//console.log(event, data);
+	data.timestamp = performance.now();
+	consoleView.emit('openNotification', data);
 	socket.emit(event, data);
 });
 
@@ -9382,6 +9384,8 @@ fileView.on('message', (event, data) => {
 	if (!data.fileName && models.project.getKey('fileName')) {
 		data.fileName = models.project.getKey('fileName');
 	}
+	data.timestamp = performance.now();
+	consoleView.emit('openNotification', data);
 	socket.emit(event, data);
 });
 
@@ -9408,7 +9412,7 @@ toolbarView.on('process-event', event => {
 toolbarView.on('clear-console', () => consoleView.emit('clear'));
 
 // console view
-var consoleView = new (require('./Views/ConsoleView'))('IDEconsole', [models.status, models.project, models.error], models.settings);
+var consoleView = new (require('./Views/ConsoleView'))('IDEconsole', [models.status, models.project, models.error, models.notify], models.settings);
 consoleView.on('focus', focus => models.project.setKey('focus', focus));
 consoleView.on('open-file', (fileName, focus) => {
 	var data = {
@@ -9440,7 +9444,7 @@ socket.on('init', data => {
 
 // project events
 socket.on('project-data', data => {
-	//models.project.setKey('readOnly', false);
+	consoleView.emit('closeNotification', data);
 	models.project.setData(data);
 	models.settings.setData(data.settings);
 	//models.settings.print();
@@ -9704,6 +9708,17 @@ class ConsoleView extends View {
 		this.on('clear', () => _console.clear());
 		_console.on('focus', focus => this.emit('focus', focus));
 		_console.on('open-file', (fileName, focus) => this.emit('open-file', fileName, focus));
+
+		this.on('openNotification', this.openNotification);
+		this.on('closeNotification', this.closeNotification);
+	}
+
+	openNotification(data) {
+		if (!funcKey[data.func]) console.log(data.func);
+		_console.notify(funcKey[data.func], data.timestamp);
+	}
+	closeNotification(data) {
+		_console.fulfill(' done', data.timestamp);
 	}
 
 	// model events
@@ -9742,6 +9757,19 @@ class ConsoleView extends View {
 }
 
 module.exports = ConsoleView;
+
+var funcKey = {
+	'openProject': 'Opening project...',
+	'newProject': 'Creating project...',
+	'saveAs': 'Saving project...',
+	'deleteProject': 'Deleting project...',
+	'cleanProject': 'Cleaning project...',
+	'openFile': 'Opening file...',
+	'newFile': 'Creating file...',
+	'uploadFile': 'Uploading file...',
+	'renameFile': 'Renaming file...',
+	'deleteFile': 'Deleting file...'
+};
 
 },{"../console":12,"./View":11}],5:[function(require,module,exports){
 var View = require('./View');
@@ -10355,26 +10383,25 @@ class Console extends EventEmitter {
 	// log a positive notification to the console
 	// if persist is not true, the notification will be removed quickly
 	// otherwise it will just fade
-	/*notify(notice, persist){
- 
- 	var el = print(notice, 'notify', null, dismiss);
- 		if (IDE.getSetting('consoleAnimations')){
- 		setTimeout(function(){
- 			if (persist){
- 				el.addClass('beaglert-console-faded');
- 			} else {
- 				el.addClass('beaglert-console-collapsed');
- 				setTimeout(function(){
- 					if ($.contains($element, el)){
- 						$element.removeChild(el);
- 					}
- 				}, 500);
- 			}
- 		}, 1000);
- 	}
- 	
- 	scroll();
- }*/
+	notify(notice, id) {
+		var el = this.print(notice, 'notify', id);
+	}
+
+	fulfill(message, id) {
+		var el = document.getElementById(id);
+		var $el = $(el);
+		if (el) {
+			$el.html($el.html() + message);
+			setTimeout(() => $el.addClass('beaglert-console-faded'), 500);
+			$el.on('transitionend', () => {
+				if ($el.hasClass('beaglert-console-collapsed')) {
+					$el.remove();
+				} else {
+					$el.addClass('beaglert-console-collapsed');
+				}
+			});
+		}
+	}
 
 	// clear the console
 	clear(number) {

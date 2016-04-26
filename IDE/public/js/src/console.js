@@ -59,27 +59,25 @@ class Console extends EventEmitter {
 	// log a positive notification to the console
 	// if persist is not true, the notification will be removed quickly
 	// otherwise it will just fade
-	/*notify(notice, persist){
+	notify(notice, id){
+		var el = this.print(notice, 'notify', id);
+	}
 	
-		var el = print(notice, 'notify', null, dismiss);
-
-		if (IDE.getSetting('consoleAnimations')){
-			setTimeout(function(){
-				if (persist){
-					el.addClass('beaglert-console-faded');
+	fulfill(message, id){
+		var el = document.getElementById(id);
+		var $el = $(el);
+		if (el){
+			$el.html($el.html()+message);
+			setTimeout( () => $el.addClass('beaglert-console-faded'), 500);
+			$el.on('transitionend', () => {
+				if ($el.hasClass('beaglert-console-collapsed')){
+					$el.remove();
 				} else {
-					el.addClass('beaglert-console-collapsed');
-					setTimeout(function(){
-						if ($.contains($element, el)){
-							$element.removeChild(el);
-						}
-					}, 500);
+					$el.addClass('beaglert-console-collapsed');
 				}
-			}, 1000);
+			});
 		}
-		
-		scroll();
-	}*/
+	}
 	
 	// clear the console
 	clear(number){

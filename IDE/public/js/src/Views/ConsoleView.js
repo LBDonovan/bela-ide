@@ -9,6 +9,17 @@ class ConsoleView extends View{
 		this.on('clear', () => _console.clear() );
 		_console.on('focus', (focus) => this.emit('focus', focus) );
 		_console.on('open-file', (fileName, focus) => this.emit('open-file', fileName, focus) );
+		
+		this.on('openNotification', this.openNotification);
+		this.on('closeNotification', this.closeNotification);
+	}
+	
+	openNotification(data){
+		if (!funcKey[data.func]) console.log(data.func);
+		_console.notify(funcKey[data.func], data.timestamp);
+	}
+	closeNotification(data){
+		_console.fulfill(' done', data.timestamp);
 	}
 	
 	// model events
@@ -43,8 +54,21 @@ class ConsoleView extends View{
 		//_console.log(result.stdout);
 		//_console.log(result.stderr);
 	}
-	
+
 	
 }
 
 module.exports = ConsoleView;
+
+var funcKey = {
+	'openProject'	: 'Opening project...',
+	'newProject'	: 'Creating project...',
+	'saveAs'		: 'Saving project...',
+	'deleteProject'	: 'Deleting project...',
+	'cleanProject'	: 'Cleaning project...',
+	'openFile'		: 'Opening file...',
+	'newFile'		: 'Creating file...',
+	'uploadFile'	: 'Uploading file...',
+	'renameFile'	: 'Renaming file...',
+	'deleteFile'	: 'Deleting file...'
+};

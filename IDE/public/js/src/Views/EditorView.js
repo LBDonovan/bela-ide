@@ -2,7 +2,7 @@ var View = require('./View');
 
 const uploadDelay = 50;
 
-var uploadBlocked = false, autoCompleteEnabled = false;
+var uploadBlocked = false;
 
 class EditorView extends View {
 	
@@ -22,7 +22,7 @@ class EditorView extends View {
 		// autocomplete settings
 		this.editor.setOptions({
 			enableBasicAutocompletion: true,
-			enableLiveAutocompletion: autoCompleteEnabled,
+			enableLiveAutocompletion: false,
 			enableSnippets: true
 		});
 		
@@ -91,12 +91,9 @@ class EditorView extends View {
 		}
 	}	
 	_IDESettings(data){
-		if (data.liveAutocompletion != autoCompleteEnabled){
-			this.editor.setOptions({
-				enableLiveAutocompletion: (data.liveAutocompletion.toString() === 'true')
-			});
-			autoCompleteEnabled = data.liveAutocompletion;
-		}
+		this.editor.setOptions({
+			enableLiveAutocompletion: (parseInt(data.liveAutocompletion))
+		});
 	}
 	_readOnly(status){
 		if (status){

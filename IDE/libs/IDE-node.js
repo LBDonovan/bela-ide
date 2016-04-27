@@ -33,7 +33,7 @@ function IDE(){
 	
 	// CPU monitoring
 	setInterval(function(){
-		//if (!cpuMonitoring) return;
+		if (!cpuMonitoring) return;
 		co(ProcessManager, 'checkCPU')
 			.then((output) => allSockets.emit('cpu-usage', output));
 	}, 1000);
@@ -189,18 +189,18 @@ var SettingsManager = {
 	defaultSettings(){
 		return {
 			'project'				: undefined,
-			'liveAutocompletion'	: true,
-			'liveSyntaxChecking'	: true,
-			'verboseErrors'			: false,
-			'cpuMonitoring'			: true,
-			'cpuMonitoringVerbose'	: false,
-			'ackUpload'				: false,
-			'removeNotifications'	: true,
-			'consoleAnimations'		: true,
-			'consoleDelete'			: true,
-			'useGit'				: true,
-			'gitAutostage'			: true,
-			'debugMode'				: false
+			'liveAutocompletion'	: 1,
+			'liveSyntaxChecking'	: 1,
+			'verboseErrors'			: 0,
+			'cpuMonitoring'			: 1,
+			'cpuMonitoringVerbose'	: 0,
+			'ackUpload'				: 0,
+			'removeNotifications'	: 1,
+			'consoleAnimations'		: 1,
+			'consoleDelete'			: 1,
+			'useGit'				: 1,
+			'gitAutostage'			: 1,
+			'debugMode'				: 0
 		};
 	},
 
@@ -219,7 +219,9 @@ var SettingsManager = {
 
 	// save the IDE settings JSON
 	setSettings(settings){
-		//console.log('saving settings', settings);
+	
+		cpuMonitoring = parseInt(settings.cpuMonitoring);
+		
 		return fs.writeJsonAsync('./settings.json', settings)
 			.then( () => settings )
 			.catch((error) => console.log('unable to save IDE settings JSON', error, error.stack));

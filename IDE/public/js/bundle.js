@@ -9344,7 +9344,6 @@ models.project = new Model();
 models.settings = new Model();
 models.status = new Model();
 models.error = new Model();
-models.notify = new Model();
 
 // set up views
 // tab view
@@ -9397,12 +9396,12 @@ editorView.on('change', fileData => {
 		currentProject: models.project.getKey('currentProject'),
 		newFile: models.project.getKey('fileName'),
 		fileData,
-		checkSyntax: models.settings.getKey('IDESettings')['liveSyntaxChecking']
+		checkSyntax: parseInt(models.settings.getKey('IDESettings')['liveSyntaxChecking'])
 	});
 });
 
 // toolbar view
-var toolbarView = new (require('./Views/ToolbarView'))('toolBar', [models.project, models.error, models.status]);
+var toolbarView = new (require('./Views/ToolbarView'))('toolBar', [models.project, models.error, models.status, models.settings]);
 toolbarView.on('process-event', event => {
 	socket.emit('process-event', {
 		event,
@@ -9412,7 +9411,7 @@ toolbarView.on('process-event', event => {
 toolbarView.on('clear-console', () => consoleView.emit('clear'));
 
 // console view
-var consoleView = new (require('./Views/ConsoleView'))('IDEconsole', [models.status, models.project, models.error, models.notify], models.settings);
+var consoleView = new (require('./Views/ConsoleView'))('IDEconsole', [models.status, models.project, models.error, models.settings], models.settings);
 consoleView.on('focus', focus => models.project.setKey('focus', focus));
 consoleView.on('open-file', (fileName, focus) => {
 	var data = {
@@ -9752,6 +9751,13 @@ class ConsoleView extends View {
 			_console.log(log);
 		}
 	}
+	_syntaxError(log, data) {
+		if (parseInt(this.settings.getKey('IDESettings').verboseErrors)) {
+			for (let line of log) {
+				_console.warn(line.split(' ').join('&nbsp;'));
+			}
+		}
+	}
 	_F_allErrors(errors, data) {
 		//console.log(data);
 		_console.newErrors(errors);
@@ -9763,19 +9769,10 @@ class ConsoleView extends View {
 		_console.log(log);
 		//}
 	}
-	_buildResult(result, data) {
-		if (this.settings.verboseBuildErrors) {
-			_console.log(result.stderr);
-		}
-	}
 
 	// bela
 	_belaLog(log, data) {
 		_console.log(log);
-	}
-	_belaResult(result, data) {
-		//_console.log(result.stdout);
-		//_console.log(result.stderr);
 	}
 
 	_building(status) {
@@ -9794,9 +9791,13 @@ class ConsoleView extends View {
 	}
 
 	_CPU(data) {
-		if (this.settings.getKey('IDESettings').cpuMonitoringVerbose && data.bela != 0) {
+		if (parseInt(this.settings.getKey('IDESettings').cpuMonitoringVerbose) && data.bela != 0) {
 			_console.log(data.bela.split(' ').join('&nbsp;'));
 		}
+	}
+
+	_IDESettings(settings) {
+		_console.setConsoleDelete(parseInt(settings.consoleDelete));
 	}
 
 }
@@ -9821,8 +9822,7 @@ var View = require('./View');
 
 const uploadDelay = 50;
 
-var uploadBlocked = false,
-    autoCompleteEnabled = false;
+var uploadBlocked = false;
 
 class EditorView extends View {
 
@@ -9842,7 +9842,7 @@ class EditorView extends View {
 		// autocomplete settings
 		this.editor.setOptions({
 			enableBasicAutocompletion: true,
-			enableLiveAutocompletion: autoCompleteEnabled,
+			enableLiveAutocompletion: false,
 			enableSnippets: true
 		});
 
@@ -9906,12 +9906,9 @@ class EditorView extends View {
 		}
 	}
 	_IDESettings(data) {
-		if (data.liveAutocompletion != autoCompleteEnabled) {
-			this.editor.setOptions({
-				enableLiveAutocompletion: data.liveAutocompletion.toString() === 'true'
-			});
-			autoCompleteEnabled = data.liveAutocompletion;
-		}
+		this.editor.setOptions({
+			enableLiveAutocompletion: parseInt(data.liveAutocompletion)
+		});
 	}
 	_readOnly(status) {
 		if (status) {
@@ -10363,6 +10360,10 @@ class ToolbarView extends View {
 		$('#bela-cpu').html('Bela: ' + bela.toFixed(1) + '%');
 	}
 
+	_IDESettings(settings) {
+		if (parseInt(settings.cpuMonitoring)) $('#ide-cpu, #bela-cpu').css('visibility', 'visible');else $('#ide-cpu, #bela-cpu').css('visibility', 'hidden');
+	}
+
 }
 
 module.exports = ToolbarView;
@@ -10430,7 +10431,8 @@ var $ = require('jquery-browserify');
 
 // module variables
 var numElements = 0,
-    maxElements = 200;
+    maxElements = 200,
+    consoleDelete = true;
 
 class Console extends EventEmitter {
 
@@ -10455,6 +10457,26 @@ class Console extends EventEmitter {
 		for (let i = 0; i < msgs.length; i++) {
 			if (msgs[i] !== '') {
 				this.print(msgs[i], 'log');
+			}
+		}
+		this.scroll();
+	}
+	// log a warning message to the console
+	warn(text) {
+		var msgs = text.split('\n');
+		for (let i = 0; i < msgs.length; i++) {
+			if (msgs[i] !== '') {
+				this.print(msgs[i], 'warning', undefined, function () {
+					var $el = $(this);
+					$el.addClass('beaglert-console-collapsed');
+					$el.on('transitionend', () => {
+						if ($el.hasClass('beaglert-console-collapsed')) {
+							$el.remove();
+						} else {
+							$el.addClass('beaglert-console-collapsed');
+						}
+					});
+				});
 			}
 		}
 		this.scroll();
@@ -10486,17 +10508,40 @@ class Console extends EventEmitter {
 	// if persist is not true, the notification will be removed quickly
 	// otherwise it will just fade
 	notify(notice, id) {
+		$('#' + id).remove();
 		var el = this.print(notice, 'notify', id);
 		this.scroll();
+		return el;
 	}
 
 	fulfill(message, id, persist) {
 		var el = document.getElementById(id);
+		//if (!el) el = this.notify(message, id);
 		var $el = $(el);
-		if (el) {
-			$el.appendTo(this.$element).removeAttr('id');
-			$el.html($el.html() + message);
-			setTimeout(() => $el.addClass('beaglert-console-faded'), 500);
+		$el.appendTo(this.$element); //.removeAttr('id');
+		$el.html($el.html() + message);
+		setTimeout(() => $el.addClass('beaglert-console-faded'), 500);
+		if (!persist) {
+			$el.on('transitionend', () => {
+				if ($el.hasClass('beaglert-console-collapsed')) {
+					$el.remove();
+				} else {
+					$el.addClass('beaglert-console-collapsed');
+				}
+			});
+		}
+	}
+
+	reject(message, id, persist) {
+		var el = document.getElementById(id);
+		//if (!el) el = this.notify(message, id);
+		var $el = $(el);
+		$el.appendTo(this.$element); //.removeAttr('id');
+		$el.html($el.html() + message);
+		$el.addClass('beaglert-console-rejectnotification');
+		$el.on('click', () => {
+			console.log('click');
+			$el.addClass('beaglert-console-collapsed');
 			if (!persist) {
 				$el.on('transitionend', () => {
 					if ($el.hasClass('beaglert-console-collapsed')) {
@@ -10506,39 +10551,17 @@ class Console extends EventEmitter {
 					}
 				});
 			}
-		}
-	}
-
-	reject(message, id, persist) {
-		var el = document.getElementById(id);
-		var $el = $(el);
-		if (el) {
-			$el.appendTo(this.$element).removeAttr('id');
-			$el.html($el.html() + message);
-			$el.addClass('beaglert-console-rejectnotification');
-			$el.on('click', () => {
-				console.log('click');
-				$el.addClass('beaglert-console-collapsed');
-				if (!persist) {
-					$el.on('transitionend', () => {
-						if ($el.hasClass('beaglert-console-collapsed')) {
-							$el.remove();
-						} else {
-							$el.addClass('beaglert-console-collapsed');
-						}
-					});
-				}
-			});
-		}
+		});
 	}
 
 	// clear the console
 	clear(number) {
+		if (!consoleDelete) return;
 		if (number) {
-			$("#beaglert-consoleWrapper > div:lt(" + parseInt(number) + ")").remove();
+			$("#beaglert-consoleWrapper > div:lt(" + parseInt(number) + ") :not(.beaglert-console-notify)").remove();
 			numElements -= parseInt(number);
 		} else {
-			$('#beaglert-consoleWrapper').empty();
+			$('#beaglert-consoleWrapper > div:not(.beaglert-console-notify)').remove();
 			numElements = 0;
 		}
 	}
@@ -10546,6 +10569,10 @@ class Console extends EventEmitter {
 	// force the console to scroll to the bottom
 	scroll() {
 		setTimeout(() => this.parent.scrollTop = this.parent.scrollHeight, 0);
+	}
+
+	setConsoleDelete(to) {
+		consoleDelete = to;
 	}
 
 };

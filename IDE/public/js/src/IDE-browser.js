@@ -9,7 +9,6 @@ models.project = new Model();
 models.settings = new Model();
 models.status = new Model();
 models.error = new Model();
-models.notify = new Model();
  
 // set up views
 // tab view
@@ -62,12 +61,12 @@ editorView.on('change', (fileData) => {
 		currentProject	: models.project.getKey('currentProject'),
 		newFile			: models.project.getKey('fileName'),
 		fileData,
-		checkSyntax		: models.settings.getKey('IDESettings')['liveSyntaxChecking']
+		checkSyntax		: parseInt(models.settings.getKey('IDESettings')['liveSyntaxChecking'])
 	});
 });
 
 // toolbar view
-var toolbarView = new (require('./Views/ToolbarView'))('toolBar', [models.project, models.error, models.status]);
+var toolbarView = new (require('./Views/ToolbarView'))('toolBar', [models.project, models.error, models.status, models.settings]);
 toolbarView.on('process-event', (event) => {
 	socket.emit('process-event', {
 		event,
@@ -77,7 +76,7 @@ toolbarView.on('process-event', (event) => {
 toolbarView.on('clear-console', () => consoleView.emit('clear') );
 
 // console view
-var consoleView = new (require('./Views/ConsoleView'))('IDEconsole', [models.status, models.project, models.error, models.notify], models.settings);
+var consoleView = new (require('./Views/ConsoleView'))('IDEconsole', [models.status, models.project, models.error, models.settings], models.settings);
 consoleView.on('focus', (focus) =>  models.project.setKey('focus', focus) );
 consoleView.on('open-file', (fileName, focus) => {
 	var data = {

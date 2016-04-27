@@ -31,7 +31,7 @@ class SyntaxCheckProcess extends ChildProcess{
 					this.active = false;
 					if (this.next) {
 						this.dequeue();
-					} else if (checkSyntax == 'true') {
+					} else if (checkSyntax) {
 						this.project = project;
 						this.start();
 					} else {
@@ -40,7 +40,7 @@ class SyntaxCheckProcess extends ChildProcess{
 				})
 				.catch( (err) => this.emit('upload-error', err) );
 				
-		} else if (checkSyntax == 'true') {
+		} else if (checkSyntax) {
 			this.project = project;
 			this.start();
 			

@@ -33,6 +33,13 @@ class ConsoleView extends View{
 			_console.log(log);
 		}
 	}
+	_syntaxError(log, data){
+		if (parseInt(this.settings.getKey('IDESettings').verboseErrors)){
+			for (let line of log){
+				_console.warn(line.split(' ').join('&nbsp;'));
+			}
+		}
+	}
 	_F_allErrors(errors, data){
 	//console.log(data);
 		_console.newErrors(errors);
@@ -44,19 +51,10 @@ class ConsoleView extends View{
 			_console.log(log);
 		//}
 	}
-	_buildResult(result, data){
-		if (this.settings.verboseBuildErrors){
-			_console.log(result.stderr);
-		}
-	}
 	
 	// bela
 	_belaLog(log, data){
 		_console.log(log);
-	}
-	_belaResult(result, data){
-		//_console.log(result.stdout);
-		//_console.log(result.stderr);
 	}
 	
 	_building(status){
@@ -75,9 +73,13 @@ class ConsoleView extends View{
 	}
 	
 	_CPU(data){
-		if (this.settings.getKey('IDESettings').cpuMonitoringVerbose && data.bela != 0){
+		if (parseInt(this.settings.getKey('IDESettings').cpuMonitoringVerbose) && data.bela != 0){
 			_console.log(data.bela.split(' ').join('&nbsp;'));
 		}
+	}
+	
+	_IDESettings(settings){
+		_console.setConsoleDelete(parseInt(settings.consoleDelete));
 	}
 
 	

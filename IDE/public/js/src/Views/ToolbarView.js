@@ -103,6 +103,13 @@ class ToolbarView extends View {
 		$('#bela-cpu').html('Bela: '+bela.toFixed(1)+'%');
 	}
 	
+	_IDESettings(settings){
+		if (parseInt(settings.cpuMonitoring))
+			$('#ide-cpu, #bela-cpu').css('visibility', 'visible');
+		else
+			$('#ide-cpu, #bela-cpu').css('visibility', 'hidden');
+	}
+	
 }
 
 module.exports = ToolbarView;

@@ -3,7 +3,7 @@ var EventEmitter = require('events').EventEmitter;
 var $ = require('jquery-browserify');
 
 // module variables
-var numElements = 0, maxElements = 200;
+var numElements = 0, maxElements = 200, consoleDelete = true;
 
 class Console extends EventEmitter {
 
@@ -28,6 +28,26 @@ class Console extends EventEmitter {
 		for (let i=0;  i<msgs.length; i++){
 			if (msgs[i] !== ''){
 				this.print(msgs[i], 'log');
+			}
+		}
+		this.scroll();
+	}
+	// log a warning message to the console
+	warn(text){
+		var msgs = text.split('\n');
+		for (let i=0;  i<msgs.length; i++){
+			if (msgs[i] !== ''){
+				this.print(msgs[i], 'warning', undefined, function(){ 
+					var $el = $(this);
+					$el.addClass('beaglert-console-collapsed');
+					$el.on('transitionend', () => {
+						if ($el.hasClass('beaglert-console-collapsed')){
+							$el.remove();
+						} else {
+							$el.addClass('beaglert-console-collapsed');
+						}
+					});
+				});
 			}
 		}
 		this.scroll();
@@ -60,17 +80,40 @@ class Console extends EventEmitter {
 	// if persist is not true, the notification will be removed quickly
 	// otherwise it will just fade
 	notify(notice, id){
+		$('#'+id).remove();
 		var el = this.print(notice, 'notify', id);
 		this.scroll();
+		return el;
 	}
 	
 	fulfill(message, id, persist){
 		var el = document.getElementById(id);
+		//if (!el) el = this.notify(message, id);
 		var $el = $(el);
-		if (el){
-			$el.appendTo(this.$element).removeAttr('id');
-			$el.html($el.html()+message);
-			setTimeout( () => $el.addClass('beaglert-console-faded'), 500);
+		$el.appendTo(this.$element);//.removeAttr('id');
+		$el.html($el.html()+message);
+		setTimeout( () => $el.addClass('beaglert-console-faded'), 500);
+		if (!persist){
+			$el.on('transitionend', () => {
+				if ($el.hasClass('beaglert-console-collapsed')){
+					$el.remove();
+				} else {
+					$el.addClass('beaglert-console-collapsed');
+				}
+			});
+		}
+	}
+	
+	reject(message, id, persist){
+		var el = document.getElementById(id);
+		//if (!el) el = this.notify(message, id);
+		var $el = $(el);
+		$el.appendTo(this.$element);//.removeAttr('id');
+		$el.html($el.html()+message);
+		$el.addClass('beaglert-console-rejectnotification');
+		$el.on('click', () => {
+			console.log('click');
+			$el.addClass('beaglert-console-collapsed');
 			if (!persist){
 				$el.on('transitionend', () => {
 					if ($el.hasClass('beaglert-console-collapsed')){
@@ -80,39 +123,17 @@ class Console extends EventEmitter {
 					}
 				});
 			}
-		}
-	}
-	
-	reject(message, id, persist){
-		var el = document.getElementById(id);
-		var $el = $(el);
-		if (el){
-			$el.appendTo(this.$element).removeAttr('id');
-			$el.html($el.html()+message);
-			$el.addClass('beaglert-console-rejectnotification');
-			$el.on('click', () => {
-				console.log('click');
-				$el.addClass('beaglert-console-collapsed');
-				if (!persist){
-					$el.on('transitionend', () => {
-						if ($el.hasClass('beaglert-console-collapsed')){
-							$el.remove();
-						} else {
-							$el.addClass('beaglert-console-collapsed');
-						}
-					});
-				}
-			});
-		}
+		});
 	}
 	
 	// clear the console
 	clear(number){
+		if (!consoleDelete) return;
 		if (number){
-			$("#beaglert-consoleWrapper > div:lt("+parseInt(number)+")").remove();
+			$("#beaglert-consoleWrapper > div:lt("+parseInt(number)+") :not(.beaglert-console-notify)").remove();
 			numElements -= parseInt(number);
 		} else {
-			$('#beaglert-consoleWrapper').empty();
+			$('#beaglert-consoleWrapper > div:not(.beaglert-console-notify)').remove();
 			numElements = 0;
 		}
 	}
@@ -120,6 +141,10 @@ class Console extends EventEmitter {
 	// force the console to scroll to the bottom
 	scroll(){
 		setTimeout((() => this.parent.scrollTop = this.parent.scrollHeight), 0);
+	}
+	
+	setConsoleDelete(to){
+		consoleDelete = to;
 	}
 	
 };

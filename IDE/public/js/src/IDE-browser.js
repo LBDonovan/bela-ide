@@ -64,6 +64,23 @@ editorView.on('change', (fileData) => {
 		checkSyntax		: parseInt(models.settings.getKey('IDESettings')['liveSyntaxChecking'])
 	});
 });
+editorView.on('breakpoint', (line) => {
+	var breakpoints = models.settings.getKey('breakpoints');
+	console.log('breakpoints', breakpoints);
+	for (let i=0; i<breakpoints.length; i++){
+		if (breakpoints[i].line === line && breakpoints[i].file === models.project.getKey('fileName')){
+			breakpoints.splice(i);
+			models.settings.setKey('breakpoints', breakpoints);
+			console.log('removing', breakpoints);
+			return;
+		}
+	}
+	breakpoints.push({
+		line,
+		file: models.project.getKey('fileName')
+	});
+	models.settings.setKey('breakpoints', breakpoints);
+});
 
 // toolbar view
 var toolbarView = new (require('./Views/ToolbarView'))('toolBar', [models.project, models.error, models.status, models.settings]);

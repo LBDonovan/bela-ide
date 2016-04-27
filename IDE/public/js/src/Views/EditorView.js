@@ -32,6 +32,24 @@ class EditorView extends View {
 			if (!uploadBlocked) this.editorChanged();
 		});
 		
+		// set/clear breakpoints when the gutter is clicked
+		this.editor.on("guttermousedown", (e) => { 
+			var target = e.domEvent.target; 
+			if (target.className.indexOf("ace_gutter-cell") == -1) 
+				return; 
+			if (!this.editor.isFocused()) 
+				return; 
+			if (e.clientX > 25 + target.getBoundingClientRect().left) 
+				return; 
+
+			var row = e.getDocumentPosition().row;
+
+			this.emit('breakpoint', row);
+
+			e.stop();
+
+		});
+		
 		this.on('resize', () => this.editor.resize() );
 		
 	}
@@ -100,6 +118,15 @@ class EditorView extends View {
 			this.editor.setReadOnly(true);
 		} else {
 			this.editor.setReadOnly(false);
+		}
+	}
+	_breakpoints(breakpoints, data){
+		console.log('setting breakpoints', breakpoints);
+		this.editor.session.clearBreakpoints();
+		for (let breakpoint of breakpoints){
+			if (breakpoint.file === data.fileName){
+				this.editor.session.setBreakpoint(breakpoint.line);
+			}
 		}
 	}
 }

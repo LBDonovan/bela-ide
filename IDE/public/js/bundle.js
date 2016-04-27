@@ -9399,6 +9399,23 @@ editorView.on('change', fileData => {
 		checkSyntax: parseInt(models.settings.getKey('IDESettings')['liveSyntaxChecking'])
 	});
 });
+editorView.on('breakpoint', line => {
+	var breakpoints = models.settings.getKey('breakpoints');
+	console.log('breakpoints', breakpoints);
+	for (let i = 0; i < breakpoints.length; i++) {
+		if (breakpoints[i].line === line && breakpoints[i].file === models.project.getKey('fileName')) {
+			breakpoints.splice(i);
+			models.settings.setKey('breakpoints', breakpoints);
+			console.log('removing', breakpoints);
+			return;
+		}
+	}
+	breakpoints.push({
+		line,
+		file: models.project.getKey('fileName')
+	});
+	models.settings.setKey('breakpoints', breakpoints);
+});
 
 // toolbar view
 var toolbarView = new (require('./Views/ToolbarView'))('toolBar', [models.project, models.error, models.status, models.settings]);
@@ -9895,6 +9912,20 @@ class EditorView extends View {
 			if (!uploadBlocked) this.editorChanged();
 		});
 
+		// set/clear breakpoints when the gutter is clicked
+		this.editor.on("guttermousedown", e => {
+			var target = e.domEvent.target;
+			if (target.className.indexOf("ace_gutter-cell") == -1) return;
+			if (!this.editor.isFocused()) return;
+			if (e.clientX > 25 + target.getBoundingClientRect().left) return;
+
+			var row = e.getDocumentPosition().row;
+
+			this.emit('breakpoint', row);
+
+			e.stop();
+		});
+
 		this.on('resize', () => this.editor.resize());
 	}
 
@@ -9958,6 +9989,15 @@ class EditorView extends View {
 			this.editor.setReadOnly(true);
 		} else {
 			this.editor.setReadOnly(false);
+		}
+	}
+	_breakpoints(breakpoints, data) {
+		console.log('setting breakpoints', breakpoints);
+		this.editor.session.clearBreakpoints();
+		for (let breakpoint of breakpoints) {
+			if (breakpoint.file === data.fileName) {
+				this.editor.session.setBreakpoint(breakpoint.line);
+			}
 		}
 	}
 }

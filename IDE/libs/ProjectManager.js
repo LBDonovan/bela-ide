@@ -38,8 +38,10 @@ module.exports = {
 	// project & example events
 	*openProject(data){
 		data.fileList = yield _listFiles(data.currentProject);
-		data.settings = yield _getSettings(data.currentProject);
-		data.fileName = data.settings.fileName;
+		var settings = yield _getSettings(data.currentProject);
+		for (let key in settings){
+			data[key] = settings[key];
+		}
 		return yield _co(this, 'openFile', data);
 	},
 	

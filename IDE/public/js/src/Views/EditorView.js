@@ -120,7 +120,7 @@ class EditorView extends View {
 			this.editor.setReadOnly(false);
 		}
 	}
-	_breakpoints(breakpoints, data){
+	__breakpoints(breakpoints, data){
 		console.log('setting breakpoints', breakpoints);
 		this.editor.session.clearBreakpoints();
 		for (let breakpoint of breakpoints){

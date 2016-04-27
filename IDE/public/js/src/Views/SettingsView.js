@@ -38,6 +38,7 @@ class SettingsView extends View {
 	
 	// model events
 	_CLArgs(data){
+		console.log('setting clargs');
 		for (let key in data){
 			this.$elements.filterByData('key', key).val(data[key]);
 		}

@@ -65,12 +65,12 @@ editorView.on('change', (fileData) => {
 	});
 });
 editorView.on('breakpoint', (line) => {
-	var breakpoints = models.settings.getKey('breakpoints');
+	var breakpoints = models.project.getKey('breakpoints');
 	console.log('breakpoints', breakpoints);
 	for (let i=0; i<breakpoints.length; i++){
 		if (breakpoints[i].line === line && breakpoints[i].file === models.project.getKey('fileName')){
 			breakpoints.splice(i);
-			models.settings.setKey('breakpoints', breakpoints);
+			models.project.setKey('breakpoints', breakpoints);
 			console.log('removing', breakpoints);
 			return;
 		}
@@ -79,7 +79,7 @@ editorView.on('breakpoint', (line) => {
 		line,
 		file: models.project.getKey('fileName')
 	});
-	models.settings.setKey('breakpoints', breakpoints);
+	models.project.setKey('breakpoints', breakpoints);
 });
 
 // toolbar view
@@ -120,7 +120,7 @@ socket.on('init', (data) => {
 	models.project.setData({projectList: data[0], exampleList: data[1], currentProject: data[2].project});
 	models.settings.setKey('IDESettings', data[2]);
 	
-	//models.project.print();
+	models.project.print();
 	//models.settings.print();
 	
 	socket.emit('set-time', getDateString());
@@ -130,8 +130,9 @@ socket.on('init', (data) => {
 socket.on('project-data', (data) => {
 	consoleView.emit('closeNotification', data)
 	models.project.setData(data);
-	models.settings.setData(data.settings);
-	//models.settings.print();
+	console.log('project-data', data.settings);
+	//models.settings.setData(data.settings);
+	models.project.print();
 });
 socket.on('project-list', (project, list) =>  {
 	if (list.indexOf(models.project.getKey('currentProject')) === -1){
@@ -168,8 +169,9 @@ socket.on('status', (status, project) => {
 });
 
 socket.on('project-settings-data', (project, settings) => {
+	console.log('project-settings-data', settings);
 	if (project === models.project.getKey('currentProject'))
-		models.settings.setData(settings);
+		models.project.setData(settings);
 });
 socket.on('IDE-settings-data', (settings) => models.settings.setKey('IDESettings', settings) );
 

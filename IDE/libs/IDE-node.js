@@ -160,20 +160,6 @@ function socketEvents(socket){
 
 }
 
-
-/*ProcessManager.on('stdout', (data) => console.log('stdout') );
-ProcessManager.on('stderr', (data) => console.log('stderr') );
-ProcessManager.on('closed', (data) => {
-	if (data.childProcess && data.childProcess.spawnargs && data.childProcess.spawnargs[4]){
-		console.log('closed', data.childProcess.pid);//data.childProcess.spawnargs[4]);
-	}
-});
-ProcessManager.on('error', (error) => {
-	//console.error('child process error:', error.message, error.code);
-	if (error.childProcess && error.childProcess.spawnargs && error.childProcess.spawnargs[4]){
-		console.log('error', error.childProcess.pid);//error.childProcess.spawnargs[4]);
-	}
-});*/
 ProcessManager.on('status', (status, project) => allSockets.emit('status', project, status) );
 ProcessManager.on('broadcast-status', (status) => allSockets.emit('status', status) );
 
@@ -248,33 +234,8 @@ var SettingsManager = {
 
 };
 
-/*// record the compiler's CPU usage
-function cc1plusCPU(callback){
 
-	// lookup the PID of the compiler's process
-	exec('pgrep cc1plus', function(err, stdout) {
 	
-		if (err) console.log('pgrep '+err);
-
-		// record the compiler's CPU usage
-		if (stdout){
-			pusage.stat(stdout.trim(), function(err, stat) {
-				if (err) console.log('pusage cc1plus '+err);
-				if (!err && stat){
-					callback(null, {'name': 'compiler', 'value': stat.cpu});
-				} else {
-					callback(null, {'name': 'compiler', 'value': 0});
-				}
-			});
-		} else {
-			callback(null, {'name': 'compiler', 'value': 0});
-		}
-		
-	});
-}
-
-function CPUbyPID(pid){
-	return pusage(pid)
-		.then((stat) => stat.cpu);
-}*/
-
+	
+	
+	

@@ -12,6 +12,9 @@ class ConsoleView extends View{
 		
 		this.on('openNotification', this.openNotification);
 		this.on('closeNotification', this.closeNotification);
+		this.on('warn', function(warning){
+			_console.warn(warning);
+		});
 	}
 	
 	openNotification(data){
@@ -97,5 +100,6 @@ var funcKey = {
 	'newFile'		: 'Creating file...',
 	'uploadFile'	: 'Uploading file...',
 	'renameFile'	: 'Renaming file...',
-	'deleteFile'	: 'Deleting file...'
+	'deleteFile'	: 'Deleting file...',
+	'init'			: 'Initialising..'
 };

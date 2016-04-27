@@ -96,8 +96,11 @@ socket.on('report-error', (error) => console.error(error) );
 
 socket.on('init', (data) => {
 	//console.log(data);
+	var timestamp = performance.now()
+	socket.emit('project-event', {func: 'openProject', currentProject: data[2].project, timestamp})	
+	consoleView.emit('openNotification', {func: 'init', timestamp});
+	
 	models.project.setData({projectList: data[0], exampleList: data[1], currentProject: data[2].project});
-	socket.emit('project-event', {func: 'openProject', currentProject: data[2].project})
 	models.settings.setKey('IDESettings', data[2]);
 	
 	//models.project.print();
@@ -156,6 +159,11 @@ socket.on('IDE-settings-data', (settings) => models.settings.setKey('IDESettings
 
 socket.on('cpu-usage', (data) => models.status.setKey('CPU', data) );
 
+socket.on('disconnect', () => {
+	consoleView.emit('warn', 'You have been disconnected from the Bela IDE and any more changes you make will not be saved. Please check your USB connection and reboot your BeagleBone');
+	models.project.setKey('readOnly', true);
+});
+
 // model events
 // build errors
 models.status.on('force', (data, changedKeys) => {
@@ -164,12 +172,43 @@ models.status.on('force', (data, changedKeys) => {
 	}
 });
 
-// file / project changed
-models.project.on('change', (data, changedKeys) => {
-	if (changedKeys.indexOf('currentProject') !== -1 || changedKeys.indexOf('fileName') !== -1){
-		$('title').html(data.fileName+', '+data.currentProject);
-	}
-});
+
+// history
+{
+	let lastState = {}, poppingState = true;
+	
+	// file / project changed
+	models.project.on('change', (data, changedKeys) => {
+		if (changedKeys.indexOf('currentProject') !== -1 || changedKeys.indexOf('fileName') !== -1){
+			var state = {file: data.fileName, project: data.currentProject};
+			if (state.project !== lastState.project || state.file !== lastState.file){
+				$('title').html(data.fileName+', '+data.currentProject);
+				if (!poppingState){
+					//console.log('push', state);
+					history.pushState(state, null, null);
+				}
+				poppingState = false
+				lastState = state;
+			}
+		}
+	});
+
+	// load previously open file / project when browser's back button is clicked
+	window.addEventListener('popstate', function(e) {
+		if (e.state){
+			console.log('opening project '+e.state.project+' file '+e.state.file);
+			var data = {
+				currentProject	: e.state.project,
+				fileName		: e.state.file,
+				func			: 'openFile',
+				timestamp 		: performance.now()
+			};
+			consoleView.emit('openNotification', data);
+			socket.emit('project-event', data);
+			poppingState = true;
+		}
+	});
+}
 
 // local functions
 // parse errors from g++

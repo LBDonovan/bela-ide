@@ -61,8 +61,9 @@ class ProcessManager extends EventEmitter {
 	}
 	
 	run(project){
-		this.build(project).queue(function(){
-			belaProcess.execute(project);
+		this.build(project).queue(function(err){
+			if (!err.length)
+				belaProcess.execute(project);
 		});
 	}
 	

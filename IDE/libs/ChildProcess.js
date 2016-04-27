@@ -61,13 +61,13 @@ class ChildProcess extends EventEmitter{
 				this.emit('finished', {stdout, stderr});
 			}
 			
-			if (this.next) this.dequeue();
+			if (this.next) this.dequeue(stderr);
 		});
 		childProcess.on('error', (err) => {
 			console.log('error', childProcess.pid, err);
 			this.emit('error', err);
 			this.closed();
-			if (this.next) this.dequeue();
+			if (this.next) this.dequeue(err);
 		});
 		
 	}
@@ -87,10 +87,10 @@ class ChildProcess extends EventEmitter{
 		this.next = next;
 	}
 	
-	dequeue(){
+	dequeue(err){
 		var next = this.next;
 		this.next = undefined;
-		next();
+		next(err);
 	}
 	
 	emptyQueue(){

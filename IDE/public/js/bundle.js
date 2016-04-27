@@ -9498,7 +9498,6 @@ socket.on('file-changed', (project, fileName) => {
 socket.on('status', (status, project) => {
 	if (project === models.project.getKey('currentProject') || project === undefined) {
 		models.status.setData(status);
-		models.status.forceData(status);
 		//console.log('status', status);
 	}
 });
@@ -9517,7 +9516,7 @@ socket.on('disconnect', () => {
 
 // model events
 // build errors
-models.status.on('force', (data, changedKeys) => {
+models.status.on('set', (data, changedKeys) => {
 	if (changedKeys.indexOf('syntaxError') !== -1) {
 		parseErrors(data.syntaxError);
 	}
@@ -9636,8 +9635,7 @@ function parseErrors(data) {
 		}
 	}
 
-	//models.error.setKey('allErrors', errors);
-	models.error.forceKey('allErrors', errors);
+	models.error.setKey('allErrors', errors);
 	models.error.setKey('currentFileErrors', currentFileErrors);
 	models.error.setKey('otherFileErrors', otherFileErrors);
 }
@@ -9707,7 +9705,8 @@ class Model extends EventEmitter {
 		return this._getData()[key];
 	}
 
-	setData(newData, force) {
+	setData(newData) {
+		if (!newData) return;
 		var newKeys = [];
 		for (let key in newData) {
 			if (!_equals(newData[key], this._getData()[key], false)) {
@@ -9718,17 +9717,7 @@ class Model extends EventEmitter {
 		if (newKeys.length) {
 			this.emit('change', this._getData(), newKeys);
 		}
-	}
-
-	forceData(newData) {
-		var newKeys = [];
-		for (let key in newData) {
-			newKeys.push(key);
-			this._getData()[key] = newData[key];
-		}
-		if (newKeys.length) {
-			this.emit('force', this._getData(), newKeys);
-		}
+		this.emit('set', this._getData(), Object.keys(newData));
 	}
 
 	setKey(key, value) {
@@ -9736,11 +9725,7 @@ class Model extends EventEmitter {
 			this._getData()[key] = value;
 			this.emit('change', this._getData(), [key]);
 		}
-	}
-
-	forceKey(key, value) {
-		this._getData()[key] = value;
-		this.emit('force', this._getData(), [key]);
+		this.emit('set', this._getData(), [key]);
 	}
 
 	print() {
@@ -9817,7 +9802,7 @@ class ConsoleView extends View {
 			}
 		}
 	}
-	_F_allErrors(errors, data) {
+	__allErrors(errors, data) {
 		//console.log(data);
 		_console.newErrors(errors);
 	}
@@ -10278,7 +10263,7 @@ class SettingsView extends View {
 	}
 	_IDESettings(data) {
 		for (let key in data) {
-			this.$elements.filterByData('key', key).val(data[key].toString());
+			this.$elements.filterByData('key', key).val(data[key]);
 		}
 	}
 }
@@ -10369,7 +10354,7 @@ class ToolbarView extends View {
 	}
 
 	// model events
-	_F_running(status) {
+	__running(status) {
 		if (status) {
 			if (!$('#run').hasClass('spinning')) {
 				$('#run').addClass('spinning');
@@ -10380,14 +10365,14 @@ class ToolbarView extends View {
 			}
 		}
 	}
-	_F_checkingSyntax(status) {
+	__checkingSyntax(status) {
 		if (status) {
 			$('#status').css('background', 'url("images/toolbar.png") -210px 35px');
 		} else {
 			//this.syntaxTimeout = setTimeout(() => $('#status').css('background', 'url("images/toolbar.png") -140px 35px'), 10);
 		}
 	}
-	_F_allErrors(errors) {
+	__allErrors(errors) {
 		//if (this.syntaxTimeout) clearTimeout(this.syntaxTimeout);
 		if (errors.length) {
 			$('#status').css('background', 'url("images/toolbar.png") -175px 35px');
@@ -10470,8 +10455,8 @@ class View extends EventEmitter {
 				models[i].on('change', (data, changedKeys) => {
 					this.modelChanged(data, changedKeys);
 				});
-				models[i].on('force', (data, changedKeys) => {
-					this.modelForced(data, changedKeys);
+				models[i].on('set', (data, changedKeys) => {
+					this.modelSet(data, changedKeys);
 				});
 			}
 		}
@@ -10487,10 +10472,10 @@ class View extends EventEmitter {
 			}
 		}
 	}
-	modelForced(data, changedKeys) {
+	modelSet(data, changedKeys) {
 		for (let value of changedKeys) {
-			if (this['_F_' + value]) {
-				this['_F_' + value](data[value], data);
+			if (this['__' + value]) {
+				this['__' + value](data[value], data);
 			}
 		}
 	}

@@ -163,7 +163,6 @@ socket.on('file-changed', (project, fileName) => {
 socket.on('status', (status, project) => {
 	if (project === models.project.getKey('currentProject') || project === undefined){
 		models.status.setData(status);
-		models.status.forceData(status);
 		//console.log('status', status);
 	}
 });
@@ -183,7 +182,7 @@ socket.on('disconnect', () => {
 
 // model events
 // build errors
-models.status.on('force', (data, changedKeys) => {
+models.status.on('set', (data, changedKeys) => {
 	if (changedKeys.indexOf('syntaxError') !== -1){
 		parseErrors(data.syntaxError);
 	}
@@ -301,8 +300,7 @@ function parseErrors(data){
 		}
 	}
 	
-	//models.error.setKey('allErrors', errors);
-	models.error.forceKey('allErrors', errors);
+	models.error.setKey('allErrors', errors);
 	models.error.setKey('currentFileErrors', currentFileErrors);
 	models.error.setKey('otherFileErrors', otherFileErrors);
 

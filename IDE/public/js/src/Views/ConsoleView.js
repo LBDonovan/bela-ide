@@ -43,7 +43,7 @@ class ConsoleView extends View{
 			}
 		}
 	}
-	_F_allErrors(errors, data){
+	__allErrors(errors, data){
 	//console.log(data);
 		_console.newErrors(errors);
 	}

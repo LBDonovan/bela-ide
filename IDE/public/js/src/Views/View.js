@@ -16,8 +16,8 @@ class View extends EventEmitter{
 				models[i].on('change', (data, changedKeys) => {
 					this.modelChanged(data, changedKeys);
 				});
-				models[i].on('force', (data, changedKeys) => {
-					this.modelForced(data, changedKeys);
+				models[i].on('set', (data, changedKeys) => {
+					this.modelSet(data, changedKeys);
 				});
 			}
 		}
@@ -34,10 +34,10 @@ class View extends EventEmitter{
 			}
 		}
 	}
-	modelForced(data, changedKeys){
+	modelSet(data, changedKeys){
 		for (let value of changedKeys){
-			if (this['_F_'+value]){
-				this['_F_'+value](data[value], data);
+			if (this['__'+value]){
+				this['__'+value](data[value], data);
 			}
 		}
 	}

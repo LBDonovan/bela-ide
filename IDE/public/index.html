@@ -39,7 +39,7 @@
 				        	<div class="settingsManager-parent">
 								<h1>Project Settings</h1>
 								<button class="settingsManager" data-func="restoreDefaultCLArgs">restore defaults</button></br>
-								Buffer size (audio samples): <select id="buffer-size" class="settingsManager" data-func="setProjectSetting" data-key="-p">
+								Buffer size (audio samples): <select id="buffer-size" class="settingsManager" data-func="setCLArg" data-key="-p">
 									<option value="2">2</option>
 									<option value="4">4</option>
 									<option value="8">8</option>
@@ -48,43 +48,43 @@
 									<option value="64">64</option>
 									<option value="128">128</option>
 							   </select></br>
-							   Analog Channels: <select id="analog-channels" class="settingsManager" data-func="setProjectSetting" data-key="-C">
+							   Analog Channels: <select id="analog-channels" class="settingsManager" data-func="setCLArg" data-key="-C">
 									<option value="2">2</option>
 									<option value="4">4</option>
 									<option value="8">8</option>
 							   </select></br>
-							   Analog Sample Rate (Hz): <select id="analog-samplerate" class="settingsManager" data-func="setProjectSetting" data-key="-C">
+							   Analog Sample Rate (Hz): <select id="analog-samplerate" class="settingsManager" data-func="setCLArg" data-key="-C">
 									<option value="2">88200</option>
 									<option value="4">44100</option>
 									<option value="8">22050</option>
 							   </select></br>
-							   Digital Channels: <select id="digital-channels" class="settingsManager" data-func="setProjectSetting" data-key="-B">
+							   Digital Channels: <select id="digital-channels" class="settingsManager" data-func="setCLArg" data-key="-B">
 									<option value="2">2</option>
 									<option value="4">4</option>
 									<option value="8">8</option>
 									<option value="16">16</option>
 							   </select></br>
-							   Headphone level (dB): <input id="hp-level" class="settingsManager" data-func="setProjectSetting" type="number" max="0" min="-63.5" step="0.1" data-key="-H"></input></br>
-								Use Analogue: <select id="use-analog" class="settingsManager" data-func="setProjectSetting" data-key="-N">
+							   Headphone level (dB): <input id="hp-level" class="settingsManager" data-func="setCLArg" type="number" max="0" min="-63.5" step="0.1" data-key="-H"></input></br>
+								Use Analogue: <select id="use-analog" class="settingsManager" data-func="setCLArg" data-key="-N">
 									<option value="1">Yes</option>
 									<option value="0">No</option>
 							   </select></br>
-							   Use Digital: <select id="use-digital" class="settingsManager" data-func="setProjectSetting" data-key="-G">
+							   Use Digital: <select id="use-digital" class="settingsManager" data-func="setCLArg" data-key="-G">
 									<option value="1">Yes</option>
 									<option value="0">No</option>
 							   </select></br>
-							   Mute Speaker: <select id="mute-speaker" class="settingsManager" data-func="setProjectSetting" data-key="-M">
+							   Mute Speaker: <select id="mute-speaker" class="settingsManager" data-func="setCLArg" data-key="-M">
 									<option value="1">Yes</option>
 									<option value="0">No</option>
 							   </select></br>
-							   DAC level (dB): <input id="dac-level" class="settingsManager" data-func="setProjectSetting" type="number" max="0" min="-63.5" step="0.1" data-key="-D"></input></br>
-							   ADC level (dB): <input id="adc-level" class="settingsManager" data-func="setProjectSetting" type="number" max="0" min="-63.5" step="0.1" data-key="-A"></input></br>
-							   Receive Port: <input id="receive-port" class="settingsManager" data-func="setProjectSetting" type="number" max="9999" min="0" step="1" data-key="-R"></input></br>
-							   Transmit Port: <input id="transmit-port" class="settingsManager" data-func="setProjectSetting" type="number" max="9999" min="0" step="1" data-key="-T"></input></br>
-							   IP Address: <input id="ip-address" class="settingsManager" data-func="setProjectSetting" type="text" data-key="-S"></input><br>
-							   PGA Gain left (dB): <input id="pga-left" class="settingsManager" data-func="setProjectSetting" type="number" min="0" max="63.5" step="0.1" data-key="--pga-gain-left"></input></br>
-							   PGA Gain right (dB): <input id="pga-right" class="settingsManager" data-func="setProjectSetting" type="number" min="0" max="63.5" step="0.1" data-key="--pga-gain-right"></input></br>
-							   User Command Line Arguments: <input id="user-clargs" class="settingsManager" data-func="setProjectSetting" type="text" data-key="user"></input><br>
+							   DAC level (dB): <input id="dac-level" class="settingsManager" data-func="setCLArg" type="number" max="0" min="-63.5" step="0.1" data-key="-D"></input></br>
+							   ADC level (dB): <input id="adc-level" class="settingsManager" data-func="setCLArg" type="number" max="0" min="-63.5" step="0.1" data-key="-A"></input></br>
+							   Receive Port: <input id="receive-port" class="settingsManager" data-func="setCLArg" type="number" max="9999" min="0" step="1" data-key="-R"></input></br>
+							   Transmit Port: <input id="transmit-port" class="settingsManager" data-func="setCLArg" type="number" max="9999" min="0" step="1" data-key="-T"></input></br>
+							   IP Address: <input id="ip-address" class="settingsManager" data-func="setCLArg" type="text" data-key="-S"></input><br>
+							   PGA Gain left (dB): <input id="pga-left" class="settingsManager" data-func="setCLArg" type="number" min="0" max="63.5" step="0.1" data-key="--pga-gain-left"></input></br>
+							   PGA Gain right (dB): <input id="pga-right" class="settingsManager" data-func="setCLArg" type="number" min="0" max="63.5" step="0.1" data-key="--pga-gain-right"></input></br>
+							   User Command Line Arguments: <input id="user-clargs" class="settingsManager" data-func="setCLArg" type="text" data-key="user"></input><br>
 								Full Command Line String:
 								</br><input id="C_L_ARGS" type="text" placeholder="C_L_ARGS" readonly></input><br>
 							

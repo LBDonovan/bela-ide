@@ -120,8 +120,11 @@ class EditorView extends View {
 			this.editor.setReadOnly(false);
 		}
 	}
+	_fileName(name, data){
+		this.__breakpoints(data.breakpoints, data);
+	}
 	__breakpoints(breakpoints, data){
-		console.log('setting breakpoints', breakpoints);
+		//console.log('setting breakpoints', breakpoints);
 		this.editor.session.clearBreakpoints();
 		for (let breakpoint of breakpoints){
 			if (breakpoint.file === data.fileName){

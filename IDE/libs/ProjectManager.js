@@ -163,7 +163,13 @@ module.exports = {
 		return data;
 	},
 	
-	*setProjectSetting(data){
+	*setBreakpoints(data){
+		var settings = yield _getSettings(data.currentProject);
+		settings.breakpoints = data.value;
+		return yield _saveSettings(settings, data);
+	},
+	
+	*setCLArg(data){
 		var settings = yield _getSettings(data.currentProject);
 		settings.CLArgs[data.key] = data.value;
 		return yield _saveSettings(settings, data);
@@ -196,7 +202,7 @@ function *_setFile(data){
 function _getSettings(projectName){
 	return fs.readJSONAsync(projectPath+projectName+'/settings.json')
 		.catch((error) => {
-			//console.log('settings.json error', error, error.stack);
+			console.log('settings.json error', error, error.stack);
 			console.log('creating default settings');
 			// if there is an error loading the settings object, create a new default one
 			return _defaultSettings();

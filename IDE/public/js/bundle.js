@@ -9401,20 +9401,18 @@ editorView.on('change', fileData => {
 });
 editorView.on('breakpoint', line => {
 	var breakpoints = models.project.getKey('breakpoints');
-	console.log('breakpoints', breakpoints);
 	for (let i = 0; i < breakpoints.length; i++) {
 		if (breakpoints[i].line === line && breakpoints[i].file === models.project.getKey('fileName')) {
-			breakpoints.splice(i);
-			models.project.setKey('breakpoints', breakpoints);
-			console.log('removing', breakpoints);
+			models.project.spliceFromKey('breakpoints', i);
 			return;
 		}
 	}
-	breakpoints.push({
+	models.project.pushIntoKey('breakpoints', {
 		line,
 		file: models.project.getKey('fileName')
 	});
-	models.project.setKey('breakpoints', breakpoints);
+	//console.log('after', breakpoints);
+	//models.project.setKey('breakpoints', breakpoints);
 });
 
 // toolbar view
@@ -9455,7 +9453,7 @@ socket.on('init', data => {
 	models.project.setData({ projectList: data[0], exampleList: data[1], currentProject: data[2].project });
 	models.settings.setKey('IDESettings', data[2]);
 
-	models.project.print();
+	//models.project.print();
 	//models.settings.print();
 
 	socket.emit('set-time', getDateString());
@@ -9465,9 +9463,8 @@ socket.on('init', data => {
 socket.on('project-data', data => {
 	consoleView.emit('closeNotification', data);
 	models.project.setData(data);
-	console.log('project-data', data.settings);
 	//models.settings.setData(data.settings);
-	models.project.print();
+	//models.project.print();
 });
 socket.on('project-list', (project, list) => {
 	if (list.indexOf(models.project.getKey('currentProject')) === -1) {
@@ -9504,7 +9501,7 @@ socket.on('status', (status, project) => {
 });
 
 socket.on('project-settings-data', (project, settings) => {
-	console.log('project-settings-data', settings);
+	//console.log('project-settings-data', settings);
 	if (project === models.project.getKey('currentProject')) models.project.setData(settings);
 });
 socket.on('IDE-settings-data', settings => models.settings.setKey('IDESettings', settings));
@@ -9717,16 +9714,30 @@ class Model extends EventEmitter {
 			}
 		}
 		if (newKeys.length) {
+			//console.log('changed setdata');
 			this.emit('change', this._getData(), newKeys);
 		}
 		this.emit('set', this._getData(), Object.keys(newData));
 	}
 
 	setKey(key, value) {
-		if (!_equals(value, this._getData()[key])) {
+		if (!_equals(value, this._getData()[key], false)) {
 			this._getData()[key] = value;
+			//console.log('changed setkey');
 			this.emit('change', this._getData(), [key]);
 		}
+		this.emit('set', this._getData(), [key]);
+	}
+
+	pushIntoKey(key, value) {
+		this._getData()[key].push(value);
+		this.emit('change', this._getData(), [key]);
+		this.emit('set', this._getData(), [key]);
+	}
+
+	spliceFromKey(key, index) {
+		this._getData()[key].splice(index, 1);
+		this.emit('change', this._getData(), [key]);
 		this.emit('set', this._getData(), [key]);
 	}
 
@@ -9741,8 +9752,11 @@ module.exports = Model;
 function _equals(a, b, log) {
 	if (log) console.log('a:', a, 'b:', b);
 	if (a instanceof Array && b instanceof Array) {
+		if (log) console.log('arrays', 'a:', a, 'b:', b, a.length === b.length, a.every(function (element, index) {
+			return _equals(element, b[index], log);
+		}));
 		return a.length === b.length && a.every(function (element, index) {
-			element === b[index];
+			return _equals(element, b[index], log);
 		});
 	} else if (a instanceof Object && b instanceof Object) {
 		if (log) console.log('objects', 'a:', a, 'b:', b);
@@ -9978,8 +9992,11 @@ class EditorView extends View {
 			this.editor.setReadOnly(false);
 		}
 	}
+	_fileName(name, data) {
+		this.__breakpoints(data.breakpoints, data);
+	}
 	__breakpoints(breakpoints, data) {
-		console.log('setting breakpoints', breakpoints);
+		//console.log('setting breakpoints', breakpoints);
 		this.editor.session.clearBreakpoints();
 		for (let breakpoint of breakpoints) {
 			if (breakpoint.file === data.fileName) {
@@ -10243,7 +10260,7 @@ class SettingsView extends View {
 		}
 	}
 
-	setProjectSetting(func, key, value) {
+	setCLArg(func, key, value) {
 		this.emit('project-settings', { func, key, value });
 	}
 	restoreDefaultCLArgs(func) {
@@ -10259,7 +10276,6 @@ class SettingsView extends View {
 
 	// model events
 	_CLArgs(data) {
-		console.log('setting clargs');
 		for (let key in data) {
 			this.$elements.filterByData('key', key).val(data[key]);
 		}
@@ -10268,6 +10284,9 @@ class SettingsView extends View {
 		for (let key in data) {
 			this.$elements.filterByData('key', key).val(data[key]);
 		}
+	}
+	_breakpoints(value, keys) {
+		this.emit('project-settings', { func: 'setBreakpoints', value });
 	}
 }
 

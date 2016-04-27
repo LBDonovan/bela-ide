@@ -22,7 +22,7 @@ class SettingsView extends View {
 		}
 	}
 	
-	setProjectSetting(func, key, value){
+	setCLArg(func, key, value){
 		this.emit('project-settings', {func, key, value});
 	}
 	restoreDefaultCLArgs(func){
@@ -38,7 +38,6 @@ class SettingsView extends View {
 	
 	// model events
 	_CLArgs(data){
-		console.log('setting clargs');
 		for (let key in data){
 			this.$elements.filterByData('key', key).val(data[key]);
 		}
@@ -47,6 +46,9 @@ class SettingsView extends View {
 		for (let key in data){
 			this.$elements.filterByData('key', key).val(data[key]);
 		}
+	}
+	_breakpoints(value, keys){
+		this.emit('project-settings', {func: 'setBreakpoints', value});
 	}
 }
 

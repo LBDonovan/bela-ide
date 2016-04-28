@@ -7,6 +7,8 @@ var spawn = require('child_process').spawn;
 var treeKill = require('tree-kill');
 var pusage = Promise.promisifyAll(require('pidusage'));
 
+var DebugManager = require('./DebugManager');
+
 // child processes
 var syntaxCheckProcess = require('./IDEProcesses').syntax;
 var buildProcess = require('./IDEProcesses').build;
@@ -41,29 +43,33 @@ class ProcessManager extends EventEmitter {
 		
 	}
 	
-	build(project){
-	//console.log('build', this.building());
+	build(project, data){
+	//console.log('build', data);
 		if (this.checkingSyntax()){
 			syntaxCheckProcess.kill().queue(function(){
-				buildProcess.execute(project);
+				buildProcess.execute(project, data.debug);
 			});
 		} else if(this.building()){
 			buildProcess.kill().queue(function(){
-				buildProcess.execute(project);
+				buildProcess.execute(project, data.debug);
 			});
 		} else {
 			this.emptyAllQueues();
-			buildProcess.execute(project);
+			buildProcess.execute(project, data.debug);
 		}
 		
 		return buildProcess;
 	
 	}
 	
-	run(project){
-		this.build(project).queue(function(err){
-			if (!err.length)
-				belaProcess.execute(project);
+	run(project, data){
+		this.build(project, data).queue(function(err){
+			if (!err.length){
+				if (data.debug) 
+					DebugManager.run(project, data.breakpoints);
+				else
+					belaProcess.execute(project);
+			}
 		});
 	}
 	

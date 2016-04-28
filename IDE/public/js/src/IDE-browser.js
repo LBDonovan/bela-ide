@@ -83,10 +83,13 @@ editorView.on('breakpoint', (line) => {
 // toolbar view
 var toolbarView = new (require('./Views/ToolbarView'))('toolBar', [models.project, models.error, models.status, models.settings]);
 toolbarView.on('process-event', (event) => {
+	var breakpoints;
+	if (models.settings.getKey('debugMode')) breakpoints = models.project.getKey('breakpoints')
 	socket.emit('process-event', {
 		event,
 		currentProject	: models.project.getKey('currentProject'),
-		debug			: models.settings.getKey('debugMode')
+		debug			: models.settings.getKey('debugMode'),
+		breakpoints
 	});
 });
 toolbarView.on('clear-console', () => consoleView.emit('clear') );

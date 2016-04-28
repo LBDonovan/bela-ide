@@ -76,9 +76,15 @@ class buildProcess extends ChildProcess{
 		super('make', ['--no-print-directory', '-C', makePath,  'all',  'PROJECT=']);
 	}
 	
-	execute(project){
+	execute(project, debug){
 		if (this.active) return;
-		this.args[this.args.length-1] = 'PROJECT='+project;
+		
+		if (debug) 
+			this.args[3] = 'debug';
+		else
+			this.args[3] = 'all';
+			
+		this.args[4] = 'PROJECT='+project;
 		this.project = project;
 		this.start();
 	}

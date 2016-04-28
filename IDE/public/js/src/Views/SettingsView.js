@@ -2,9 +2,10 @@ var View = require('./View');
 
 class SettingsView extends View {
 	
-	constructor(className, models){
-		super(className, models);
+	constructor(className, models, settings){
+		super(className, models, settings);
 		this.$elements.filter('input').on('change', (e) => this.selectChanged($(e.currentTarget), e));
+		this.settings.on('change', (data) => this._IDESettings(data) );
 	}
 	
 	selectChanged($element, e){

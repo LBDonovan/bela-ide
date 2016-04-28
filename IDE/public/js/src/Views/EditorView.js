@@ -108,9 +108,9 @@ class EditorView extends View {
 						
 		}
 	}	
-	_IDESettings(data){
+	_liveAutocompletion(status){
 		this.editor.setOptions({
-			enableLiveAutocompletion: (parseInt(data.liveAutocompletion))
+			enableLiveAutocompletion: (parseInt(status) === 1)
 		});
 	}
 	_readOnly(status){

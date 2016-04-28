@@ -16,7 +16,7 @@ var tabView = require('./Views/TabView');
 tabView.on('change', () => editorView.emit('resize') );
 
 // settings view
-var settingsView = new (require('./Views/SettingsView'))('settingsManager', [models.project, models.settings]);
+var settingsView = new (require('./Views/SettingsView'))('settingsManager', [models.project, models.settings], models.settings);
 settingsView.on('project-settings', (data) => {
 	data.currentProject = models.project.getKey('currentProject');
 	//console.log('project-settings', data);
@@ -61,7 +61,7 @@ editorView.on('change', (fileData) => {
 		currentProject	: models.project.getKey('currentProject'),
 		newFile			: models.project.getKey('fileName'),
 		fileData,
-		checkSyntax		: parseInt(models.settings.getKey('IDESettings')['liveSyntaxChecking'])
+		checkSyntax		: parseInt(models.settings.getKey('liveSyntaxChecking'))
 	});
 });
 editorView.on('breakpoint', (line) => {
@@ -85,7 +85,8 @@ var toolbarView = new (require('./Views/ToolbarView'))('toolBar', [models.projec
 toolbarView.on('process-event', (event) => {
 	socket.emit('process-event', {
 		event,
-		currentProject	: models.project.getKey('currentProject')
+		currentProject	: models.project.getKey('currentProject'),
+		debug			: models.settings.getKey('debugMode')
 	});
 });
 toolbarView.on('clear-console', () => consoleView.emit('clear') );
@@ -116,7 +117,7 @@ socket.on('init', (data) => {
 	consoleView.emit('openNotification', {func: 'init', timestamp});
 	
 	models.project.setData({projectList: data[0], exampleList: data[1], currentProject: data[2].project});
-	models.settings.setKey('IDESettings', data[2]);
+	models.settings.setData(data[2]);
 	
 	//models.project.print();
 	//models.settings.print();
@@ -170,7 +171,7 @@ socket.on('project-settings-data', (project, settings) => {
 	if (project === models.project.getKey('currentProject'))
 		models.project.setData(settings);
 });
-socket.on('IDE-settings-data', (settings) => models.settings.setKey('IDESettings', settings) );
+socket.on('IDE-settings-data', (settings) => models.settings.setData(settings) );
 
 socket.on('cpu-usage', (data) => models.status.setKey('CPU', data) );
 

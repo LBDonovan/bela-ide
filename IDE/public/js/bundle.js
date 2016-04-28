@@ -9351,7 +9351,7 @@ var tabView = require('./Views/TabView');
 tabView.on('change', () => editorView.emit('resize'));
 
 // settings view
-var settingsView = new (require('./Views/SettingsView'))('settingsManager', [models.project, models.settings]);
+var settingsView = new (require('./Views/SettingsView'))('settingsManager', [models.project, models.settings], models.settings);
 settingsView.on('project-settings', data => {
 	data.currentProject = models.project.getKey('currentProject');
 	//console.log('project-settings', data);
@@ -9396,7 +9396,7 @@ editorView.on('change', fileData => {
 		currentProject: models.project.getKey('currentProject'),
 		newFile: models.project.getKey('fileName'),
 		fileData,
-		checkSyntax: parseInt(models.settings.getKey('IDESettings')['liveSyntaxChecking'])
+		checkSyntax: parseInt(models.settings.getKey('liveSyntaxChecking'))
 	});
 });
 editorView.on('breakpoint', line => {
@@ -9420,7 +9420,8 @@ var toolbarView = new (require('./Views/ToolbarView'))('toolBar', [models.projec
 toolbarView.on('process-event', event => {
 	socket.emit('process-event', {
 		event,
-		currentProject: models.project.getKey('currentProject')
+		currentProject: models.project.getKey('currentProject'),
+		debug: models.settings.getKey('debugMode')
 	});
 });
 toolbarView.on('clear-console', () => consoleView.emit('clear'));
@@ -9451,7 +9452,7 @@ socket.on('init', data => {
 	consoleView.emit('openNotification', { func: 'init', timestamp });
 
 	models.project.setData({ projectList: data[0], exampleList: data[1], currentProject: data[2].project });
-	models.settings.setKey('IDESettings', data[2]);
+	models.settings.setData(data[2]);
 
 	//models.project.print();
 	//models.settings.print();
@@ -9504,7 +9505,7 @@ socket.on('project-settings-data', (project, settings) => {
 	//console.log('project-settings-data', settings);
 	if (project === models.project.getKey('currentProject')) models.project.setData(settings);
 });
-socket.on('IDE-settings-data', settings => models.settings.setKey('IDESettings', settings));
+socket.on('IDE-settings-data', settings => models.settings.setData(settings));
 
 socket.on('cpu-usage', data => models.status.setKey('CPU', data));
 
@@ -9812,7 +9813,7 @@ class ConsoleView extends View {
 		}
 	}
 	_syntaxError(log, data) {
-		if (parseInt(this.settings.getKey('IDESettings').verboseErrors)) {
+		if (parseInt(this.settings.getKey('verboseErrors'))) {
 			for (let line of log) {
 				_console.warn(line.split(' ').join('&nbsp;'));
 			}
@@ -9851,13 +9852,13 @@ class ConsoleView extends View {
 	}
 
 	_CPU(data) {
-		if (parseInt(this.settings.getKey('IDESettings').cpuMonitoringVerbose) && data.bela != 0) {
+		if (parseInt(this.settings.getKey('cpuMonitoringVerbose')) && data.bela != 0) {
 			_console.log(data.bela.split(' ').join('&nbsp;'));
 		}
 	}
 
-	_IDESettings(settings) {
-		_console.setConsoleDelete(parseInt(settings.consoleDelete));
+	_consoleDelete(value) {
+		_console.setConsoleDelete(parseInt(value));
 	}
 
 }
@@ -9875,7 +9876,7 @@ var funcKey = {
 	'uploadFile': 'Uploading file...',
 	'renameFile': 'Renaming file...',
 	'deleteFile': 'Deleting file...',
-	'init': 'Initialising..'
+	'init': 'Initialising...'
 };
 
 },{"../console":12,"./View":11}],5:[function(require,module,exports){
@@ -9980,9 +9981,9 @@ class EditorView extends View {
 			this.editor.session.setAnnotations(errors);
 		}
 	}
-	_IDESettings(data) {
+	_liveAutocompletion(status) {
 		this.editor.setOptions({
-			enableLiveAutocompletion: parseInt(data.liveAutocompletion)
+			enableLiveAutocompletion: parseInt(status) === 1
 		});
 	}
 	_readOnly(status) {
@@ -10240,9 +10241,10 @@ var View = require('./View');
 
 class SettingsView extends View {
 
-	constructor(className, models) {
-		super(className, models);
+	constructor(className, models, settings) {
+		super(className, models, settings);
 		this.$elements.filter('input').on('change', e => this.selectChanged($(e.currentTarget), e));
+		this.settings.on('change', data => this._IDESettings(data));
 	}
 
 	selectChanged($element, e) {
@@ -10450,8 +10452,8 @@ class ToolbarView extends View {
 		$('#bela-cpu').html('Bela: ' + bela.toFixed(1) + '%');
 	}
 
-	_IDESettings(settings) {
-		if (parseInt(settings.cpuMonitoring)) $('#ide-cpu, #bela-cpu').css('visibility', 'visible');else $('#ide-cpu, #bela-cpu').css('visibility', 'hidden');
+	_cpuMonitoring(value) {
+		if (parseInt(value)) $('#ide-cpu, #bela-cpu').css('visibility', 'visible');else $('#ide-cpu, #bela-cpu').css('visibility', 'hidden');
 	}
 
 }

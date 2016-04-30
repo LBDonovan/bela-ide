@@ -1,4 +1,5 @@
 var View = require('./View');
+var Range = ace.require('ace/range').Range;
 
 const uploadDelay = 50;
 
@@ -130,6 +131,33 @@ class EditorView extends View {
 			if (breakpoint.file === data.fileName){
 				this.editor.session.setBreakpoint(breakpoint.line);
 			}
+		}
+	}
+	_line(line){
+
+		var markers = this.editor.session.getMarkers();
+		
+		// remove existing marker
+		Object.keys(markers).forEach( (key,index) => {
+			if (markers[key].clazz === 'breakpointMarker'){
+				this.editor.session.removeMarker(markers[key].id);
+			}
+		});
+		
+		// add new marker
+		this.editor.session.addMarker(new Range(line-1, 0, line-1, 1), "breakpointMarker", "fullLine");
+		
+		this.editor.gotoLine(line, 0);
+	}
+	_running(running){
+		if (!running){
+			var markers = this.editor.session.getMarkers();
+			// remove existing marker
+			Object.keys(markers).forEach( (key,index) => {
+				if (markers[key].clazz === 'breakpointMarker'){
+					this.editor.session.removeMarker(markers[key].id);
+				}
+			});
 		}
 	}
 }

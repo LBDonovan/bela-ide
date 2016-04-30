@@ -9344,6 +9344,7 @@ models.project = new Model();
 models.settings = new Model();
 models.status = new Model();
 models.error = new Model();
+models.debug = new Model();
 
 // set up views
 // tab view
@@ -9389,7 +9390,7 @@ fileView.on('message', (event, data) => {
 });
 
 // editor view
-var editorView = new (require('./Views/EditorView'))('editor', [models.project, models.error, models.settings], models.settings);
+var editorView = new (require('./Views/EditorView'))('editor', [models.project, models.error, models.settings, models.debug], models.settings);
 editorView.on('change', fileData => {
 	socket.emit('process-event', {
 		event: 'upload',
@@ -9416,21 +9417,21 @@ editorView.on('breakpoint', line => {
 });
 
 // toolbar view
-var toolbarView = new (require('./Views/ToolbarView'))('toolBar', [models.project, models.error, models.status, models.settings]);
+var toolbarView = new (require('./Views/ToolbarView'))('toolBar', [models.project, models.error, models.status, models.settings, models.debug]);
 toolbarView.on('process-event', event => {
 	var breakpoints;
-	if (models.settings.getKey('debugMode')) breakpoints = models.project.getKey('breakpoints');
+	if (parseInt(models.settings.getKey('debugMode'))) breakpoints = models.project.getKey('breakpoints');
 	socket.emit('process-event', {
 		event,
 		currentProject: models.project.getKey('currentProject'),
-		debug: models.settings.getKey('debugMode'),
+		debug: parseInt(models.settings.getKey('debugMode')),
 		breakpoints
 	});
 });
 toolbarView.on('clear-console', () => consoleView.emit('clear'));
 
 // console view
-var consoleView = new (require('./Views/ConsoleView'))('IDEconsole', [models.status, models.project, models.error, models.settings], models.settings);
+var consoleView = new (require('./Views/ConsoleView'))('IDEconsole', [models.status, models.project, models.error, models.settings, models.debug], models.settings);
 consoleView.on('focus', focus => models.project.setKey('focus', focus));
 consoleView.on('open-file', (fileName, focus) => {
 	var data = {
@@ -9441,6 +9442,10 @@ consoleView.on('open-file', (fileName, focus) => {
 	};
 	socket.emit('project-event', data);
 });
+
+// debugger view
+var debugView = new (require('./Views/DebugView'))('debugger', [models.debug, models.settings, models.project]);
+debugView.on('debugger-event', func => socket.emit('debugger-event', func));
 
 // setup socket
 var socket = io('/IDE');
@@ -9515,6 +9520,13 @@ socket.on('cpu-usage', data => models.status.setKey('CPU', data));
 socket.on('disconnect', () => {
 	consoleView.emit('warn', 'You have been disconnected from the Bela IDE and any more changes you make will not be saved. Please check your USB connection and reboot your BeagleBone');
 	models.project.setKey('readOnly', true);
+});
+
+socket.on('debugger-data', data => {
+	if ((data.project === undefined || data.project === models.project.getKey('currentProject')) && (data.file === undefined || data.file === models.project.getKey('fileName'))) {
+		//console.log(data);
+		models.debug.setData(data);
+	}
 });
 
 // model events
@@ -9693,7 +9705,7 @@ function getDateString() {
 	return str;
 }
 
-},{"./Models/Model":3,"./Views/ConsoleView":4,"./Views/EditorView":5,"./Views/FileView":6,"./Views/ProjectView":7,"./Views/SettingsView":8,"./Views/TabView":9,"./Views/ToolbarView":10}],3:[function(require,module,exports){
+},{"./Models/Model":3,"./Views/ConsoleView":4,"./Views/DebugView":5,"./Views/EditorView":6,"./Views/FileView":7,"./Views/ProjectView":8,"./Views/SettingsView":9,"./Views/TabView":10,"./Views/ToolbarView":11}],3:[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter;
 
 class Model extends EventEmitter {
@@ -9775,7 +9787,7 @@ function _equals(a, b, log) {
 	}
 }
 
-},{"events":14}],4:[function(require,module,exports){
+},{"events":15}],4:[function(require,module,exports){
 'use strict';
 
 var View = require('./View');
@@ -9864,6 +9876,17 @@ class ConsoleView extends View {
 		_console.setConsoleDelete(parseInt(value));
 	}
 
+	_reason(reason) {
+		_console.notify(reason, 'reason', false);
+		if (reason === 'exited') _console.reject('', 'reason', true);else _console.fulfill('', 'reason', false);
+	}
+	_gdbLog(data) {
+		console.log(data);
+	}
+	_belaLog(data) {
+		_console.log(data);
+	}
+
 }
 
 module.exports = ConsoleView;
@@ -9882,8 +9905,56 @@ var funcKey = {
 	'init': 'Initialising...'
 };
 
-},{"../console":12,"./View":11}],5:[function(require,module,exports){
+},{"../console":13,"./View":12}],5:[function(require,module,exports){
 var View = require('./View');
+
+class DebugView extends View {
+
+	constructor(className, models) {
+		super(className, models);
+	}
+
+	// UI events
+	buttonClicked($element, e) {
+		this.emit('debugger-event', $element.data().func);
+	}
+
+	// model events
+	_running(value, data) {
+		if (!value) {
+			this.setStatus('stopped');
+		} else {
+			this.setLocation('');
+		}
+	}
+	_status(value, data) {
+		if (value) this.setStatus(value);
+	}
+	_reason(value) {
+		this.setStatus($('#debuggerStatus').html() + ', ' + value);
+	}
+	_line(line, data) {
+		var location = '';
+		if (data.file) location += data.file + ', line ';
+
+		if (data.line) location += data.line;
+
+		this.setLocation(data.file + ', line ' + data.line);
+	}
+
+	setStatus(value) {
+		$('#debuggerStatus').html(value);
+	}
+	setLocation(value) {
+		$('#debuggerLocation').html(value);
+	}
+}
+
+module.exports = DebugView;
+
+},{"./View":12}],6:[function(require,module,exports){
+var View = require('./View');
+var Range = ace.require('ace/range').Range;
 
 const uploadDelay = 50;
 
@@ -10008,11 +10079,38 @@ class EditorView extends View {
 			}
 		}
 	}
+	_line(line) {
+
+		var markers = this.editor.session.getMarkers();
+
+		// remove existing marker
+		Object.keys(markers).forEach((key, index) => {
+			if (markers[key].clazz === 'breakpointMarker') {
+				this.editor.session.removeMarker(markers[key].id);
+			}
+		});
+
+		// add new marker
+		this.editor.session.addMarker(new Range(line - 1, 0, line - 1, 1), "breakpointMarker", "fullLine");
+
+		this.editor.gotoLine(line, 0);
+	}
+	_running(running) {
+		if (!running) {
+			var markers = this.editor.session.getMarkers();
+			// remove existing marker
+			Object.keys(markers).forEach((key, index) => {
+				if (markers[key].clazz === 'breakpointMarker') {
+					this.editor.session.removeMarker(markers[key].id);
+				}
+			});
+		}
+	}
 }
 
 module.exports = EditorView;
 
-},{"./View":11}],6:[function(require,module,exports){
+},{"./View":12}],7:[function(require,module,exports){
 var View = require('./View');
 
 var sourceIndeces = ['cpp', 'c', 'S'];
@@ -10134,7 +10232,7 @@ class FileView extends View {
 
 module.exports = FileView;
 
-},{"./View":11}],7:[function(require,module,exports){
+},{"./View":12}],8:[function(require,module,exports){
 var View = require('./View');
 
 class ProjectView extends View {
@@ -10239,7 +10337,7 @@ class ProjectView extends View {
 
 module.exports = ProjectView;
 
-},{"./View":11}],8:[function(require,module,exports){
+},{"./View":12}],9:[function(require,module,exports){
 var View = require('./View');
 
 class SettingsView extends View {
@@ -10303,7 +10401,7 @@ $.fn.filterByData = function (prop, val) {
 	});
 };
 
-},{"./View":11}],9:[function(require,module,exports){
+},{"./View":12}],10:[function(require,module,exports){
 var View = require('./View');
 
 // private variables
@@ -10350,7 +10448,7 @@ class TabView extends View {
 
 module.exports = new TabView();
 
-},{"./View":11}],10:[function(require,module,exports){
+},{"./View":12}],11:[function(require,module,exports){
 var View = require('./View');
 
 class ToolbarView extends View {
@@ -10463,7 +10561,7 @@ class ToolbarView extends View {
 
 module.exports = ToolbarView;
 
-},{"./View":11}],11:[function(require,module,exports){
+},{"./View":12}],12:[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter;
 var $ = require('jquery-browserify');
 
@@ -10518,7 +10616,7 @@ class View extends EventEmitter {
 
 module.exports = View;
 
-},{"events":14,"jquery-browserify":1}],12:[function(require,module,exports){
+},{"events":15,"jquery-browserify":1}],13:[function(require,module,exports){
 'use strict';
 
 var EventEmitter = require('events').EventEmitter;
@@ -10685,7 +10783,7 @@ module.exports = new Console();
 	}, 500);
 }*/
 
-},{"events":14,"jquery-browserify":1}],13:[function(require,module,exports){
+},{"events":15,"jquery-browserify":1}],14:[function(require,module,exports){
 var $ = require('jquery-browserify');
 var IDE;
 
@@ -10693,7 +10791,7 @@ $(() => {
 	IDE = require('./IDE-browser');
 });
 
-},{"./IDE-browser":2,"jquery-browserify":1}],14:[function(require,module,exports){
+},{"./IDE-browser":2,"jquery-browserify":1}],15:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -10993,7 +11091,7 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}]},{},[13])
+},{}]},{},[14])
 
 
 //# sourceMappingURL=bundle.js.map

@@ -9,6 +9,7 @@ models.project = new Model();
 models.settings = new Model();
 models.status = new Model();
 models.error = new Model();
+models.debug = new Model();
  
 // set up views
 // tab view
@@ -54,7 +55,7 @@ fileView.on('message', (event, data) => {
 });
 
 // editor view
-var editorView = new (require('./Views/EditorView'))('editor', [models.project, models.error, models.settings], models.settings);
+var editorView = new (require('./Views/EditorView'))('editor', [models.project, models.error, models.settings, models.debug], models.settings);
 editorView.on('change', (fileData) => {
 	socket.emit('process-event', {
 		event			: 'upload',
@@ -81,21 +82,21 @@ editorView.on('breakpoint', (line) => {
 });
 
 // toolbar view
-var toolbarView = new (require('./Views/ToolbarView'))('toolBar', [models.project, models.error, models.status, models.settings]);
+var toolbarView = new (require('./Views/ToolbarView'))('toolBar', [models.project, models.error, models.status, models.settings, models.debug]);
 toolbarView.on('process-event', (event) => {
 	var breakpoints;
-	if (models.settings.getKey('debugMode')) breakpoints = models.project.getKey('breakpoints')
+	if (parseInt(models.settings.getKey('debugMode'))) breakpoints = models.project.getKey('breakpoints')
 	socket.emit('process-event', {
 		event,
 		currentProject	: models.project.getKey('currentProject'),
-		debug			: models.settings.getKey('debugMode'),
+		debug			: parseInt(models.settings.getKey('debugMode')),
 		breakpoints
 	});
 });
 toolbarView.on('clear-console', () => consoleView.emit('clear') );
 
 // console view
-var consoleView = new (require('./Views/ConsoleView'))('IDEconsole', [models.status, models.project, models.error, models.settings], models.settings);
+var consoleView = new (require('./Views/ConsoleView'))('IDEconsole', [models.status, models.project, models.error, models.settings, models.debug], models.settings);
 consoleView.on('focus', (focus) =>  models.project.setKey('focus', focus) );
 consoleView.on('open-file', (fileName, focus) => {
 	var data = {
@@ -106,6 +107,10 @@ consoleView.on('open-file', (fileName, focus) => {
 	};
 	socket.emit('project-event', data);
 });
+
+// debugger view
+var debugView = new (require('./Views/DebugView'))('debugger', [models.debug, models.settings, models.project]);
+debugView.on('debugger-event', (func) => socket.emit('debugger-event', func) );
 
 // setup socket
 var socket = io('/IDE');
@@ -181,6 +186,14 @@ socket.on('cpu-usage', (data) => models.status.setKey('CPU', data) );
 socket.on('disconnect', () => {
 	consoleView.emit('warn', 'You have been disconnected from the Bela IDE and any more changes you make will not be saved. Please check your USB connection and reboot your BeagleBone');
 	models.project.setKey('readOnly', true);
+});
+
+socket.on('debugger-data', (data) => {
+	if ((data.project === undefined || data.project === models.project.getKey('currentProject')) && 
+		(data.file === undefined || data.file === models.project.getKey('fileName'))){
+		//console.log(data);
+		models.debug.setData(data);
+	}
 });
 
 // model events

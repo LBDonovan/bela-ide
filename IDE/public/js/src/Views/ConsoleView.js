@@ -84,6 +84,20 @@ class ConsoleView extends View{
 	_consoleDelete(value){
 		_console.setConsoleDelete(parseInt(value));
 	}
+	
+	_reason(reason){
+		_console.notify(reason, 'reason', false);
+		if (reason === 'exited')
+			_console.reject('', 'reason', true);
+		else 
+			_console.fulfill('', 'reason', false);
+	}
+	_gdbLog(data){
+		console.log(data);
+	}
+	_belaLog(data){
+		_console.log(data);
+	}
 
 	
 }

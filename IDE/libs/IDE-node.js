@@ -125,7 +125,7 @@ function socketEvents(socket){
 	// process events
 	socket.on('process-event', (data) => {
 	
-		console.log('process-event');
+		console.log('process-event', data);
 		
 		if (!data || !data.currentProject || !data.event || !ProcessManager[data.event]){
 			console.log('bad process-event', data);
@@ -158,11 +158,20 @@ function socketEvents(socket){
 				socket.emit('report-error', error.toString() );
 			});
 	});
+	
+	// debugger
+	socket.on('debugger-event', (func) => {
+	console.log(DebugManager, func, DebugManager[func]);
+		if (DebugManager[func])
+			DebugManager[func]();
+	});
 
 }
 
 ProcessManager.on('status', (status, project) => allSockets.emit('status', project, status) );
 ProcessManager.on('broadcast-status', (status) => allSockets.emit('status', status) );
+
+DebugManager.on('status', (status) =>  allSockets.emit('debugger-data', status) );
 
 // module functions - only accesible from this file
 function co(obj, func, args){

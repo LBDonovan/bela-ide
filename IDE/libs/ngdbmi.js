@@ -222,7 +222,7 @@ function removeArrayLabels( args )
 		
 		/* in_array == 1 if we are in an array =) */
 		in_array = t_in_array[ t_in_array.length - 1 ];
-		
+
 		/* If we encounter a ',"' inside an array delete until the '":' or '"=' */
 		if( in_array && (args[i] == "," || args[i] == "[") && args[i+1] == "\"" )
 		{

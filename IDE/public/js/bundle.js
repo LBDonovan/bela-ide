@@ -9528,6 +9528,11 @@ socket.on('debugger-data', data => {
 		models.debug.setData(data);
 	}
 });
+socket.on('debugger-variables', (project, variables) => {
+	if (project === models.project.getKey('currentProject')) {
+		console.log(variables);
+	}
+});
 
 // model events
 // build errors

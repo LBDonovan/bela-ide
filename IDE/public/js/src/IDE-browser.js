@@ -107,6 +107,13 @@ consoleView.on('open-file', (fileName, focus) => {
 	};
 	socket.emit('project-event', data);
 });
+consoleView.on('input', (value) => {
+	if (value){
+		var val = value.split(' ')
+		var command = val.splice(0, 1);
+		if (command[0] === 'gdb') socket.emit('debugger-event', 'exec', val.join(' '));
+	}
+});
 
 // debugger view
 var debugView = new (require('./Views/DebugView'))('debugger', [models.debug, models.settings, models.project]);
@@ -189,9 +196,10 @@ socket.on('disconnect', () => {
 });
 
 socket.on('debugger-data', (data) => {
-	if ((data.project === undefined || data.project === models.project.getKey('currentProject')) && 
-		(data.file === undefined || data.file === models.project.getKey('fileName'))){
-		//console.log(data);
+console.log('b', data.debugProject, models.project.getKey('currentProject'), data.debugFile, models.project.getKey('fileName'));
+	if (data.debugProject === undefined || data.debugProject === models.project.getKey('currentProject')){ 
+		//(data.debugFile === undefined || data.debugFile === models.project.getKey('fileName'))){
+		console.log(data);
 		models.debug.setData(data);
 	}
 });

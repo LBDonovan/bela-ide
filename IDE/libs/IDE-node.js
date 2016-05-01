@@ -160,10 +160,10 @@ function socketEvents(socket){
 	});
 	
 	// debugger
-	socket.on('debugger-event', (func) => {
-	console.log(DebugManager, func, DebugManager[func]);
+	socket.on('debugger-event', (func, args) => {
+	//console.log(DebugManager, func, DebugManager[func]);
 		if (DebugManager[func])
-			DebugManager[func]();
+			DebugManager[func](args);
 	});
 
 }

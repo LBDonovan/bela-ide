@@ -6,6 +6,7 @@ class ConsoleView extends View{
 
 	constructor(className, models, settings){
 		super(className, models, settings);
+		
 		this.on('clear', () => _console.clear() );
 		_console.on('focus', (focus) => this.emit('focus', focus) );
 		_console.on('open-file', (fileName, focus) => this.emit('open-file', fileName, focus) );
@@ -14,6 +15,16 @@ class ConsoleView extends View{
 		this.on('closeNotification', this.closeNotification);
 		this.on('warn', function(warning){
 			_console.warn(warning);
+		});
+		
+		this.form = document.getElementById('beaglert-consoleForm');
+		this.input = document.getElementById('beaglert-consoleInput');
+		
+		// console command line input events
+		this.form.addEventListener('submit', (e) => {
+			e.preventDefault();
+			this.emit('input', this.input.value);
+			this.input.value = '';
 		});
 	}
 	

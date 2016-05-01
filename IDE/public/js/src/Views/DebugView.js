@@ -12,51 +12,71 @@ class DebugView extends View {
 	}
 
 	// model events
-	_running(value, data){
-		if (!value){
-			this.setStatus('stopped');
-		} else {
-			this.setLocation('');
-		}
+	// debugger process has started or stopped
+	_debugRunning(status){
+		this.clearVariableList();
+		if (!status) this.setLocation('n/a');
 	}
-	_status(value, data){
+	_debugStatus(value, data){
 		if (value) this.setStatus(value);
 	}
-	_reason(value){
+	_debugReason(value){
 		this.setStatus($('#debuggerStatus').html()+', '+value);
 	}
-	_line(line, data){
+	_debugLine(line, data){
 		var location = '';
-		if (data.file)
-			location += data.file+', line ';
+		if (data.debugFile)
+			location += data.debugFile+', line ';
 		
-		if (data.line)
-			location += data.line;
+		if (data.debugLine)
+			location += data.debugLine;
 		
-		this.setLocation(data.file+', line '+data.line);
+		this.setLocation(location);
 	}
 	_variables(variables){
-	
-		for (var i=0; i<variables.length; i++){
-			var li = $('<li></li>');
-			var table = $('<table></table>').appendTo(li);
-			$('<td></td>').html(variables[i].type).addClass('debuggerType').appendTo(table);
-			$('<td></td>').html(variables[i].key).addClass('debuggerName').appendTo(table);
-			$('<td></td>').html(variables[i].value).addClass('debuggerValue').appendTo(table);
-			li.attr('id', variables[i].name).appendTo($('#expList'));
-			if (variables[i].numchild && variables[i].children.length){
-				addChildVariables(li, variables[i]);
-			}
+		console.log(variables);
+		this.clearVariableList();
+		for (let variable of variables){
+			this.addVariable($('#expList'), variable);
 		}
-		
 		prepareList();
 	}
 	
+	// utility methods
 	setStatus(value){
 		$('#debuggerStatus').html(value);
 	}
 	setLocation(value){
 		$('#debuggerLocation').html(value);
+	}
+	clearVariableList(){
+		$('#expList').empty();
+	}
+	addVariable(parent, variable){
+		var name;
+		if (variable.key) 
+			name = variable.key;
+		else {
+			name = variable.name.split('.');
+			if (name.length) name = name[name.length-1];
+		}
+		//console.log('adding variable', name, variable);
+		var li = $('<li></li>');
+		var table = $('<table></table>').appendTo(li);
+		$('<td></td>').html(variable.type).addClass('debuggerType').appendTo(table);
+		$('<td></td>').html(name).addClass('debuggerName').appendTo(table);
+		var valTD = $('<td></td>').html(variable.value).addClass('debuggerValue').appendTo(table);
+		li.attr('id', variable.name).appendTo(parent);
+		if (variable.numchild && variable.children && variable.children.length){
+			var ul = $('<ul></ul>').appendTo(li);
+			for (let child of variable.children){
+				this.addVariable(ul, child);
+			}
+		}
+		if (variable.value == undefined){
+			li.addClass('debuggerOutOfScope');
+			valTD.html('out of scope');
+		}
 	}
 }
 
@@ -78,8 +98,8 @@ function prepareList() {
     
 };
 
-function addChildVariables(parent, variable){
-	var ul = $('<ul></ul>').appendTo(parent);
+/*function addChildVariables(parent, variable){
+	
 	for (var i=0; i<variable.children.length; i++){
 		var name = variable.children[i].name.split('.');
 		if (name.length) name = name[name.length-1];
@@ -93,7 +113,7 @@ function addChildVariables(parent, variable){
 			addChildVariables(li, variable.children[i]);
 		}
 	}
-}
+}*/
 
 
 

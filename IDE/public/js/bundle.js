@@ -9442,6 +9442,13 @@ consoleView.on('open-file', (fileName, focus) => {
 	};
 	socket.emit('project-event', data);
 });
+consoleView.on('input', value => {
+	if (value) {
+		var val = value.split(' ');
+		var command = val.splice(0, 1);
+		if (command[0] === 'gdb') socket.emit('debugger-event', 'exec', val.join(' '));
+	}
+});
 
 // debugger view
 var debugView = new (require('./Views/DebugView'))('debugger', [models.debug, models.settings, models.project]);
@@ -9523,8 +9530,10 @@ socket.on('disconnect', () => {
 });
 
 socket.on('debugger-data', data => {
-	if ((data.project === undefined || data.project === models.project.getKey('currentProject')) && (data.file === undefined || data.file === models.project.getKey('fileName'))) {
-		//console.log(data);
+	console.log('b', data.debugProject, models.project.getKey('currentProject'), data.debugFile, models.project.getKey('fileName'));
+	if (data.debugProject === undefined || data.debugProject === models.project.getKey('currentProject')) {
+		//(data.debugFile === undefined || data.debugFile === models.project.getKey('fileName'))){
+		console.log(data);
 		models.debug.setData(data);
 	}
 });
@@ -9802,6 +9811,7 @@ class ConsoleView extends View {
 
 	constructor(className, models, settings) {
 		super(className, models, settings);
+
 		this.on('clear', () => _console.clear());
 		_console.on('focus', focus => this.emit('focus', focus));
 		_console.on('open-file', (fileName, focus) => this.emit('open-file', fileName, focus));
@@ -9810,6 +9820,16 @@ class ConsoleView extends View {
 		this.on('closeNotification', this.closeNotification);
 		this.on('warn', function (warning) {
 			_console.warn(warning);
+		});
+
+		this.form = document.getElementById('beaglert-consoleForm');
+		this.input = document.getElementById('beaglert-consoleInput');
+
+		// console command line input events
+		this.form.addEventListener('submit', e => {
+			e.preventDefault();
+			this.emit('input', this.input.value);
+			this.input.value = '';
 		});
 	}
 
@@ -9925,49 +9945,67 @@ class DebugView extends View {
 	}
 
 	// model events
-	_running(value, data) {
-		if (!value) {
-			this.setStatus('stopped');
-		} else {
-			this.setLocation('');
-		}
+	// debugger process has started or stopped
+	_debugRunning(status) {
+		this.clearVariableList();
+		if (!status) this.setLocation('n/a');
 	}
-	_status(value, data) {
+	_debugStatus(value, data) {
 		if (value) this.setStatus(value);
 	}
-	_reason(value) {
+	_debugReason(value) {
 		this.setStatus($('#debuggerStatus').html() + ', ' + value);
 	}
-	_line(line, data) {
+	_debugLine(line, data) {
 		var location = '';
-		if (data.file) location += data.file + ', line ';
+		if (data.debugFile) location += data.debugFile + ', line ';
 
-		if (data.line) location += data.line;
+		if (data.debugLine) location += data.debugLine;
 
-		this.setLocation(data.file + ', line ' + data.line);
+		this.setLocation(location);
 	}
 	_variables(variables) {
-
-		for (var i = 0; i < variables.length; i++) {
-			var li = $('<li></li>');
-			var table = $('<table></table>').appendTo(li);
-			$('<td></td>').html(variables[i].type).addClass('debuggerType').appendTo(table);
-			$('<td></td>').html(variables[i].key).addClass('debuggerName').appendTo(table);
-			$('<td></td>').html(variables[i].value).addClass('debuggerValue').appendTo(table);
-			li.attr('id', variables[i].name).appendTo($('#expList'));
-			if (variables[i].numchild && variables[i].children.length) {
-				addChildVariables(li, variables[i]);
-			}
+		console.log(variables);
+		this.clearVariableList();
+		for (let variable of variables) {
+			this.addVariable($('#expList'), variable);
 		}
-
 		prepareList();
 	}
 
+	// utility methods
 	setStatus(value) {
 		$('#debuggerStatus').html(value);
 	}
 	setLocation(value) {
 		$('#debuggerLocation').html(value);
+	}
+	clearVariableList() {
+		$('#expList').empty();
+	}
+	addVariable(parent, variable) {
+		var name;
+		if (variable.key) name = variable.key;else {
+			name = variable.name.split('.');
+			if (name.length) name = name[name.length - 1];
+		}
+		//console.log('adding variable', name, variable);
+		var li = $('<li></li>');
+		var table = $('<table></table>').appendTo(li);
+		$('<td></td>').html(variable.type).addClass('debuggerType').appendTo(table);
+		$('<td></td>').html(name).addClass('debuggerName').appendTo(table);
+		var valTD = $('<td></td>').html(variable.value).addClass('debuggerValue').appendTo(table);
+		li.attr('id', variable.name).appendTo(parent);
+		if (variable.numchild && variable.children && variable.children.length) {
+			var ul = $('<ul></ul>').appendTo(li);
+			for (let child of variable.children) {
+				this.addVariable(ul, child);
+			}
+		}
+		if (variable.value == undefined) {
+			li.addClass('debuggerOutOfScope');
+			valTD.html('out of scope');
+		}
 	}
 }
 
@@ -9986,22 +10024,22 @@ function prepareList() {
 	});
 };
 
-function addChildVariables(parent, variable) {
-	var ul = $('<ul></ul>').appendTo(parent);
-	for (var i = 0; i < variable.children.length; i++) {
+/*function addChildVariables(parent, variable){
+	
+	for (var i=0; i<variable.children.length; i++){
 		var name = variable.children[i].name.split('.');
-		if (name.length) name = name[name.length - 1];
+		if (name.length) name = name[name.length-1];
 		var li = $('<li></li>');
 		var table = $('<table></table>').appendTo(li);
 		$('<td></td>').html(variable.children[i].type).addClass('debuggerType').appendTo(table);
 		$('<td></td>').html(name).addClass('debuggerName').appendTo(table);
 		$('<td></td>').html(variable.children[i].value).addClass('debuggerValue').appendTo(table);
 		li.attr('id', variable.children[i].name).appendTo(ul);
-		if (variable.children[i].numchild && variable.children[i].children && variable.children[i].children.length) {
+		if (variable.children[i].numchild && variable.children[i].children && variable.children[i].children.length){
 			addChildVariables(li, variable.children[i]);
 		}
 	}
-}
+}*/
 
 },{"./View":12}],6:[function(require,module,exports){
 var View = require('./View');
@@ -10062,6 +10100,7 @@ class EditorView extends View {
 	}
 
 	// model events
+	// new file saved
 	_fileData(data, opts) {
 
 		if (data instanceof ArrayBuffer) {
@@ -10089,12 +10128,14 @@ class EditorView extends View {
 		// focus the editor
 		this._focus(opts.focus);
 	}
+	// editor focus has changed
 	_focus(data) {
 
 		if (data && data.line !== undefined && data.column !== undefined) this.editor.gotoLine(data.line, data.column);
 
 		this.editor.focus();
 	}
+	// syntax errors in current file have changed
 	_currentFileErrors(errors) {
 
 		// clear any error annotations on the ace editor
@@ -10106,11 +10147,13 @@ class EditorView extends View {
 			this.editor.session.setAnnotations(errors);
 		}
 	}
+	// autocomplete settings have changed
 	_liveAutocompletion(status) {
 		this.editor.setOptions({
 			enableLiveAutocompletion: parseInt(status) === 1
 		});
 	}
+	// readonly status has changed
 	_readOnly(status) {
 		if (status) {
 			this.editor.setReadOnly(true);
@@ -10118,9 +10161,11 @@ class EditorView extends View {
 			this.editor.setReadOnly(false);
 		}
 	}
+	// a new file has been opened
 	_fileName(name, data) {
 		this.__breakpoints(data.breakpoints, data);
 	}
+	// breakpoints have been changed
 	__breakpoints(breakpoints, data) {
 		//console.log('setting breakpoints', breakpoints);
 		this.editor.session.clearBreakpoints();
@@ -10130,8 +10175,36 @@ class EditorView extends View {
 			}
 		}
 	}
-	_line(line) {
+	// debugger highlight line has changed
+	__debugLine(line) {
 
+		this.removeDebuggerMarker();
+
+		// add new marker at line
+		if (line) {
+			this.editor.session.addMarker(new Range(line - 1, 0, line - 1, 1), "breakpointMarker", "fullLine");
+			this.editor.gotoLine(line, 0);
+		}
+	}
+	// debugger process has started or stopped
+	_debugRunning(status) {
+		if (!status) {
+			this.removeDebuggerMarker();
+		}
+	}
+	/*_running(running){
+ 	if (!running){
+ 		var markers = this.editor.session.getMarkers();
+ 		// remove existing marker
+ 		Object.keys(markers).forEach( (key,index) => {
+ 			if (markers[key].clazz === 'breakpointMarker'){
+ 				this.editor.session.removeMarker(markers[key].id);
+ 			}
+ 		});
+ 	}
+ }*/
+
+	removeDebuggerMarker() {
 		var markers = this.editor.session.getMarkers();
 
 		// remove existing marker
@@ -10140,22 +10213,6 @@ class EditorView extends View {
 				this.editor.session.removeMarker(markers[key].id);
 			}
 		});
-
-		// add new marker
-		this.editor.session.addMarker(new Range(line - 1, 0, line - 1, 1), "breakpointMarker", "fullLine");
-
-		this.editor.gotoLine(line, 0);
-	}
-	_running(running) {
-		if (!running) {
-			var markers = this.editor.session.getMarkers();
-			// remove existing marker
-			Object.keys(markers).forEach((key, index) => {
-				if (markers[key].clazz === 'breakpointMarker') {
-					this.editor.session.removeMarker(markers[key].id);
-				}
-			});
-		}
 	}
 }
 

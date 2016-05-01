@@ -73,11 +73,13 @@ class ProcessManager extends EventEmitter {
 		});
 	}
 	
-	stop(){
+	stop(project, data){
 		for (let proc in childProcesses){
 			childProcesses[proc].kill();
 		}
 		this.emptyAllQueues();
+		if (data.debug) 
+			DebugManager.stop();
 	}
 	
 	// status events

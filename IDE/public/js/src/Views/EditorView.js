@@ -61,6 +61,7 @@ class EditorView extends View {
 	}
 	
 	// model events
+	// new file saved
 	_fileData(data, opts){
 	
 		if (data instanceof ArrayBuffer){
@@ -90,6 +91,7 @@ class EditorView extends View {
 		this._focus(opts.focus);
 		
 	}
+	// editor focus has changed
 	_focus(data){
 
 		if (data && data.line !== undefined && data.column !== undefined)
@@ -97,6 +99,7 @@ class EditorView extends View {
 			
 		this.editor.focus();
 	}
+	// syntax errors in current file have changed
 	_currentFileErrors(errors){
 
 		// clear any error annotations on the ace editor
@@ -109,11 +112,13 @@ class EditorView extends View {
 						
 		}
 	}	
+	// autocomplete settings have changed
 	_liveAutocompletion(status){
 		this.editor.setOptions({
 			enableLiveAutocompletion: (parseInt(status) === 1)
 		});
 	}
+	// readonly status has changed
 	_readOnly(status){
 		if (status){
 			this.editor.setReadOnly(true);
@@ -121,9 +126,11 @@ class EditorView extends View {
 			this.editor.setReadOnly(false);
 		}
 	}
+	// a new file has been opened
 	_fileName(name, data){
 		this.__breakpoints(data.breakpoints, data);
 	}
+	// breakpoints have been changed
 	__breakpoints(breakpoints, data){
 		//console.log('setting breakpoints', breakpoints);
 		this.editor.session.clearBreakpoints();
@@ -133,23 +140,24 @@ class EditorView extends View {
 			}
 		}
 	}
-	_line(line){
-
-		var markers = this.editor.session.getMarkers();
+	// debugger highlight line has changed
+	__debugLine(line){
+	
+		this.removeDebuggerMarker();
 		
-		// remove existing marker
-		Object.keys(markers).forEach( (key,index) => {
-			if (markers[key].clazz === 'breakpointMarker'){
-				this.editor.session.removeMarker(markers[key].id);
-			}
-		});
-		
-		// add new marker
-		this.editor.session.addMarker(new Range(line-1, 0, line-1, 1), "breakpointMarker", "fullLine");
-		
-		this.editor.gotoLine(line, 0);
+		// add new marker at line
+		if (line){
+			this.editor.session.addMarker(new Range(line-1, 0, line-1, 1), "breakpointMarker", "fullLine");
+			this.editor.gotoLine(line, 0);
+		}
 	}
-	_running(running){
+	// debugger process has started or stopped
+	_debugRunning(status){
+		if (!status){
+			this.removeDebuggerMarker();
+		}
+	}
+	/*_running(running){
 		if (!running){
 			var markers = this.editor.session.getMarkers();
 			// remove existing marker
@@ -159,6 +167,17 @@ class EditorView extends View {
 				}
 			});
 		}
+	}*/
+	
+	removeDebuggerMarker(){
+		var markers = this.editor.session.getMarkers();
+		
+		// remove existing marker
+		Object.keys(markers).forEach( (key,index) => {
+			if (markers[key].clazz === 'breakpointMarker'){
+				this.editor.session.removeMarker(markers[key].id);
+			}
+		});
 	}
 }
 

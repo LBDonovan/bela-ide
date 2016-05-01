@@ -5,6 +5,7 @@ var Promise = require('bluebird');
 var ngdbmi = require('./ngdbmi');
 var util = require('util');
 
+var ProjectManager = require('./ProjectManager');
 var projectPath = '/root/BeagleRT/projects/';
 var print_debug = true;
 
@@ -12,20 +13,46 @@ class DebugManager extends EventEmitter {
 	
 	constructor(){
 		super();
+		this.running = false;
 	}
 	
+	// start the debugger
 	run(project, breakpoints){
 	
 		this.project = project;
 		this.variables = [];
+		
+		_co(ProjectManager, 'getCLArgs', project)
+			.then( (CLArgs) => {
+				
+				var args = ' ';
+				
+				for (let key in CLArgs) {
+					if (key[0] === '-' && key[1] === '-'){
+						args += (key+'='+CLArgs[key]+' ');
+					} else {
+						args += (key+CLArgs[key]+' ');
+					}
+				}
+
+				// launch the process by giving ngdbmi the path to the project's binary
+				this.process = new ngdbmi(projectPath+project+'/'+project+args);
+				
+				this.running = true;
+				this.emit('status', {debugRunning: true});
+		
+				this.registerHandlers();
+		
+				_co(this, 'start', breakpoints);
+			
+			});
+		
+	}
 	
-		// launch the process by giving ngdbmi the path to the project's binary
-		this.process = new ngdbmi(projectPath+project+'/'+project);
-		
-		this.registerHandlers();
-		
-		_co(this, 'start', breakpoints);
-		
+	// kill the debugger
+	stop(){
+		if (this.running)
+			this.process.command('exit');
 	}
 	
 	// listen to ngdbmi process events
@@ -40,15 +67,19 @@ class DebugManager extends EventEmitter {
 		
 		// Gdb close event
 		this.process.on("close", (return_code, signal) => {
-			this.emit('status', {gdbLog: "GDB closed RET="+return_code});
-			console.log('closed', this.process);
+			this.running = false;
+			this.emit('status', {
+				gdbLog			: 'Debugger closed with code '+return_code+' '+signal, 
+				debugStatus		: 'inactive', 
+				debugRunning	: false
+			});
 		});
 		
 		// GDB output
 		this.process.on('gdb', (data) => this.emit('status', {gdbLog: 'GDB> '+data}) );
 		
 		// Application output
-		this.process.on('app', (data) => this.emit('status', {belaLog: data}) );
+		this.process.on('app', (data) => this.emit('status', {debugBelaLog: data}) );
 		
 	}
 	
@@ -75,38 +106,43 @@ class DebugManager extends EventEmitter {
 	
 	*start(breakpoints){
 		
-		this.emit('status', {running: false, status: 'setting breakpoints'});
+		this.emit('status', {
+			debugBelaRunning	: false, 
+			debugStatus			: 'setting breakpoints'
+		});
 		
 		yield this.setBreakpoints(breakpoints);
 		
-		this.emit('status', {running: true});
+		this.emit('status', {
+			debugBelaRunning	: true, 
+			debugStatus			: 'running'
+		});
 		
 		var state = yield this.command('run');
 		
 		if (!this.stopped(state))
 			throw('er');
 
-		var newVariables = yield this.getLocals();
+		var localVariables = yield this.getLocals();
 		
-		if (newVariables.length){
-			yield _co(this, 'createVariables', newVariables);
-			this.variables = this.variables.concat(newVariables);
+		if (localVariables.length){
+			yield _co(this, 'createVariables', localVariables);
+			this.emit('variables', this.project, localVariables);
 		}
-		
-		this.emit('variables', this.project, this.variables);
+
 		//console.log(util.inspect(this.variables, false, null));
+		
+		this.emit('status', {debugBelaRunning: false, debugStatus: 'idle'});
 	}
 	
 	stopped(state){
-
-		this.emit('status', {running: false});
 		
 		// parse the reason for the halt
 		var reason = state.status.reason;
 		if (reason === 'signal-received'){
 			reason = reason+' '+state.status['signal-name']+' '+state.status['signal-meaning'];
 		}
-		if (reason) this.emit('status', {reason});
+		if (reason) this.emit('status', {debugReason: reason});
 	
 		// check the frame data is valid && we haven't fallen off the end of the render function
 		if (!state.status || !state.status.frame){
@@ -126,7 +162,12 @@ class DebugManager extends EventEmitter {
 		//var frameAddr = state.status.frame.addr;
 		console.log('stopped, file '+file+' line '+line);
 		
-		this.emit('status', { project: this.project, file, line });
+		this.emit('status', { 
+			debugProject	: this.project,
+			debugFile		: file,
+			debugLine		: line,
+			debugReason		: reason
+		});
 		
 		return true;
 
@@ -138,44 +179,14 @@ class DebugManager extends EventEmitter {
 	
 	getLocals(){
 			
-		this.emit('status', {status: 'getting local variables'});
+		this.emit('status', {debugStatus: 'getting local variables'});
 		
 		return this.command('stackListVariables', {skip: false, print: 2})
 			.then((state) => {
-				if (!state.status || (state.status.variables === undefined) ){
+				if (!state.status || (state.status.variables === undefined) )
 					throw new Error('bad stackListVariables state');
-				}
 				
-				var variables = state.status.variables;
-
-				var newVariables = [];
-
-				for (let newVariable of variables){
-				
-					// needed to ensure arrays don't get duplicated
-					if (newVariable.value === undefined && newVariable.type.indexOf('[') !== -1){
-						newVariable.value = newVariable.type.split(' ').pop();
-					}
-				
-					var exists = false;
-					for (let oldVariable of this.variables){
-						if (newVariable.name === oldVariable.key && newVariable.type === oldVariable.type && (newVariable.value === undefined || newVariable.value === oldVariable.value)){
-							exists = true;
-							console.log(newVariable.name+' already exists, not adding');
-							console.log(newVariable);
-						}
-					}
-					if (!exists){
-						console.log(newVariable.name+' does not exist, now adding');
-						newVariable.key = newVariable.name;
-						console.log(newVariable);
-						newVariables.push(newVariable);
-					}
-					
-				}
-				
-				return newVariables;
-				
+				return state.status.variables;
 			})
 			.catch(function(e){
 				console.error(e, e.stack.split('\n'));
@@ -187,34 +198,34 @@ class DebugManager extends EventEmitter {
 	// creates gdbmi variable objects for each top-level variable passed to it
 	// recursively lists children with listChildren
 	// implemented with coroutines to avoid stack overflows
-	*createVariables(newVariables){
+	*createVariables(variables){
 
-		for (let variable of newVariables){
+		for (let variable of variables){
 		
-			//console.log('STATUS: creating variable', variable.name);
-			
-			var state = yield this.command('varCreate', {'name': '-', 'frame': '*', 'expression': variable.key});
+			console.log('STATUS: creating variable', variable);
+						
+			var state = yield this.command('varCreate', {'name': '-', 'frame': '*', 'expression': variable.name});
 			if (!state.status){
 				throw new Error('bad varCreate return state');
 			}
 			
 			// save the variable's state
 			if (state.status.name){
+				variable.key = variable.name;
 				variable.name = state.status.name;
 			}
-			if (state.status.value){
+			if (state.status.value)
 				variable.value = state.status.value;
-			}
-			if (state.status.type){
+			if (state.status.type)
 				variable.type = state.status.type;
-			}
-			if (state.status.numchild){
+			if (state.status.numchild)
 				variable.numchild = parseInt(state.status.numchild);
-			}
-
+			
 			if (variable.numchild) {
+				//console.log('STATUS: variable created, listing children', variable);
 				variable = yield _co(this, 'listChildren', variable);
-			}
+			}// else
+				//console.log('STATUS: variable created, no children', variable);
 			
 		}
 		
@@ -251,20 +262,50 @@ class DebugManager extends EventEmitter {
 		
 		return variable;
 	}
+	
+	// execute a command (usually continue, step or next) and check if any
+	// local variables have been changed
+	*update(command){
+		var state = yield this.command(command);
+		if (!this.stopped(state))
+			throw('er');
 		
+		var localVariables = yield this.getLocals();
+		
+		if (localVariables.length){
+			yield _co(this, 'createVariables', localVariables);
+			this.emit('variables', this.project, localVariables);
+		}
+		
+		this.emit('status', {debugBelaRunning: false, debugStatus: 'idle'});
+		
+	}
+	
 
 	// commands
 	debugContinue(){
-		this.emit('status', {running: true, status: 'continuing to next breakpoint'});
-		this.command('continue').then( (state) => this.stopped(state) );
+		this.emit('status', {
+			debugBelaRunning	: true,
+			debugStatus		: 'continuing to next breakpoint'
+		});
+		_co(this, 'update', 'continue');
 	}
 	debugStep(){
-		this.emit('status', {running: true, status: 'stepping'});
-		this.command('step').then( (state) => this.stopped(state) );
+		this.emit('status', {
+			debugBelaRunning	: true,
+			debugStatus		: 'stepping'
+		});
+		_co(this, 'update', 'step');
 	}
 	debugNext(){
-		this.emit('status', {running: true, status: 'stepping over'});
-		this.command('next').then( (state) => this.stopped(state) );
+		this.emit('status', {
+			debugBelaRunning	: true,
+			debugStatus		: 'stepping over'
+		});
+		_co(this, 'update', 'next');
+	}
+	exec(command){
+		this.process.wrapper.write(command+'\n');
 	}
 	
 }

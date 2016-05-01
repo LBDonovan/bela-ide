@@ -94,16 +94,48 @@ module.exports = {
 	
 	// file events
 	*openFile(data){
-		var splitName = data.fileName.split('.');
+		if (!data.newFile) data.newFile = data.fileName;
+		//console.log('openFile', data);
+		var splitName = data.newFile.split('.');
 		if (!splitName.length>1 || allowedIndeces.indexOf(splitName[splitName.length-1]) === -1){
 			data.fileData = resourceData;
 			data.readOnly = true;
+			data.fileName = data.newFile;
+			data.newFile = undefined;
 		} else {
-			data.readOnly = false;
-			data.fileData = yield fs.readFileAsync(projectPath+data.currentProject+'/'+data.fileName, 'utf8')
+			if (yield this.fileExists(projectPath+data.currentProject+'/'+data.newFile)){
+				//console.log('opening newFile');
+				data.readOnly = false;
+				data.fileName = data.newFile;
+				data.newFile = undefined;
+				data.fileData = yield fs.readFileAsync(projectPath+data.currentProject+'/'+data.fileName, 'utf8');
+			} else if (yield this.fileExists(projectPath+data.currentProject+'/'+data.fileName)){
+				//console.log('opening oldFile');
+				data.error = 'Could not find file '+data.newFile+', opening file '+data.fileName;
+				data.readOnly = false;
+				data.newFile = undefined;
+				data.fileData = yield fs.readFileAsync(projectPath+data.currentProject+'/'+data.fileName, 'utf8');
+			} else {
+				data.error = 'Could not find file '+data.newFile+' or '+data.fileName;
+				data.fileData = '';
+				data.readOnly = true;
+				data.newFile = undefined;
+				data.fileName = undefined;
+			}
+			/*data.readOnly = false;
+			var newFile = data.newFile;
+			var oldFile = data.fileName;
+			data.fileData = yield fs.readFileAsync(projectPath+data.currentProject+'/'+newFile, 'utf8')
+				.then((fileData) => {
+					data.fileName = newFile;
+					data.newFile = undefined;
+					return fileData;
+				})
 				.catch((error) => {
 					if (error.code === 'ENOENT'){
-						data.error = 'Could not find file '+data.fileName;
+						data.error = 'Could not find file '+newFile;
+						if (oldFile){
+							
 						return _listFiles(data.currentProject)
 							.then((fileList) => {
 								data.fileList = fileList;
@@ -119,7 +151,7 @@ module.exports = {
 					}
 					throw error;
 				});
-			
+			console.log('fileopened');	*/		
 		}
 		yield Promise.coroutine(_setFile)(data);
 		return data;
@@ -186,6 +218,15 @@ module.exports = {
 	*getCLArgs(project){
 		var settings = yield _getSettings(project);
 		return settings.CLArgs;
+	},
+	
+	fileExists(file){
+		return new Promise((resolve, reject) => {
+			fs.stat(file, function(err, stats){
+				if (err || !stats.isFile()) resolve(false);
+				else resolve(true);
+			});
+		});
 	}
 }
 

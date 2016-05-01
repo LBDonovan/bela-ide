@@ -196,8 +196,7 @@ var SettingsManager = {
 			'consoleAnimations'		: 1,
 			'consoleDelete'			: 1,
 			'useGit'				: 1,
-			'gitAutostage'			: 1,
-			'debugMode'				: 0
+			'gitAutostage'			: 1
 		};
 	},
 

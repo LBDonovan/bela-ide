@@ -4,18 +4,45 @@ class DebugView extends View {
 	
 	constructor(className, models){
 		super(className, models);
+		this._debugMode(false);
 	}
 	
 	// UI events
+	selectChanged($element, e){
+		var data = $element.data();
+		var func = data.func;
+		if (func && this[func]){
+			this[func]($element.val());
+		}
+	}
 	buttonClicked($element, e){
+		this.setLocation('');
 		this.emit('debugger-event', $element.data().func);
 	}
-
+	debugMode(status){
+		this.emit('debug-mode', (status==true));
+	}
+	
 	// model events
+	_debugMode(status){
+		if (!status){
+			this.$parents.find('button').prop('disabled', 'disabled');
+		}
+	}
 	// debugger process has started or stopped
 	_debugRunning(status){
 		this.clearVariableList();
 		if (!status) this.setLocation('n/a');
+	}
+	// debugger is doing something
+	_debugBelaRunning(status){
+		if (!status){
+			this.$parents.find('button').prop('disabled', '');
+			$('#expList').removeClass('debuggerOutOfScope');
+		} else {
+			this.$parents.find('button').prop('disabled', 'disabled');
+			$('#expList').addClass('debuggerOutOfScope');
+		}
 	}
 	_debugStatus(value, data){
 		if (value) this.setStatus(value);
@@ -63,9 +90,9 @@ class DebugView extends View {
 		//console.log('adding variable', name, variable);
 		var li = $('<li></li>');
 		var table = $('<table></table>').appendTo(li);
-		$('<td></td>').html(variable.type).addClass('debuggerType').appendTo(table);
-		$('<td></td>').html(name).addClass('debuggerName').appendTo(table);
-		var valTD = $('<td></td>').html(variable.value).addClass('debuggerValue').appendTo(table);
+		$('<td></td>').text(variable.type).addClass('debuggerType').appendTo(table);
+		$('<td></td>').text(name).addClass('debuggerName').appendTo(table);
+		var valTD = $('<td></td>').text(variable.value).addClass('debuggerValue').appendTo(table);
 		li.attr('id', variable.name).appendTo(parent);
 		if (variable.numchild && variable.children && variable.children.length){
 			var ul = $('<ul></ul>').appendTo(li);
@@ -75,7 +102,7 @@ class DebugView extends View {
 		}
 		if (variable.value == undefined){
 			li.addClass('debuggerOutOfScope');
-			valTD.html('out of scope');
+			valTD.text('out of scope');
 		}
 	}
 }
@@ -98,22 +125,6 @@ function prepareList() {
     
 };
 
-/*function addChildVariables(parent, variable){
-	
-	for (var i=0; i<variable.children.length; i++){
-		var name = variable.children[i].name.split('.');
-		if (name.length) name = name[name.length-1];
-		var li = $('<li></li>');
-		var table = $('<table></table>').appendTo(li);
-		$('<td></td>').html(variable.children[i].type).addClass('debuggerType').appendTo(table);
-		$('<td></td>').html(name).addClass('debuggerName').appendTo(table);
-		$('<td></td>').html(variable.children[i].value).addClass('debuggerValue').appendTo(table);
-		li.attr('id', variable.children[i].name).appendTo(ul);
-		if (variable.children[i].numchild && variable.children[i].children && variable.children[i].children.length){
-			addChildVariables(li, variable.children[i]);
-		}
-	}
-}*/
 
 
 

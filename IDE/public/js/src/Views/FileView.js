@@ -47,7 +47,7 @@ class FileView extends View {
 		}
 	}
 	openFile(e){
-		this.emit('message', 'project-event', {func: 'openFile', fileName: $(e.currentTarget).html()})
+		this.emit('message', 'project-event', {func: 'openFile', newFile: $(e.currentTarget).html()})
 	}
 	
 	// model events

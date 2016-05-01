@@ -9420,11 +9420,12 @@ editorView.on('breakpoint', line => {
 var toolbarView = new (require('./Views/ToolbarView'))('toolBar', [models.project, models.error, models.status, models.settings, models.debug]);
 toolbarView.on('process-event', event => {
 	var breakpoints;
-	if (parseInt(models.settings.getKey('debugMode'))) breakpoints = models.project.getKey('breakpoints');
+	console.log(models.debug.getKey('debugMode'));
+	if (models.debug.getKey('debugMode')) breakpoints = models.project.getKey('breakpoints');
 	socket.emit('process-event', {
 		event,
 		currentProject: models.project.getKey('currentProject'),
-		debug: parseInt(models.settings.getKey('debugMode')),
+		debug: models.debug.getKey('debugMode'),
 		breakpoints
 	});
 });
@@ -9453,6 +9454,7 @@ consoleView.on('input', value => {
 // debugger view
 var debugView = new (require('./Views/DebugView'))('debugger', [models.debug, models.settings, models.project]);
 debugView.on('debugger-event', func => socket.emit('debugger-event', func));
+debugView.on('debug-mode', status => models.debug.setKey('debugMode', status));
 
 // setup socket
 var socket = io('/IDE');
@@ -9477,6 +9479,10 @@ socket.on('init', data => {
 
 // project events
 socket.on('project-data', data => {
+	if (data.debug) {
+		models.debug.setData(data.debug);
+		data.debug = undefined;
+	}
 	consoleView.emit('closeNotification', data);
 	models.project.setData(data);
 	//models.settings.setData(data.settings);
@@ -9530,11 +9536,26 @@ socket.on('disconnect', () => {
 });
 
 socket.on('debugger-data', data => {
-	console.log('b', data.debugProject, models.project.getKey('currentProject'), data.debugFile, models.project.getKey('fileName'));
+	//console.log('b', data.debugProject, models.project.getKey('currentProject'), data.debugFile, models.project.getKey('fileName'));
 	if (data.debugProject === undefined || data.debugProject === models.project.getKey('currentProject')) {
 		//(data.debugFile === undefined || data.debugFile === models.project.getKey('fileName'))){
-		console.log(data);
-		models.debug.setData(data);
+		var debugFile = data.debugFile;
+		if (debugFile && debugFile !== models.project.getKey('fileName')) {
+			//console.log(debugFile);
+			var newData = {
+				func: 'openFile',
+				currentProject: models.project.getKey('currentProject'),
+				fileName: models.project.getKey('fileName'),
+				newFile: debugFile,
+				timestamp: performance.now(),
+				debug: { debugLine: data.debugLine, debugFile }
+			};
+			consoleView.emit('openNotification', newData);
+			socket.emit('project-event', newData);
+		} else {
+			//console.log(data);
+			models.debug.setData(data);
+		}
 	}
 });
 socket.on('debugger-variables', (project, variables) => {
@@ -9937,18 +9958,45 @@ class DebugView extends View {
 
 	constructor(className, models) {
 		super(className, models);
+		this._debugMode(false);
 	}
 
 	// UI events
+	selectChanged($element, e) {
+		var data = $element.data();
+		var func = data.func;
+		if (func && this[func]) {
+			this[func]($element.val());
+		}
+	}
 	buttonClicked($element, e) {
+		this.setLocation('');
 		this.emit('debugger-event', $element.data().func);
+	}
+	debugMode(status) {
+		this.emit('debug-mode', status == true);
 	}
 
 	// model events
+	_debugMode(status) {
+		if (!status) {
+			this.$parents.find('button').prop('disabled', 'disabled');
+		}
+	}
 	// debugger process has started or stopped
 	_debugRunning(status) {
 		this.clearVariableList();
 		if (!status) this.setLocation('n/a');
+	}
+	// debugger is doing something
+	_debugBelaRunning(status) {
+		if (!status) {
+			this.$parents.find('button').prop('disabled', '');
+			$('#expList').removeClass('debuggerOutOfScope');
+		} else {
+			this.$parents.find('button').prop('disabled', 'disabled');
+			$('#expList').addClass('debuggerOutOfScope');
+		}
 	}
 	_debugStatus(value, data) {
 		if (value) this.setStatus(value);
@@ -9992,9 +10040,9 @@ class DebugView extends View {
 		//console.log('adding variable', name, variable);
 		var li = $('<li></li>');
 		var table = $('<table></table>').appendTo(li);
-		$('<td></td>').html(variable.type).addClass('debuggerType').appendTo(table);
-		$('<td></td>').html(name).addClass('debuggerName').appendTo(table);
-		var valTD = $('<td></td>').html(variable.value).addClass('debuggerValue').appendTo(table);
+		$('<td></td>').text(variable.type).addClass('debuggerType').appendTo(table);
+		$('<td></td>').text(name).addClass('debuggerName').appendTo(table);
+		var valTD = $('<td></td>').text(variable.value).addClass('debuggerValue').appendTo(table);
 		li.attr('id', variable.name).appendTo(parent);
 		if (variable.numchild && variable.children && variable.children.length) {
 			var ul = $('<ul></ul>').appendTo(li);
@@ -10004,7 +10052,7 @@ class DebugView extends View {
 		}
 		if (variable.value == undefined) {
 			li.addClass('debuggerOutOfScope');
-			valTD.html('out of scope');
+			valTD.text('out of scope');
 		}
 	}
 }
@@ -10023,23 +10071,6 @@ function prepareList() {
 		}
 	});
 };
-
-/*function addChildVariables(parent, variable){
-	
-	for (var i=0; i<variable.children.length; i++){
-		var name = variable.children[i].name.split('.');
-		if (name.length) name = name[name.length-1];
-		var li = $('<li></li>');
-		var table = $('<table></table>').appendTo(li);
-		$('<td></td>').html(variable.children[i].type).addClass('debuggerType').appendTo(table);
-		$('<td></td>').html(name).addClass('debuggerName').appendTo(table);
-		$('<td></td>').html(variable.children[i].value).addClass('debuggerValue').appendTo(table);
-		li.attr('id', variable.children[i].name).appendTo(ul);
-		if (variable.children[i].numchild && variable.children[i].children && variable.children[i].children.length){
-			addChildVariables(li, variable.children[i]);
-		}
-	}
-}*/
 
 },{"./View":12}],6:[function(require,module,exports){
 var View = require('./View');
@@ -10192,17 +10223,11 @@ class EditorView extends View {
 			this.removeDebuggerMarker();
 		}
 	}
-	/*_running(running){
- 	if (!running){
- 		var markers = this.editor.session.getMarkers();
- 		// remove existing marker
- 		Object.keys(markers).forEach( (key,index) => {
- 			if (markers[key].clazz === 'breakpointMarker'){
- 				this.editor.session.removeMarker(markers[key].id);
- 			}
- 		});
- 	}
- }*/
+	_debugBelaRunning(status) {
+		if (status) {
+			this.removeDebuggerMarker();
+		}
+	}
 
 	removeDebuggerMarker() {
 		var markers = this.editor.session.getMarkers();
@@ -10267,7 +10292,7 @@ class FileView extends View {
 		}
 	}
 	openFile(e) {
-		this.emit('message', 'project-event', { func: 'openFile', fileName: $(e.currentTarget).html() });
+		this.emit('message', 'project-event', { func: 'openFile', newFile: $(e.currentTarget).html() });
 	}
 
 	// model events

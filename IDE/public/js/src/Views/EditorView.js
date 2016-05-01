@@ -157,17 +157,11 @@ class EditorView extends View {
 			this.removeDebuggerMarker();
 		}
 	}
-	/*_running(running){
-		if (!running){
-			var markers = this.editor.session.getMarkers();
-			// remove existing marker
-			Object.keys(markers).forEach( (key,index) => {
-				if (markers[key].clazz === 'breakpointMarker'){
-					this.editor.session.removeMarker(markers[key].id);
-				}
-			});
+	_debugBelaRunning(status){
+		if (status){
+			this.removeDebuggerMarker();
 		}
-	}*/
+	}
 	
 	removeDebuggerMarker(){
 		var markers = this.editor.session.getMarkers();

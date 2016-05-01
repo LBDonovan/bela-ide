@@ -197,7 +197,7 @@ socket.on('debugger-data', (data) => {
 });
 socket.on('debugger-variables', (project, variables) => {
 	if (project === models.project.getKey('currentProject')){
-		console.log(variables);
+		models.debug.setKey('variables', variables);
 	}
 });
 

@@ -3,6 +3,7 @@
 var EventEmitter = require('events').EventEmitter;
 var Promise = require('bluebird');
 var ngdbmi = require('./ngdbmi');
+var util = require('util');
 
 var projectPath = '/root/BeagleRT/projects/';
 var print_debug = true;
@@ -87,7 +88,13 @@ class DebugManager extends EventEmitter {
 
 		var newVariables = yield this.getLocals();
 		
-		if (newVariables.length) yield this.createVariables(newVariables);
+		if (newVariables.length){
+			yield _co(this, 'createVariables', newVariables);
+			this.variables = this.variables.concat(newVariables);
+		}
+		
+		this.emit('variables', this.project, this.variables);
+		//console.log(util.inspect(this.variables, false, null));
 	}
 	
 	stopped(state){
@@ -143,25 +150,26 @@ class DebugManager extends EventEmitter {
 
 				var newVariables = [];
 
-				for (let i=0; i<variables.length; i++){
+				for (let newVariable of variables){
 				
 					// needed to ensure arrays don't get duplicated
-					if (variables[i].value === undefined && variables[i].type.indexOf('[') !== -1){
-						variables[i].value = variables[i].type.split(' ').pop();
+					if (newVariable.value === undefined && newVariable.type.indexOf('[') !== -1){
+						newVariable.value = newVariable.type.split(' ').pop();
 					}
 				
 					var exists = false;
-					for (let j=0; j<this.variables.length; j++){
-						if (variables[i].name === this.variables[j].key && variables[i].type === this.variables[j].type && (variables[i].value === undefined || variables[i].value === this.variables[j].value)){
+					for (let oldVariable of this.variables){
+						if (newVariable.name === oldVariable.key && newVariable.type === oldVariable.type && (newVariable.value === undefined || newVariable.value === oldVariable.value)){
 							exists = true;
-							console.log(variables[i].name+' already exists, not adding');
-							console.log(variables[i]);
+							console.log(newVariable.name+' already exists, not adding');
+							console.log(newVariable);
 						}
 					}
 					if (!exists){
-						console.log(variables[i].name+' does not exist, now adding');
-						console.log(variables[i]);
-						newVariables.push(new Variable(variables[i], this.process));
+						console.log(newVariable.name+' does not exist, now adding');
+						newVariable.key = newVariable.name;
+						console.log(newVariable);
+						newVariables.push(newVariable);
 					}
 					
 				}
@@ -176,25 +184,75 @@ class DebugManager extends EventEmitter {
 		
 	}
 	
-	// calls create() on each new variable, creating a gdb mi variable object for it
-	// probably needs to be redone with promise.all, or something?
-	// will bring down node if there is an error within variable.create()
-	createVariables(newVariables){
-			
-		return new Promise.mapSeries(newVariables, (variable) => {
-			return variable.create();
-		})
-		.then(() => {
+	// creates gdbmi variable objects for each top-level variable passed to it
+	// recursively lists children with listChildren
+	// implemented with coroutines to avoid stack overflows
+	*createVariables(newVariables){
 
-			// append the new variables to the main variables array
-			Array.prototype.push.apply(this.variables, newVariables)
+		for (let variable of newVariables){
+		
+			//console.log('STATUS: creating variable', variable.name);
 			
-			// send the new variables to the browser
-			this.emit('variables', this.project, newVariables);
-		});
+			var state = yield this.command('varCreate', {'name': '-', 'frame': '*', 'expression': variable.key});
+			if (!state.status){
+				throw new Error('bad varCreate return state');
+			}
+			
+			// save the variable's state
+			if (state.status.name){
+				variable.name = state.status.name;
+			}
+			if (state.status.value){
+				variable.value = state.status.value;
+			}
+			if (state.status.type){
+				variable.type = state.status.type;
+			}
+			if (state.status.numchild){
+				variable.numchild = parseInt(state.status.numchild);
+			}
+
+			if (variable.numchild) {
+				variable = yield _co(this, 'listChildren', variable);
+			}
+			
+		}
+		
+		return Promise.resolve();
 		
 	}
 	
+	// recursively lists children of variables
+	*listChildren(variable){
+	
+		//console.log('STATUS: listing children of', variable.name);
+		
+		// list the children of the variable, and save them in an array variable.children
+		var state = yield this.command('varListChildren', {'print': 1, 'name': variable.name});
+		variable.children = state.status.children;
+		//console.log(state.status.children);
+		
+		// iterate over the array of children and check if THEY have children themselves
+		for (let child of variable.children){
+			child.numchild = parseInt(child.numchild);
+			//console.log('CHILD', child);
+			
+			// skip char variables for now - they sometimes cause parse errors in ngdmi
+			if (child.type && child.type.indexOf('char') !== -1){
+				//console.log('CHAR', child.name);
+			} else if (child.numchild){
+			
+				// if the child has children, recursively call this.listChildren on it as a coroutine
+				// so we wait for it to be finished before proceeding
+				var grandchild = yield _co(this, 'listChildren', child);
+				//console.log('GRANDCHILD', grandchild);
+			}
+		}
+		
+		return variable;
+	}
+		
+
 	// commands
 	debugContinue(){
 		this.emit('status', {running: true, status: 'continuing to next breakpoint'});
@@ -216,99 +274,4 @@ module.exports = new DebugManager();
 // coroutine factory and binder
 function _co(obj, func, args){
 	return Promise.coroutine(obj[func]).bind(obj)(args);
-}
-
-// class for describing top-level gdb mi variable objects
-class Variable {
-	
-	constructor(variable, process){
-	
-		this.key = variable.name;
-		this.type = variable.type;
-		this.process = process;
-	
-		if (this.type.indexOf('*') !== -1){
-			this.pointer = true;
-		} else {
-			this.pointer = false;
-		}
-	
-		this.value = variable.value;
-	
-		this.children = [];	
-	}
-	
-	// process ngdbmi command, return a promise
-	command(cmd, opts){
-
-		return new Promise( (resolve, reject) => {
-	
-			this.process.command(cmd, (state) => {
-		
-				if (print_debug){
-					console.log( "//---------------------"+cmd+"-----------------//" );
-					console.log( JSON.stringify(state, null, "\t") );
-					console.log( "//-----------------------------------------//" );
-				}
-
-				resolve(JSON.parse(JSON.stringify(state)));
-		
-			}, opts);
-		
-		});
-
-	}
-
-	create(){
-		
-		return this.command('varCreate', {'name': '-', 'frame': '*', 'expression': this.key})
-			.then( (state) => {
-				if (!state.status){
-					throw new Error('bad varCreate return state');
-				}
-				
-				// save the variable's state
-				if (state.status.name){
-					this.name = state.status.name;
-				}
-				if (state.status.value){
-					this.value = state.status.value;
-				}
-				if (state.status.type){
-					this.type = state.status.type;
-				}
-				if (state.status.numchild){
-					this.numchild = state.status.numchild;
-				}
-				
-				// if the variable has children, list them and their children recursively
-				return this.listChildren([this]);
-				
-			})
-			.catch(function(e){
-				console.error(e, e.stack.split('\n'));
-				//IDE.reportError('variable.create', 'unable to create variable object', e);
-			});
-		
-	}
-	
-	listChildren(parents){
-
-		return new Promise.mapSeries(parents, (parent) => {
-			parent.numChildren = parseInt(parent.numchild);
-			if (!parent.numChildren || (parent.type && parent.type.indexOf('char') !== -1)){
-				console.log('CHAR!', parent.name, parent.type);
-				return;
-			}
-			console.log('listing children', parent.name);
-//if (parent.type && parent.type.indexOf('char') !== -1) console.log('CHAR', parent.name);
-			return this.command('varListChildren', {'print': 1, 'name': parent.name})
-				.then((state) => {
-					parent.children = state.status.children;
-					return this.listChildren(parent.children);
-				});
-		});
-	
-	}
-	
 }

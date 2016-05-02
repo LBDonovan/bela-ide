@@ -55,10 +55,10 @@ class ChildProcess extends EventEmitter{
 			var stderr = this.stderr;
 			if (this.dying){
 				this.closed();
-				this.emit('cancelled', {stdout, stderr});
+				this.emit('cancelled', {stdout, stderr, signal: (signal || 'undefined')});
 			} else {
 				this.closed();
-				this.emit('finished', {stdout, stderr});
+				this.emit('finished', {stdout, stderr, signal: (signal || 'undefined')});
 			}
 			
 			if (this.next) this.dequeue(stderr);

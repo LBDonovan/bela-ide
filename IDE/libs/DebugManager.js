@@ -165,12 +165,13 @@ class DebugManager extends EventEmitter {
 	stopped(state){
 		
 		// parse the reason for the halt
-		var reason = state.status.reason;
+		var reason = state.status.reason, signal;
 		if (reason === 'signal-received'){
-			reason = reason+' '+state.status['signal-name']+' '+state.status['signal-meaning'];
+			signal = reason+' '+state.status['signal-name']+' '+state.status['signal-meaning'];
 		}
 		if (reason) this.emit('status', {debugReason: reason});
-	
+		if (signal) this.emit('status', {debugSignal: signal});
+
 		// check the frame data is valid && we haven't fallen off the end of the render function
 		if (!state.status || !state.status.frame){
 			throw('bad frame data');
@@ -186,13 +187,12 @@ class DebugManager extends EventEmitter {
 		var file = path[path.length-1];
 		var line = state.status.frame.line;
 		//var frameAddr = state.status.frame.addr;
-		console.log('stopped, file '+file+' line '+line);
+		//console.log('stopped, file '+file+' line '+line);
 		
 		this.emit('status', { 
 			debugProject	: this.project,
 			debugFile		: file,
-			debugLine		: line,
-			debugReason		: reason
+			debugLine		: line
 		});
 		
 		return true;
@@ -226,7 +226,7 @@ class DebugManager extends EventEmitter {
 
 		for (let variable of variables){
 		
-			console.log('STATUS: creating variable', variable);
+			//console.log('STATUS: creating variable', variable);
 						
 			var state = yield this.command('varCreate', {'name': '-', 'frame': '*', 'expression': variable.name});
 			if (!state.status){

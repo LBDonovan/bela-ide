@@ -1222,7 +1222,7 @@ function gdbMI( command_and_args, options, gdbWrapper )
 		
 		ret = this.commands.genCall( name, args );
 		
-		console.log( ret );
+		//console.log( ret );
 		
 		this.sendcommand( ret, handler );
 	}

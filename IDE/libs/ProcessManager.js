@@ -64,7 +64,6 @@ class ProcessManager extends EventEmitter {
 	
 	run(project, data){
 		this.build(project, data).queue(function(err){
-			console.log(buildProcess.buildError);
 			if (!buildProcess.buildError){
 				if (data.debug) 
 					DebugManager.run(project, data.breakpoints);
@@ -149,7 +148,11 @@ class ProcessManager extends EventEmitter {
 		belaProcess.on('started', () => this.emit('broadcast-status', this.getStatus()) );
 		belaProcess.on('stdout', (data) => this.emit('broadcast-status', {belaLog: data}) );
 		belaProcess.on('stderr', (data) => this.emit('broadcast-status', {belaLogErr: data}) );
-		belaProcess.on('cancelled', () => this.emit('broadcast-status', this.getStatus()) );
+		belaProcess.on('cancelled', (data) => {
+			var status = this.getStatus();
+			status.belaResult = data;
+			this.emit('broadcast-status', status);
+		});
 		belaProcess.on('finished', (data) => {
 			var status = this.getStatus();
 			status.belaResult = data;

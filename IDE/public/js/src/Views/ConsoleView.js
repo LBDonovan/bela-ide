@@ -82,7 +82,6 @@ class ConsoleView extends View{
 			_console.notify('Building project...', timestamp, true);
 			_console.fulfill('', timestamp, true);
 		} else {
-			console.log('build finished', status, data);
 			_console.notify('Build finished', timestamp, true);
 			_console.fulfill('', timestamp, true);
 		}
@@ -93,9 +92,12 @@ class ConsoleView extends View{
 			_console.notify('Running project...', timestamp, true);
 			_console.fulfill('', timestamp, true);
 		} else {
-			console.log('bela stopped', status, data);
-			_console.notify('Bela has stopped', timestamp, true);
-			_console.fulfill('', timestamp, true);
+			_console.notify('Bela stopped', timestamp, true);
+			if (data && data.belaResult && data.belaResult.signal && data.belaResult.signal !== 'undefined'){
+				_console.reject(' with signal '+data.belaResult.signal, timestamp, true);
+			} else {
+				_console.fulfill('', timestamp, true);
+			}
 		}
 	}
 	
@@ -113,11 +115,19 @@ class ConsoleView extends View{
 	}
 	
 	__debugReason(reason){
-		_console.notify(reason, 'reason', false);
-		if (reason === 'exited')
-			_console.reject('', 'reason', true);
+		console.log('reason', reason);
+		var timestamp = performance.now();
+		_console.notify(reason, timestamp, true);
+		if (reason === 'exited' || reason === 'exited-signalled')
+			_console.reject('', timestamp, true);
 		else 
-			_console.fulfill('', 'reason', false);
+			_console.fulfill('', timestamp, false);
+	}
+	_debugSignal(signal){
+		console.log('signal', signal);
+		var timestamp = performance.now();
+		_console.notify(signal, timestamp, true);
+		_console.reject('', timestamp, true);
 	}
 	_gdbLog(data){
 		if (verboseDebugOutput) _console.log(data);

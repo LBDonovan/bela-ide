@@ -10,6 +10,9 @@ models.settings = new Model();
 models.status = new Model();
 models.error = new Model();
 models.debug = new Model();
+
+// hack to prevent first status update causing wrong notifications
+models.status.setData({running: false, building: false});
  
 // set up views
 // tab view
@@ -242,6 +245,8 @@ models.status.on('set', (data, changedKeys) => {
 // debug mode
 models.debug.on('change', (data, changedKeys) => {
 	if (changedKeys.indexOf('debugMode') !== -1){
+		//console.log(!data.debugMode, models.debug.getKey('debugRunning'));
+		if (!data.debugMode && models.debug.getKey('debugRunning')) socket.emit('debugger-event', 'stop');
 		var data = {
 			func			: 'cleanProject',
 			currentProject	: models.project.getKey('currentProject'),

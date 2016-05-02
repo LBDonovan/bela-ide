@@ -192,10 +192,8 @@ var SettingsManager = {
 			'verboseErrors'			: 0,
 			'cpuMonitoring'			: 1,
 			'cpuMonitoringVerbose'	: 0,
-			'ackUpload'				: 0,
-			'removeNotifications'	: 1,
-			'consoleAnimations'		: 1,
 			'consoleDelete'			: 1,
+			'verboseDebug'			: 0,
 			'useGit'				: 1,
 			'gitAutostage'			: 1
 		};

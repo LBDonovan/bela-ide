@@ -89,7 +89,6 @@ editorView.on('breakpoint', (line) => {
 var toolbarView = new (require('./Views/ToolbarView'))('toolBar', [models.project, models.error, models.status, models.settings, models.debug]);
 toolbarView.on('process-event', (event) => {
 	var breakpoints;
-	console.log(models.debug.getKey('debugMode'));
 	if (models.debug.getKey('debugMode')) breakpoints = models.project.getKey('breakpoints')
 	socket.emit('process-event', {
 		event,
@@ -239,6 +238,18 @@ socket.on('debugger-variables', (project, variables) => {
 models.status.on('set', (data, changedKeys) => {
 	if (changedKeys.indexOf('syntaxError') !== -1){
 		parseErrors(data.syntaxError);
+	}
+});
+// debug mode
+models.debug.on('change', (data, changedKeys) => {
+	if (changedKeys.indexOf('debugMode') !== -1){
+		var data = {
+			func			: 'cleanProject',
+			currentProject	: models.project.getKey('currentProject'),
+			timestamp		: performance.now()
+		};
+		consoleView.emit('openNotification', data);
+		socket.emit('project-event', data);
 	}
 });
 

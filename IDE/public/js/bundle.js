@@ -9424,7 +9424,6 @@ editorView.on('breakpoint', line => {
 var toolbarView = new (require('./Views/ToolbarView'))('toolBar', [models.project, models.error, models.status, models.settings, models.debug]);
 toolbarView.on('process-event', event => {
 	var breakpoints;
-	console.log(models.debug.getKey('debugMode'));
 	if (models.debug.getKey('debugMode')) breakpoints = models.project.getKey('breakpoints');
 	socket.emit('process-event', {
 		event,
@@ -9573,6 +9572,18 @@ socket.on('debugger-variables', (project, variables) => {
 models.status.on('set', (data, changedKeys) => {
 	if (changedKeys.indexOf('syntaxError') !== -1) {
 		parseErrors(data.syntaxError);
+	}
+});
+// debug mode
+models.debug.on('change', (data, changedKeys) => {
+	if (changedKeys.indexOf('debugMode') !== -1) {
+		var data = {
+			func: 'cleanProject',
+			currentProject: models.project.getKey('currentProject'),
+			timestamp: performance.now()
+		};
+		consoleView.emit('openNotification', data);
+		socket.emit('project-event', data);
 	}
 });
 
@@ -9832,6 +9843,8 @@ function _equals(a, b, log) {
 var View = require('./View');
 var _console = require('../console');
 
+var verboseDebugOutput = false;
+
 class ConsoleView extends View {
 
 	constructor(className, models, settings) {
@@ -9925,13 +9938,16 @@ class ConsoleView extends View {
 	_consoleDelete(value) {
 		_console.setConsoleDelete(parseInt(value));
 	}
+	_verboseDebug(value) {
+		verboseDebugOutput = parseInt(value);
+	}
 
 	__debugReason(reason) {
 		_console.notify(reason, 'reason', false);
 		if (reason === 'exited') _console.reject('', 'reason', true);else _console.fulfill('', 'reason', false);
 	}
 	_gdbLog(data) {
-		console.log(data);
+		if (verboseDebugOutput) _console.log(data);else console.log(data);
 	}
 	__debugBelaLog(data) {
 		_console.log(data);

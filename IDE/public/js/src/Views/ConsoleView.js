@@ -2,6 +2,8 @@
 var View = require('./View');
 var _console = require('../console');
 
+var verboseDebugOutput = false;
+
 class ConsoleView extends View{
 
 	constructor(className, models, settings){
@@ -95,6 +97,9 @@ class ConsoleView extends View{
 	_consoleDelete(value){
 		_console.setConsoleDelete(parseInt(value));
 	}
+	_verboseDebug(value){
+		verboseDebugOutput = parseInt(value);
+	}
 	
 	__debugReason(reason){
 		_console.notify(reason, 'reason', false);
@@ -104,7 +109,8 @@ class ConsoleView extends View{
 			_console.fulfill('', 'reason', false);
 	}
 	_gdbLog(data){
-		console.log(data);
+		if (verboseDebugOutput) _console.log(data);
+		else console.log(data);
 	}
 	__debugBelaLog(data){
 		_console.log(data);

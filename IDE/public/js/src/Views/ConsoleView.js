@@ -76,7 +76,7 @@ class ConsoleView extends View{
 	}
 	
 	// bela
-	_belaLog(log, data){
+	__belaLog(log, data){
 		_console.log(log);
 	}
 	

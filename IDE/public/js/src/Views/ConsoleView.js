@@ -96,7 +96,7 @@ class ConsoleView extends View{
 		_console.setConsoleDelete(parseInt(value));
 	}
 	
-	_reason(reason){
+	__debugReason(reason){
 		_console.notify(reason, 'reason', false);
 		if (reason === 'exited')
 			_console.reject('', 'reason', true);
@@ -106,7 +106,7 @@ class ConsoleView extends View{
 	_gdbLog(data){
 		console.log(data);
 	}
-	_belaLog(data){
+	__debugBelaLog(data){
 		_console.log(data);
 	}
 

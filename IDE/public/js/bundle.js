@@ -9404,14 +9404,18 @@ editorView.on('breakpoint', line => {
 	var breakpoints = models.project.getKey('breakpoints');
 	for (let i = 0; i < breakpoints.length; i++) {
 		if (breakpoints[i].line === line && breakpoints[i].file === models.project.getKey('fileName')) {
+			console.log('removing breakpoint', breakpoints[i]);
+			socket.emit('debugger-event', 'removeBreakpoint', breakpoints[i]);
 			models.project.spliceFromKey('breakpoints', i);
 			return;
 		}
 	}
-	models.project.pushIntoKey('breakpoints', {
+	var newBreakpoint = {
 		line,
 		file: models.project.getKey('fileName')
-	});
+	};
+	socket.emit('debugger-event', 'addBreakpoint', newBreakpoint);
+	models.project.pushIntoKey('breakpoints', newBreakpoint);
 	//console.log('after', breakpoints);
 	//models.project.setKey('breakpoints', breakpoints);
 });
@@ -9922,14 +9926,14 @@ class ConsoleView extends View {
 		_console.setConsoleDelete(parseInt(value));
 	}
 
-	_reason(reason) {
+	__debugReason(reason) {
 		_console.notify(reason, 'reason', false);
 		if (reason === 'exited') _console.reject('', 'reason', true);else _console.fulfill('', 'reason', false);
 	}
 	_gdbLog(data) {
 		console.log(data);
 	}
-	_belaLog(data) {
+	__debugBelaLog(data) {
 		_console.log(data);
 	}
 
@@ -10710,6 +10714,9 @@ class ToolbarView extends View {
 				$('#run').removeClass('spinning');
 			}
 		}
+	}
+	_debugRunning(status) {
+		if (!status && $('#run').hasClass('spinning')) $('#run').removeClass('spinning');
 	}
 
 }

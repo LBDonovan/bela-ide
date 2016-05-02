@@ -69,14 +69,18 @@ editorView.on('breakpoint', (line) => {
 	var breakpoints = models.project.getKey('breakpoints');
 	for (let i=0; i<breakpoints.length; i++){
 		if (breakpoints[i].line === line && breakpoints[i].file === models.project.getKey('fileName')){
+			console.log('removing breakpoint', breakpoints[i]);
+			socket.emit('debugger-event', 'removeBreakpoint', breakpoints[i]);
 			models.project.spliceFromKey('breakpoints', i);
 			return;
 		}
 	}
-	models.project.pushIntoKey('breakpoints', {
+	var newBreakpoint = {
 		line,
 		file: models.project.getKey('fileName')
-	});
+	};
+	socket.emit('debugger-event', 'addBreakpoint', newBreakpoint);
+	models.project.pushIntoKey('breakpoints', newBreakpoint);
 	//console.log('after', breakpoints);
 	//models.project.setKey('breakpoints', breakpoints);
 });

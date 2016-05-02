@@ -979,6 +979,9 @@ function gdbMI( command_and_args, options, gdbWrapper )
 	{
 		//console.log("££££££ " + args + " £££££" );
 		/* This is crazy but GDB almost provides a JSON output */
+		args = args.split('col_name').join('col-name');
+		args = args.split('nr_cols').join('nr-cols');
+		args = args.split('nr_rows').join('nr-rows');
 		args = args.split('type_changed').join('type-changed');
 		args = args.split('in_scope').join('in-scope');
 		args = args.split('has_more').join('has-more');

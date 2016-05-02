@@ -173,6 +173,7 @@ ProcessManager.on('broadcast-status', (status) => allSockets.emit('status', stat
 
 DebugManager.on('status', (status) =>  allSockets.emit('debugger-data', status) );
 DebugManager.on('variables', (project, variables) =>  allSockets.emit('debugger-variables', project, variables) );
+DebugManager.on('error', (err) => allSockets.emit('report-error', err) );
 
 // module functions - only accesible from this file
 function co(obj, func, args){

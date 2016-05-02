@@ -121,6 +121,9 @@ class ToolbarView extends View {
 			}
 		}
 	}
+	_debugRunning(status){
+		if (!status && $('#run').hasClass('spinning'))  $('#run').removeClass('spinning');
+	}
 	
 }
 

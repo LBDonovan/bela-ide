@@ -23,6 +23,12 @@ class DebugManager extends EventEmitter {
 	
 		this.project = project;
 		this.variables = [];
+		this.numBreakpoints = breakpoints.length;
+		
+		if (!this.numBreakpoints){
+			this.emit('error', 'debugger cannot start - no breakpoints set');
+			return;
+		}
 		
 		_co(ProjectManager, 'getCLArgs', project)
 			.then( (CLArgs) => {
@@ -45,7 +51,8 @@ class DebugManager extends EventEmitter {
 		
 				this.registerHandlers();
 		
-				_co(this, 'start', breakpoints);
+				_co(this, 'start', breakpoints)
+					.catch((e) => this.gdb_error(e));
 			
 			});
 		
@@ -123,8 +130,7 @@ class DebugManager extends EventEmitter {
 		
 		var state = yield this.command('run');
 		
-		if (!this.stopped(state))
-			throw('er');
+		this.stopped(state);
 			
 		this.emit('status', {debugStatus: 'getting local variables'});
 
@@ -167,13 +173,12 @@ class DebugManager extends EventEmitter {
 	
 		// check the frame data is valid && we haven't fallen off the end of the render function
 		if (!state.status || !state.status.frame){
-			console.log('bad frame data');
-			return false;
+			throw('bad frame data');
 		}
 		if (state.status.frame.func === 'PRU::loop(rt_intr_placeholder*, void*)'){
 			console.log('debugger out of range');
 			setTimeout(() => this.debugContinue(), 100);
-			return false;
+			return;
 		}
 
 		// parse the location of the halt
@@ -286,8 +291,7 @@ class DebugManager extends EventEmitter {
 	// local variables have been changed
 	*update(command){
 		var state = yield this.command(command);
-		if (!this.stopped(state))
-			throw('er');
+		this.stopped(state);
 		
 		this.emit('status', {debugStatus: 'getting local variables'});
 		
@@ -321,28 +325,54 @@ class DebugManager extends EventEmitter {
 
 	// commands
 	debugContinue(){
+		if (!this.numBreakpoints){
+			this.emit('error', 'debugger cannot continue - no breakpoints set');
+			return;
+		}
 		this.emit('status', {
 			debugBelaRunning	: true,
 			debugStatus		: 'continuing to next breakpoint'
 		});
-		_co(this, 'update', 'continue');
+		_co(this, 'update', 'continue')
+			.catch((e) => this.gdb_error(e));
 	}
 	debugStep(){
 		this.emit('status', {
 			debugBelaRunning	: true,
 			debugStatus		: 'stepping'
 		});
-		_co(this, 'update', 'step');
+		_co(this, 'update', 'step')
+			.catch((e) => this.gdb_error(e));
 	}
 	debugNext(){
 		this.emit('status', {
 			debugBelaRunning	: true,
 			debugStatus		: 'stepping over'
 		});
-		_co(this, 'update', 'next');
+		_co(this, 'update', 'next')
+			.catch((e) => this.gdb_error(e));
 	}
 	exec(command){
 		this.process.wrapper.write(command+'\n');
+	}
+	addBreakpoint(breakpoint){
+		if (!this.running) return;
+		console.log('adding breakpoint', breakpoint);
+		this.setBreakpoints([breakpoint]).then(() => this.numBreakpoints += 1 );
+	}
+	removeBreakpoint(breakpoint){
+		if (!this.running) return;
+		console.log('removing breakpoint', breakpoint);
+		var location = breakpoint.file+':'+(breakpoint.line+1);
+		this.command('breakList')
+			.then((state) => {
+				if (state && state.status && state.status.BreakpointTable && state.status.BreakpointTable.body && state.status.BreakpointTable.body.length){
+					for (let bp of state.status.BreakpointTable.body){
+						if (bp['original-location'] === location) 
+							return this.command('breakDelete', {id: bp.number}).then((state) => this.numBreakpoints -= 1 );
+					}
+				}
+			});
 	}
 	
 	CPU(){
@@ -351,8 +381,13 @@ class DebugManager extends EventEmitter {
 				name: 'gdb'
 			})
 			.then(pusage.statAsync)
-			.then((stat) => stat.cpu );
+			.then((stat) => stat.cpu )
+			.catch((e) => console.log('error getting gdb CPU usage', e));
 		
+	}
+	gdb_error(e){
+		console.log('gdb error:', e);
+		this.stop();
 	}
 	
 }

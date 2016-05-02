@@ -32,7 +32,10 @@ class ConsoleView extends View{
 	
 	openNotification(data){
 		if (!funcKey[data.func]) console.log(data.func);
-		_console.notify(funcKey[data.func], data.timestamp);
+		var output = funcKey[data.func];
+		if (data.newProject || data.currentProject) output += ' '+(data.newProject || data.currentProject);
+		if (data.newFile || data.fileName) output += ' '+(data.newFile || data.fileName);
+		_console.notify(output+'...', data.timestamp);
 	}
 	closeNotification(data){
 		if (data.error){
@@ -73,18 +76,26 @@ class ConsoleView extends View{
 		_console.log(log);
 	}
 	
-	_building(status){
+	_building(status, data){
+		var timestamp = performance.now();
 		if (status){
-			_console.notify('Building project...', 'build-notification', true);
+			_console.notify('Building project...', timestamp, true);
+			_console.fulfill('', timestamp, true);
 		} else {
-			_console.fulfill(' done', 'build-notification', true);
+			console.log('build finished', status, data);
+			_console.notify('Build finished', timestamp, true);
+			_console.fulfill('', timestamp, true);
 		}
 	}
-	_running(status){
+	_running(status, data){
+		var timestamp = performance.now();
 		if (status){
-			_console.notify('Running project...', 'run-notification', true);
+			_console.notify('Running project...', timestamp, true);
+			_console.fulfill('', timestamp, true);
 		} else {
-			_console.fulfill(' done', 'run-notification', true);
+			console.log('bela stopped', status, data);
+			_console.notify('Bela has stopped', timestamp, true);
+			_console.fulfill('', timestamp, true);
 		}
 	}
 	
@@ -122,15 +133,15 @@ class ConsoleView extends View{
 module.exports = ConsoleView;
 
 var funcKey = {
-	'openProject'	: 'Opening project...',
-	'newProject'	: 'Creating project...',
-	'saveAs'		: 'Saving project...',
-	'deleteProject'	: 'Deleting project...',
-	'cleanProject'	: 'Cleaning project...',
-	'openFile'		: 'Opening file...',
-	'newFile'		: 'Creating file...',
-	'uploadFile'	: 'Uploading file...',
-	'renameFile'	: 'Renaming file...',
-	'deleteFile'	: 'Deleting file...',
-	'init'			: 'Initialising...'
+	'openProject'	: 'Opening project',
+	'newProject'	: 'Creating project',
+	'saveAs'		: 'Saving project',
+	'deleteProject'	: 'Deleting project',
+	'cleanProject'	: 'Cleaning project',
+	'openFile'		: 'Opening file',
+	'newFile'		: 'Creating file',
+	'uploadFile'	: 'Uploading file',
+	'renameFile'	: 'Renaming file',
+	'deleteFile'	: 'Deleting file',
+	'init'			: 'Initialising'
 };

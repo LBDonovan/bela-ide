@@ -71,7 +71,7 @@ function socketEvents(socket){
 	// project events
 	socket.on('project-event', (data) => {
 	
-		console.log('project-event', data);
+		//console.log('project-event', data);
 
 		if ((!data.currentProject && !data.newProject) || !data.func || !ProjectManager[data.func]) {
 			console.log('bad project-event', data);
@@ -125,7 +125,7 @@ function socketEvents(socket){
 	// process events
 	socket.on('process-event', (data) => {
 	
-		console.log('process-event', data);
+		//console.log('process-event', data);
 		
 		if (!data || !data.currentProject || !data.event || !ProcessManager[data.event]){
 			console.log('bad process-event', data);

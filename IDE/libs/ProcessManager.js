@@ -64,7 +64,8 @@ class ProcessManager extends EventEmitter {
 	
 	run(project, data){
 		this.build(project, data).queue(function(err){
-			if (!err.length){
+			console.log(buildProcess.buildError);
+			if (!buildProcess.buildError){
 				if (data.debug) 
 					DebugManager.run(project, data.breakpoints);
 				else

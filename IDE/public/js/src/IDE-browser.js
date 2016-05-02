@@ -69,7 +69,6 @@ editorView.on('breakpoint', (line) => {
 	var breakpoints = models.project.getKey('breakpoints');
 	for (let i=0; i<breakpoints.length; i++){
 		if (breakpoints[i].line === line && breakpoints[i].file === models.project.getKey('fileName')){
-			console.log('removing breakpoint', breakpoints[i]);
 			socket.emit('debugger-event', 'removeBreakpoint', breakpoints[i]);
 			models.project.spliceFromKey('breakpoints', i);
 			return;
@@ -115,7 +114,7 @@ consoleView.on('input', (value) => {
 	if (value){
 		var val = value.split(' ')
 		var command = val.splice(0, 1);
-		if (command[0] === 'gdb') socket.emit('debugger-event', 'exec', val.join(' '));
+		if (command[0] === 'gdb' && models.debug.getKey('debugMode')) socket.emit('debugger-event', 'exec', val.join(' '));
 	}
 });
 

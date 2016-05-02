@@ -9404,7 +9404,6 @@ editorView.on('breakpoint', line => {
 	var breakpoints = models.project.getKey('breakpoints');
 	for (let i = 0; i < breakpoints.length; i++) {
 		if (breakpoints[i].line === line && breakpoints[i].file === models.project.getKey('fileName')) {
-			console.log('removing breakpoint', breakpoints[i]);
 			socket.emit('debugger-event', 'removeBreakpoint', breakpoints[i]);
 			models.project.spliceFromKey('breakpoints', i);
 			return;
@@ -9450,7 +9449,7 @@ consoleView.on('input', value => {
 	if (value) {
 		var val = value.split(' ');
 		var command = val.splice(0, 1);
-		if (command[0] === 'gdb') socket.emit('debugger-event', 'exec', val.join(' '));
+		if (command[0] === 'gdb' && models.debug.getKey('debugMode')) socket.emit('debugger-event', 'exec', val.join(' '));
 	}
 });
 
@@ -9873,7 +9872,10 @@ class ConsoleView extends View {
 
 	openNotification(data) {
 		if (!funcKey[data.func]) console.log(data.func);
-		_console.notify(funcKey[data.func], data.timestamp);
+		var output = funcKey[data.func];
+		if (data.newProject || data.currentProject) output += ' ' + (data.newProject || data.currentProject);
+		if (data.newFile || data.fileName) output += ' ' + (data.newFile || data.fileName);
+		_console.notify(output + '...', data.timestamp);
 	}
 	closeNotification(data) {
 		if (data.error) {
@@ -9914,18 +9916,26 @@ class ConsoleView extends View {
 		_console.log(log);
 	}
 
-	_building(status) {
+	_building(status, data) {
+		var timestamp = performance.now();
 		if (status) {
-			_console.notify('Building project...', 'build-notification', true);
+			_console.notify('Building project...', timestamp, true);
+			_console.fulfill('', timestamp, true);
 		} else {
-			_console.fulfill(' done', 'build-notification', true);
+			console.log('build finished', status, data);
+			_console.notify('Build finished', timestamp, true);
+			_console.fulfill('', timestamp, true);
 		}
 	}
-	_running(status) {
+	_running(status, data) {
+		var timestamp = performance.now();
 		if (status) {
-			_console.notify('Running project...', 'run-notification', true);
+			_console.notify('Running project...', timestamp, true);
+			_console.fulfill('', timestamp, true);
 		} else {
-			_console.fulfill(' done', 'run-notification', true);
+			console.log('bela stopped', status, data);
+			_console.notify('Bela has stopped', timestamp, true);
+			_console.fulfill('', timestamp, true);
 		}
 	}
 
@@ -9958,17 +9968,17 @@ class ConsoleView extends View {
 module.exports = ConsoleView;
 
 var funcKey = {
-	'openProject': 'Opening project...',
-	'newProject': 'Creating project...',
-	'saveAs': 'Saving project...',
-	'deleteProject': 'Deleting project...',
-	'cleanProject': 'Cleaning project...',
-	'openFile': 'Opening file...',
-	'newFile': 'Creating file...',
-	'uploadFile': 'Uploading file...',
-	'renameFile': 'Renaming file...',
-	'deleteFile': 'Deleting file...',
-	'init': 'Initialising...'
+	'openProject': 'Opening project',
+	'newProject': 'Creating project',
+	'saveAs': 'Saving project',
+	'deleteProject': 'Deleting project',
+	'cleanProject': 'Cleaning project',
+	'openFile': 'Opening file',
+	'newFile': 'Creating file',
+	'uploadFile': 'Uploading file',
+	'renameFile': 'Renaming file',
+	'deleteFile': 'Deleting file',
+	'init': 'Initialising'
 };
 
 },{"../console":13,"./View":12}],5:[function(require,module,exports){
@@ -10910,29 +10920,18 @@ class Console extends EventEmitter {
 		$el.appendTo(this.$element); //.removeAttr('id');
 		$el.html($el.html() + message);
 		$el.addClass('beaglert-console-rejectnotification');
-		$el.on('click', () => {
-			console.log('click');
-			$el.addClass('beaglert-console-collapsed');
-			if (!persist) {
-				$el.on('transitionend', () => {
-					if ($el.hasClass('beaglert-console-collapsed')) {
-						$el.remove();
-					} else {
-						$el.addClass('beaglert-console-collapsed');
-					}
-				});
-			}
-		});
+		setTimeout(() => $el.removeClass('beaglert-console-rejectnotification').addClass('beaglert-console-faded'), 500);
+		$el.on('click', () => $el.addClass('beaglert-console-collapsed').on('transitionend', () => $el.remove()));
 	}
 
 	// clear the console
 	clear(number) {
 		if (!consoleDelete) return;
 		if (number) {
-			$("#beaglert-consoleWrapper > div:lt(" + parseInt(number) + ") :not(.beaglert-console-notify)").remove();
+			$("#beaglert-consoleWrapper > div:lt(" + parseInt(number) + ")").remove();
 			numElements -= parseInt(number);
 		} else {
-			$('#beaglert-consoleWrapper > div:not(.beaglert-console-notify)').remove();
+			$('#beaglert-consoleWrapper > div').remove();
 			numElements = 0;
 		}
 	}

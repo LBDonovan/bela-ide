@@ -87,6 +87,23 @@ class buildProcess extends ChildProcess{
 		this.args[4] = 'PROJECT='+project;
 		this.project = project;
 		this.start();
+		this.buildError = false;
+		this.childProcess.stderr.on('data', (data) => {
+			// separate errors from warnings in the stderr of g++
+			var lines = data.split('\n');
+			for (let line of lines){
+				// do not count warnings as buildErrors
+				// this allows the executable to be built and run even with warnings
+				line = line.split(':');
+				if (line.length > 4){
+					if (line[3] === ' error' || line[3] === ' fatal error'){
+						this.buildError = true;
+					} else if (line[3] === ' warning'){
+						console.log('warning');
+					}
+				}
+			}
+		});
 	}
 	
 	CPU(){

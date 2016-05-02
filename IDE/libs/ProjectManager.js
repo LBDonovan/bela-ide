@@ -121,41 +121,10 @@ module.exports = {
 				data.readOnly = true;
 				data.newFile = undefined;
 				data.fileName = undefined;
-			}
-			/*data.readOnly = false;
-			var newFile = data.newFile;
-			var oldFile = data.fileName;
-			data.fileData = yield fs.readFileAsync(projectPath+data.currentProject+'/'+newFile, 'utf8')
-				.then((fileData) => {
-					data.fileName = newFile;
-					data.newFile = undefined;
-					return fileData;
-				})
-				.catch((error) => {
-					if (error.code === 'ENOENT'){
-						data.error = 'Could not find file '+newFile;
-						if (oldFile){
-							
-						return _listFiles(data.currentProject)
-							.then((fileList) => {
-								data.fileList = fileList;
-								if (data.fileList && data.fileList.length){
-									data.fileName = data.fileList[0];
-									data.error += ', opening '+data.fileName;
-									return fs.readFileAsync(projectPath+data.currentProject+'/'+data.fileName, 'utf8');
-								} else {
-									data.readOnly = true;
-									return 'no files found in project';
-								}
-							});
-					}
-					throw error;
-				});
-			console.log('fileopened');	*/		
+			}		
 		}
 		yield Promise.coroutine(_setFile)(data);
 		return data;
-			/**/
 	},
 	
 	*newFile(data){

@@ -111,29 +111,18 @@ class Console extends EventEmitter {
 		$el.appendTo(this.$element);//.removeAttr('id');
 		$el.html($el.html()+message);
 		$el.addClass('beaglert-console-rejectnotification');
-		$el.on('click', () => {
-			console.log('click');
-			$el.addClass('beaglert-console-collapsed');
-			if (!persist){
-				$el.on('transitionend', () => {
-					if ($el.hasClass('beaglert-console-collapsed')){
-						$el.remove();
-					} else {
-						$el.addClass('beaglert-console-collapsed');
-					}
-				});
-			}
-		});
+		setTimeout( () => $el.removeClass('beaglert-console-rejectnotification').addClass('beaglert-console-faded'), 500);
+		$el.on('click', () => $el.addClass('beaglert-console-collapsed').on('transitionend', () => $el.remove() ));
 	}
 	
 	// clear the console
 	clear(number){
 		if (!consoleDelete) return;
 		if (number){
-			$("#beaglert-consoleWrapper > div:lt("+parseInt(number)+") :not(.beaglert-console-notify)").remove();
+			$("#beaglert-consoleWrapper > div:lt("+parseInt(number)+")").remove();
 			numElements -= parseInt(number);
 		} else {
-			$('#beaglert-consoleWrapper > div:not(.beaglert-console-notify)').remove();
+			$('#beaglert-consoleWrapper > div').remove();
 			numElements = 0;
 		}
 	}

@@ -70,6 +70,8 @@ class ChildProcess extends EventEmitter{
 			if (this.next) this.dequeue(err);
 		});
 		
+		this.childProcess = childProcess;
+		
 	}
 	
 	kill(){

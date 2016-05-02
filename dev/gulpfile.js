@@ -27,8 +27,11 @@ gulp.task('watch', ['killnode', 'browserify', 'upload', 'restartnode'], function
 	// when the browser js changes, browserify it
 	gulp.watch(['../IDE/public/js/src/**'], ['browserify']);
 	
+	// when the scope browser js changes, browserify it
+	gulp.watch(['../IDE/public/scope/js/src/**'], ['scope-browserify']);
+	
 	// when the browser sources change, upload them without killing node
-	gulp.watch(['../IDE/public/**', '!../IDE/public/js/bundle.js.map', '!../IDE/public/js/src/**', '!../IDE/public/js/ace/**'], ['upload-no-kill']);
+	gulp.watch(['../IDE/public/**', '!../IDE/public/js/bundle.js.map', '!../IDE/public/scope/js/bundle.js.map', '!../IDE/public/js/src/**', '!../IDE/public/js/ace/**', '!../IDE/public/scope/js/src/**'], ['upload-no-kill']);
 	
 	// watch all IDE files (except ace and node_modules) and upload them when changed
 	//gulp.watch(['../IDE/**', '!../IDE/public/js/ace/**', '!../IDE/node_modules/**'], ['upload']);
@@ -39,13 +42,13 @@ gulp.task('watch', ['killnode', 'browserify', 'upload', 'restartnode'], function
 });
 
 gulp.task('upload', ['killnode', 'browserify'], () => {
-	return gulp.src(['../IDE/**', '!../IDE/public/js/src/**', '!../IDE/node_modules/**', '!../IDE/public/js/ace/**'])
+	return gulp.src(['../IDE/**', '!../IDE/public/js/src/**', '!../IDE/node_modules/**', '!../IDE/public/js/ace/**', '!../IDE/public/scope/js/src/**'])
 		.pipe(cache('IDE'))
 		.pipe(sftp({host, user, pass, remotePath}));
 });
 
 gulp.task('upload-no-kill', () => {
-	return gulp.src(['../IDE/**', '!../IDE/public/js/src/**', '!../IDE/node_modules/**', '!../IDE/public/js/ace/**'])
+	return gulp.src(['../IDE/**', '!../IDE/public/js/src/**', '!../IDE/node_modules/**', '!../IDE/public/js/ace/**', '!../IDE/public/scope/js/src/**'])
 		.pipe(cache('IDE'))
 		.pipe(sftp({host, user, pass, remotePath}))
 		.on('end', () => {
@@ -106,6 +109,20 @@ gulp.task('browserify', () => {
 		.pipe(sourcemaps.init({loadMaps: true}))
         .pipe(sourcemaps.write('./'))
         .pipe(gulp.dest('../IDE/public/js/'));
+});
+gulp.task('scope-browserify', () => {
+    return browserify('../IDE/public/scope/js/src/main.js', { debug: true })
+    	.transform(babelify)
+        .bundle()
+        .on('error', function(error){
+    		console.error(error);
+    		this.emit('end');
+    	})
+        .pipe(source('bundle.js'))
+        .pipe(buffer())
+		.pipe(sourcemaps.init({loadMaps: true}))
+        .pipe(sourcemaps.write('./'))
+        .pipe(gulp.dest('../IDE/public/scope/js/'));
 });
 
 function startNode(callback){

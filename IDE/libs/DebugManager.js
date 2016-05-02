@@ -4,10 +4,12 @@ var EventEmitter = require('events').EventEmitter;
 var Promise = require('bluebird');
 var ngdbmi = require('./ngdbmi');
 var util = require('util');
+var pgrep = require('pgrep');
+var pusage = Promise.promisifyAll(require('pidusage'));
 
 var ProjectManager = require('./ProjectManager');
 var projectPath = '/root/BeagleRT/projects/';
-var print_debug = true;
+var print_debug = false;
 
 class DebugManager extends EventEmitter {
 	
@@ -60,6 +62,7 @@ class DebugManager extends EventEmitter {
 
 		// Notify event
 		this.process.on("notify", function( state ){
+			if (!print_debug) return;
 			console.log( "//-------------------NOTIFY----------------//" );
 			console.log( JSON.stringify(state, null, "\t") );
 			console.log( "//-----------------------------------------//" );
@@ -340,6 +343,16 @@ class DebugManager extends EventEmitter {
 	}
 	exec(command){
 		this.process.wrapper.write(command+'\n');
+	}
+	
+	CPU(){
+		if (!this.running) return Promise.resolve(0);
+		return pgrep.exec({
+				name: 'gdb'
+			})
+			.then(pusage.statAsync)
+			.then((stat) => stat.cpu );
+		
 	}
 	
 }

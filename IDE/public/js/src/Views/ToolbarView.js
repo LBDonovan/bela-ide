@@ -56,8 +56,8 @@ class ToolbarView extends View {
 	}
 	
 	_CPU(data){
-	
-		var ide = data.syntaxCheckProcess + data.buildProcess + data.node;
+
+		var ide = data.syntaxCheckProcess + data.buildProcess + data.node + data.gdb;
 		var bela = 0;
 		
 		if (data.bela != 0){

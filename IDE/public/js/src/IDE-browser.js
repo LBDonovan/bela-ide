@@ -133,6 +133,9 @@ var socket = io('/IDE');
 socket.on('report-error', (error) => console.error(error) );
 
 socket.on('init', (data) => {
+	
+	$('#console-disconnect').remove();
+	
 	//console.log(data);
 	var timestamp = performance.now()
 	socket.emit('project-event', {func: 'openProject', currentProject: data[2].project, timestamp})	
@@ -202,7 +205,7 @@ socket.on('IDE-settings-data', (settings) => models.settings.setData(settings) )
 socket.on('cpu-usage', (data) => models.status.setKey('CPU', data) );
 
 socket.on('disconnect', () => {
-	consoleView.emit('warn', 'You have been disconnected from the Bela IDE and any more changes you make will not be saved. Please check your USB connection and reboot your BeagleBone');
+	consoleView.disconnect();
 	models.project.setKey('readOnly', true);
 });
 

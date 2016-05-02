@@ -7,7 +7,7 @@ var verboseDebugOutput = false;
 class ConsoleView extends View{
 
 	constructor(className, models, settings){
-		super(className, models, settings);
+		super(className, models, settings);		
 		
 		this.on('clear', () => _console.clear() );
 		_console.on('focus', (focus) => this.emit('focus', focus) );
@@ -15,8 +15,8 @@ class ConsoleView extends View{
 		
 		this.on('openNotification', this.openNotification);
 		this.on('closeNotification', this.closeNotification);
-		this.on('warn', function(warning){
-			_console.warn(warning);
+		this.on('warn', function(warning, id){
+			_console.warn(warning, id);
 		});
 		
 		this.form = document.getElementById('beaglert-consoleForm');
@@ -43,6 +43,10 @@ class ConsoleView extends View{
 		} else {
 			_console.fulfill(' done', data.timestamp);
 		}
+	}
+	disconnect(){
+		console.log('disconnected');
+		_console.warn('You have been disconnected from the Bela IDE and any more changes you make will not be saved. Please check your USB connection and reboot your BeagleBone', 'console-disconnect');
 	}
 	
 	// model events

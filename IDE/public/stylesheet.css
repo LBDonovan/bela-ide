@@ -773,5 +773,6 @@ right: calc(100% - 62px);
 #C_L_ARGS{
 	left: 20px;
     width: 360px;
-    margin-bottom: 60px;
+    margin-bottom: 30px;
+	background-color: gainsboro;
 }

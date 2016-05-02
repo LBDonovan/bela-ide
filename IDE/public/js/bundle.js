@@ -9468,6 +9468,9 @@ var socket = io('/IDE');
 socket.on('report-error', error => console.error(error));
 
 socket.on('init', data => {
+
+	$('#console-disconnect').remove();
+
 	//console.log(data);
 	var timestamp = performance.now();
 	socket.emit('project-event', { func: 'openProject', currentProject: data[2].project, timestamp });
@@ -9536,7 +9539,7 @@ socket.on('IDE-settings-data', settings => models.settings.setData(settings));
 socket.on('cpu-usage', data => models.status.setKey('CPU', data));
 
 socket.on('disconnect', () => {
-	consoleView.emit('warn', 'You have been disconnected from the Bela IDE and any more changes you make will not be saved. Please check your USB connection and reboot your BeagleBone');
+	consoleView.disconnect();
 	models.project.setKey('readOnly', true);
 });
 
@@ -9860,8 +9863,8 @@ class ConsoleView extends View {
 
 		this.on('openNotification', this.openNotification);
 		this.on('closeNotification', this.closeNotification);
-		this.on('warn', function (warning) {
-			_console.warn(warning);
+		this.on('warn', function (warning, id) {
+			_console.warn(warning, id);
 		});
 
 		this.form = document.getElementById('beaglert-consoleForm');
@@ -9888,6 +9891,10 @@ class ConsoleView extends View {
 		} else {
 			_console.fulfill(' done', data.timestamp);
 		}
+	}
+	disconnect() {
+		console.log('disconnected');
+		_console.warn('You have been disconnected from the Bela IDE and any more changes you make will not be saved. Please check your USB connection and reboot your BeagleBone', 'console-disconnect');
 	}
 
 	// model events
@@ -10567,9 +10574,12 @@ class SettingsView extends View {
 
 	// model events
 	_CLArgs(data) {
+		var fullString = '';
 		for (let key in data) {
 			this.$elements.filterByData('key', key).val(data[key]);
+			fullString += (key === 'user' ? '' : key) + data[key] + ' ';
 		}
+		$('#C_L_ARGS').val(fullString);
 	}
 	_IDESettings(data) {
 		for (let key in data) {
@@ -10644,6 +10654,42 @@ class ToolbarView extends View {
 	constructor(className, models) {
 		super(className, models);
 		this.$elements.filter('span').on('click', e => this.buttonClicked($(e.currentTarget), e));
+
+		$('#run').mouseover(function () {
+			$('.one').html('<p>Run</p>');
+		}).mouseout(function () {
+			$('.one').html('');
+		});
+
+		$('#stop').mouseover(function () {
+			$('.one').html('<p>Stop</p>');
+		}).mouseout(function () {
+			$('.one').html('');
+		});
+
+		$('#newTab').mouseover(function () {
+			$('.two').html('<p>New tab</p>');
+		}).mouseout(function () {
+			$('.two').html('');
+		});
+
+		$('#download').mouseover(function () {
+			$('.two').html('<p>Download project</p>');
+		}).mouseout(function () {
+			$('.two').html('');
+		});
+
+		$('#console').mouseover(function () {
+			$('.three').html('<p>Clear console</p>');
+		}).mouseout(function () {
+			$('.three').html('');
+		});
+
+		$('#scope').mouseover(function () {
+			$('.three').html('<p>Open scope</p>');
+		}).mouseout(function () {
+			$('.three').html('');
+		});
 	}
 
 	// UI events
@@ -10851,18 +10897,18 @@ class Console extends EventEmitter {
 	log(text) {
 		var msgs = text.split('\n');
 		for (let i = 0; i < msgs.length; i++) {
-			if (msgs[i] !== '') {
+			if (msgs[i] !== '' && msgs[i] !== ' ') {
 				this.print(msgs[i], 'log');
 			}
 		}
 		this.scroll();
 	}
 	// log a warning message to the console
-	warn(text) {
+	warn(text, id) {
 		var msgs = text.split('\n');
 		for (let i = 0; i < msgs.length; i++) {
 			if (msgs[i] !== '') {
-				this.print(msgs[i], 'warning', undefined, function () {
+				this.print(msgs[i], 'warning', id, function () {
 					var $el = $(this);
 					$el.addClass('beaglert-console-collapsed');
 					$el.on('transitionend', () => {

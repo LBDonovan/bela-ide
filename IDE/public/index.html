@@ -86,7 +86,7 @@
 							   PGA Gain right (dB): <input id="pga-right" class="settingsManager" data-func="setCLArg" type="number" min="0" max="63.5" step="0.1" data-key="--pga-gain-right"></input></br>
 							   User Command Line Arguments: <input id="user-clargs" class="settingsManager" data-func="setCLArg" type="text" data-key="user"></input><br>
 								Full Command Line String:
-								</br><input id="C_L_ARGS" type="text" placeholder="C_L_ARGS" readonly></input><br>
+								</br><input id="C_L_ARGS" type="text" placeholder="C_L_ARGS" readonly></input>
 							
 								<h1>IDE Settings</h1>
 								<button class="settingsManager" data-func="restoreDefaultIDESettings">restore defaults</button></br>
@@ -118,7 +118,7 @@
 									<option value="1">On</option>
 									<option value="0">Off</option>
 							   </select></br>
-						   
+						   <div style="display: none">
 							   <h1>Git Settings</h1>
 							   Use git: <select id="useGit" class="settingsManager" data-func="setIDESetting" data-key="useGit">
 									<option value="1">On</option>
@@ -128,7 +128,7 @@
 									<option value="1">On</option>
 									<option value="0">Off</option>
 							   </select></br>
-						   
+						   </div>
 								</br></br></br>
 							</div>
 				        </div> 
@@ -163,7 +163,7 @@
 								<ul class="fileManager" id="fileList" data-func="openFile"></ul>
 							</div>
 						   
-							<div class="gitParent">
+							<div class="gitParent" style="display: none">
 							   <h2>Git:</h2>
 							   <button class="gitButton" data-command="status">status</button>
 							   <button class="gitButton" data-command="log --pretty=oneline">log</button></br>

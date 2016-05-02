@@ -5,6 +5,54 @@ class ToolbarView extends View {
 	constructor(className, models){
 		super(className, models);
 		this.$elements.filter('span').on('click', (e) => this.buttonClicked($(e.currentTarget), e));
+		
+		$('#run')
+			.mouseover(function() {
+				$('.one').html('<p>Run</p>');
+			})
+			.mouseout(function() {
+				$('.one').html('');
+			});
+		
+		$('#stop')
+			.mouseover(function() {
+				$('.one').html('<p>Stop</p>');
+			})
+			.mouseout(function() {
+				$('.one').html('');
+			});
+
+		$('#newTab')
+			.mouseover(function() {
+				$('.two').html('<p>New tab</p>');
+			})
+			.mouseout(function() {
+				$('.two').html('');
+			});
+		
+		$('#download')
+			.mouseover(function() {
+				$('.two').html('<p>Download project</p>');
+			})
+			.mouseout(function() {
+			$('.two').html('');
+		});
+
+		$('#console')
+			.mouseover(function() {
+				$('.three').html('<p>Clear console</p>');
+			})
+			.mouseout(function() {
+				$('.three').html('');
+			});
+		
+		$('#scope')
+			.mouseover(function() {
+			$('.three').html('<p>Open scope</p>');
+		})
+			.mouseout(function() {
+			$('.three').html('');
+		});
 	}
 	
 	// UI events

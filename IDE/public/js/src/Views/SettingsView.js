@@ -39,9 +39,12 @@ class SettingsView extends View {
 	
 	// model events
 	_CLArgs(data){
+		var fullString = '';
 		for (let key in data){
 			this.$elements.filterByData('key', key).val(data[key]);
+			fullString += ((key === 'user') ? '' : key)+data[key]+' ';
 		}
+		$('#C_L_ARGS').val(fullString);
 	}
 	_IDESettings(data){
 		for (let key in data){

@@ -122,6 +122,8 @@ class DebugManager extends EventEmitter {
 		
 		if (!this.stopped(state))
 			throw('er');
+			
+		this.emit('status', {debugStatus: 'getting local variables'});
 
 		var localVariables = yield this.getLocals();
 		
@@ -131,6 +133,22 @@ class DebugManager extends EventEmitter {
 		}
 
 		//console.log(util.inspect(this.variables, false, null));
+		
+		this.emit('status', {debugStatus: 'getting backtrace'});
+		
+		var frameState = yield this.command('stackListFrames');
+		if (frameState && frameState.status && frameState.status.stack){
+			let backtrace = [];
+			for (let frame of frameState.status.stack){
+				let output = frame.level+': '+frame.func;
+				let location;
+				if (frame.file) location = frame.file.split('/');
+				else if (frame.from) location = frame.from.split('/');
+				if (location && location.length) output += ': '+location[location.length-1];
+				backtrace.push(output);
+			}
+			this.emit('status', {backtrace});
+		}
 		
 		this.emit('status', {debugBelaRunning: false, debugStatus: 'idle'});
 	}
@@ -178,8 +196,6 @@ class DebugManager extends EventEmitter {
 	}
 	
 	getLocals(){
-			
-		this.emit('status', {debugStatus: 'getting local variables'});
 		
 		return this.command('stackListVariables', {skip: false, print: 2})
 			.then((state) => {
@@ -270,11 +286,29 @@ class DebugManager extends EventEmitter {
 		if (!this.stopped(state))
 			throw('er');
 		
+		this.emit('status', {debugStatus: 'getting local variables'});
+		
 		var localVariables = yield this.getLocals();
 		
 		if (localVariables.length){
 			yield _co(this, 'createVariables', localVariables);
 			this.emit('variables', this.project, localVariables);
+		}
+		
+		this.emit('status', {debugStatus: 'getting backtrace'});
+		
+		var frameState = yield this.command('stackListFrames');
+		if (frameState && frameState.status && frameState.status.stack){
+			let backtrace = [];
+			for (let frame of frameState.status.stack){
+				let output = frame.level+': '+frame.func;
+				let location;
+				if (frame.file) location = frame.file.split('/');
+				else if (frame.from) location = frame.from.split('/');
+				if (location && location.length) output += ': '+location[location.length-1];
+				backtrace.push(output);
+			}
+			this.emit('status', {backtrace});
 		}
 		
 		this.emit('status', {debugBelaRunning: false, debugStatus: 'idle'});

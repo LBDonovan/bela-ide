@@ -9986,16 +9986,17 @@ class DebugView extends View {
 	// debugger process has started or stopped
 	_debugRunning(status) {
 		this.clearVariableList();
+		this.clearBacktrace();
 		if (!status) this.setLocation('n/a');
 	}
 	// debugger is doing something
 	_debugBelaRunning(status) {
 		if (!status) {
 			this.$parents.find('button').prop('disabled', '');
-			$('#expList').removeClass('debuggerOutOfScope');
+			$('#expList, #backtraceList').removeClass('debuggerOutOfScope');
 		} else {
 			this.$parents.find('button').prop('disabled', 'disabled');
-			$('#expList').addClass('debuggerOutOfScope');
+			$('#expList, #backtraceList').addClass('debuggerOutOfScope');
 		}
 	}
 	_debugStatus(value, data) {
@@ -10020,6 +10021,12 @@ class DebugView extends View {
 		}
 		prepareList();
 	}
+	_backtrace(trace) {
+		this.clearBacktrace();
+		for (let item of trace) {
+			$('<li></li>').text(item).appendTo($('#backtraceList'));
+		}
+	}
 
 	// utility methods
 	setStatus(value) {
@@ -10030,6 +10037,9 @@ class DebugView extends View {
 	}
 	clearVariableList() {
 		$('#expList').empty();
+	}
+	clearBacktrace() {
+		$('#backtraceList').empty();
 	}
 	addVariable(parent, variable) {
 		var name;
@@ -10688,6 +10698,18 @@ class ToolbarView extends View {
 
 	_cpuMonitoring(value) {
 		if (parseInt(value)) $('#ide-cpu, #bela-cpu').css('visibility', 'visible');else $('#ide-cpu, #bela-cpu').css('visibility', 'hidden');
+	}
+
+	_debugBelaRunning(status) {
+		if (status) {
+			if (!$('#run').hasClass('spinning')) {
+				$('#run').addClass('spinning');
+			}
+		} else {
+			if ($('#run').hasClass('spinning')) {
+				$('#run').removeClass('spinning');
+			}
+		}
 	}
 
 }

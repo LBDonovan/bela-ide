@@ -4,6 +4,7 @@ var Range = ace.require('ace/range').Range;
 const uploadDelay = 50;
 
 var uploadBlocked = false;
+var currentFile;
 
 class EditorView extends View {
 	
@@ -128,6 +129,7 @@ class EditorView extends View {
 	}
 	// a new file has been opened
 	_fileName(name, data){
+		currentFile = name;
 		this.__breakpoints(data.breakpoints, data);
 	}
 	// breakpoints have been changed
@@ -141,12 +143,12 @@ class EditorView extends View {
 		}
 	}
 	// debugger highlight line has changed
-	__debugLine(line){
-	
+	__debugLine(line, data){
+	console.log(line, data.debugFile, currentFile);
 		this.removeDebuggerMarker();
 		
 		// add new marker at line
-		if (line){
+		if (line && data.debugFile === currentFile){
 			this.editor.session.addMarker(new Range(line-1, 0, line-1, 1), "breakpointMarker", "fullLine");
 			this.editor.gotoLine(line, 0);
 		}

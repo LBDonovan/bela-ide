@@ -244,7 +244,9 @@ var SettingsManager = {
 };
 
 
-	
+process.on('uncaughtException', (err) => {
+	console.log('uncaughtException', err);
+});
 	
 	
 	

@@ -112,7 +112,7 @@ class ChildProcess extends EventEmitter{
 		return pusage.statAsync(this.pid)
 			.then((stat) => stat.cpu )
 			.catch((e) => {
-				console.log('error calculating cpu', this.command, e);
+				console.log('error calculating cpu', this.command);
 				return Promise.resolve(0);
 			});
 	}

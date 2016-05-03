@@ -11,6 +11,8 @@ var ProjectManager = require('./ProjectManager');
 var projectPath = '/root/BeagleRT/projects/';
 var print_debug = false;
 
+var maxChildren = 50;
+
 class DebugManager extends EventEmitter {
 	
 	constructor(){
@@ -47,11 +49,12 @@ class DebugManager extends EventEmitter {
 				this.process = new ngdbmi(projectPath+project+'/'+project+args);
 				
 				this.running = true;
-				this.emit('status', {debugRunning: true});
+				this.emit('status', {debugRunning: true, debugInterruptable: true});
 		
 				this.registerHandlers();
 		
 				_co(this, 'start', breakpoints)
+					.catch(nonFatalDebuggerError, (e) => this.gdb_error(e, true))
 					.catch((e) => this.gdb_error(e));
 			
 			});
@@ -60,8 +63,11 @@ class DebugManager extends EventEmitter {
 	
 	// kill the debugger
 	stop(){
-		if (this.running)
+		if (this.running){
+			console.log('stopping');
 			this.process.command('exit');
+			setTimeout( () => this.process.interrupt(), 500);
+		}
 	}
 	
 	// listen to ngdbmi process events
@@ -163,6 +169,12 @@ class DebugManager extends EventEmitter {
 	}
 	
 	stopped(state){
+		console.log('stopped', state);
+		
+		this.emit('status', {debugInterruptable: false});
+				
+		if (state.state !== 'stopped')
+			throw(new nonFatalDebuggerError('bad frame state: '+state.state));
 		
 		// parse the reason for the halt
 		var reason = state.status.reason, signal;
@@ -174,28 +186,31 @@ class DebugManager extends EventEmitter {
 
 		// check the frame data is valid && we haven't fallen off the end of the render function
 		if (!state.status || !state.status.frame){
-			throw('bad frame data');
+			throw(new nonFatalDebuggerError('bad frame data'+state.state));
 		}
-		if (state.status.frame.func === 'PRU::loop(rt_intr_placeholder*, void*)'){
+		if (state.status.frame.func === 'PRU::loop(rt_intr_placeholder*, void*)' || state.status.frame.func === 'BeagleRT_initAudio(BeagleRTInitSettings*, void*)'){
 			console.log('debugger out of range');
 			setTimeout(() => this.debugContinue(), 100);
 			return;
 		}
-
-		// parse the location of the halt
-		var path = state.status.frame.file.split('/');
-		var file = path[path.length-1];
-		var line = state.status.frame.line;
-		//var frameAddr = state.status.frame.addr;
-		//console.log('stopped, file '+file+' line '+line);
+		
+		try{
+			// parse the location of the halt
+			var path = state.status.frame.file.split('/');
+			var file = path[path.length-1];
+			var line = state.status.frame.line;
+			//var frameAddr = state.status.frame.addr;
+			//console.log('stopped, file '+file+' line '+line);
+		}
+		catch(e){
+			throw(new nonFatalDebuggerError(e.message));
+		}
 		
 		this.emit('status', { 
 			debugProject	: this.project,
 			debugFile		: file,
 			debugLine		: line
 		});
-		
-		return true;
 
 	}
 	
@@ -230,7 +245,7 @@ class DebugManager extends EventEmitter {
 						
 			var state = yield this.command('varCreate', {'name': '-', 'frame': '*', 'expression': variable.name});
 			if (!state.status){
-				throw new Error('bad varCreate return state');
+				throw(new nonFatalError('bad varCreate return state'));
 			}
 			
 			// save the variable's state
@@ -248,8 +263,9 @@ class DebugManager extends EventEmitter {
 			if (variable.numchild) {
 				//console.log('STATUS: variable created, listing children', variable);
 				variable = yield _co(this, 'listChildren', variable);
-			}// else
+			} else {
 				//console.log('STATUS: variable created, no children', variable);
+			}
 			
 		}
 		
@@ -260,10 +276,21 @@ class DebugManager extends EventEmitter {
 	// recursively lists children of variables
 	*listChildren(variable){
 	
+		if (variable.numchild > maxChildren){
+			console.log('too many children to list!');
+			return variable;
+		}
+	
 		//console.log('STATUS: listing children of', variable.name);
 		
 		// list the children of the variable, and save them in an array variable.children
 		var state = yield this.command('varListChildren', {'print': 1, 'name': variable.name});
+		
+		if (state.state !== 'done' || !state.status.children || !state.status.children.length){
+			console.log('error listing children', variable);
+			return variable;
+		}
+		
 		variable.children = state.status.children;
 		//console.log(state.status.children);
 		
@@ -283,18 +310,19 @@ class DebugManager extends EventEmitter {
 				//console.log('GRANDCHILD', grandchild);
 			}
 		}
-		
+		//console.log('STATUS: finished listing children of', variable);
 		return variable;
 	}
 	
 	// execute a command (usually continue, step or next) and check if any
 	// local variables have been changed
 	*update(command){
+	console.log('executing', command);
 		var state = yield this.command(command);
 		this.stopped(state);
 		
 		this.emit('status', {debugStatus: 'getting local variables'});
-		
+		console.log('getting locals');
 		var localVariables = yield this.getLocals();
 		
 		if (localVariables.length){
@@ -303,7 +331,7 @@ class DebugManager extends EventEmitter {
 		}
 		
 		this.emit('status', {debugStatus: 'getting backtrace'});
-		
+		console.log('getting backtrace');
 		var frameState = yield this.command('stackListFrames');
 		if (frameState && frameState.status && frameState.status.stack){
 			let backtrace = [];
@@ -331,9 +359,11 @@ class DebugManager extends EventEmitter {
 		}
 		this.emit('status', {
 			debugBelaRunning	: true,
-			debugStatus		: 'continuing to next breakpoint'
+			debugInterruptable	: true,
+			debugStatus			: 'continuing to next breakpoint'
 		});
 		_co(this, 'update', 'continue')
+			.catch(nonFatalDebuggerError, (e) => this.gdb_error(e, true))
 			.catch((e) => this.gdb_error(e));
 	}
 	debugStep(){
@@ -342,6 +372,7 @@ class DebugManager extends EventEmitter {
 			debugStatus		: 'stepping'
 		});
 		_co(this, 'update', 'step')
+			.catch(nonFatalDebuggerError, (e) => this.gdb_error(e, true))
 			.catch((e) => this.gdb_error(e));
 	}
 	debugNext(){
@@ -350,6 +381,24 @@ class DebugManager extends EventEmitter {
 			debugStatus		: 'stepping over'
 		});
 		_co(this, 'update', 'next')
+			.catch(nonFatalDebuggerError, (e) => this.gdb_error(e, true))
+			.catch((e) => this.gdb_error(e));
+	}
+	debugFinish(){
+		this.emit('status', {
+			debugBelaRunning	: true,
+			debugStatus		: 'stepping out'
+		});
+		_co(this, 'update', 'finish')
+			.catch(nonFatalDebuggerError, (e) => this.gdb_error(e, true))
+			.catch((e) => this.gdb_error(e));
+	}
+	debugInterrupt(){
+		this.emit('status', {
+			debugStatus		: 'interrupting'
+		});
+		_co(this, 'update', 'interrupt')
+			.catch(nonFatalDebuggerError, (e) => this.gdb_error(e, true))
 			.catch((e) => this.gdb_error(e));
 	}
 	exec(command){
@@ -385,9 +434,18 @@ class DebugManager extends EventEmitter {
 			.catch((e) => console.log('error getting gdb CPU usage', e));
 		
 	}
-	gdb_error(e){
-		console.log('gdb error:', e);
-		this.stop();
+	gdb_error(e, nonFatal){
+	
+		this.emit('error', e);
+		
+		if (e.stack)
+			console.log('gdb error:', e, e.stack.split('\n'));
+		
+		if (nonFatal){
+			this.emit('status', {debugRunning: false, debugInterruptable: false});
+		} else {
+			this.stop();
+		}
 	}
 	
 }
@@ -398,3 +456,12 @@ module.exports = new DebugManager();
 function _co(obj, func, args){
 	return Promise.coroutine(obj[func]).bind(obj)(args);
 }
+
+// custom errors
+function nonFatalDebuggerError(message) {
+	this.message = message;
+	this.name = "nonFatalDebuggerError";
+	Error.captureStackTrace(this, nonFatalDebuggerError);
+}
+nonFatalDebuggerError.prototype = Object.create(Error.prototype);
+nonFatalDebuggerError.prototype.constructor = nonFatalDebuggerError;

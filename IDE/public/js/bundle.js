@@ -9487,12 +9487,16 @@ socket.on('init', data => {
 
 // project events
 socket.on('project-data', data => {
+	var debug;
 	if (data.debug) {
-		models.debug.setData(data.debug);
+		debug = data.debug;
 		data.debug = undefined;
 	}
 	consoleView.emit('closeNotification', data);
 	models.project.setData(data);
+	if (debug) {
+		models.debug.setData(debug);
+	}
 	//models.settings.setData(data.settings);
 	//models.project.print();
 });
@@ -9580,19 +9584,19 @@ models.status.on('set', (data, changedKeys) => {
 	}
 });
 // debug mode
-models.debug.on('change', (data, changedKeys) => {
-	if (changedKeys.indexOf('debugMode') !== -1) {
+/*models.debug.on('change', (data, changedKeys) => {
+	if (changedKeys.indexOf('debugMode') !== -1){
 		//console.log(!data.debugMode, models.debug.getKey('debugRunning'));
 		if (!data.debugMode && models.debug.getKey('debugRunning')) socket.emit('debugger-event', 'stop');
 		var data = {
-			func: 'cleanProject',
-			currentProject: models.project.getKey('currentProject'),
-			timestamp: performance.now()
+			func			: 'cleanProject',
+			currentProject	: models.project.getKey('currentProject'),
+			timestamp		: performance.now()
 		};
 		consoleView.emit('openNotification', data);
 		socket.emit('project-event', data);
 	}
-});
+});*/
 
 // history
 {
@@ -9918,6 +9922,7 @@ class ConsoleView extends View {
 
 	// build
 	_buildLog(log, data) {
+		//console.log(log, data);
 		//if (this.settings.fullBuildOutput){
 		_console.log(log);
 		//}
@@ -10039,17 +10044,21 @@ class DebugView extends View {
 	_debugRunning(status) {
 		this.clearVariableList();
 		this.clearBacktrace();
+		this.$parents.find('button').prop('disabled', 'disabled');
 		if (!status) this.setLocation('n/a');
 	}
 	// debugger is doing something
 	_debugBelaRunning(status) {
 		if (!status) {
-			this.$parents.find('button').prop('disabled', '');
+			this.$parents.find('button:not(#debugInterrupt)').prop('disabled', '');
 			$('#expList, #backtraceList').removeClass('debuggerOutOfScope');
 		} else {
-			this.$parents.find('button').prop('disabled', 'disabled');
+			this.$parents.find('button:not(#debugInterrupt)').prop('disabled', 'disabled');
 			$('#expList, #backtraceList').addClass('debuggerOutOfScope');
 		}
+	}
+	_debugInterruptable(status) {
+		if (status) $('#debugInterrupt').prop('disabled', '');else $('#debugInterrupt').prop('disabled', 'disabled');
 	}
 	_debugStatus(value, data) {
 		if (value) this.setStatus(value);
@@ -10141,6 +10150,7 @@ var Range = ace.require('ace/range').Range;
 const uploadDelay = 50;
 
 var uploadBlocked = false;
+var currentFile;
 
 class EditorView extends View {
 
@@ -10256,6 +10266,7 @@ class EditorView extends View {
 	}
 	// a new file has been opened
 	_fileName(name, data) {
+		currentFile = name;
 		this.__breakpoints(data.breakpoints, data);
 	}
 	// breakpoints have been changed
@@ -10269,12 +10280,12 @@ class EditorView extends View {
 		}
 	}
 	// debugger highlight line has changed
-	__debugLine(line) {
-
+	__debugLine(line, data) {
+		console.log(line, data.debugFile, currentFile);
 		this.removeDebuggerMarker();
 
 		// add new marker at line
-		if (line) {
+		if (line && data.debugFile === currentFile) {
 			this.editor.session.addMarker(new Range(line - 1, 0, line - 1, 1), "breakpointMarker", "fullLine");
 			this.editor.gotoLine(line, 0);
 		}
@@ -10944,6 +10955,7 @@ class Console extends EventEmitter {
 				div.on('click', () => this.emit('open-file', err.file, { line: err.row + 1, column: err.column - 1 }));
 			}
 		}
+		this.scroll();
 	}
 
 	// log a positive notification to the console

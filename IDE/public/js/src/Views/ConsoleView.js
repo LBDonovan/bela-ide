@@ -70,6 +70,7 @@ class ConsoleView extends View{
 	
 	// build
 	_buildLog(log, data){
+	//console.log(log, data);
 		//if (this.settings.fullBuildOutput){
 			_console.log(log);
 		//}

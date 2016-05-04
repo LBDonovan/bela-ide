@@ -20,13 +20,13 @@
 			<canvas id="scopeBG"></canvas>
 			<div id="controlPanel" class="hidden scopeControls-parent">
 				<div id="mainColumn" class="cpColumn">
-					X-Axis (ms/div): <button class="scopeControls" data-key="upSampling">up</button><button class="scopeControls" data-key="downSampling">down</button> <span class="upSampling-display downSampling-display"></span>ms</br></br>
-					Horizontal Offset: <input class="scopeControls" data-key="xOffset" type="range" min="-1280" max="1280" value="0" step="1"></input><input id="xOffset-display" type="number" value="0"></input></br></br>
+					X-Axis (ms/div): <button class="scopeControls" data-key="upSampling">up</button><button class="scopeControls" data-key="downSampling">down</button> <span class="xTime-display"></span>ms</br></br>
+					Horizontal Offset: <input class="scopeControls" data-key="xOffset" type="range" min="-1280" max="1280" value="0" step="1"></input><input class="scopeControls" data-key="xOffset" type="number" value="0"></input></br></br>
 					Trigger Direction: <select class="scopeControls" data-key="triggerDir">
 						<option value="0" selected>Positive</option>
 						<option value="1">Negative</option>
 					</select></br></br>
-					Trigger Level: <input class="scopeControls" data-key="triggerLevel" type="range" min="-1" max="1" value="0" step="0.01"></input><input id="triggerLevel-display" type="number" value="0"></input></br></br>
+					Trigger Level: <input class="scopeControls" data-key="triggerLevel" type="range" min="-1" max="1" value="0" step="0.01"></input><input class="scopeControls" data-key="triggerLevel" type="number" value="0" step="0.01"></input></br></br>
 					Trigger Channel: <select  class="scopeControls" data-key="triggerChannel">
 						<option value="0" selected>0</option>
 					</select></br></br>
@@ -35,7 +35,7 @@
 						<option value="1">Auto</option>
 						<!--<option value="oneShot">One-Shot</option>-->
 					</select></br></br>
-					Hold Off(ms): <input  class="scopeControls" data-key="holdOff" type="range" min="0" max="100" value="20" step="0.1"></input><input id="holdOff-display" type="number" value="20"></input></br></br>
+					Hold Off(ms): <input  class="scopeControls" data-key="holdOff" type="range" min="0" max="100" value="20" step="0.1"></input><input class="scopeControls" data-key="holdOff" type="number" value="20" step="0.1"></input></br></br>
 				</div>
 				<div id="columnChannel1" class="cpColumn">
 					<h1>Channel 1</h1></br>

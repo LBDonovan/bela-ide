@@ -75,6 +75,10 @@ var scope = {
 		
 		socket.on('settings-event', (key, value) => {
 			if (settings[key]){
+				if (key === 'upSampling' || key === 'downSampling') {
+					this[key]();
+					return;
+				}
 				if (settings[key].type === 'integer') value = parseInt(value);
 				else if (settings[key].type === 'float') value = parseFloat(value);
 				settings[key].value = value;
@@ -85,6 +89,33 @@ var scope = {
 			}
 		});
 		
+	},
+	
+	upSampling(){
+		if (settings.downSampling.value > 1){
+			settings.downSampling.value -= 1;
+			this.webSocket.emit('settings', {downSampling: settings.downSampling});
+			if (scopeConnected)
+				scopeOSC.sendSetting('downSampling', settings['downSampling']);
+		} else {
+			settings.upSampling.value += 1;
+			this.webSocket.emit('settings', {upSampling: settings.upSampling});
+			if (scopeConnected)
+				scopeOSC.sendSetting('upSampling', settings['upSampling']);
+		}
+	},
+	downSampling(){
+		if (settings.upSampling.value > 1){
+			settings.upSampling.value -= 1;
+			this.webSocket.emit('settings', {upSampling: settings.upSampling});
+			if (scopeConnected)
+				scopeOSC.sendSetting('upSampling', settings['upSampling']);
+		} else {
+			settings.downSampling.value += 1;
+			this.webSocket.emit('settings', {downSampling: settings.downSampling});
+			if (scopeConnected)
+				scopeOSC.sendSetting('downSampling', settings['downSampling']);
+		}
 	},
 	
 };

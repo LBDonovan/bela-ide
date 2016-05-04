@@ -31,14 +31,14 @@ class View extends EventEmitter{
 	modelChanged(data, changedKeys){
 		for (let value of changedKeys){
 			if (this['_'+value]){
-				this['_'+value](data[value], data);
+				this['_'+value](data[value], data, changedKeys);
 			}
 		}
 	}
 	modelSet(data, changedKeys){
 		for (let value of changedKeys){
 			if (this['__'+value]){
-				this['__'+value](data[value], data);
+				this['__'+value](data[value], data, changedKeys);
 			}
 		}
 	}

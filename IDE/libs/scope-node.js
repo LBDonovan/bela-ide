@@ -1,4 +1,7 @@
 'use strict';
+var scopeOSC = require('./scope-osc');
+
+var scopeConnected = false;
 var settings = {
 	connected		: {type: 'integer', value: 0},
 	numChannels		: {type: 'integer', value: 2},
@@ -14,53 +17,27 @@ var settings = {
 	holdOff			: {type: 'float', value: 20}
 }
 
-var dgram = require('dgram');
-var osc = require('osc-min');
-
-// port numbers
-var OSC_RECIEVE = 8676;
-var OSC_SEND = 8675;
 var UDP_RECIEVE = 8677;
 
 var scope = {
 	
 	init(io){	
-	
-		// socket to send and receive OSC messages from bela scope
-		this.oscSocket = dgram.createSocket('udp4');
-		this.oscSocket.bind(OSC_RECIEVE, '127.0.0.1');
 		
-		this.oscSocket.on('message', (message, info) => this.recieveOSC(message, info));
-		
-		this.webSocket = io.of('/BeagleRTScope');
+		// setup the websockets
+		this.webSocket = io.of('/BelaScope');
 		this.workerSocket = io.of('/BeagleRTScopeWorker');
 		
+		this.webSocket.on('connection', (socket) => this.browserConnected(socket) );
+		this.workerSocket.on('connection', (socket) => this.workerConnected(socket) );
+		
+		// setup the OSC server
+		scopeOSC.init();
+		scopeOSC.on('scope-setup', (args) => this.scopeConnected(args) );
+		
 	},
 	
-	recieveOSC(message, info){
-		var msg = osc.fromBuffer(message);
-		//console.log(msg, info);
-		if (msg.oscType === 'message'){
-			this.parseMessage(msg);
-		} else if(msg.oscType === 'bundle'){
+	scopeConnected(args){
 		
-		}
-	},
-		
-	parseMessage(msg){
-		var address = msg.address.split('/');
-		//console.log('parsing message', address);
-		if (!address || !address.length || address.length <2){
-			console.log('bad OSC address', address);
-			return;
-		}
-		
-		if (address[1] === 'scope-setup'){
-			this.setup(msg.args);
-		}
-	},
-	
-	setup(args){
 		if (args[0].type === 'integer' && args[1].type === 'float'){
 			settings.numChannels = args[0];
 			settings.sampleRate = args[1];
@@ -69,23 +46,45 @@ var scope = {
 			return;
 		}
 		
+		console.log('scope connected');
+		scopeConnected = true;
 		console.log(settings);
 		
-		var elements = [];
-		elements.push({ address: '/scope-setup-reply' });
-		for (let setting in settings){
-			elements.push({
-				address	: '/scope-settings/'+setting,
-				args	: [settings[setting]]
-			});
-		}
-		this.send(osc.toBuffer({elements}));		
+		scopeOSC.sendSetupReply(settings);
+			
 	},
 	
-	send(message){
-		this.oscSocket.send(message, 0, message.length, OSC_SEND, '127.0.0.1', function(err) {
-			if (err) console.log(err);
+	browserConnected(socket){
+		console.log('scope browser connected');
+		
+		// send the settings to the browser
+		socket.emit('settings', settings);
+		
+		// tell the scope that the browser is connected
+		settings.connected.value = 1;
+		if (scopeConnected)
+			scopeOSC.sendSetting('connected', settings.connected);
+			
+		socket.on('disconnect', () => {
+			console.log('scope browser disconnected');
+			// tell the scope that the browser is connected
+			settings.connected.value = 0;
+			if (scopeConnected)
+				scopeOSC.sendSetting('connected', settings.connected);
 		});
+		
+		socket.on('settings-event', (key, value) => {
+			if (settings[key]){
+				if (settings[key].type === 'integer') value = parseInt(value);
+				else if (settings[key].type === 'float') value = parseFloat(value);
+				settings[key].value = value;
+				if (scopeConnected)
+					scopeOSC.sendSetting(key, settings[key]);
+			} else {
+				console.log('bad settings-event', key, value);
+			}
+		});
+		
 	},
 	
 };

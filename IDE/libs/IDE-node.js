@@ -249,7 +249,8 @@ var SettingsManager = {
 
 
 process.on('uncaughtException', (err) => {
-	console.log('uncaughtException', err);
+	console.log('uncaughtException');
+	throw err;
 });
 // catch SIGTERM which occasionally gets thrown when cancelling the syntax check. Dunno why, it's kind of a problem.
 process.on('SIGTERM', () => {

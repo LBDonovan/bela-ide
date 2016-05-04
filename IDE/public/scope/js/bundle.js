@@ -9655,8 +9655,11 @@ var scope = require('./scope-browser');
 },{"./scope-browser":7}],7:[function(require,module,exports){
 'use strict';
 
-// models
+// worker
 
+var worker = new Worker("js/scope-worker.js");
+
+// models
 var Model = require('./Model');
 var settings = new Model();
 
@@ -9686,12 +9689,17 @@ socket.on('settings', newSettings => {
 });
 
 // model events
-settings.on('change', (data, changedKeys) => {
+settings.on('set', (data, changedKeys) => {
 	if (changedKeys.indexOf('frameWidth') !== -1) {
 		var xTimeBase = Math.max(Math.floor(1000 * (data.frameWidth.value / 8) / data.sampleRate.value), 1);
 		settings.setKey('xTimeBase', xTimeBase);
 		socket.emit('settings-event', 'frameWidth', data.frameWidth.value);
 	}
+});
+
+// window events
+$(window).on('resize', () => {
+	settings.setKey('frameWidth', { type: 'integer', value: window.innerWidth });
 });
 
 },{"./BackgroundView":2,"./ControlView":3,"./Model":4}],8:[function(require,module,exports){

@@ -1,5 +1,7 @@
-importScripts('../../js/socket.io.js');
+//importScripts('../../js/socket.io.js');
 
+//console.log('hi');
+/*
 // values from browser
 var frameLength = 1280;
 var y0 = 154.5;
@@ -24,11 +26,11 @@ onmessage = function(e) {
 		dt = 1000/sampleRate;
 		upSampling = e.data.upSampling;
 		downSampling = e.data.downSampling;
-		frameLength = e.data.frameLength;///upSampling);
+		frameLength = e.data.frameLength;///upSampling);*/
 		/*if (frameLength > sampleRate){
 			frameLength = sampleRate;
 		}*/
-		triggerDir = e.data.triggerDir;
+		/*triggerDir = e.data.triggerDir;
 		triggerLevel = e.data.triggerLevel;
 		xOffset = Math.round(e.data.xOffset*sampleRate/1000);
 		numChannels = e.data.numChannels;
@@ -76,4 +78,4 @@ scopeSocket.on('buffer', function(buf){
 	}
 
 });
-
+*/

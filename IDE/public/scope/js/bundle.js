@@ -9694,6 +9694,11 @@ settings.on('set', (data, changedKeys) => {
 		var xTimeBase = Math.max(Math.floor(1000 * (data.frameWidth.value / 8) / data.sampleRate.value), 1);
 		settings.setKey('xTimeBase', xTimeBase);
 		socket.emit('settings-event', 'frameWidth', data.frameWidth.value);
+	} else {
+		worker.postMessage({
+			event: 'settings',
+			settings: data
+		});
 	}
 });
 

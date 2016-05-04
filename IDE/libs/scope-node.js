@@ -25,7 +25,7 @@ var scope = {
 		
 		// setup the websockets
 		this.webSocket = io.of('/BelaScope');
-		this.workerSocket = io.of('/BeagleRTScopeWorker');
+		this.workerSocket = io.of('/BelaScopeWorker');
 		
 		this.webSocket.on('connection', (socket) => this.browserConnected(socket) );
 		this.workerSocket.on('connection', (socket) => this.workerConnected(socket) );
@@ -117,6 +117,10 @@ var scope = {
 				scopeOSC.sendSetting('downSampling', settings['downSampling']);
 		}
 	},
+	
+	workerConnected(socket){
+		socket.emit('hi');
+	}
 	
 };
 

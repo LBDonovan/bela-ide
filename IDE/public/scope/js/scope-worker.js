@@ -1,6 +1,42 @@
-//importScripts('../../js/socket.io.js');
+importScripts('../../socket.io/socket.io.js');
 
-//console.log('hi');
+console.log('hi');
+
+var settings = {};
+
+var socket = io('/BelaScopeWorker');
+
+onmessage = function(e){
+	if (!e.data || !e.data.event) return;
+	if (e.data.event === 'settings'){
+		settings = e.data.settings;
+		console.log(settings);
+	}
+}
+
+socket.on('buffer', function(buf){
+
+	var floatArray = new Float32Array(buf);
+	//console.log("recieved buffer of length "+floatArray.length);
+	
+	if (floatArray.length <= numChannels*frameLength){
+	
+		for (var i=0; i<numChannels; i++){
+			for (var j=0; j<frameLength; j++){
+				var index = i*frameLength + j;
+				floatArray[index] = ( y0 * (1 - (channelConfig[i].yOffset+floatArray[index])/channelConfig[i].yAmplitude)  );
+			}
+		}
+		
+		postMessage(floatArray, [floatArray.buffer]);
+		
+	} else {
+	
+		console.log('frame dropped');
+		
+	}
+
+});
 /*
 // values from browser
 var frameLength = 1280;

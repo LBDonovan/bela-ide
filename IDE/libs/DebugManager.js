@@ -27,11 +27,6 @@ class DebugManager extends EventEmitter {
 		this.variables = [];
 		this.numBreakpoints = breakpoints.length;
 		
-		if (!this.numBreakpoints){
-			this.emit('error', 'debugger cannot start - no breakpoints set');
-			return;
-		}
-		
 		_co(ProjectManager, 'getCLArgs', project)
 			.then( (CLArgs) => {
 				
@@ -180,13 +175,15 @@ class DebugManager extends EventEmitter {
 		var reason = state.status.reason, signal;
 		if (reason === 'signal-received'){
 			signal = reason+' '+state.status['signal-name']+' '+state.status['signal-meaning'];
+		} else if (reason === 'exited'){
+			throw('program exited');
 		}
 		if (reason) this.emit('status', {debugReason: reason});
 		if (signal) this.emit('status', {debugSignal: signal});
 
 		// check the frame data is valid && we haven't fallen off the end of the render function
 		if (!state.status || !state.status.frame){
-			throw(new nonFatalDebuggerError('bad frame data'+state.state));
+			throw(new nonFatalDebuggerError('bad frame data '+state.state));
 		}
 		if (state.status.frame.func === 'PRU::loop(rt_intr_placeholder*, void*)' || state.status.frame.func === 'BeagleRT_initAudio(BeagleRTInitSettings*, void*)'){
 			console.log('debugger out of range');
@@ -203,7 +200,9 @@ class DebugManager extends EventEmitter {
 			//console.log('stopped, file '+file+' line '+line);
 		}
 		catch(e){
-			throw(new nonFatalDebuggerError(e.message));
+			this.emit('status', {gdbLog: 'GDB> '+JSON.stringify(state)})
+			if (signal) throw('cannot parse halt location');
+			else throw(new nonFatalDebuggerError('cannot parse halt location'));
 		}
 		
 		this.emit('status', { 
@@ -223,13 +222,9 @@ class DebugManager extends EventEmitter {
 		return this.command('stackListVariables', {skip: false, print: 2})
 			.then((state) => {
 				if (!state.status || (state.status.variables === undefined) )
-					throw new Error('bad stackListVariables state');
+					throw(new nonFatalDebuggerError('could not list variables'));
 				
 				return state.status.variables;
-			})
-			.catch(function(e){
-				console.error(e, e.stack.split('\n'));
-				//IDE.reportError('getLocals', 'unable to list local variables', e);
 			});
 		
 	}
@@ -325,7 +320,7 @@ class DebugManager extends EventEmitter {
 		console.log('getting locals');
 		var localVariables = yield this.getLocals();
 		
-		if (localVariables.length){
+		if (localVariables && localVariables.length){
 			yield _co(this, 'createVariables', localVariables);
 			this.emit('variables', this.project, localVariables);
 		}
@@ -353,10 +348,6 @@ class DebugManager extends EventEmitter {
 
 	// commands
 	debugContinue(){
-		if (!this.numBreakpoints){
-			this.emit('error', 'debugger cannot continue - no breakpoints set');
-			return;
-		}
 		this.emit('status', {
 			debugBelaRunning	: true,
 			debugInterruptable	: true,
@@ -431,11 +422,11 @@ class DebugManager extends EventEmitter {
 			})
 			.then(pusage.statAsync)
 			.then((stat) => stat.cpu )
-			.catch((e) => console.log('error getting gdb CPU usage', e));
+			.catch((e) => console.log('error getting gdb CPU usage'));
 		
 	}
 	gdb_error(e, nonFatal){
-	
+	console.log('emitting error', e, nonFatal);
 		this.emit('error', e);
 		
 		if (e.stack)

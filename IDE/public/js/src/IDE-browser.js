@@ -130,7 +130,7 @@ debugView.on('debug-mode', (status) => models.debug.setKey('debugMode', status) 
 var socket = io('/IDE');
 
 // socket events
-socket.on('report-error', (error) => console.error(error) );
+socket.on('report-error', (error) => consoleView.emit('warn', error.message || error) );
 
 socket.on('init', (data) => {
 	

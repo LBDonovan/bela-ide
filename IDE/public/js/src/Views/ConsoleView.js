@@ -16,6 +16,7 @@ class ConsoleView extends View{
 		this.on('openNotification', this.openNotification);
 		this.on('closeNotification', this.closeNotification);
 		this.on('warn', function(warning, id){
+			console.log(warning);
 			_console.warn(warning, id);
 		});
 		

@@ -9465,7 +9465,7 @@ debugView.on('debug-mode', status => models.debug.setKey('debugMode', status));
 var socket = io('/IDE');
 
 // socket events
-socket.on('report-error', error => console.error(error));
+socket.on('report-error', error => consoleView.emit('warn', error.message || error));
 
 socket.on('init', data => {
 
@@ -9868,6 +9868,7 @@ class ConsoleView extends View {
 		this.on('openNotification', this.openNotification);
 		this.on('closeNotification', this.closeNotification);
 		this.on('warn', function (warning, id) {
+			console.log(warning);
 			_console.warn(warning, id);
 		});
 

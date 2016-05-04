@@ -11,6 +11,9 @@ var ProjectManager = require('./ProjectManager');
 var ProcessManager = require('./ProcessManager');
 var DebugManager = require('./DebugManager');
 var server = require('./fileServer');
+var scope = require('./scope-node');
+
+scope.init();
 
 // module variables - only accesible from this file
 var allSockets;

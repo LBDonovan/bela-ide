@@ -1,4 +1,18 @@
-//echoes scope UDP messages from BeagleRT to browser
+'use strict';
+var settings = {
+	connected		: {type: 'integer', value: 0},
+	numChannels		: {type: 'integer', value: 2},
+	sampleRate		: {type: 'float', value: 44100},
+	frameWidth		: {type: 'integer', value: 1280},
+	triggerMode		: {type: 'integer', value: 0},
+	triggerChannel	: {type: 'integer', value: 0},
+	triggerDir		: {type: 'integer', value: 0},
+	triggerLevel	: {type: 'float', value: 0},
+	xOffset			: {type: 'integer', value: 0},
+	upSampling		: {type: 'integer', value: 1},
+	downSampling	: {type: 'integer', value: 1},
+	holdOff			: {type: 'float', value: 20}
+}
 
 var dgram = require('dgram');
 var osc = require('osc-min');
@@ -10,12 +24,66 @@ var UDP_RECIEVE = 8677;
 
 var scope = {
 	
-	init(io){	
+	init(){	
 	
-		this.socket = io.of('/BelaScope');
-		this.workerSocket = io.of('/BelaScopeWorker');
+		// socket to send and receive OSC messages from bela scope
+		this.oscSocket = dgram.createSocket('udp4');
+		this.oscSocket.bind(OSC_RECIEVE, '127.0.0.1');
 		
+		this.oscSocket.on('message', (message, info) => this.recieveOSC(message, info));
 		
+	},
+	
+	recieveOSC(message, info){
+		var msg = osc.fromBuffer(message);
+		//console.log(msg, info);
+		if (msg.oscType === 'message'){
+			this.parseMessage(msg);
+		} else if(msg.oscType === 'bundle'){
+		
+		}
+	},
+		
+	parseMessage(msg){
+		var address = msg.address.split('/');
+		//console.log('parsing message', address);
+		if (!address || !address.length || address.length <2){
+			console.log('bad OSC address', address);
+			return;
+		}
+		
+		if (address[1] === 'scope-setup'){
+			this.setup(msg.args);
+		}
+	},
+	
+	setup(args){
+		if (args[0].type === 'integer' && args[1].type === 'float'){
+			settings.numChannels = args[0];
+			settings.sampleRate = args[1];
+		} else {
+			console.log('bad setup message args', args);
+			return;
+		}
+		
+		console.log(settings);
+		
+		var elements = [];
+		elements.push({ address: '/scope-setup-reply' });
+		for (let setting in settings){
+			elements.push({
+				address	: '/scope-settings/'+setting,
+				args	: [settings[setting]]
+			});
+		}
+		this.send(osc.toBuffer({elements}));		
+	},
+	
+	send(message){
+		this.oscSocket.send(message, 0, message.length, OSC_SEND, '127.0.0.1', function(err) {
+			if (err) console.log(err);
+		});
+	},
 	
 };
 

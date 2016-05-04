@@ -130,7 +130,7 @@ debugView.on('debug-mode', (status) => models.debug.setKey('debugMode', status) 
 var socket = io('/IDE');
 
 // socket events
-socket.on('report-error', (error) => console.error(error) );
+socket.on('report-error', (error) => consoleView.emit('warn', error.message || error) );
 
 socket.on('init', (data) => {
 	
@@ -152,12 +152,16 @@ socket.on('init', (data) => {
 
 // project events
 socket.on('project-data', (data) => {
+	var debug;
 	if (data.debug){
-		models.debug.setData(data.debug);
+		debug = data.debug
 		data.debug = undefined;
 	}
 	consoleView.emit('closeNotification', data)
 	models.project.setData(data);
+	if (debug){
+		models.debug.setData(debug);
+	}
 	//models.settings.setData(data.settings);
 	//models.project.print();
 });
@@ -246,7 +250,7 @@ models.status.on('set', (data, changedKeys) => {
 	}
 });
 // debug mode
-models.debug.on('change', (data, changedKeys) => {
+/*models.debug.on('change', (data, changedKeys) => {
 	if (changedKeys.indexOf('debugMode') !== -1){
 		//console.log(!data.debugMode, models.debug.getKey('debugRunning'));
 		if (!data.debugMode && models.debug.getKey('debugRunning')) socket.emit('debugger-event', 'stop');
@@ -258,7 +262,7 @@ models.debug.on('change', (data, changedKeys) => {
 		consoleView.emit('openNotification', data);
 		socket.emit('project-event', data);
 	}
-});
+});*/
 
 
 // history

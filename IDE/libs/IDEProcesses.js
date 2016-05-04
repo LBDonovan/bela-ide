@@ -64,7 +64,7 @@ class SyntaxCheckProcess extends ChildProcess{
 				return makeCPU + stat.cpu;
 			})
 			.catch((e) => {
-				console.log('error calculating cpu', this.command, e);
+				console.log('error calculating cpu', this.command);
 				return Promise.resolve(makeCPU);
 			});
 	}
@@ -121,7 +121,7 @@ class buildProcess extends ChildProcess{
 				return makeCPU + stat.cpu;
 			})
 			.catch((e) => {
-				console.log('error calculating cpu', this.command, e);
+				console.log('error calculating cpu', this.command);
 				return Promise.resolve(makeCPU);
 			});
 	}

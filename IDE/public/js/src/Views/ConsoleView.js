@@ -16,6 +16,7 @@ class ConsoleView extends View{
 		this.on('openNotification', this.openNotification);
 		this.on('closeNotification', this.closeNotification);
 		this.on('warn', function(warning, id){
+			console.log(warning);
 			_console.warn(warning, id);
 		});
 		
@@ -70,13 +71,14 @@ class ConsoleView extends View{
 	
 	// build
 	_buildLog(log, data){
+	//console.log(log, data);
 		//if (this.settings.fullBuildOutput){
 			_console.log(log);
 		//}
 	}
 	
 	// bela
-	_belaLog(log, data){
+	__belaLog(log, data){
 		_console.log(log);
 	}
 	

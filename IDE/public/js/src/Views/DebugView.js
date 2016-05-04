@@ -33,17 +33,22 @@ class DebugView extends View {
 	_debugRunning(status){
 		this.clearVariableList();
 		this.clearBacktrace();
+		this.$parents.find('button').prop('disabled', 'disabled');
 		if (!status) this.setLocation('n/a');
 	}
 	// debugger is doing something
 	_debugBelaRunning(status){
 		if (!status){
-			this.$parents.find('button').prop('disabled', '');
+			this.$parents.find('button:not(#debugInterrupt)').prop('disabled', '');
 			$('#expList, #backtraceList').removeClass('debuggerOutOfScope');
 		} else {
-			this.$parents.find('button').prop('disabled', 'disabled');
+			this.$parents.find('button:not(#debugInterrupt)').prop('disabled', 'disabled');
 			$('#expList, #backtraceList').addClass('debuggerOutOfScope');
 		}
+	}
+	_debugInterruptable(status){
+		if (status) $('#debugInterrupt').prop('disabled', '');
+		else $('#debugInterrupt').prop('disabled', 'disabled');
 	}
 	_debugStatus(value, data){
 		if (value) this.setStatus(value);

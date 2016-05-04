@@ -74,6 +74,7 @@ class Console extends EventEmitter {
 			}
 			
 		}
+		this.scroll();
 	}
 	
 	// log a positive notification to the console

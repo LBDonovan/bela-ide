@@ -24,13 +24,16 @@ var UDP_RECIEVE = 8677;
 
 var scope = {
 	
-	init(){	
+	init(io){	
 	
 		// socket to send and receive OSC messages from bela scope
 		this.oscSocket = dgram.createSocket('udp4');
 		this.oscSocket.bind(OSC_RECIEVE, '127.0.0.1');
 		
 		this.oscSocket.on('message', (message, info) => this.recieveOSC(message, info));
+		
+		this.webSocket = io.of('/BeagleRTScope');
+		this.workerSocket = io.of('/BeagleRTScopeWorker');
 		
 	},
 	

@@ -13,8 +13,6 @@ var DebugManager = require('./DebugManager');
 var server = require('./fileServer');
 var scope = require('./scope-node');
 
-scope.init();
-
 // module variables - only accesible from this file
 var allSockets;
 var belaPath = '/root/BeagleRT/';
@@ -41,6 +39,9 @@ function IDE(){
 		co(ProcessManager, 'checkCPU')
 			.then((output) => allSockets.emit('cpu-usage', output));
 	}, 1000);
+	
+	// scope
+	scope.init(io);
 	
 }
 

@@ -14,19 +14,20 @@ controlView.on('settings-event', (key, value) => {
 });
 
 var backgroundView = new (require('./BackgroundView'))('scopeBG', [settings]);
-/*controlView.on('settings-event', (key, value) => {
-	socket.emit('settings-event', key, value);
-});*/
+
+var channelView = new (require('./ChannelView'))('channelView', [settings]);
+channelView.on('channelConfig', (channelConfig) => {
+	worker.postMessage({
+		event			: 'channelConfig',
+		channelConfig
+	});
+});
 
 // setup socket
 var socket = io('/BelaScope');
 
-socket.on('init', (newSettings) => {
-	newSettings.frameWidth.value = window.innerWidth;
-	settings.setData(newSettings);
-});
-
 socket.on('settings', (newSettings) => {
+	if (newSettings.frameWidth) newSettings.frameWidth.value = window.innerWidth;
 	settings.setData(newSettings);
 	//console.log(newSettings);
 	//settings.print();
@@ -49,4 +50,5 @@ settings.on('set', (data, changedKeys) => {
 // window events
 $(window).on('resize', () => {
 	settings.setKey('frameWidth', {type: 'integer', value: window.innerWidth});
+	settings.setKey('frameHeight', window.innerHeight);
 });

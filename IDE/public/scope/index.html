@@ -18,7 +18,7 @@
 			</div>
 			<canvas id="scope"></canvas>
 			<canvas id="scopeBG"></canvas>
-			<div id="controlPanel" class="hidden scopeControls-parent">
+			<div id="controlPanel" class="hidden scopeControls-parent channelView-parent">
 				<div id="mainColumn" class="cpColumn">
 					X-Axis (ms/div): <button class="scopeControls" data-key="upSampling">up</button><button class="scopeControls" data-key="downSampling">down</button> <span class="xTime-display"></span>ms</br></br>
 					Horizontal Offset: <input class="scopeControls" data-key="xOffset" type="range" min="-1280" max="1280" value="0" step="1"></input><input class="scopeControls" data-key="xOffset" type="number" value="0"></input></br></br>
@@ -37,11 +37,11 @@
 					</select></br></br>
 					Hold Off(ms): <input  class="scopeControls" data-key="holdOff" type="range" min="0" max="100" value="20" step="0.1"></input><input class="scopeControls" data-key="holdOff" type="number" value="20" step="0.1"></input></br></br>
 				</div>
-				<div id="columnChannel1" class="cpColumn">
-					<h1>Channel 1</h1></br>
-					Y-Axis (amplitude): <input id="yAxis1" type="number" value="1"></input></br></br>
-					Vertical Offset: <input id="yOffset1" type="range" min="-1" max="1" value="0" step="0.01"></input><input id="yOffsetDisplay1" type="number" value="0"></input></br></br>
-					Colour: <input id="channelColour1" type="color" value="#ff0000"></input>
+				<div id="channelViewChannel0" class="cpColumn channelView">
+					<h1>Channel 0</h1></br>
+					Y-Axis (amplitude): <input class="channelView" data-key="yAmplitude" data-channel="0" type="range" min="0" max="2" value="1" step="0.01"><input class="channelView" data-key="yAmplitude" data-channel="0" type="number" value="1" step="0.1"></input></br></br>
+					Vertical Offset: <input class="channelView" data-key="yOffset" data-channel="0" type="range" min="-1" max="1" value="0" step="0.01"></input><input class="channelView" data-key="yOffset" data-channel="0" type="number" value="0" step="0.1"></input></br></br>
+					Colour: <input class="channelView" data-key="color" data-channel="0" type="color" value="#ff0000"></input>
 				</div>
 				
 			</div>

@@ -1,8 +1,6 @@
 importScripts('../../socket.io/socket.io.js');
 
-console.log('hi');
-
-var settings = {};
+var settings = {}, channelConfig = [];
 
 var socket = io('/BelaScopeWorker');
 
@@ -10,21 +8,23 @@ onmessage = function(e){
 	if (!e.data || !e.data.event) return;
 	if (e.data.event === 'settings'){
 		settings = e.data.settings;
-		console.log(settings);
+	} else if (e.data.event === 'channelConfig'){
+		channelConfig = e.data.channelConfig;
+		//console.log(channelConfig);
 	}
 }
 
 socket.on('buffer', function(buf){
 
 	var floatArray = new Float32Array(buf);
-	//console.log("recieved buffer of length "+floatArray.length);
+	console.log("recieved buffer of length "+floatArray.length);
 	
-	if (floatArray.length <= numChannels*frameLength){
+	if (floatArray.length <= settings.numChannels.value*settings.frameWidth.value){
 	
-		for (var i=0; i<numChannels; i++){
-			for (var j=0; j<frameLength; j++){
-				var index = i*frameLength + j;
-				floatArray[index] = ( y0 * (1 - (channelConfig[i].yOffset+floatArray[index])/channelConfig[i].yAmplitude)  );
+		for (var i=0; i<settings.numChannels.value; i++){
+			for (var j=0; j<settings.frameWidth.value; j++){
+				var index = i*settings.frameWidth.value + j;
+				floatArray[index] = ( (settings.frameHeight/2) * (1 - (channelConfig[i].yOffset+floatArray[index])/channelConfig[i].yAmplitude)  );
 			}
 		}
 		
@@ -39,7 +39,7 @@ socket.on('buffer', function(buf){
 });
 /*
 // values from browser
-var frameLength = 1280;
+var settings.frameWidth.value = 1280;
 var y0 = 154.5;
 var upSampling = 1;
 var downSampling = 1;
@@ -50,7 +50,7 @@ var xOffset = 0;
 var channelConfig = [];
 
 // values from bela
-var numChannels = 1;
+var settings.numChannels.value = 1;
 var sampleRate = 44100;
 var dt = 1000/sampleRate;
 
@@ -62,14 +62,14 @@ onmessage = function(e) {
 		dt = 1000/sampleRate;
 		upSampling = e.data.upSampling;
 		downSampling = e.data.downSampling;
-		frameLength = e.data.frameLength;///upSampling);*/
-		/*if (frameLength > sampleRate){
-			frameLength = sampleRate;
+		settings.frameWidth.value = e.data.settings.frameWidth.value;///upSampling);*/
+		/*if (settings.frameWidth.value > sampleRate){
+			settings.frameWidth.value = sampleRate;
 		}*/
 		/*triggerDir = e.data.triggerDir;
 		triggerLevel = e.data.triggerLevel;
 		xOffset = Math.round(e.data.xOffset*sampleRate/1000);
-		numChannels = e.data.numChannels;
+		settings.numChannels.value = e.data.settings.numChannels.value;
 		tc = e.data.triggerChannel;
 		triggerMode = e.data.triggerMode;
 		channelConfig = e.data.channelConfig;
@@ -96,11 +96,11 @@ scopeSocket.on('buffer', function(buf){
 	var floatArray = new Float32Array(buf);
 	//console.log("recieved buffer of length "+floatArray.length);
 	
-	if (floatArray.length <= numChannels*frameLength){
+	if (floatArray.length <= settings.numChannels.value*settings.frameWidth.value){
 	
-		for (var i=0; i<numChannels; i++){
-			for (var j=0; j<frameLength; j++){
-				var index = i*frameLength + j;
+		for (var i=0; i<settings.numChannels.value; i++){
+			for (var j=0; j<settings.frameWidth.value; j++){
+				var index = i*settings.frameWidth.value + j;
 				floatArray[index] = ( y0 * (1 - (channelConfig[i].yOffset+floatArray[index])/channelConfig[i].yAmplitude)  );
 			}
 		}

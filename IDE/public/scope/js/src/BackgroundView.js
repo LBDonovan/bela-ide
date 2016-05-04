@@ -110,7 +110,7 @@ class BackgroundView extends View{
 	}
 	
 	__xTimeBase(value, data){
-		console.log(value);
+		//console.log(value);
 		this.repaint(value, data);
 	}
 	

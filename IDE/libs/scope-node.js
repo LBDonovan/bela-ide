@@ -50,6 +50,8 @@ var scope = {
 		scopeConnected = true;
 		console.log(settings);
 		
+		this.webSocket.emit('settings', settings);
+		
 		scopeOSC.sendSetupReply(settings);
 			
 	},
@@ -58,7 +60,7 @@ var scope = {
 		console.log('scope browser connected');
 		
 		// send the settings to the browser
-		socket.emit('init', settings);
+		socket.emit('settings', settings);
 		
 		// tell the scope that the browser is connected
 		settings.connected.value = 1;

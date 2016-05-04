@@ -9446,7 +9446,7 @@ class BackgroundView extends View {
 	}
 
 	__xTimeBase(value, data) {
-		console.log(value);
+		//console.log(value);
 		this.repaint(value, data);
 	}
 
@@ -9454,7 +9454,70 @@ class BackgroundView extends View {
 
 module.exports = BackgroundView;
 
-},{"./View":5}],3:[function(require,module,exports){
+},{"./View":6}],3:[function(require,module,exports){
+'use strict';
+
+var View = require('./View');
+
+function ChannelConfig() {
+	this.yAmplitude = 1;
+	this.yOffset = 0;
+	this.color = '#ff0000';
+}
+
+var channelConfig = [new ChannelConfig()];
+var colours = ['#ff0000', '#0000ff', '#00ff00', '#ffff00', '#00ffff', '#ff00ff'];
+
+class ChannelView extends View {
+
+	constructor(className, models) {
+		super(className, models);
+	}
+
+	// UI events
+	inputChanged($element, e) {
+		var key = $element.data().key;
+		var channel = $element.data().channel;
+		var value = key === 'color' ? $element.val() : parseFloat($element.val());
+		this.$elements.filterByData('key', key).filterByData('channel', channel).val(value);
+		channelConfig[channel][key] = value;
+		this.emit('channelConfig', channelConfig);
+	}
+
+	_numChannels(val) {
+		var numChannels = val.value;
+		if (numChannels < channelConfig.length) {
+			while (numChannels < channelConfig.length) {
+				$('#channelViewChannel' + (channelConfig.length - 1)).remove();
+				channelConfig.pop();
+			}
+		} else if (numChannels > channelConfig.length) {
+			while (numChannels > channelConfig.length) {
+				channelConfig.push(new ChannelConfig());
+				channelConfig[channelConfig.length - 1].color = colours[(channelConfig.length - 1) % colours.length];
+				var el = $('#channelViewChannel0').clone(true).prop('id', 'channelViewChannel' + (channelConfig.length - 1)).appendTo($(this.$parents[0]));
+				el.find('h1').html('Channel' + (channelConfig.length - 1));
+				el.find('input').each(function () {
+					$(this).data('channel', channelConfig.length - 1);
+				});
+				el.find('input[type=color]').val(colours[(channelConfig.length - 1) % colours.length]);
+			}
+		}
+		this.emit('channelConfig', channelConfig);
+		this.$elements = $('.' + this.className);
+	}
+
+}
+
+module.exports = ChannelView;
+
+$.fn.filterByData = function (prop, val) {
+	return this.filter(function () {
+		return $(this).data(prop) == val;
+	});
+};
+
+},{"./View":6}],4:[function(require,module,exports){
 'use strict';
 
 var View = require('./View');
@@ -9511,7 +9574,7 @@ $.fn.filterByData = function (prop, val) {
 	});
 };
 
-},{"./View":5}],4:[function(require,module,exports){
+},{"./View":6}],5:[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter;
 
 class Model extends EventEmitter {
@@ -9593,7 +9656,7 @@ function _equals(a, b, log) {
 	}
 }
 
-},{"events":8}],5:[function(require,module,exports){
+},{"events":9}],6:[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter;
 var $ = require('jquery-browserify');
 
@@ -9649,10 +9712,10 @@ class View extends EventEmitter {
 
 module.exports = View;
 
-},{"events":8,"jquery-browserify":1}],6:[function(require,module,exports){
+},{"events":9,"jquery-browserify":1}],7:[function(require,module,exports){
 var scope = require('./scope-browser');
 
-},{"./scope-browser":7}],7:[function(require,module,exports){
+},{"./scope-browser":8}],8:[function(require,module,exports){
 'use strict';
 
 // worker
@@ -9670,19 +9733,20 @@ controlView.on('settings-event', (key, value) => {
 });
 
 var backgroundView = new (require('./BackgroundView'))('scopeBG', [settings]);
-/*controlView.on('settings-event', (key, value) => {
-	socket.emit('settings-event', key, value);
-});*/
+
+var channelView = new (require('./ChannelView'))('channelView', [settings]);
+channelView.on('channelConfig', channelConfig => {
+	worker.postMessage({
+		event: 'channelConfig',
+		channelConfig
+	});
+});
 
 // setup socket
 var socket = io('/BelaScope');
 
-socket.on('init', newSettings => {
-	newSettings.frameWidth.value = window.innerWidth;
-	settings.setData(newSettings);
-});
-
 socket.on('settings', newSettings => {
+	if (newSettings.frameWidth) newSettings.frameWidth.value = window.innerWidth;
 	settings.setData(newSettings);
 	//console.log(newSettings);
 	//settings.print();
@@ -9705,9 +9769,10 @@ settings.on('set', (data, changedKeys) => {
 // window events
 $(window).on('resize', () => {
 	settings.setKey('frameWidth', { type: 'integer', value: window.innerWidth });
+	settings.setKey('frameHeight', window.innerHeight);
 });
 
-},{"./BackgroundView":2,"./ControlView":3,"./Model":4}],8:[function(require,module,exports){
+},{"./BackgroundView":2,"./ChannelView":3,"./ControlView":4,"./Model":5}],9:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -10007,7 +10072,7 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}]},{},[6])
+},{}]},{},[7])
 
 
 //# sourceMappingURL=bundle.js.map

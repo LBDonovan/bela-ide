@@ -9337,6 +9337,128 @@ return jQuery;
 
 var View = require('./View');
 
+class BackgroundView extends View {
+
+	constructor(className, models) {
+		super(className, models);
+		//this.repaint();
+	}
+
+	repaint(xTime, data) {
+		var canvas = document.getElementById('scopeBG');
+		canvas.width = window.innerWidth;
+		canvas.height = window.innerHeight;
+		var ctx = canvas.getContext('2d');
+		ctx.rect(0, 0, canvas.width, canvas.height);
+		ctx.fillStyle = "white";
+		ctx.fill();
+		//ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+		var xPixels = xTime * data.sampleRate.value / 1000;
+		var numVLines = Math.floor(canvas.width / xPixels);
+
+		//faint lines
+		ctx.strokeStyle = '#000000';
+		ctx.lineWidth = 0.2;
+		ctx.setLineDash([]);
+		ctx.beginPath();
+		for (var i = 1; i < numVLines; i++) {
+			ctx.moveTo(canvas.width / 2 + i * xPixels, 0);
+			ctx.lineTo(canvas.width / 2 + i * xPixels, canvas.height);
+			ctx.moveTo(canvas.width / 2 - i * xPixels, 0);
+			ctx.lineTo(canvas.width / 2 - i * xPixels, canvas.height);
+		}
+
+		var numHLines = 6;
+		for (var i = 1; i < numHLines; i++) {
+			if (i != numHLines / 2) {
+				ctx.moveTo(0, canvas.height * i / numHLines);
+				ctx.lineTo(canvas.width, canvas.height * i / numHLines);
+			}
+		}
+
+		//ticks
+		var numTicks = 10;
+		var tickSize;
+		for (var i = 0; i < numVLines; i++) {
+			for (var j = 1; j < numTicks; j++) {
+				tickSize = 7;
+				if (j === Math.floor(numTicks / 2)) {
+					tickSize = 10;
+				}
+				ctx.moveTo(canvas.width / 2 + i * xPixels + xPixels * j / numTicks, canvas.height / 2 + tickSize);
+				ctx.lineTo(canvas.width / 2 + i * xPixels + xPixels * j / numTicks, canvas.height / 2 - tickSize);
+				if (i) {
+					ctx.moveTo(canvas.width / 2 - i * xPixels + xPixels * j / numTicks, canvas.height / 2 + tickSize);
+					ctx.lineTo(canvas.width / 2 - i * xPixels + xPixels * j / numTicks, canvas.height / 2 - tickSize);
+				}
+			}
+		}
+
+		numTicks = 10;
+		for (var i = 0; i < numHLines; i++) {
+			for (var j = 1; j < numTicks; j++) {
+				tickSize = 7;
+				if (j === Math.floor(numTicks / 2)) {
+					tickSize = 10;
+				}
+				ctx.moveTo(canvas.width / 2 - tickSize, canvas.height * i / numHLines + canvas.height * j / (numTicks * numHLines));
+				ctx.lineTo(canvas.width / 2 + tickSize, canvas.height * i / numHLines + canvas.height * j / (numTicks * numHLines));
+			}
+		}
+		ctx.stroke();
+
+		//dashed lines
+		ctx.beginPath();
+		ctx.setLineDash([2, 5]);
+
+		ctx.moveTo(0, canvas.height * 3 / 4);
+		ctx.lineTo(canvas.width, canvas.height * 3 / 4);
+		ctx.moveTo(0, canvas.height * 1 / 4);
+		ctx.lineTo(canvas.width, canvas.height * 1 / 4);
+
+		ctx.stroke();
+		ctx.setLineDash([]);
+
+		//fat lines
+		ctx.lineWidth = 1;
+		ctx.beginPath();
+		var numVLines = 2;
+		for (var i = 0; i <= numVLines; i++) {
+			ctx.moveTo(canvas.width * i / numVLines, 0);
+			ctx.lineTo(canvas.width * i / numVLines, canvas.height);
+		}
+
+		var numHLines = 2;
+		for (var i = 0; i <= numHLines; i++) {
+			ctx.moveTo(0, canvas.height * i / numHLines);
+			ctx.lineTo(canvas.width, canvas.height * i / numHLines);
+		}
+		ctx.stroke();
+
+		//trigger line
+		/*ctx.strokeStyle = '#0000ff';
+  ctx.lineWidth = 0.2;
+  ctx.beginPath();
+  ctx.moveTo(0, (canvas.height/2)*(1-(this.yOffset+this.triggerLevel)/this.yAmplitude) );
+  ctx.lineTo(canvas.width, (canvas.height/2)*(1-(this.yOffset+this.triggerLevel)/this.yAmplitude) );
+  ctx.stroke();*/
+	}
+
+	__xTimeBase(value, data) {
+		console.log(value);
+		this.repaint(value, data);
+	}
+
+}
+
+module.exports = BackgroundView;
+
+},{"./View":5}],3:[function(require,module,exports){
+'use strict';
+
+var View = require('./View');
+
 class ControlView extends View {
 
 	constructor(className, models) {
@@ -9361,7 +9483,7 @@ class ControlView extends View {
 	// settings model events
 	modelChanged(data, changedKeys) {
 		for (let key of changedKeys) {
-			if (key === 'upSampling' || key === 'downSampling') {
+			if (key === 'upSampling' || key === 'downSampling' || key === 'xTimeBase') {
 				this['_' + key](data[key], data);
 			} else {
 				this.$elements.filterByData('key', key).val(data[key].value);
@@ -9370,10 +9492,13 @@ class ControlView extends View {
 	}
 
 	_upSampling(value, data) {
-		$('.xTime-display').html(data.downSampling.value / data.upSampling.value / data.sampleRate.value);
+		$('.xTime-display').html((data.xTimeBase * data.downSampling.value / data.upSampling.value).toPrecision(2));
 	}
 	_downSampling(value, data) {
-		$('.xTime-display').html(data.downSampling.value / data.upSampling.value / data.sampleRate.value);
+		$('.xTime-display').html((data.xTimeBase * data.downSampling.value / data.upSampling.value).toPrecision(2));
+	}
+	_xTimeBase(value, data) {
+		$('.xTime-display').html((data.xTimeBase * data.downSampling.value / data.upSampling.value).toPrecision(2));
 	}
 
 }
@@ -9386,7 +9511,7 @@ $.fn.filterByData = function (prop, val) {
 	});
 };
 
-},{"./View":4}],3:[function(require,module,exports){
+},{"./View":5}],4:[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter;
 
 class Model extends EventEmitter {
@@ -9468,7 +9593,7 @@ function _equals(a, b, log) {
 	}
 }
 
-},{"events":7}],4:[function(require,module,exports){
+},{"events":8}],5:[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter;
 var $ = require('jquery-browserify');
 
@@ -9494,7 +9619,7 @@ class View extends EventEmitter {
 		}
 
 		this.$elements.filter('select').on('change', e => this.selectChanged($(e.currentTarget), e));
-		this.$elements.filter('input').on('change', e => this.inputChanged($(e.currentTarget), e));
+		this.$elements.filter('input').on('input', e => this.inputChanged($(e.currentTarget), e));
 		this.$elements.filter('button').on('click', e => this.buttonClicked($(e.currentTarget), e));
 	}
 
@@ -9524,10 +9649,10 @@ class View extends EventEmitter {
 
 module.exports = View;
 
-},{"events":7,"jquery-browserify":1}],5:[function(require,module,exports){
+},{"events":8,"jquery-browserify":1}],6:[function(require,module,exports){
 var scope = require('./scope-browser');
 
-},{"./scope-browser":6}],6:[function(require,module,exports){
+},{"./scope-browser":7}],7:[function(require,module,exports){
 'use strict';
 
 // models
@@ -9541,8 +9666,18 @@ controlView.on('settings-event', (key, value) => {
 	socket.emit('settings-event', key, value);
 });
 
+var backgroundView = new (require('./BackgroundView'))('scopeBG', [settings]);
+/*controlView.on('settings-event', (key, value) => {
+	socket.emit('settings-event', key, value);
+});*/
+
 // setup socket
 var socket = io('/BelaScope');
+
+socket.on('init', newSettings => {
+	newSettings.frameWidth.value = window.innerWidth;
+	settings.setData(newSettings);
+});
 
 socket.on('settings', newSettings => {
 	settings.setData(newSettings);
@@ -9550,7 +9685,16 @@ socket.on('settings', newSettings => {
 	//settings.print();
 });
 
-},{"./ControlView":2,"./Model":3}],7:[function(require,module,exports){
+// model events
+settings.on('change', (data, changedKeys) => {
+	if (changedKeys.indexOf('frameWidth') !== -1) {
+		var xTimeBase = Math.max(Math.floor(1000 * (data.frameWidth.value / 8) / data.sampleRate.value), 1);
+		settings.setKey('xTimeBase', xTimeBase);
+		socket.emit('settings-event', 'frameWidth', data.frameWidth.value);
+	}
+});
+
+},{"./BackgroundView":2,"./ControlView":3,"./Model":4}],8:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -9850,7 +9994,7 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}]},{},[5])
+},{}]},{},[6])
 
 
 //# sourceMappingURL=bundle.js.map

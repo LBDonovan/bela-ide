@@ -26,7 +26,7 @@ class ControlView extends View{
 	// settings model events
 	modelChanged(data, changedKeys){
 		for (let key of changedKeys){
-			if (key === 'upSampling' || key === 'downSampling'){
+			if (key === 'upSampling' || key === 'downSampling' || key === 'xTimeBase'){
 				this['_'+key](data[key], data);
 			} else {
 				this.$elements.filterByData('key', key).val(data[key].value);
@@ -35,12 +35,14 @@ class ControlView extends View{
 	}
 	
 	_upSampling(value, data){
-		$('.xTime-display').html(data.downSampling.value/data.upSampling.value/data.sampleRate.value);
+		$('.xTime-display').html((data.xTimeBase * data.downSampling.value/data.upSampling.value).toPrecision(2));
 	}
 	_downSampling(value, data){
-		$('.xTime-display').html(data.downSampling.value/data.upSampling.value/data.sampleRate.value);
+		$('.xTime-display').html((data.xTimeBase * data.downSampling.value/data.upSampling.value).toPrecision(2));
 	}
-	
+	_xTimeBase(value, data){
+		$('.xTime-display').html((data.xTimeBase * data.downSampling.value/data.upSampling.value).toPrecision(2));
+	}
 	
 }
 

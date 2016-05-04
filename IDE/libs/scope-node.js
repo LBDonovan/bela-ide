@@ -58,7 +58,7 @@ var scope = {
 		console.log('scope browser connected');
 		
 		// send the settings to the browser
-		socket.emit('settings', settings);
+		socket.emit('init', settings);
 		
 		// tell the scope that the browser is connected
 		settings.connected.value = 1;

@@ -11,6 +11,7 @@ var ProjectManager = require('./ProjectManager');
 var ProcessManager = require('./ProcessManager');
 var DebugManager = require('./DebugManager');
 var server = require('./fileServer');
+var scope = require('./scope-node');
 
 // module variables - only accesible from this file
 var allSockets;
@@ -38,6 +39,9 @@ function IDE(){
 		co(ProcessManager, 'checkCPU')
 			.then((output) => allSockets.emit('cpu-usage', output));
 	}, 1000);
+	
+	// scope
+	scope.init(io);
 	
 }
 
@@ -245,7 +249,8 @@ var SettingsManager = {
 
 
 process.on('uncaughtException', (err) => {
-	console.log('uncaughtException', err);
+	console.log('uncaughtException');
+	throw err;
 });
 // catch SIGTERM which occasionally gets thrown when cancelling the syntax check. Dunno why, it's kind of a problem.
 process.on('SIGTERM', () => {

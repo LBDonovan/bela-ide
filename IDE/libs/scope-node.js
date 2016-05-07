@@ -1,4 +1,5 @@
 'use strict';
+var dgram = require('dgram');
 var scopeOSC = require('./scope-osc');
 
 var scopeConnected = false;
@@ -34,6 +35,16 @@ var scope = {
 		scopeOSC.init();
 		scopeOSC.on('scope-setup', (args) => this.scopeConnected(args) );
 		
+		// UDP socket to receive raw scope data from bela scope
+		var scopeUDP = dgram.createSocket('udp4');
+		scopeUDP.bind(UDP_RECIEVE, '127.0.0.1');
+
+		// echo raw scope data over websocket to browser
+		scopeUDP.on('message', (buffer) => {
+			//console.log('raw scope buffer recieved, of length', buffer.length);
+			this.workerSocket.emit('buffer', buffer);
+		});
+		
 	},
 	
 	scopeConnected(args){
@@ -48,7 +59,6 @@ var scope = {
 		
 		console.log('scope connected');
 		scopeConnected = true;
-		console.log(settings);
 		
 		this.webSocket.emit('settings', settings);
 		

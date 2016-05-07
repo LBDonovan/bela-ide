@@ -41,7 +41,7 @@ class ChannelView extends View{
 					.clone(true)
 					.prop('id', 'channelViewChannel'+(channelConfig.length-1))
 					.appendTo($(this.$parents[0]));
-				el.find('h1').html('Channel'+(channelConfig.length-1));
+				el.find('h1').html('Channel '+(channelConfig.length-1));
 				el.find('input').each(function(){
 					$(this).data('channel', channelConfig.length-1)
 				});

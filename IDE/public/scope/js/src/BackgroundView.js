@@ -5,11 +5,17 @@ class BackgroundView extends View{
 
 	constructor(className, models){
 		super(className, models);
-		//this.repaint();
+		var saveCanvas =  document.getElementById('saveCanvas');
+		this.canvas = document.getElementById('scopeBG');
+		saveCanvas.addEventListener('click', () => {
+			this.canvas.getContext('2d').drawImage(document.getElementById('scope'), 0, 0);
+			saveCanvas.href = this.canvas.toDataURL();
+			this.repaintBG();
+		});
 	}
 	
-	repaint(xTime, data){
-		var canvas = document.getElementById('scopeBG');
+	repaintBG(xTime, data){
+		var canvas = this.canvas;
 		canvas.width = window.innerWidth;
 		canvas.height = window.innerHeight;
 		var ctx = canvas.getContext('2d');
@@ -18,7 +24,7 @@ class BackgroundView extends View{
 		ctx.fill();
 		//ctx.clearRect(0, 0, canvas.width, canvas.height);
 		
-		var xPixels = xTime*data.sampleRate.value/1000;
+		var xPixels = xTime*this.models[0].getKey('sampleRate').value/1000;
 		var numVLines = Math.floor(canvas.width/xPixels);
 
 		//faint lines
@@ -111,7 +117,7 @@ class BackgroundView extends View{
 	
 	__xTimeBase(value, data){
 		//console.log(value);
-		this.repaint(value, data);
+		this.repaintBG(value, data);
 	}
 	
 }

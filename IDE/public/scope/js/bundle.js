@@ -9341,11 +9341,17 @@ class BackgroundView extends View {
 
 	constructor(className, models) {
 		super(className, models);
-		//this.repaint();
+		var saveCanvas = document.getElementById('saveCanvas');
+		this.canvas = document.getElementById('scopeBG');
+		saveCanvas.addEventListener('click', () => {
+			this.canvas.getContext('2d').drawImage(document.getElementById('scope'), 0, 0);
+			saveCanvas.href = this.canvas.toDataURL();
+			this.repaintBG();
+		});
 	}
 
-	repaint(xTime, data) {
-		var canvas = document.getElementById('scopeBG');
+	repaintBG(xTime, data) {
+		var canvas = this.canvas;
 		canvas.width = window.innerWidth;
 		canvas.height = window.innerHeight;
 		var ctx = canvas.getContext('2d');
@@ -9354,7 +9360,7 @@ class BackgroundView extends View {
 		ctx.fill();
 		//ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-		var xPixels = xTime * data.sampleRate.value / 1000;
+		var xPixels = xTime * this.models[0].getKey('sampleRate').value / 1000;
 		var numVLines = Math.floor(canvas.width / xPixels);
 
 		//faint lines
@@ -9447,7 +9453,7 @@ class BackgroundView extends View {
 
 	__xTimeBase(value, data) {
 		//console.log(value);
-		this.repaint(value, data);
+		this.repaintBG(value, data);
 	}
 
 }
@@ -9496,7 +9502,7 @@ class ChannelView extends View {
 				channelConfig.push(new ChannelConfig());
 				channelConfig[channelConfig.length - 1].color = colours[(channelConfig.length - 1) % colours.length];
 				var el = $('#channelViewChannel0').clone(true).prop('id', 'channelViewChannel' + (channelConfig.length - 1)).appendTo($(this.$parents[0]));
-				el.find('h1').html('Channel' + (channelConfig.length - 1));
+				el.find('h1').html('Channel ' + (channelConfig.length - 1));
 				el.find('input').each(function () {
 					$(this).data('channel', channelConfig.length - 1);
 				});
@@ -9562,6 +9568,15 @@ class ControlView extends View {
 	}
 	_xTimeBase(value, data) {
 		$('.xTime-display').html((data.xTimeBase * data.downSampling.value / data.upSampling.value).toPrecision(2));
+	}
+
+	__numChannels(val, data) {
+		var el = this.$elements.filterByData('key', 'triggerChannel');
+		el.empty();
+		for (let i = 0; i < val.value; i++) {
+			let opt = $('<option></option>').html(i).val(i).appendTo(el);
+			if (i === data.triggerChannel.value) opt.prop('selected', 'selected');
+		}
 	}
 
 }
@@ -9728,13 +9743,16 @@ var settings = new Model();
 
 // views
 var controlView = new (require('./ControlView'))('scopeControls', [settings]);
+var backgroundView = new (require('./BackgroundView'))('scopeBG', [settings]);
+var channelView = new (require('./ChannelView'))('channelView', [settings]);
+
+// socket
+var socket = io('/BelaScope');
+
+// view events
 controlView.on('settings-event', (key, value) => {
 	socket.emit('settings-event', key, value);
 });
-
-var backgroundView = new (require('./BackgroundView'))('scopeBG', [settings]);
-
-var channelView = new (require('./ChannelView'))('channelView', [settings]);
 channelView.on('channelConfig', channelConfig => {
 	worker.postMessage({
 		event: 'channelConfig',
@@ -9742,11 +9760,10 @@ channelView.on('channelConfig', channelConfig => {
 	});
 });
 
-// setup socket
-var socket = io('/BelaScope');
-
+// socket events
 socket.on('settings', newSettings => {
 	if (newSettings.frameWidth) newSettings.frameWidth.value = window.innerWidth;
+	newSettings.frameHeight = window.innerHeight;
 	settings.setData(newSettings);
 	//console.log(newSettings);
 	//settings.print();
@@ -9771,6 +9788,89 @@ $(window).on('resize', () => {
 	settings.setKey('frameWidth', { type: 'integer', value: window.innerWidth });
 	settings.setKey('frameHeight', window.innerHeight);
 });
+
+// plotting
+{
+
+	let canvas = document.getElementById('scope');
+	let ctx = canvas.getContext('2d');
+	ctx.lineWidth = 2;
+
+	let width,
+	    height,
+	    numChannels,
+	    channelConfig = [];
+	settings.on('change', (data, changedKeys) => {
+		if (changedKeys.indexOf('frameWidth') !== -1 || changedKeys.indexOf('frameHeight') !== -1) {
+			canvas.width = window.innerWidth;
+			width = canvas.width;
+			canvas.height = window.innerHeight;
+			height = canvas.height;
+		}
+		if (changedKeys.indexOf('numChannels') !== -1) {
+			numChannels = data.numChannels.value;
+		}
+	});
+	channelView.on('channelConfig', config => channelConfig = config);
+
+	let frame,
+	    length,
+	    plot = false;
+
+	worker.onmessage = function (e) {
+		frame = e.data;
+		length = Math.floor(frame.length / numChannels);
+		plot = true;
+	};
+
+	function plotLoop() {
+		requestAnimationFrame(plotLoop);
+
+		if (plot) {
+
+			plot = false;
+			ctx.clearRect(0, 0, width, height);
+			//console.log('plotting');
+
+			for (var i = 0; i < numChannels; i++) {
+
+				ctx.strokeStyle = channelConfig[i].color;
+
+				ctx.beginPath();
+				ctx.moveTo(0, frame[i * length]);
+
+				for (var j = 1; j < length; j++) {
+					ctx.lineTo(j, frame[j + i * length]);
+				}
+
+				ctx.stroke();
+			}
+		} /*else {
+    console.log('not plotting');
+    }*/
+	}
+	plotLoop();
+
+	let saveCanvasData = document.getElementById('saveCanvasData');
+	saveCanvasData.addEventListener('click', function () {
+
+		let downSampling = settings.getKey('downSampling').value;
+		let upSampling = settings.getKey('upSampling').value;
+		let sampleRate = settings.getKey('sampleRate').value;
+
+		let out = "data:text/csv;charset=utf-8,";
+
+		for (let i = 0; i < length; i++) {
+			out += i * downSampling / (upSampling * sampleRate);
+			for (let j = 0; j < numChannels; j++) {
+				out += ',' + ((1 - frame[j * length + i] / (height / 2)) * channelConfig[j].yAmplitude - channelConfig[j].yOffset);
+			}
+			out += '\n';
+		}
+
+		this.href = encodeURI(out);
+	});
+}
 
 },{"./BackgroundView":2,"./ChannelView":3,"./ControlView":4,"./Model":5}],9:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.

@@ -23,17 +23,17 @@ class scopeOSC extends EventEmitter {
 	
 	recieve(message, info){
 		var msg = osc.fromBuffer(message);
-		//console.log(msg, info);
 		if (msg.oscType === 'message'){
 			this.parseMessage(msg);
 		} else if(msg.oscType === 'bundle'){
-		
+			console.log('received OSC bundle');
+		} else {
+			console.log('bad OSC message');
 		}
 	}
 		
 	parseMessage(msg){
 		var address = msg.address.split('/');
-		//console.log('parsing message', address);
 		if (!address || !address.length || address.length <2){
 			console.log('bad OSC address', address);
 			return;
@@ -64,8 +64,6 @@ class scopeOSC extends EventEmitter {
 	}
 	
 	send(message){
-		console.log('sending', message);
-		if (message.elements) console.log(message.elements[1].args);
 		var buffer = osc.toBuffer(message);
 		this.socket.send(buffer, 0, buffer.length, OSC_SEND, '127.0.0.1', function(err) {
 			if (err) console.log(err);

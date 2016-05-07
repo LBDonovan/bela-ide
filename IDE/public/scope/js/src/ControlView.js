@@ -6,7 +6,6 @@ class ControlView extends View{
 	constructor(className, models){
 		super(className, models);
 		$('#controlsButton').click(() => this.$parents.toggleClass('hidden') );
-			
 	}
 	
 	// UI events
@@ -42,6 +41,15 @@ class ControlView extends View{
 	}
 	_xTimeBase(value, data){
 		$('.xTime-display').html((data.xTimeBase * data.downSampling.value/data.upSampling.value).toPrecision(2));
+	}
+	
+	__numChannels(val, data){
+		var el = this.$elements.filterByData('key', 'triggerChannel');
+		el.empty();
+		for (let i=0; i<val.value; i++){
+			let opt = $('<option></option>').html(i).val(i).appendTo(el);
+			if (i === data.triggerChannel.value) opt.prop('selected', 'selected'); 
+		}
 	}
 	
 }

@@ -17,7 +17,8 @@ onmessage = function(e){
 socket.on('buffer', function(buf){
 
 	var floatArray = new Float32Array(buf);
-	console.log("recieved buffer of length "+floatArray.length);
+	//console.log("worker: recieved buffer of length "+floatArray.length);
+	//console.log(settings.frameHeight, settings.numChannels.value, settings.frameWidth.value, channelConfig);
 	
 	if (floatArray.length <= settings.numChannels.value*settings.frameWidth.value){
 	
@@ -27,7 +28,7 @@ socket.on('buffer', function(buf){
 				floatArray[index] = ( (settings.frameHeight/2) * (1 - (channelConfig[i].yOffset+floatArray[index])/channelConfig[i].yAmplitude)  );
 			}
 		}
-		
+		//console.log("worker: passing buffer of length "+floatArray.length);
 		postMessage(floatArray, [floatArray.buffer]);
 		
 	} else {

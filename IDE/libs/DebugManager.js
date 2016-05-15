@@ -9,15 +9,16 @@ var pusage = Promise.promisifyAll(require('pidusage'));
 
 var ProjectManager = require('./ProjectManager');
 var projectPath = '/root/BeagleRT/projects/';
-var print_debug = false;
+var print_debug = true;
 
-var maxChildren = 50;
+var maxChildren = 50, maxRecursions = 20;
 
 class DebugManager extends EventEmitter {
 	
 	constructor(){
 		super();
 		this.running = false;
+		this.recursionCounter = 0;
 	}
 	
 	// start the debugger
@@ -256,10 +257,11 @@ class DebugManager extends EventEmitter {
 				variable.numchild = parseInt(state.status.numchild);
 			
 			if (variable.numchild) {
-				//console.log('STATUS: variable created, listing children', variable);
+				console.log('STATUS: variable created, listing children', variable);
+				this.recursionCounter = 0;
 				variable = yield _co(this, 'listChildren', variable);
 			} else {
-				//console.log('STATUS: variable created, no children', variable);
+				console.log('STATUS: variable created, no children', variable);
 			}
 			
 		}
@@ -273,6 +275,11 @@ class DebugManager extends EventEmitter {
 	
 		if (variable.numchild > maxChildren){
 			console.log('too many children to list!');
+			return variable;
+		}
+		
+		if (this.recursionCounter++ > maxRecursions){
+			console.log('max recursions reached');
 			return variable;
 		}
 	

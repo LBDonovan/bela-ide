@@ -13,7 +13,7 @@ endif
 PROJECT_DIR := $(abspath ../projects/$(PROJECT))
 
 RM := rm -rf
-STATIC_LIBS := ../libNE10.a
+STATIC_LIBS := ../libprussdrv.a ../libNE10.a
 LIBS := -lrt -lnative -lxenomai -lbeaglert
 
 INCLUDES := -I/usr/include/ne10 -I/usr/xenomai/include -I$(PROJECT_DIR) -I../include
@@ -71,7 +71,7 @@ $(PROJECT_DIR)/build/%.o: $(PROJECT_DIR)/%.S
 BeagleRT: $(ASM_OBJS) $(C_OBJS) $(CPP_OBJS)
 	@echo 'Linking...'
 #	@echo 'Invoking: GCC C++ Linker'
-	@g++ $(DEBUG_FLAG) $(SYNTAX_FLAG) -L/usr/xenomai/lib -L/usr/lib/arm-linux-gnueabihf -pthread -Wpointer-arith -o "$(PROJECT_DIR)/$(PROJECT)" $(ASM_OBJS) $(C_OBJS) $(CPP_OBJS) $(STATIC_LIBS) $(LIBS)
+	@g++ $(DEBUG_FLAG) $(SYNTAX_FLAG) -L/usr/xenomai/lib -L/usr/lib/arm-linux-gnueabihf -pthread -Wpointer-arith -o "$(PROJECT_DIR)/$(PROJECT)" $(ASM_OBJS) $(C_OBJS) $(CPP_OBJS) $(LIBS) $(STATIC_LIBS)
 	@echo '	...done'
 	
 # This rule compiles c and c++ source files without output or linking

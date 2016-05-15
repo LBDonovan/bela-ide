@@ -10,7 +10,7 @@ var source = require('vinyl-source-stream');
 var sourcemaps = require('gulp-sourcemaps');
 var buffer = require('vinyl-buffer');
 
-var host = '192.168.1.2';
+var host = '192.168.7.2';
 var user = 'root';
 var pass = 'a';
 var remotePath = '/root/BeagleRT/IDE/';
@@ -126,7 +126,7 @@ gulp.task('scope-browserify', () => {
 });
 
 function startNode(callback){
-	var ssh = spawn('ssh', [user+'@'+host, 'cd', remotePath+';', 'node', '--harmony-destructuring', '/root/BeagleRT/IDE/index.js']);
+	var ssh = spawn('ssh', [user+'@'+host, 'cd', remotePath+';', 'node', '/root/BeagleRT/IDE/index.js']);
 	
 	ssh.stdout.setEncoding('utf8');
 	ssh.stdout.on('data', function(data){

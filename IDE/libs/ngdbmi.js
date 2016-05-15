@@ -987,6 +987,7 @@ function gdbMI( command_and_args, options, gdbWrapper )
 		args = args.split('has_more').join('has-more');
 		args = args.replace(/=/g, "!:");
 		args = args.replace(/([a-zA-Z0-9-]*)!:/g, "\"$1\":");
+		args = args.split('""').join('');
 		//console.log("¢¢¢¢ " + args + " ¢¢¢¢" );
 
 		/* Remove array labels */

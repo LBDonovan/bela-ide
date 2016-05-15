@@ -9584,19 +9584,19 @@ models.status.on('set', (data, changedKeys) => {
 	}
 });
 // debug mode
-/*models.debug.on('change', (data, changedKeys) => {
-	if (changedKeys.indexOf('debugMode') !== -1){
+models.debug.on('change', (data, changedKeys) => {
+	if (changedKeys.indexOf('debugMode') !== -1) {
 		//console.log(!data.debugMode, models.debug.getKey('debugRunning'));
 		if (!data.debugMode && models.debug.getKey('debugRunning')) socket.emit('debugger-event', 'stop');
 		var data = {
-			func			: 'cleanProject',
-			currentProject	: models.project.getKey('currentProject'),
-			timestamp		: performance.now()
+			func: 'cleanProject',
+			currentProject: models.project.getKey('currentProject'),
+			timestamp: performance.now()
 		};
 		consoleView.emit('openNotification', data);
 		socket.emit('project-event', data);
 	}
-});*/
+});
 
 // history
 {

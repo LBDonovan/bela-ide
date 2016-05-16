@@ -67,7 +67,7 @@ table {
 
 #beaglert-console{
 	height: 150px;
-	border: 1px solid black;
+	/* border: 1px solid black; */
 	position: absolute;
 	bottom: 0;
 	width: 100%;
@@ -529,16 +529,16 @@ body {
 
 
 #flexit {
-display: inline-block;
-margin: 0;
+	display: inline-block;
+	margin: 0;
 }
 #innerContent {
-position: absolute;
-top: 0;
-left: 0;
-right: 0;
-bottom: 190px;
-overflow: hidden;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 190px;
+	overflow: hidden;
 }
 
 
@@ -606,16 +606,23 @@ right: calc(100% - 62px);
     }
     /* == Style for each pullout tab == */
     .tab label {
-      background: #eee; 
-      /*padding: 10px 10px 20px 0; */
-      padding: 10px 5px;
-      border: 1px solid #ccc; 
-      margin-left: -1px; 
-      position: relative;
-      left: 1px;        
+      background: #ddd; 
+      padding: 12px 5px 10px 5px;
+      margin: 0 auto;
+      border: 1px solid #d2d2d2; 
+      border-right: none;
+      margin-left: 5px; 
       width: 50px;
+      height: 24px;
       display: block;
     }
+    .tab span {
+    	padding-top: 33px;
+    	font-family: Consolas, sans-serif;
+    	font-size: 10px;
+    	color: #aaa;
+    	}
+
     .tab [type=radio] {
       display: none;   
     }
@@ -626,81 +633,116 @@ right: calc(100% - 62px);
       top: 0px;
       width: 100%;
       left: 63px;
-      background: white;
+      background: #fff;
       right: 0;
       bottom: 0;
       padding: 20px;
-      border: 1px solid #ccc;    
-      visibility: hidden;   
+      border: 1px solid #d2d2d2;
+      visibility: hidden;
       overflow: scroll;
     }
+
+    .tab h1 {
+    	font-family: Consolas;
+    	font-size: 25px;
+    	color: #82C889;
+    	display: inline;
+    	line-height: 40px;
+    }
+
+    .tab h2 {
+    	font-family: Consolas, sans-serif;
+    	font-size: 20px;
+    	color: #8EE697;
+    	line-height: 30px;
+    }
+    .settingsManager-parent {
+    	font-family: Consolas;
+    	font-size: 11px;
+    	line-height: 18px;
+    }
+    .tabTable {
+    	width: 100%;
+    }
+    	.tabTable td {
+    		width: 175px;
+    		text-align: right;
+    		padding-right: 5px;
+    	}
+    	.tabTable td + td {
+    		text-align: left;
+    	}
+
     /* ======== IMAGES IN EACH TAB FROM SPRITE ======== */
     
     #open-tabs{
-    	width: 28px;
-    	height: 28px;
-    	background: url("images/tabSprite.png") 0px 0px;
+    	width: 30px;
+    	background: url("images/icons/arrow25.png") no-repeat;
     	display: block;
     	margin: 0 auto;
     }
     
     #settings {
-    	width: 28px;
-    	height: 28px;
-    	background: url("images/tabSprite.png") -30px 0px;
+    	width: 30px;
+    	background: url("images/icons/gear-white25.png") no-repeat;
     	display: block;
     	margin: 0 auto;
     }
+
     #tab-1:checked + label>span{
-    	background: url("images/tabSprite.png") -60px 0px;
+    	background: url("images/icons/gear-grey25.png") no-repeat;
     }
     
     #file-explorer {
-    	width: 28px;
-    	height: 28px;
-    	background: url("images/tabSprite.png") -90px 0px;
+    	width: 30px;
+    	background: url("images/icons/folder-white25.png") no-repeat;
     	display: block;
     	margin: 0 auto;
     }
     #tab-2:checked + label>span{
-    	background: url("images/tabSprite.png") -120px 0px;
+   	background: url("images/icons/folder-grey25.png") no-repeat;
     }
     
-    #code-examples {
-    	width: 28px;
-    	height: 28px;
-    	background: url("images/tabSprite.png") 0px -30px;
+    #debugger {
+    	width: 30px;
+    	background: url("images/icons/bug-white25.png") no-repeat;
     	display: block;
     	margin: 0 auto;
     }
     #tab-3:checked + label>span{
-    	background: url("images/tabSprite.png") -30px -30px;
+    	background: url("images/icons/bug-grey25.png") no-repeat;
     }
     
     #gpio-ref {
     	width: 28px;
-    	height: 28px;
-    	background: url("images/tabSprite.png") -90px -30px;
+    	background: url("images/icons/gpio-white25.png") no-repeat;
     	display: block;
     	margin: 0 auto;
     }
     #tab-4:checked + label>span{
-    	background: url("images/tabSprite.png") -60px -30px;
+    	background: url("images/icons/gpio-grey25.png") no-repeat;
     }
+
+
+    object {
+    	width: 400px;
+    	height: 100%;
+    }
+
+
     
     #api-ref {
     	width: 28px;
-    	height: 28px;
-    	background: url("images/tabSprite.png") -120px -30px;
+    	background: url("images/icons/book-white25.png") no-repeat;
     	display: block;
     	margin: 0 auto;
     }
     #tab-5:checked + label>span{
-    	background: url("images/tabSprite.png") -150px -30px;
+    	background: url("images/icons/book-grey25.png") no-repeat;
     }
 
     [type=radio]:checked ~ label {
-      background: white;
+      background: #fff;
       /*border-bottom: 1px solid white;*/
       z-index: 2;
     }
@@ -772,7 +814,7 @@ right: calc(100% - 62px);
 }
 #C_L_ARGS{
 	left: 20px;
-    width: 360px;
+    width: 200px;
     margin-bottom: 30px;
 	background-color: gainsboro;
 }

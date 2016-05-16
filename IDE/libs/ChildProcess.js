@@ -40,10 +40,12 @@ class ChildProcess extends EventEmitter{
 		childProcess.stderr.setEncoding('utf8');
  
 		childProcess.stdout.on('data', (data) => {
+			//console.log('stdout', data);
 			this.stdout.push(data);
 			this.emit('stdout', data);
 		});
 		childProcess.stderr.on('data', (data) => {
+			//console.log('stderr', data);
 			this.stderr.push(data);
 			this.emit('stderr', data);
 		});
@@ -51,8 +53,8 @@ class ChildProcess extends EventEmitter{
 		//childProcess.on('exit', (code, signal) => console.log('exit', childProcess.pid, code, signal) );
 		childProcess.on('close', (code, signal) => {
 			//console.log('close', childProcess.pid, code, signal);
-			var stdout = this.stdout;
-			var stderr = this.stderr;
+			var stdout = this.stdout.join ? this.stdout.join('') : this.stdout;
+			var stderr = this.stderr.join ? this.stderr.join('') : this.stderr;
 			if (this.dying){
 				this.closed();
 				this.emit('cancelled', {stdout, stderr, signal: (signal || 'undefined')});

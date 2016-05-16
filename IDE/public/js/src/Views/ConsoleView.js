@@ -57,10 +57,10 @@ class ConsoleView extends View{
 			_console.log(log);
 		}
 	}
-	_syntaxError(log, data){
+	__verboseSyntaxError(log, data){
 		if (parseInt(this.settings.getKey('verboseErrors'))){
 			for (let line of log){
-				_console.warn(line.split(' ').join('&nbsp;'));
+				_console.log(line.split(' ').join('&nbsp;'));
 			}
 		}
 	}

@@ -305,7 +305,9 @@ models.debug.on('change', (data, changedKeys) => {
 // local functions
 // parse errors from g++
 function parseErrors(data){
-
+//console.log('parsing', data, data.split('\n'));
+	data = data.split('\n');
+	
 	var errors = [];
 	for (let i=0; i<data.length; i++){
 
@@ -350,6 +352,10 @@ function parseErrors(data){
 					});
 				} else {
 					//console.log('rejected error string: '+str);
+					if (str[2] && str[2].indexOf('linker') !== -1){
+						console.log('linker error');
+						consoleView.emit('warn', 'linker error detected, set verbose build output in settings for details');
+					}
 				}
 			}
 		}
@@ -379,6 +385,8 @@ function parseErrors(data){
 	models.error.setKey('allErrors', errors);
 	models.error.setKey('currentFileErrors', currentFileErrors);
 	models.error.setKey('otherFileErrors', otherFileErrors);
+	
+	models.error.setKey('verboseSyntaxError', data);
 
 }
 

@@ -7,7 +7,7 @@ var pgrep = require('pgrep');
 var fs = Promise.promisifyAll(require('fs-extra'));
 
 var belaPath = '/root/BeagleRT/';
-var makePath = belaPath+'IDE/';
+var makePath = belaPath;
 var projectPath = belaPath+'projects/';
 
 class SyntaxCheckProcess extends ChildProcess{

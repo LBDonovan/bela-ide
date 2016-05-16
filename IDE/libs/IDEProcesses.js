@@ -56,12 +56,15 @@ class SyntaxCheckProcess extends ChildProcess{
 			.then((cpu) => {
 				makeCPU = cpu;
 				return pgrep.exec({
-					name: 'cc1plus'
+					name: 'clang'
 				});
 			})
-			.then(pusage.statAsync)
-			.then((stat) => {
-				return makeCPU + stat.cpu;
+			.map( pid => pusage.statAsync(pid) )
+			.then((stats) => {
+				for (let stat of stats){
+					makeCPU += stat.cpu;
+				}
+				return makeCPU;
 			})
 			.catch((e) => {
 				console.log('error calculating cpu', this.command);
@@ -113,12 +116,15 @@ class buildProcess extends ChildProcess{
 			.then((cpu) => {
 				makeCPU = cpu;
 				return pgrep.exec({
-					name: 'cc1plus'
+					name: 'clang'
 				});
 			})
-			.then(pusage.statAsync)
-			.then((stat) => {
-				return makeCPU + stat.cpu;
+			.map( pid => pusage.statAsync(pid) )
+			.then((stats) => {
+				for (let stat of stats){
+					makeCPU += stat.cpu;
+				}
+				return makeCPU;
 			})
 			.catch((e) => {
 				console.log('error calculating cpu', this.command);

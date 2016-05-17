@@ -357,6 +357,17 @@
 		"outputPathIsSetByUser": 0,
 		"processed": 0
 		},
+	"\/IDE\/public\/images\/icons\/arrow2_25.png": {
+		"fileType": 32768,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"initialSize": 302,
+		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/arrow2_25.png",
+		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/arrow2_25.png",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"processed": 0
+		},
 	"\/IDE\/public\/images\/icons\/arrow30.png": {
 		"fileType": 32768,
 		"ignore": 0,
@@ -940,6 +951,17 @@
 		"outputPathIsSetByUser": 0,
 		"processed": 0
 		},
+	"\/IDE\/public\/images\/icons\/x25.png": {
+		"fileType": 32768,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"initialSize": 431,
+		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/x25.png",
+		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/x25.png",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"processed": 0
+		},
 	"\/IDE\/public\/images\/logo.png": {
 		"fileType": 32768,
 		"ignore": 0,
@@ -1444,6 +1466,28 @@
 		"outputStyle": 1,
 		"syntaxCheckerStyle": 1
 		},
+	"\/IDE\/public\/js\/min\/jquery-min.js": {
+		"fileType": 64,
+		"ignore": 1,
+		"ignoreWasSetByUser": 0,
+		"inputAbbreviatedPath": "\/IDE\/public\/js\/min\/jquery-min.js",
+		"outputAbbreviatedPath": "\/IDE\/public\/js\/min\/min\/jquery-min-min.js",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"outputStyle": 1,
+		"syntaxCheckerStyle": 1
+		},
+	"\/IDE\/public\/js\/min\/xml-min.js": {
+		"fileType": 64,
+		"ignore": 1,
+		"ignoreWasSetByUser": 0,
+		"inputAbbreviatedPath": "\/IDE\/public\/js\/min\/xml-min.js",
+		"outputAbbreviatedPath": "\/IDE\/public\/js\/min\/min\/xml-min-min.js",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"outputStyle": 1,
+		"syntaxCheckerStyle": 1
+		},
 	"\/IDE\/public\/js\/src\/console.js": {
 		"fileType": 64,
 		"ignore": 0,
@@ -1582,6 +1626,17 @@
 		"ignoreWasSetByUser": 0,
 		"inputAbbreviatedPath": "\/IDE\/public\/js\/src\/Views\/View.js",
 		"outputAbbreviatedPath": "\/IDE\/public\/js\/src\/Views\/min\/View-min.js",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"outputStyle": 1,
+		"syntaxCheckerStyle": 1
+		},
+	"\/IDE\/public\/js\/xml.js": {
+		"fileType": 64,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"inputAbbreviatedPath": "\/IDE\/public\/js\/xml.js",
+		"outputAbbreviatedPath": "\/IDE\/public\/js\/min\/xml-min.js",
 		"outputPathIsOutsideProject": 0,
 		"outputPathIsSetByUser": 0,
 		"outputStyle": 1,

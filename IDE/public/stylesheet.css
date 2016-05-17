@@ -427,16 +427,17 @@ body {
 	*/
 	top: 0;
 	left: 0;
-	right: 63px;
+	right: 90px;
 	bottom: 0;
+	z-index: 97;
 	}
 #right {
 	position: absolute;
 	top: 0;
 	bottom: 0;
-	right: 0;
-	left: calc(100% - 63px);
-	background: transparent;
+	left: calc(100% - 65px);
+	
+	background: #e8e8e8;
 
 }
 #saveAsName{
@@ -602,25 +603,21 @@ right: calc(100% - 62px);
 	width: 100%;
 	height: 100%;
 	top: 0;
-    z-index: 98;
+    z-index: 101;
     }
     /* == Style for each pullout tab == */
     .tab label {
-      background: #ddd; 
-      padding: 12px 5px 10px 5px;
+      background: #aaa; 
+      padding: 12px 0;
       margin: 0 auto;
-      border: 1px solid #d2d2d2; 
-      border-right: none;
-      margin-left: 5px; 
-      width: 50px;
-      height: 24px;
+      
+      width: 65px;
+      height: 30px;
       display: block;
     }
     .tab span {
-    	padding-top: 33px;
-    	font-family: Consolas, sans-serif;
-    	font-size: 10px;
-    	color: #aaa;
+    	padding-top: 40px;
+    	cursor: pointer;
     	}
 
     .tab [type=radio] {
@@ -632,14 +629,15 @@ right: calc(100% - 62px);
       height: calc(100% - 20px);
       top: 0px;
       width: 100%;
-      left: 63px;
+      left: 62px;
       background: #fff;
       right: 0;
       bottom: 0;
       padding: 20px;
-      border: 1px solid #d2d2d2;
+      
       visibility: hidden;
       overflow: scroll;
+      width: 400px;
     }
 
     .tab h1 {
@@ -652,10 +650,27 @@ right: calc(100% - 62px);
 
     .tab h2 {
     	font-family: Consolas, sans-serif;
-    	font-size: 20px;
-    	color: #8EE697;
+    	font-size: 16px;
+    	color: #A8E2AD;
     	line-height: 30px;
+    	padding-left: 10px;
     }
+	.tab h3 {
+    	font-family: Consolas, sans-serif;
+    	font-size: 14px;
+    	color: #666;
+    	line-height: 30px;
+    	padding-left: 20px;
+    }
+    .tab .docContent {
+    	font-family: Consolas, sans-serif;
+    	font-size: 12px;
+    	color: #000;
+    	line-height: 18px;
+    	padding-left: 20px;
+    }
+
+
     .settingsManager-parent {
     	font-family: Consolas;
     	font-size: 11px;
@@ -675,12 +690,23 @@ right: calc(100% - 62px);
 
     /* ======== IMAGES IN EACH TAB FROM SPRITE ======== */
     
-    #open-tabs{
+    #open-tabs {
     	width: 30px;
-    	background: url("images/icons/arrow25.png") no-repeat;
     	display: block;
     	margin: 0 auto;
+    	cursor: pointer;
     }
+    #tab-0 {
+    	background: #e8e8e8; 
+    	margin-bottom: -3px; 
+    	height: 25px;
+    }
+	#tab-0 .open {
+		background: url("images/icons/x25.png") no-repeat;
+	}    
+	#tab-0 .closed {
+		background: url("images/icons/arrow2_25.png") no-repeat;
+	}
     
     #settings {
     	width: 30px;
@@ -691,6 +717,7 @@ right: calc(100% - 62px);
 
     #tab-1:checked + label>span{
     	background: url("images/icons/gear-grey25.png") no-repeat;
+    	cursor: default;
     }
     
     #file-explorer {
@@ -700,7 +727,8 @@ right: calc(100% - 62px);
     	margin: 0 auto;
     }
     #tab-2:checked + label>span{
-   	background: url("images/icons/folder-grey25.png") no-repeat;
+   		background: url("images/icons/folder-grey25.png") no-repeat;
+   		cursor: default;
     }
     
     #debugger {
@@ -711,6 +739,7 @@ right: calc(100% - 62px);
     }
     #tab-3:checked + label>span{
     	background: url("images/icons/bug-grey25.png") no-repeat;
+    	cursor: default;
     }
     
     #gpio-ref {
@@ -721,6 +750,7 @@ right: calc(100% - 62px);
     }
     #tab-4:checked + label>span{
     	background: url("images/icons/gpio-grey25.png") no-repeat;
+    	cursor: default;
     }
 
 
@@ -743,7 +773,6 @@ right: calc(100% - 62px);
 
     [type=radio]:checked ~ label {
       background: #fff;
-      /*border-bottom: 1px solid white;*/
       z-index: 2;
     }
     [type=radio]:checked ~ label ~ .tabContent {
@@ -758,6 +787,7 @@ right: calc(100% - 62px);
 /* tab content */
 
 .tabContent > h1{
+	box-shadow: -10px -10px -5px #888888;
 	margin: 10px 0;
 }
 
@@ -817,4 +847,10 @@ right: calc(100% - 62px);
     width: 200px;
     margin-bottom: 30px;
 	background-color: gainsboro;
+}
+
+/* DOCS AND XML */
+
+#xml {
+	display: none;
 }

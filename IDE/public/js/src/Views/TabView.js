@@ -33,8 +33,6 @@ class TabView extends View {
 		$('#right').css('left', window.innerWidth - 500 + 'px');
 		_tabsOpen = true;
 		this.emit('change');
-		var elem = document.getElementById("tab-0");
-		$(elem).addClass('closed');
 	}
 
 	closeTabs(){
@@ -42,8 +40,6 @@ class TabView extends View {
 		$('#right').css('left', window.innerWidth - 60 + 'px');
 		_tabsOpen = false;
 		this.emit('change');
-		var elem = document.getElementById("tab-0");
-		$(elem).addClass('open');
 	}
 	
 }

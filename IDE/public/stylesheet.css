@@ -854,3 +854,11 @@ right: calc(100% - 62px);
 #xml {
 	display: none;
 }
+/* Main list items in the documentation tab. Each section is in one of these.*/
+#docs {
+
+}
+/* The subsections are each in another list - these are the items in each subsection. */
+#subsec {
+
+}

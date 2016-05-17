@@ -422,17 +422,19 @@
 			for (var i = 0; i < sections.length; i++) {
 				li += "<li>";
 				var title = sections[i].getElementsByTagName("title");
-				li += "<h2>"+title[0].childNodes[0].nodeValue + "</h2>";
-				var subs = sections[i].getElementsByTagName("subTitle");
+				li += "<ol id='subSec'><li><h2>"+title[0].childNodes[0].nodeValue + "</h2>";
 				var content = sections[i].getElementsByTagName("content");
+				var subs = sections[i].getElementsByTagName("subTitle");
 
 				for (var j=0; j<subs.length; j++){
-					li += "<h3>" + subs[j].childNodes[0].nodeValue + "</h3><p class='docContent'>" + content[j].childNodes[0].nodeValue+ "</p>";
+					li += "<li><h3>" + subs[j].childNodes[0].nodeValue + "</h3><p class='docContent'>" + content[j].childNodes[0].nodeValue+ "</p></li>";
 					
 				}
-				li += "</li>";
+				li += "</li></ol></li>";
 				$("#docs").append(li);
 			}
+
+			
 
 		</script>
 

@@ -67,7 +67,7 @@ table {
 
 #beaglert-console{
 	height: 150px;
-	border: 1px solid black;
+	/* border: 1px solid black; */
 	position: absolute;
 	bottom: 0;
 	width: 100%;
@@ -427,16 +427,17 @@ body {
 	*/
 	top: 0;
 	left: 0;
-	right: 63px;
+	right: 90px;
 	bottom: 0;
+	z-index: 97;
 	}
 #right {
 	position: absolute;
 	top: 0;
 	bottom: 0;
-	right: 0;
-	left: calc(100% - 63px);
-	background: transparent;
+	left: calc(100% - 65px);
+	
+	background: #e8e8e8;
 
 }
 #saveAsName{
@@ -529,16 +530,16 @@ body {
 
 
 #flexit {
-display: inline-block;
-margin: 0;
+	display: inline-block;
+	margin: 0;
 }
 #innerContent {
-position: absolute;
-top: 0;
-left: 0;
-right: 0;
-bottom: 190px;
-overflow: hidden;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 190px;
+	overflow: hidden;
 }
 
 
@@ -602,20 +603,23 @@ right: calc(100% - 62px);
 	width: 100%;
 	height: 100%;
 	top: 0;
-    z-index: 98;
+    z-index: 101;
     }
     /* == Style for each pullout tab == */
     .tab label {
-      background: #eee; 
-      /*padding: 10px 10px 20px 0; */
-      padding: 10px 5px;
-      border: 1px solid #ccc; 
-      margin-left: -1px; 
-      position: relative;
-      left: 1px;        
-      width: 50px;
+      background: #aaa; 
+      padding: 12px 0;
+      margin: 0 auto;
+      
+      width: 65px;
+      height: 30px;
       display: block;
     }
+    .tab span {
+    	padding-top: 40px;
+    	cursor: pointer;
+    	}
+
     .tab [type=radio] {
       display: none;   
     }
@@ -625,83 +629,150 @@ right: calc(100% - 62px);
       height: calc(100% - 20px);
       top: 0px;
       width: 100%;
-      left: 63px;
-      background: white;
+      left: 62px;
+      background: #fff;
       right: 0;
       bottom: 0;
       padding: 20px;
-      border: 1px solid #ccc;    
-      visibility: hidden;   
+      
+      visibility: hidden;
       overflow: scroll;
+      width: 400px;
     }
+
+    .tab h1 {
+    	font-family: Consolas;
+    	font-size: 25px;
+    	color: #82C889;
+    	display: inline;
+    	line-height: 40px;
+    }
+
+    .tab h2 {
+    	font-family: Consolas, sans-serif;
+    	font-size: 16px;
+    	color: #A8E2AD;
+    	line-height: 30px;
+    	padding-left: 10px;
+    }
+	.tab h3 {
+    	font-family: Consolas, sans-serif;
+    	font-size: 14px;
+    	color: #666;
+    	line-height: 30px;
+    	padding-left: 20px;
+    }
+    .tab .docContent {
+    	font-family: Consolas, sans-serif;
+    	font-size: 12px;
+    	color: #000;
+    	line-height: 18px;
+    	padding-left: 20px;
+    }
+
+
+    .settingsManager-parent {
+    	font-family: Consolas;
+    	font-size: 11px;
+    	line-height: 18px;
+    }
+    .tabTable {
+    	width: 100%;
+    }
+    	.tabTable td {
+    		width: 175px;
+    		text-align: right;
+    		padding-right: 5px;
+    	}
+    	.tabTable td + td {
+    		text-align: left;
+    	}
+
     /* ======== IMAGES IN EACH TAB FROM SPRITE ======== */
     
-    #open-tabs{
-    	width: 28px;
-    	height: 28px;
-    	background: url("images/tabSprite.png") 0px 0px;
+    #open-tabs {
+    	width: 30px;
     	display: block;
     	margin: 0 auto;
+    	cursor: pointer;
     }
+    #tab-0 {
+    	background: #e8e8e8; 
+    	margin-bottom: -3px; 
+    	height: 25px;
+    }
+	#tab-0 .open {
+		background: url("images/icons/x25.png") no-repeat;
+	}    
+	#tab-0 .closed {
+		background: url("images/icons/arrow2_25.png") no-repeat;
+	}
     
     #settings {
-    	width: 28px;
-    	height: 28px;
-    	background: url("images/tabSprite.png") -30px 0px;
+    	width: 30px;
+    	background: url("images/icons/gear-white25.png") no-repeat;
     	display: block;
     	margin: 0 auto;
     }
+
     #tab-1:checked + label>span{
-    	background: url("images/tabSprite.png") -60px 0px;
+    	background: url("images/icons/gear-grey25.png") no-repeat;
+    	cursor: default;
     }
     
     #file-explorer {
-    	width: 28px;
-    	height: 28px;
-    	background: url("images/tabSprite.png") -90px 0px;
+    	width: 30px;
+    	background: url("images/icons/folder-white25.png") no-repeat;
     	display: block;
     	margin: 0 auto;
     }
     #tab-2:checked + label>span{
-    	background: url("images/tabSprite.png") -120px 0px;
+   		background: url("images/icons/folder-grey25.png") no-repeat;
+   		cursor: default;
     }
     
-    #code-examples {
-    	width: 28px;
-    	height: 28px;
-    	background: url("images/tabSprite.png") 0px -30px;
+    #debugger {
+    	width: 30px;
+    	background: url("images/icons/bug-white25.png") no-repeat;
     	display: block;
     	margin: 0 auto;
     }
     #tab-3:checked + label>span{
-    	background: url("images/tabSprite.png") -30px -30px;
+    	background: url("images/icons/bug-grey25.png") no-repeat;
+    	cursor: default;
     }
     
     #gpio-ref {
     	width: 28px;
-    	height: 28px;
-    	background: url("images/tabSprite.png") -90px -30px;
+    	background: url("images/icons/gpio-white25.png") no-repeat;
     	display: block;
     	margin: 0 auto;
     }
     #tab-4:checked + label>span{
-    	background: url("images/tabSprite.png") -60px -30px;
+    	background: url("images/icons/gpio-grey25.png") no-repeat;
+    	cursor: default;
     }
+
+
+    object {
+    	width: 400px;
+    	height: 100%;
+    }
+
+
     
     #api-ref {
     	width: 28px;
-    	height: 28px;
-    	background: url("images/tabSprite.png") -120px -30px;
+    	background: url("images/icons/book-white25.png") no-repeat;
     	display: block;
     	margin: 0 auto;
     }
     #tab-5:checked + label>span{
-    	background: url("images/tabSprite.png") -150px -30px;
+    	background: url("images/icons/book-grey25.png") no-repeat;
     }
 
     [type=radio]:checked ~ label {
-      background: white;
-      /*border-bottom: 1px solid white;*/
+      background: #fff;
       z-index: 2;
     }
     [type=radio]:checked ~ label ~ .tabContent {
@@ -716,6 +787,7 @@ right: calc(100% - 62px);
 /* tab content */
 
 .tabContent > h1{
+	box-shadow: -10px -10px -5px #888888;
 	margin: 10px 0;
 }
 
@@ -772,7 +844,21 @@ right: calc(100% - 62px);
 }
 #C_L_ARGS{
 	left: 20px;
-    width: 360px;
+    width: 200px;
     margin-bottom: 30px;
 	background-color: gainsboro;
+}
+
+/* DOCS AND XML */
+
+#xml {
+	display: none;
+}
+/* Main list items in the documentation tab. Each section is in one of these.*/
+#docs {
+
+}
+/* The subsections are each in another list - these are the items in each subsection. */
+#subsec {
+
 }

@@ -944,6 +944,7 @@ right: calc(100% - 62px);
 
 /* DOCS AND XML */
 #xml {
+	/* Hide the XML in the HTML */
 	display: none;
 }
 
@@ -952,25 +953,47 @@ label.docSectionHeader {
 	height: 15px;
 	width: 100%;
 	padding-left: 20px;
-	background: #C2DAC4;
+	background: #cccccc;
 	font-family: Consolas, sans-serif;
 	color: #fff;
 	font-size: 14px;
 }
-	label.docSectionHeader.sub {
+	label.docSectionHeader:hover {
+		background: #BFCCBB;
+	}
+label.docSectionHeader.sub {
+	background: #ddd;
+	margin-left: 20px;
+}
+	label.docSectionHeader.sub:hover {
+		background: #D7E2D3;
 		margin-left: 20px;
 	}
 	p {
-		margin-left: 50px;
+		margin-left: 30px;
 		font-family: Consolas, sans-serif;
 		font-size: 12px;
 		padding: 10px 0;
 	}
+.sections input + label + ul
+{
+	display: none;
+}
 .sections input:checked:not(:disabled) + label + ul
 {
 	display: block;
 }
+
+.subsections input + label + p
+{
+	display: none;
+}
+
+.subsections input:checked:not(:disabled) + label + p
+{
+	display: block;
+}
+
 input[type=checkbox] {
 	display: none;
-
 }

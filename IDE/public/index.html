@@ -20,7 +20,7 @@
 				<div id="tab-parent">
 					<div class="tab" id="flexit">
 					   <input type="radio" id="exp" name="tab-group-1" checked>
-				       <label for="tab-0" id="tab-0" class="closed"><span id="open-tabs" title="Open Tabs" /></label>
+				       <label for="tab-0" id="tab-0"><span id="open-tabs" title="Open Tabs" /></label>
 				       <div class="tabContent">
 				    	</div> 
 				    </div>
@@ -307,7 +307,7 @@
 				       <label for="tab-5"><span id="api-ref" title="API Reference" /></label>
 				       <div class="tabContent">
 				           <h1>Documentation</h1>
-				           <ol id="docs"></ol>
+				           <ul class="sections"></ul>
 
 
 
@@ -321,11 +321,12 @@
 		</div> <!-- end innerContent -->
 	<!-- </div> --> <!-- end content -->
 
+<!-- OLD TOOLBAR
 		<div id="toolbar">
 			<div id="control" class="toolBar-parent">
 				<div class="controlPair">
 					<div class="controlButtons">
-						<span id="run" class="toolBar" data-func="run"></span>
+						<div id="run" class="toolBar toolbar-button" data-func="run"></div>
 						<span id="stop" class="toolBar" data-func="stop"></span>
 					</div>
 					<div class="controlText one">
@@ -364,7 +365,34 @@
 				<img src="images/logo_bar3.png">
 			</div>
 
-		</div>
+		</div> -->
+
+		<!-- NEW TOOLBAR -->
+		<div id="toolbar">
+
+			<div class="toolbar-control">	 
+				<div class="control-button" id="run" data-func="run"></div>
+				<div class="control-button" id="stop" data-func="stop"></div>
+				<span class="control-text"></span>
+			</div>
+			<div class="toolbar-control">	 
+				<div class="control-button" id="new-tab" data-func="run"></div>
+				<div class="control-button" id="download"></div>
+				<span class="control-text"></span>
+			</div>
+			<div class="toolbar-control">	 
+				<div class="control-button" id="scope"></div>
+				<div class="control-button" id="console"></div>
+				<span class="control-text"></span>
+			</div>
+
+			<div id="status">
+			</div>
+
+			<div id="logo">
+				<img src="images/logo_bar3.png">
+			</div><!-- end logo -->
+		</div> <!-- end toolbar -->
 
 		<div id="xml">
 			<section>
@@ -420,20 +448,23 @@
 			var li = "";
 			
 			for (var i = 0; i < sections.length; i++) {
-				li += "<li>";
+				li += "";
 				var title = sections[i].getElementsByTagName("title");
-				li += "<ol id='subSec'><li><h2>"+title[0].childNodes[0].nodeValue + "</h2>";
+				li += "<li><input type='checkbox' /><label class='docSectionHeader'>"+title[0].childNodes[0].nodeValue + "</label>";
 				var content = sections[i].getElementsByTagName("content");
 				var subs = sections[i].getElementsByTagName("subTitle");
 
 				for (var j=0; j<subs.length; j++){
-					li += "<li><h3>" + subs[j].childNodes[0].nodeValue + "</h3><p class='docContent'>" + content[j].childNodes[0].nodeValue+ "</p></li>";
+					li += "<ul class='subsections'><li><input type='checkbox' /><label  class='docSectionHeader sub'>" + subs[j].childNodes[0].nodeValue + "</label><p>" + content[j].childNodes[0].nodeValue+ "</p></li>";
 					
 				}
-				li += "</li></ol></li>";
-				$("#docs").append(li);
+				li += "</li></ul></li>";
+				$(".sections").append(li);
 			}
+			var tabsOpen = false;
+			// $('#tab-parent').find('label').bind('click', function(){
 
+			// });
 			
 
 		</script>

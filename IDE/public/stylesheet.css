@@ -224,11 +224,11 @@ table {
 	width: 100%;
 	height: 100%;
 	z-index: 0;
-}*/
-.toolbar-dark .toolbar-underlay{
-	background-color: #d8d8d8;
 }
-/*
+// .toolbar-dark .toolbar-underlay{
+// 	background-color: #d8d8d8;
+// }
+
 .mainButton{
 	width: 30px;
 	height: 30px;
@@ -296,124 +296,216 @@ table {
 	bottom: 150px;
 	width: 100%;
 	height: 40px;
-	font-family: inconsolata;
+	font-family: Consolas;
 	font-size: 10pt;
 	z-index: 99;
-	background-color: #d8d8d8;
-	
+	background-color: #e1e1e1;
 }
 
-#control {
-	margin: 0 0 0 20px;
+/* This is the container for the two buttons and text. */
+.toolbar-control {
+	width: calc((100% - 260px) / 3);
 	float: left;
-	display: inline-block;
-	
+}
+	.control-button {
+		min-height: 39px;
+		width: 40px;
+		display: inline-block;
+		margin-top: 5px;
+	}
+	.toolbar-control:first-child {
+		margin-left: 20px;
+	}
+	.control-button:nth-child(2) {
+		margin-left: -7px;
+	}
+
+
+
+#run {
+	background: url("images/icons/run_grey2.png") no-repeat;
+}
+#run:hover {
+	background: url("images/icons/run_white2.png") no-repeat;
+}
+#stop {
+	margin-left: -10px;
+	background: url("images/icons/stop_grey.png") no-repeat;
+}
+#stop:hover {
+	margin-left: -10px;
+	background: url("images/icons/stop_white.png") no-repeat;
+}
+.one {
+	margin: 0;
 }
 
-	.controlPair{
-		float: left;
-	}
-		.controlButtons {
-			width: 75px;
-			float: left;
-			cursor: pointer;
-		}
-		.controlButtons span {
-			display: inline-block;
-		}
-			#run {
-				background: url("images/toolbar.png") 0 30px;
-				width: 30px;
-				height: 30px;
-				margin-top: 4px;
-			}
-			#run:hover {
-				background: url("images/toolbar.png") -35px 30px;
-			}
-			#stop {
-				background: url("images/toolbar.png") -70px 30px;	
-				width: 30px;
-				height: 30px;
-				margin-top: 4px;
-			}
-			#stop:hover {
-				background: url("images/toolbar.png") -105px 30px;	
-			}
-			.one {
-				margin: 0;
-			}
-
-			#newTab {
-				background: url("images/toolbar.png") -245px 0;
-				width: 30px;
-				height: 30px;
-				margin-top: 4px;
-			}
-			#newTab:hover {
-				background: url("images/toolbar.png") -210px 0;
-			}
-			#download {
-				background: url("images/toolbar.png") 0 0;	
-				width: 30px;
-				height: 30px;
-			}
-			#download:hover {
-				background: url("images/toolbar.png") -35px 0;	
-			}
-				.two {
-					margin: 0;
-				}
-			#console {
-				background: url("images/toolbar.png") -70px 0;
-				width: 30px;
-				height: 35px;
-				margin-top: 4px;
-			}
-			#console:hover {
-				background: url("images/toolbar.png") -105px 0;
-			}
-			#scope {
-				background: url("images/toolbar.png") -140px 0;	
-				width: 30px;
-				height: 35px;
-			}
-			#scope:hover {
-				background: url("images/toolbar.png") -175px 0;	
-			}
-				.three {
-					margin: 0;
-				}
-			#status {
-				position: absolute;
-				width: 30px;
-				height: 35px;
-				left: calc(100% - 225px);
-				background: url("images/toolbar.png") -140px 35px;
-				cursor: initial;
-			}
-			.controlText {
-				font-family: inconsolata;
-				font-size: 14px;
-				color: white;
-				height: 15px;
-				width: 120px;
-				display: inline-block;
-				margin-top: 12px;
-			}
+#new-tab {
+	background: url("images/icons/tab_grey.png") no-repeat;
+}
+#new-tab:hover {
+	background: url("images/icons/tab_white.png") no-repeat;
+}
+#download {
+	background: url("images/icons/dl_grey.png") no-repeat;	
+}
+#download:hover {
+	background: url("images/icons/down_white.png") no-repeat;	
+}
+#console {
+	background: url("images/icons/console_grey4.png") no-repeat;
+}
+#console:hover {
+	background: url("images/icons/console_white4.png") no-repeat;
+}
+#scope {
+	background: url("images/icons/scope_grey10.png") no-repeat;	
+}
+#scope:hover {
+	background: url("images/icons/scope_white10.png") no-repeat;
+}
 
 
 #logo {
 	position: absolute;
-	top: -25px;
+	top: -27px;
 	left: calc(100% - 160px);
 	margin-right: 20px;
-	
 	width: 140px;
 	float: right;
 	display: inline-block;
-
-	/*background: url("images/logo_bar.png");*/
 }
+
+#status {
+	position: absolute;
+	top: 0;
+	width: 30px;
+	height: 35px;
+	left: calc(100% - 225px);
+	background: url("images/toolbar.png") -140px 35px;
+	cursor: initial;
+	display: inline;
+}
+.control-text {
+	font-family: inconsolata;
+	font-size: 14px;
+	color: white;
+	display: inline-block;
+	margin-top: 12px;
+	float: left;
+}
+/*
+// OLD TOOLBAR STYLES
+// #control {
+// 	margin: 0 0 0 20px;
+// 	float: left;
+// 	display: inline-block;
+	
+// }
+
+// 	.controlPair{
+// 		float: left;
+// 	}
+// 		.controlButtons {
+// 			width: 75px;
+// 			float: left;
+// 			cursor: pointer;
+// 		}
+// 		.controlButtons span {
+// 			display: inline-block;
+// 		}
+// 		.toolbar-button {
+// 			margin:0;
+// 			padding: 0;
+// 			background: #ccc;
+// 			height: 45px;
+// 			width: 45px;
+// 			display: inline-block;
+// 		}
+// 			.toolbar-button:hover {
+// 				background: #aaa;
+// 			}
+// 			#run {
+// 				background: url("images/toolbar.png") 0 30px;
+// 				width: 30px;
+// 				height: 30px;
+// 			}
+// 			#run:hover {
+// 				background: url("images/toolbar.png") -35px 30px;
+// 			}
+// 			#stop {
+// 				background: url("images/toolbar.png") -70px 30px;	
+// 				width: 30px;
+// 				height: 30px;
+// 			}
+// 			#stop:hover {
+// 				background: url("images/toolbar.png") -105px 30px;	
+// 			}
+// 			.one {
+// 				margin: 0;
+// 			}
+
+// 			#newTab {
+// 				background: url("images/toolbar.png") -245px 0;
+// 				width: 30px;
+// 				height: 30px;
+// 			}
+// 			#newTab:hover {
+// 				background: url("images/toolbar.png") -210px 0;
+// 			}
+// 			#download {
+// 				background: url("images/toolbar.png") 0 0;	
+// 				width: 30px;
+// 				height: 30px;
+// 			}
+// 			#download:hover {
+// 				background: url("images/toolbar.png") -35px 0;	
+// 			}
+// 				.two {
+// 					margin: 0;
+// 				}
+// 			#console {
+// 				background: url("images/toolbar.png") -70px 0;
+// 				width: 30px;
+// 				height: 35px;
+// 			}
+// 			#console:hover {
+// 				background: url("images/toolbar.png") -105px 0;
+// 			}
+// 			#scope {
+// 				background: url("images/toolbar.png") -140px 0;	
+// 				width: 30px;
+// 				height: 35px;
+// 			}
+// 			#scope:hover {
+// 				background: url("images/toolbar.png") -175px 0;	
+// 			}
+// 				.three {
+// 					margin: 0;
+// 				}
+// 			#status {
+// 				position: absolute;
+// 				top: 2px;
+// 				width: 30px;
+// 				height: 35px;
+// 				left: calc(100% - 225px);
+// 				background: url("images/toolbar.png") -140px 35px;
+// 				cursor: initial;
+// 				display: inline;
+// 			}
+// 			.control-text {
+// 				font-family: inconsolata;
+// 				font-size: 14px;
+// 				color: white;
+// 				height: 15px;
+// 				width: 120px;
+// 				display: inline-block;
+// 				margin-top: 12px;
+// 			}
+*/
+
+
+
 
 body {
 	overflow: hidden;
@@ -523,7 +615,7 @@ body {
 			height: 25px;
 			float: right;
 			clear: right;
-			margin-top: 3px;
+			// margin-top: 3px;
 		}
 
 /* ======= FLEX STUFF ====== */
@@ -607,7 +699,7 @@ right: calc(100% - 62px);
     }
     /* == Style for each pullout tab == */
     .tab label {
-      background: #aaa; 
+      background: #bbbbbb; 
       padding: 12px 0;
       margin: 0 auto;
       
@@ -622,6 +714,10 @@ right: calc(100% - 62px);
 
     .tab [type=radio] {
       display: none;   
+    }
+    .tab label:hover {
+    	background: #ddd;
+    	cursor: pointer;
     }
     /* == Style for the content pane of each tab == */
     .tabContent {
@@ -697,16 +793,13 @@ right: calc(100% - 62px);
     	cursor: pointer;
     }
     #tab-0 {
-    	background: #e8e8e8; 
+		background: url("images/icons/arrow2_25.png") center center no-repeat #e8e8e8;
     	margin-bottom: -3px; 
     	height: 25px;
-    }
-	#tab-0 .open {
-		background: url("images/icons/x25.png") no-repeat;
-	}    
-	#tab-0 .closed {
-		background: url("images/icons/arrow2_25.png") no-repeat;
-	}
+    	}
+		#tab-0.open {
+			background: url("images/icons/x25.png") center center no-repeat;
+			}    
     
     #settings {
     	width: 30px;
@@ -850,15 +943,34 @@ right: calc(100% - 62px);
 }
 
 /* DOCS AND XML */
-
 #xml {
 	display: none;
 }
-/* Main list items in the documentation tab. Each section is in one of these.*/
-#docs {
 
+label.docSectionHeader {
+	margin: 5px 0 0 0;
+	height: 15px;
+	width: 100%;
+	padding-left: 20px;
+	background: #C2DAC4;
+	font-family: Consolas, sans-serif;
+	color: #fff;
+	font-size: 14px;
 }
-/* The subsections are each in another list - these are the items in each subsection. */
-#subsec {
+	label.docSectionHeader.sub {
+		margin-left: 20px;
+	}
+	p {
+		margin-left: 50px;
+		font-family: Consolas, sans-serif;
+		font-size: 12px;
+		padding: 10px 0;
+	}
+.sections input:checked:not(:disabled) + label + ul
+{
+	display: block;
+}
+input[type=checkbox] {
+	display: none;
 
 }

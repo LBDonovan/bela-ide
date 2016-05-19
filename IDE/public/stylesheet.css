@@ -303,23 +303,52 @@ table {
 }
 
 /* This is the container for the two buttons and text. */
+.toolbar-wrapper {
+	width: calc(100% - 260px);
+}
 .toolbar-control {
-	width: calc((100% - 260px) / 3);
+	width: 22%;
 	float: left;
+	/*border: 1px solid red;*/
+	height: 40px;
+	margin-left: -2px;
 }
 	.control-button {
 		min-height: 39px;
 		width: 40px;
 		display: inline-block;
+		margin-left: 1px;
 		margin-top: 5px;
+		float: left;
+	}
+	.control-text {
+		width: 30%;
 	}
 	.toolbar-control:first-child {
 		margin-left: 20px;
 	}
+
+/*	
 	.control-button:nth-child(2) {
 		margin-left: -7px;
 	}
-
+	*/
+// .statustool- {
+// 	width: calc((100% - 260px) / 4);
+// 	height: 40px;
+// 	margin-top: 5px;
+// 	float: left;
+// 	display: inline-block;
+// }
+	.status-text {
+		width: 33%;
+		float: left;
+		color: #fff;
+		text-align: right;
+	}
+		.status-text:nth-child(3) {
+			margin-right: 0;
+		}
 
 
 #run {
@@ -329,11 +358,11 @@ table {
 	background: url("images/icons/run_white2.png") no-repeat;
 }
 #stop {
-	margin-left: -10px;
+	margin-left: -2px;
 	background: url("images/icons/stop_grey.png") no-repeat;
 }
 #stop:hover {
-	margin-left: -10px;
+	margin-left: -2px;
 	background: url("images/icons/stop_white.png") no-repeat;
 }
 .one {
@@ -729,11 +758,11 @@ right: calc(100% - 62px);
       background: #fff;
       right: 0;
       bottom: 0;
-      padding: 20px;
+      padding: 20px 0 20px 20px;
       
       visibility: hidden;
       overflow: scroll;
-      width: 400px;
+      width: 405px;
     }
 
     .tab h1 {
@@ -749,7 +778,6 @@ right: calc(100% - 62px);
     	font-size: 16px;
     	color: #A8E2AD;
     	line-height: 30px;
-    	padding-left: 10px;
     }
 	.tab h3 {
     	font-family: Consolas, sans-serif;
@@ -765,24 +793,20 @@ right: calc(100% - 62px);
     	line-height: 18px;
     	padding-left: 20px;
     }
+    label.ticky {
+    	display: inline-block;
+    	height: 16px;
+    	padding: 0;
+	background: #fff;
+	width: 100%;
+	}
+		label.ticky:hover {
+			background: #fff;
+			cursor: default;
+		}
 
 
-    .settingsManager-parent {
-    	font-family: Consolas;
-    	font-size: 11px;
-    	line-height: 18px;
-    }
-    .tabTable {
-    	width: 100%;
-    }
-    	.tabTable td {
-    		width: 175px;
-    		text-align: right;
-    		padding-right: 5px;
-    	}
-    	.tabTable td + td {
-    		text-align: left;
-    	}
+
 
     /* ======== IMAGES IN EACH TAB FROM SPRITE ======== */
     
@@ -867,6 +891,7 @@ right: calc(100% - 62px);
     [type=radio]:checked ~ label {
       background: #fff;
       z-index: 2;
+      border-left: 1px solid #e8e8e8;
     }
     [type=radio]:checked ~ label ~ .tabContent {
       z-index: 1;
@@ -895,8 +920,11 @@ right: calc(100% - 62px);
     list-style: none;
 }
 #fileList > li{
-	margin-top: 0.2em;
-	width: 50%
+	margin-top: 0.4em;
+	width: 97%;
+	font-family: Consolas;
+	color: #aaa;
+	font-size: 12px;
 }
 .sourceFile{
 	cursor: pointer;
@@ -905,7 +933,7 @@ right: calc(100% - 62px);
 	margin-left: 1em;
 }
 .sourceFile:before, .resourceFile:before { 
-    content: "-";
+    content: "–";
     display: block;
     height: 0;
     width: 0;
@@ -913,10 +941,10 @@ right: calc(100% - 62px);
     position: relative;
 }
 .sourceFile:hover { 
-    background-color: #d8d8d8;
+    background-color: #dffdd5;
 }
 .selectedFile{
-	border: 1px solid green;
+	background-color: #A8DA97;
 }
 #uploadFileInput{
 	display: none;
@@ -924,6 +952,43 @@ right: calc(100% - 62px);
 
 #commits{
 	max-width: 50%;
+}
+
+
+.settingsManager-parent {
+	font-family: Consolas;
+	font-size: 11px;
+	line-height: 18px;
+}
+.tabTable {
+	width: 100%;
+}
+	.tabTable td {
+		width: 175px;
+		text-align: right;
+		padding-right: 5px;
+	}
+	.tabTable td + td {
+		text-align: left;
+	}
+
+.debug-table {
+}
+	.debug-table td {
+		width: 120px;
+		text-align: right;
+		padding-right: 5px;
+	}
+	.debug-table td + td {
+		text-align: left;
+	}
+
+.debug-buttons {
+	margin: 10px 0;
+}
+
+.settings-button {
+	margin-top: -7px;
 }
 
 /* settings tab */
@@ -942,6 +1007,72 @@ right: calc(100% - 62px);
 	background-color: gainsboro;
 }
 
+/* Project explorer */
+/*
+.proj-expl-table tr {
+	border: 1px solid red;
+	width: 100%;
+}
+*/
+.proj-expl-table {
+	width: 100%;
+}
+
+	.proj-expl-table td {
+		border: 1px solid red;
+		text-align: left;
+		width: 100%;
+	}
+
+
+
+.proj-expl {
+	text-align: left;
+	border: 1px solid #ddd;
+	border-radius: 10px;
+	background: #f9f9f9;
+	padding: 10px;
+	margin-bottom: 10px;
+	width: 94%;
+}
+	.proj-expl h2 {
+		line-height: 30px;
+		margin: -5px 0 5px 0;
+		text-align: left;
+		padding-left: 5px;
+		color: #7DC684;
+	}
+
+.file-buttons {
+	text-align: center;
+	margin-bottom: 10px;
+}
+
+.fileSection {
+	background: #e8e8e8;
+	font-family: Consolas;
+	font-color: #fff;
+	padding: 3px 0 3px 10px;
+}
+
+button {
+	line-height: 16px;
+	padding: 1px 4px 0;
+	font-family: Consolas;
+	background: #eee;
+	color: #aaa;
+	border: 1px solid #ccc;
+	display: inline-block;
+	vertical-align: middle;
+	
+}
+	button:hover {
+		cursor: pointer;
+		background: #aaa;
+		color: #fff;
+		box-shadow: 2px 2px 2px #ddd;
+		border: 1px solid #aaa;
+	}
 /* DOCS AND XML */
 #xml {
 	/* Hide the XML in the HTML */
@@ -994,6 +1125,36 @@ label.docSectionHeader.sub {
 	display: block;
 }
 
-input[type=checkbox] {
+.docs, docSectionHeader input[type=checkbox] {
 	display: none;
+}
+
+/* Styles for dropdown menus */
+
+select {
+   -webkit-appearance: none;
+   -moz-appearance: none;
+   appearance: none;
+    width: 220px;
+    padding-left: 28px;
+    padding-top: 2px;
+    font-size: 10px;
+    font-family: Consolas;
+    border: 1px solid #ccc;
+    height: 20px;
+    display: inline;
+    background: #fff url("images/icons/drop_arrow.png") 10px 6px no-repeat;
+    border-radius: 2px;
+}
+	.small {
+		width: 100px;
+		background: #fff url("images/icons/drop_arrow.png") 5px 6px no-repeat;
+		padding-left: 22px;
+	}
+hr {
+    border: 0; 
+    height: 1px; 
+    background: #ccc; 
+    background-image: linear-gradient(to right, #ccc, #333, #ccc); 
+    width: 90%;
 }

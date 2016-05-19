@@ -30,162 +30,164 @@
 				        <label for="tab-1"><span id="settings" /></label>
 				        <div id="settingsTab" class="tabContent">
 				        	<div class="settingsManager-parent">
-
+								<!-- TAB 1: PROJECT SETTINGS -->
 								<h1>Project Settings</h1>
-								<button class="settingsManager" data-func="restoreDefaultCLArgs">restore defaults</button>
+								<button class="settingsManager settings-button" data-func="restoreDefaultCLArgs">restore defaults</button>
 
 								<table class="tabTable">
-								<tr>
-									<td>Buffer size (audio samples):</td>
-									<td><select id="buffer-size" class="settingsManager" data-func="setCLArg" data-key="-p">
+									<tr>
+										<td>Buffer size (audio samples):</td>
+										<td><select id="buffer-size" class="settingsManager small" data-func="setCLArg" data-key="-p">
+											<option value="2">2</option>
+											<option value="4">4</option>
+											<option value="8">8</option>
+											<option value="16">16</option>
+											<option value="32">32</option>
+											<option value="64">64</option>
+											<option value="128">128</option>
+								   			</select>
+										</td>
+									</tr>
+									<tr>
+										<td>Analog Channels:</td>
+										<td><select id="analog-channels" class="settingsManager small" data-func="setCLArg" data-key="-C">
+										<option value="2">2</option>
+										<option value="4">4</option>
+										<option value="8">8</option>
+								   		</select></td>
+								   	</tr>
+
+								   	<tr>
+									   	<td>Analog Sample Rate (Hz):</td>
+									   	<td><select id="analog-samplerate" class="settingsManager small" data-func="setCLArg" data-key="-C">
+											<option value="2">88200</option>
+											<option value="4">44100</option>
+											<option value="8">22050</option>
+									   </select></td>
+								    </tr>
+
+								    <tr>
+								    	<td>Digital Channels:</td>
+								    	<td><select id="digital-channels" class="settingsManager small" data-func="setCLArg" data-key="-B">
 										<option value="2">2</option>
 										<option value="4">4</option>
 										<option value="8">8</option>
 										<option value="16">16</option>
-										<option value="32">32</option>
-										<option value="64">64</option>
-										<option value="128">128</option>
-							   			</select>
-									</td>
-								</tr>
-								<tr>
-									<td>Analog Channels:</td>
-									<td><select id="analog-channels" class="settingsManager" data-func="setCLArg" data-key="-C">
-									<option value="2">2</option>
-									<option value="4">4</option>
-									<option value="8">8</option>
-							   		</select></td>
-							   	</tr>
+								   		</select></td>
+								   	</tr>
 
-							   	<tr>
-								   	<td>Analog Sample Rate (Hz):</td>
-								   	<td><select id="analog-samplerate" class="settingsManager" data-func="setCLArg" data-key="-C">
-										<option value="2">88200</option>
-										<option value="4">44100</option>
-										<option value="8">22050</option>
-								   </select></td>
-							    </tr>
+								   	<tr>
+									    <td><label for="hp-level" class="ticky">Headphone level (dB):</label></td> 
+									    <td><input id="hp-level" class="settingsManager" data-func="setCLArg" type="number" max="0" min="-63.5" step="0.1" data-key="-H"></input></td>
+								    </tr>
 
-							    <tr>
-							    	<td>Digital Channels:</td>
-							    	<td><select id="digital-channels" class="settingsManager" data-func="setCLArg" data-key="-B">
-									<option value="2">2</option>
-									<option value="4">4</option>
-									<option value="8">8</option>
-									<option value="16">16</option>
-							   		</select></td>
-							   	</tr>
+								    <tr>
+										<!-- <td>Use Analogue:</td> -->
+										<td><label for="use-analog" class="ticky">Use Analogue:</label></td>
+										<td><input type="checkbox" id="use-analog" class="settingsManager" data-func="setCLArg" data-key="-N" value="1"></td>
+								   	</tr>
+								   
+								    <tr>
+								    	<td><label for="use-digital" class="ticky">Use Digital:</label></td> 
+								    	<td><input type="checkbox"  class="tickBox" id="use-digital" data-func="setCLArg" value="1" checked><span></span></td>
+								    </tr>
+								   
+									<tr>
+										<td>Mute Speaker:</td> 
+										<td><input type="checkbox" id="mute-speaker" class="settingsManager" data-func="setCLArg" data-key="-M" value="1"></td>
+									</tr>
+									
+									<tr>
+										<td>DAC level (dB):</td> 
+										<td><input id="dac-level" class="settingsManager" data-func="setCLArg" type="number" max="0" min="-63.5" step="0.1" data-key="-D"></input></td>
+									</tr>
+									
+									<tr>
+										<td>ADC level (dB):</td>
+										<td><input id="adc-level" class="settingsManager" data-func="setCLArg" type="number" max="0" min="-63.5" step="0.1" data-key="-A"></input></td>
+									</tr>
+									
+									<tr>
+										<td>Receive Port:</td>
+										<td><input id="receive-port" class="settingsManager" data-func="setCLArg" type="number" max="9999" min="0" step="1" data-key="-R"></input></td>
+									</tr>
 
-							   	<tr>
-								    <td>Headphone level (dB):</td> 
-								    <td><input id="hp-level" class="settingsManager" data-func="setCLArg" type="number" max="0" min="-63.5" step="0.1" data-key="-H"></input></td>
-							    </tr>
+									<tr>
+										<td>Transmit Port:</td> 
+										<td><input id="transmit-port" class="settingsManager" data-func="setCLArg" type="number" max="9999" min="0" step="1" data-key="-T"></input></td>
+									</tr>
 
-							    <tr>
-									<td>Use Analogue:</td>
-									<td><input type="checkbox" id="use-analog" class="settingsManager" data-func="setCLArg" data-key="-N" value="1" checked></td>
-							   	</tr>
-							   
-							    <tr>
-							    	<td>Use Digital:</td> 
-							    	<td><input type="checkbox" id="use-digital" class="settingsManager" data-func="setCLArg" value="1" checked></td>
-							    </tr>
-							   
-								<tr>
-									<td>Mute Speaker:</td> 
-									<td><input type="checkbox" id="mute-speaker" class="settingsManager" data-func="setCLArg" data-key="-M" value="1"></td>
-								</tr>
-								
-								<tr>
-									<td>DAC level (dB):</td> 
-									<td><input id="dac-level" class="settingsManager" data-func="setCLArg" type="number" max="0" min="-63.5" step="0.1" data-key="-D"></input></td>
-								</tr>
-								
-								<tr>
-									<td>ADC level (dB):</td>
-									<td><input id="adc-level" class="settingsManager" data-func="setCLArg" type="number" max="0" min="-63.5" step="0.1" data-key="-A"></input></td>
-								</tr>
-								
-								<tr>
-									<td>Receive Port:</td>
-									<td><input id="receive-port" class="settingsManager" data-func="setCLArg" type="number" max="9999" min="0" step="1" data-key="-R"></input></td>
-								</tr>
+									<tr>
+										<td>IP Address:</td>
+										<td><input id="ip-address" class="settingsManager" data-func="setCLArg" type="text" data-key="-S"></input></td>
+									</tr>
 
-								<tr>
-									<td>Transmit Port:</td> 
-									<td><input id="transmit-port" class="settingsManager" data-func="setCLArg" type="number" max="9999" min="0" step="1" data-key="-T"></input></td>
-								</tr>
+									<tr>
+										<td>PGA Gain left (dB):</td>
+										<td><input id="pga-left" class="settingsManager" data-func="setCLArg" type="number" min="0" max="63.5" step="0.1" data-key="--pga-gain-left"></input></td>
+									</tr>
 
-								<tr>
-									<td>IP Address:</td>
-									<td><input id="ip-address" class="settingsManager" data-func="setCLArg" type="text" data-key="-S"></input></td>
-								</tr>
+									<tr>
+										<td>PGA Gain right (dB):</td>
+										<td><input id="pga-right" class="settingsManager" data-func="setCLArg" type="number" min="0" max="63.5" step="0.1" data-key="--pga-gain-right"></input></td>
+									</tr>
 
-								<tr>
-									<td>PGA Gain left (dB):</td>
-									<td><input id="pga-left" class="settingsManager" data-func="setCLArg" type="number" min="0" max="63.5" step="0.1" data-key="--pga-gain-left"></input></td>
-								</tr>
+									<tr>
+										<td>User Command Line Arguments:</td>
+										<td><input id="user-clargs" class="settingsManager" data-func="setCLArg" type="text" data-key="user"></input></td>
+									</tr>
 
-								<tr>
-									<td>PGA Gain right (dB):</td>
-									<td><input id="pga-right" class="settingsManager" data-func="setCLArg" type="number" min="0" max="63.5" step="0.1" data-key="--pga-gain-right"></input></td>
-								</tr>
-
-								<tr>
-									<td>User Command Line Arguments:</td>
-									<td><input id="user-clargs" class="settingsManager" data-func="setCLArg" type="text" data-key="user"></input></td>
-								</tr>
-
-								<tr>
-									<td>Full Command Line String:</td>
-									<td><input id="C_L_ARGS" type="text" placeholder="C_L_ARGS" readonly></input></td>
-								</tr>
+									<tr>
+										<td>Full Command Line String:</td>
+										<td><input id="C_L_ARGS" type="text" placeholder="C_L_ARGS" readonly></input></td>
+									</tr>
 
 								</table>
 
 								<h1 class="tabTitle">IDE Settings</h1>
-								<button class="settingsManager" data-func="restoreDefaultIDESettings">restore defaults</button></br>
+								<button class="settingsManager settings-button" data-func="restoreDefaultIDESettings">restore defaults</button></br>
 
 								<table class="tabTable">
 
-								<tr>
-									<td>Autocomplete:</td>
-									<td><input type="checkbox" id="liveAutocompletion" class="settingsManager" data-func="setIDESetting" data-key="liveAutocompletion" value="1" checked></td>
+									<tr>
+										<td>Autocomplete:</td>
+										<td><input type="checkbox" id="liveAutocompletion" class="settingsManager" data-func="setIDESetting" data-key="liveAutocompletion" value="1" checked></td>
 
-								</tr>
+									</tr>
 
-								<tr>
-									<td>Syntax Checking:</td>
-									<td><input type="checkbox" id="liveSyntaxChecking" class="settingsManager" data-func="setIDESetting" data-key="liveSyntaxChecking" value="1" checked></td>
-								</tr>
+									<tr>
+										<td>Syntax Checking:</td>
+										<td><input type="checkbox" id="liveSyntaxChecking" class="settingsManager" data-func="setIDESetting" data-key="liveSyntaxChecking" value="1" checked></td>
+									</tr>
 
-								<tr>
-									<td>Verbose build errors:</td>
-									<td><input type="checkbox" id="verboseErrors" class="settingsManager" data-func="setIDESetting" data-key="verboseErrors" value="1" checked></td>
-								</tr>
+									<tr>
+										<td>Verbose build errors:</td>
+										<td><input type="checkbox" id="verboseErrors" class="settingsManager" data-func="setIDESetting" data-key="verboseErrors" value="1" checked></td>
+									</tr>
 
-								<tr>
-									<td>CPU monitoring:</td>
-									<td><input type="checkbox" id="cpuMonitoring" class="settingsManager" data-func="setIDESetting" data-key="cpuMonitoring" value="1" checked></td>
-								</tr>
-								
-								<tr>
-									<td>Xenomai CPU Monitoring:</td>
-									<td><input type="checkbox" id="cpuMonitoringVerbose" class="settingsMatdnager" data-func="setIDESetting" data-key="cpuMonitoringVerbose" value="1" checked></td>
-								</tr>
+									<tr>
+										<td>CPU monitoring:</td>
+										<td><input type="checkbox" id="cpuMonitoring" class="settingsManager" data-func="setIDESetting" data-key="cpuMonitoring" value="1" checked></td>
+									</tr>
+									
+									<tr>
+										<td>Xenomai CPU Monitoring:</td>
+										<td><input type="checkbox" id="cpuMonitoringVerbose" class="settingsMatdnager" data-func="setIDESetting" data-key="cpuMonitoringVerbose" value="1" checked></td>
+									</tr>
 
-								<tr>
-							  		<td>Delete old console records:</td>
-							  		<td><input type="checkbox" id="consoleDelete" class="settingsManager" data-func="setIDESetting" data-key="consoleDelete" value="1" checked></td>
-								</tr>
+									<tr>
+								  		<td>Delete old console records:</td>
+								  		<td><input type="checkbox" id="consoleDelete" class="settingsManager" data-func="setIDESetting" data-key="consoleDelete" value="1" checked></td>
+									</tr>
 
-								<tr>
-									<td>Verbose debugger output:</td>
-									<td><input type="checkbox" id="verboseDebug" class="settingsManager" data-func="setIDESetting" data-key="verboseDebug" value="1" checked></td>
-								</tr>
-							</table><!-- End IDE settings table -->
+									<tr>
+										<td>Verbose debugger output:</td>
+										<td><input type="checkbox" id="verboseDebug" class="settingsManager" data-func="setIDESetting" data-key="verboseDebug" value="1" checked></td>
+									</tr>
+							</table>
+							<!-- END TAB 1: PROJECT SETTINGS -->
 
-								<!-- SETTINGS FOR GIT: NOT DISPLAYED -->
+							<!-- SETTINGS FOR GIT: NOT DISPLAYED -->
 						   <!-- <div style="display: none">
 							   
 							   <h1>Git Settings</h1>
@@ -201,43 +203,76 @@
 							
 
 						
-							</div>
-				        </div> 
-				    </div>
+							</div><!-- end settingsManager-parent -->
+				        </div> <!-- end tabContent -->
+				    </div><!-- end tab -->
 				    
 				    <div class="tab">
 				        <input type="radio" id="tab-2" name="tab-group-1">
 				        <label for="tab-2"><span id="file-explorer" title="File Explorer" /></label>
 				        <div class="tabContent"> 
-				        	<div class="projectManager-parent">
+				        	<!-- <div class="settingsManager-parent"> -->
 								<h1 class="tabTitle">Project Explorer</h1>
-								<table class="tabTable">
-									<tr>
-										<td>Open Project:</td>
-										<td><select class="projectManager" id="projects" data-func="openProject"></select></td>
-									</tr>
-									<tr>
-										<td>
-								<button class="projectManager" id="new" data-func="newProject">new project</button>
-								<button class="projectManager" id="saveas" data-func="saveAs">save as</button>
-								<button class="projectManager" id="deleteProject" data-func="deleteProject">delete project</button>
-								<button class="projectManager" id="cleanProject" data-func="cleanProject">clean</button>
-								</table>
+									<div class="proj-expl">
+										<h2>Open existing project:</h2>
+											<select id="projects" data-func="openProject">
+												<option selected>Choose project from your board</option>
+												<option>Thing 1</option>
+												<option>Thing 2</option>
+												<option>Thing 3</option>
+											</select>
+									</div>
 
-								<h2>Open Example:</h2>
-								<select class="projectManager" id="examples" data-func="openExample"></select>
-							</div>
 
-							<div class="fileManager-parent">
-								<h2 id="fileListTitle">Files:</h2>
-								<button class="fileManager" data-func="newFile">new</button>
-								<button class="fileManager" data-func="uploadFile" id="uploadFile">upload</button>
-								<a id="downloadFileLink" href="/download" download><button id="downloadFile">download</button></a>
-								<button class="fileManager" data-func="renameFile">rename</button>
-								<button class="fileManager" data-func="deleteFile">delete</button>
-								<input type="file" id="uploadFileInput"></input>
-								<ul class="fileManager" id="fileList" data-func="openFile"></ul>
-							</div>
+									<div class="proj-expl">
+										<h2>Current project files:</h2>
+										<ul id="fileList">
+											<li class="fileSection">Headers:</li>
+											<li class="sourceFile">blah.h</li>
+											<li class="fileSection">Sources:</li>
+											<li class="sourceFile">render.cpp</li>
+											<li class="sourceFile">main.cpp</li>
+											<li class="fileSection">Resources:</li>
+											<li class="sourceFile">data.json</li>
+										</ul>
+									</div>
+
+									<div class="proj-expl file-buttons">
+										<h2>Manage files:</h2>
+										<button class="button" id="new" data-func="newProject">new project</button>
+										<button class="button" id="saveas" data-func="saveAs">save as</button>
+										<button class="button" id="deleteProject" data-func="deleteProject">delete project</button>
+										<button class="button" id="cleanProject" data-func="cleanProject">clean</button>
+										
+										<hr />
+										
+										<button class="button fileManager" data-func="newFile">new</button>
+										<button class="button fileManager" data-func="uploadFile" id="uploadFile">upload</button>
+										<a id href="/download" download><button id="downloadFile"  class="button fileManager">download</button></a>
+										<button class="button fileManager" data-func="renameFile">rename</button>
+										<button  class="button fileManager" data-func="deleteFile">delete</button>
+										<input type="file" id="uploadFileInput"></input>
+										<ul class="fileManager" id="fileList" data-func="openFile"></ul>
+									</div>
+									
+									<div class="proj-expl">
+										<h2>Open Example Project:</h2>
+											<select class="projectManager" id="examples" data-func="openExample">
+												<option checked>Choose an example:</option>
+												<option>Filtery filters</option>
+												<option>White Noise</option>
+												<option>Beeptown</option>
+											</select>
+									</div>
+
+
+							<!-- </div> -->
+
+<!-- 							<div class="fileManager-parent"> -->
+<!-- 									<div class="proj-expl">
+										<h2 id="fileListTitle">Manage Files:</h2>
+
+									</div> -->
 						   
 							<div class="gitParent" style="display: none">
 							   <h2>Git:</h2>
@@ -258,27 +293,42 @@
 				        </div> 
 				    </div>
 				    
-				    <div class="tab">
-				       <input type="radio" id="tab-3" name="tab-group-1">
-				       <label for="tab-3"><span id="debugger" title="Debugger" /></label>
-				       <div class="tabContent debugger-parent">
-				       <h1>Debugger settings</h1>
-				       <table>
-				           <tr>
+				    <div class="tab settingsManager-parent" >
+						<input type="radio" id="tab-3" name="tab-group-1">
+						<label for="tab-3"><span id="debugger" title="Debugger" /></label>
+						<div class="tabContent debugger-parent">
+						<h1>Debugger settings</h1>
+						
+						<table class="debug-table">
+							<tr>
 				           		<td>Debug mode:</td>
-				           		<td><select id="debugMode" class="debugger" data-func="debugMode">
+				           		<td><select id="debugMode" class="debugger  small" data-func="debugMode">
 				           		<option value="1">On</option>
 				           		<option value="0" selected>Off</option>
-				           </select></td>
-				           </tr>
-				           </table>
-				           <button id="debugContinue" class="debugger" data-func="debugContinue">continue</button>
-				           <button id="debugStep" class="debugger" data-func="debugStep">step into</button>
-				           <button id="debugNext" class="debugger" data-func="debugNext">step over</button>
-				           <button id="debugFinish" class="debugger" data-func="debugFinish">step out</button>
-				           <button id="debugInterrupt" class="debugger" data-func="debugInterrupt">interrupt</button></br>
-				           Debugger status: <span id="debuggerStatus" class="debugger">inactive</span></br>
-				           Location: <span id="debuggerLocation" class="debugger">n/a</span>
+				           		</select>
+							</td>
+							</tr>
+						</table>
+
+
+						<table class="debug-table">
+							<tr>
+								<td>Debugger status:</td>
+								<td><span id="debuggerStatus" class="debugger">inactive</span></td>
+							</tr>
+
+							<tr>
+								<td>Location:</td>
+								<td><span id="debuggerLocation" class="debugger">n/a</span></td>
+							</tr>
+						</table>
+						<div class="debug-buttons">
+							<button id="debugContinue" class="debugger" data-func="debugContinue">continue</button>
+							<button id="debugStep" class="debugger" data-func="debugStep">step into</button>
+							<button id="debugNext" class="debugger" data-func="debugNext">step over</button>
+							<button id="debugFinish" class="debugger" data-func="debugFinish">step out</button>
+							<button id="debugInterrupt" class="debugger" data-func="debugInterrupt">interrupt</button>
+						</div>
 				           <div id="listContainer" class="debugger">
 								<ul id="expList">
 							   </ul>
@@ -316,108 +366,90 @@
 
 			
 		</div> <!-- end innerContent -->
-	<!-- </div> --> <!-- end content -->
-
-<!-- OLD TOOLBAR
-		<div id="toolbar">
-			<div id="control" class="toolBar-parent">
-				<div class="controlPair">
-					<div class="controlButtons">
-						<div id="run" class="toolBar toolbar-button" data-func="run"></div>
-						<span id="stop" class="toolBar" data-func="stop"></span>
-					</div>
-					<div class="controlText one">
-					</div>
-				</div>
-
-				<div class="controlPair">
-					<div class="controlButtons">
-						<a href="" target="_blank" ><span id="newTab"></span></a>
-						<a id="downloadLink" href="/download" download><span id="download"></span></a>
-					</div>
-					<div class="controlText two">
-					</div>
-				</div>
-
-				<div class="controlPair">
-					<div class="controlButtons">
-						<span id="console" class="toolBar" data-func="clearConsole"></span>
-						<a href="scope" target="_blank"><span id="scope"></span></a>
-					</div>
-					<div class="controlText three">
-					</div>
-					<span class="controlText" id="statusText"></span>
-					<span class="controlText" id="ide-cpu"></span>
-					<span class="controlText" id="bela-cpu"></span>
-				</div>
-				<div class="controlPair">
-					<div class="controlButtons">
-						<span id="status" title="Syntax status check"></span>
-					</div>
-				</div>
-
-			</div>
-			
-			<div id="logo">
-				<img src="images/logo_bar3.png">
-			</div>
-
-		</div> -->
 
 		<!-- NEW TOOLBAR -->
 		<div id="toolbar">
+			<div class="toolbar-wrapper">
+				<div class="toolbar-control">	 
+					<div class="control-button" id="run" data-func="run"></div>
+					<div class="control-button" id="stop" data-func="stop"></div>
+					<span class="control-text"></span>
+				</div>
+				<div class="toolbar-control">	 
+					<div class="control-button" id="new-tab" data-func="run"></div>
+					<div class="control-button" id="download"></div>
+					<span class="control-text"></span>
+				</div>
+				<div class="toolbar-control">	 
+					<div class="control-button" id="scope"></div>
+					<div class="control-button" id="console"></div>
+					<span class="control-text"></span>
+				</div>
+				<!-- This is the field for system status text -->
+				<div class="toolbar-control control-text">	 
+					<span class="status-text">Field 1</span>
+					<span class="status-text">Field 2</span>
+					<span class="status-text">Field 3</span>
+				</div>
 
-			<div class="toolbar-control">	 
-				<div class="control-button" id="run" data-func="run"></div>
-				<div class="control-button" id="stop" data-func="stop"></div>
-				<span class="control-text"></span>
-			</div>
-			<div class="toolbar-control">	 
-				<div class="control-button" id="new-tab" data-func="run"></div>
-				<div class="control-button" id="download"></div>
-				<span class="control-text"></span>
-			</div>
-			<div class="toolbar-control">	 
-				<div class="control-button" id="scope"></div>
-				<div class="control-button" id="console"></div>
-				<span class="control-text"></span>
-			</div>
+				<!-- This is the image that signifies the status of syntax checking -->
+				<div id="status">
+				</div>
 
-			<div id="status">
-			</div>
+				<!-- This is the Bela logo -->
+				<div id="logo">
+					<img src="images/logo_bar3.png">
+				</div><!-- end logo -->
 
-			<div id="logo">
-				<img src="images/logo_bar3.png">
-			</div><!-- end logo -->
+			</div><!-- end toolbar wrapper -->
 		</div> <!-- end toolbar -->
 
 		<div id="xml">
+			<section>
+				<title>The Audio Context</title>
+				<subtitle>audioFrames</subtitle>
+				<content>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</content>
+
+				<subtitle>audioIn[]</subtitle>
+				<content>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</content>
+
+				<subtitle>audioChannels</subtitle>
+				<content>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</content>
+
+				<subtitle>timeDomainIn[]</subtitle>
+				<content>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</content>
+			</section>
 			
 			<section>
-				<title>Section 1</title>
-				<subTitle>Subsection 1.1</subTitle>
-				<content>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus sed purus velit. Pellentesque sit amet consequat quam, at congue quam. Maecenas consequat justo vel sem mattis lacinia nec vitae lectus. Mauris porttitor malesuada dui, nec euismod purus pretium non. Sed eleifend ex at risus placerat pretium. Vivamus nec interdum ex. Nam vel efficitur risus, vitae semper ante. Nulla vel augue ut velit condimentum volutpat. Mauris aliquet nibh et massa auctor ultricies. Duis vitae nulla placerat, volutpat nibh imperdiet, aliquet diam. Integer quis ipsum ac nulla commodo molestie. Morbi quis augue eu felis finibus porttitor. Maecenas porta facilisis ligula id consectetur. In ut arcu non ipsum pellentesque faucibus. Pellentesque vitae tortor malesuada, varius nibh in, rhoncus dolor.</content>
+				<title>The API</title>
+				<subTitle>Setup</subTitle>
+				<content>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus sed purus velit. Pellentesque sit amet consequat quam, at congue quam. Maecenas consequat justo vel sem mattis lacinia nec vitae lectus.</content>
 
-				<subTitle>Subsection 1.2</subTitle>
-				<content>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus sed purus velit. Pellentesque sit amet consequat quam, at congue quam. Maecenas consequat justo vel sem mattis lacinia nec vitae lectus. Mauris porttitor malesuada dui, nec euismod purus pretium non. Sed eleifend ex at risus placerat pretium. Vivamus nec interdum ex. Nam vel efficitur risus, vitae semper ante. Nulla vel augue ut velit condimentum volutpat. Mauris aliquet nibh et massa auctor ultricies. Duis vitae nulla placerat, volutpat nibh imperdiet, aliquet diam. Integer quis ipsum ac nulla commodo molestie. Morbi quis augue eu felis finibus porttitor. Maecenas porta facilisis ligula id consectetur. In ut arcu non ipsum pellentesque faucibus. Pellentesque vitae tortor malesuada, varius nibh in, rhoncus dolor.</content>
+				<subTitle>Render</subTitle>
+				<content>LMauris porttitor malesuada dui, nec euismod purus pretium non. Sed eleifend ex at risus placerat pretium. Vivamus nec interdum ex. Nam vel efficitur risus, vitae semper ante. Nulla vel augue ut velit condimentum volutpat.</content>
+
+				<subTitle>Cleanup</subTitle>
+				<content>Morbi quis augue eu felis finibus porttitor. Maecenas porta facilisis ligula id consectetur. In ut arcu non ipsum pellentesque faucibus. Pellentesque vitae tortor malesuada, varius nibh in, rhoncus dolor.</content>
 			</section>
 
 			<section>
-				<title>Section 2</title>
-				<subTitle>Subsection 2.1</subTitle>
-				<content>Nulla quis pulvinar neque, id blandit mauris. Duis sed est porta, viverra nisi sed, ullamcorper lectus. Morbi non nibh nec massa hendrerit blandit ac ut urna. Quisque egestas nisl non tincidunt pretium. Morbi iaculis vel magna commodo molestie. Nunc posuere elit tempor dolor luctus, condimentum viverra ante rhoncus. In pellentesque, risus non hendrerit vulputate, massa justo porta ipsum, vel efficitur nisi ex non magna. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aenean convallis metus in congue cursus. Phasellus sed rutrum orci. Nunc commodo, dui sit amet lobortis volutpat, nibh purus congue quam, a blandit nibh lectus sed eros. Suspendisse fermentum risus lectus, ut luctus odio egestas in.</content>
+				<title>Using Bela for Audio</title>
+				<subTitle>Filter Calculations</subTitle>
+				<content>Nulla quis pulvinar neque, id blandit mauris. Duis sed est porta, viverra nisi sed, ullamcorper lectus. Morbi non nibh nec massa hendrerit blandit ac ut urna.</content>
 
-				<subTitle>Subsection 2.2</subTitle>
-				<content>Nulla quis pulvinar neque, id blandit mauris. Duis sed est porta, viverra nisi sed, ullamcorper lectus. Morbi non nibh nec massa hendrerit blandit ac ut urna. Quisque egestas nisl non tincidunt pretium. Morbi iaculis vel magna commodo molestie. Nunc posuere elit tempor dolor luctus, condimentum viverra ante rhoncus. In pellentesque, risus non hendrerit vulputate, massa justo porta ipsum, vel efficitur nisi ex non magna. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aenean convallis metus in congue cursus. Phasellus sed rutrum orci. Nunc commodo, dui sit amet lobortis volutpat, nibh purus congue quam, a blandit nibh lectus sed eros. Suspendisse fermentum risus lectus, ut luctus odio egestas in.</content>
+				<subTitle>Generating Output</subTitle>
+				<content>Nulla quis pulvinar neque, id blandit mauris. Duis sed est porta, viverra nisi sed, ullamcorper lectus. Morbi non nibh nec massa hendrerit blandit ac ut urna. Quisque egestas nisl non tincidunt pretium. Morbi iaculis vel magna commodo molestie. Nunc posuere elit tempor dolor luctus, condimentum viverra ante rhoncus.</content>
 
 				<subTitle>Subsection 2.3</subTitle>
 				<content>Nulla quis pulvinar neque, id blandit mauris. Duis sed est porta, viverra nisi sed, ullamcorper lectus. Morbi non nibh nec massa hendrerit blandit ac ut urna. Quisque egestas nisl non tincidunt pretium. Morbi iaculis vel magna commodo molestie. Nunc posuere elit tempor dolor luctus, condimentum viverra ante rhoncus. In pellentesque, risus non hendrerit vulputate, massa justo porta ipsum, vel efficitur nisi ex non magna. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aenean convallis metus in congue cursus. Phasellus sed rutrum orci. Nunc commodo, dui sit amet lobortis volutpat, nibh purus congue quam, a blandit nibh lectus sed eros. Suspendisse fermentum risus lectus, ut luctus odio egestas in.</content>
 			</section>
 
 			<section>
-				<title>Section 3</title>
-				<subTitle>Subsection 3.1</subTitle>
-				<content>Suspendisse mattis, sapien non dictum interdum, mauris sapien aliquam dolor, vitae aliquet nisl sem eu est. Donec in ante lacinia, consectetur ligula in, tempus dui. Nam id ullamcorper nulla. In viverra mauris eget gravida eleifend. Sed ut faucibus ex. Nulla tempor feugiat est et porta. Fusce non justo blandit, gravida felis nec, suscipit mi. Vivamus vitae dapibus metus.</content>
+				<title>Working with Sensors</title>
+				<subTitle>Digital GPIO</subTitle>
+				<content>Suspendisse mattis, sapien non dictum interdum, mauris sapien aliquam dolor, vitae aliquet nisl sem eu est.</content>
+				<subTitle>Analogue GPIO</subTitle>
+				<content>Donec in ante lacinia, consectetur ligula in, tempus dui. Nam id ullamcorper nulla. In viverra mauris eget gravida eleifend. Sed ut faucibus ex. Nulla tempor feugiat est et porta. Fusce non justo blandit, gravida felis nec, suscipit mi. Vivamus vitae dapibus metus.</content>
 			</section>
 
 		</div>
@@ -452,14 +484,14 @@
 			var n = 0;
 			for (var i = 0; i < sections.length; i++) {
 				var title = sections[i].getElementsByTagName("title");
-				li += "<li><input type='checkbox' id='tit"+ i +"' /><label for='tit" + i + "' class='docSectionHeader'>" + title[0].innerText + "</label>";
+				li += "<li><input type='checkbox' class='docs' id='tit"+ i +"' /><label for='tit" + i + "' class='docSectionHeader'>" + title[0].innerText + "</label>";
 				var subs = sections[i].getElementsByTagName("subtitle");
 				if (subs.length > 0) {
 					li += "<ul class='subsections'>"
 				}
 				var content = sections[i].getElementsByTagName("content");
 				for (var j = 0; j < subs.length; j++) {
-					li += "<li><input type='checkbox' id='sub" + n + j + "' /><label for='sub" + n + j + "' class='docSectionHeader sub'>" + subs[j].innerText + "</label>";
+					li += "<li><input type='checkbox' class='docs' id='sub" + n + j + "' /><label for='sub" + n + j + "' class='docSectionHeader sub'>" + subs[j].innerText + "</label>";
 					li += "<p>" + content[j].innerText + "</p></li>"
 					n++;
 				}

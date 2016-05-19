@@ -731,6 +731,17 @@
 		"outputPathIsSetByUser": 0,
 		"processed": 0
 		},
+	"\/IDE\/public\/images\/icons\/drop_arrow.png": {
+		"fileType": 32768,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"initialSize": 177,
+		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/drop_arrow.png",
+		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/drop_arrow.png",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"processed": 0
+		},
 	"\/IDE\/public\/images\/icons\/folder-dgrey23.png": {
 		"fileType": 32768,
 		"ignore": 0,

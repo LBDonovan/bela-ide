@@ -577,6 +577,17 @@
 		"outputPathIsSetByUser": 0,
 		"processed": 0
 		},
+	"\/IDE\/public\/images\/icons\/build.png": {
+		"fileType": 32768,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"initialSize": 839,
+		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/build.png",
+		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/build.png",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"processed": 0
+		},
 	"\/IDE\/public\/images\/icons\/console_grey.png": {
 		"fileType": 32768,
 		"ignore": 0,
@@ -1101,6 +1112,17 @@
 		"initialSize": 474,
 		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gpio-white28.png",
 		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gpio-white28.png",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"processed": 0
+		},
+	"\/IDE\/public\/images\/icons\/run.png": {
+		"fileType": 32768,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"initialSize": 881,
+		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/run.png",
+		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/run.png",
 		"outputPathIsOutsideProject": 0,
 		"outputPathIsSetByUser": 0,
 		"processed": 0

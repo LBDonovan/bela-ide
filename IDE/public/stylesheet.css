@@ -565,15 +565,15 @@ body {
 	overflow: hidden;
 	top: 0;
 	left: 0;
-	right: 64px;
-	bottom: 0;
+	right: 60px;
+	bottom: 40px;
 	z-index: 97;
 }
 #right {
 	position: absolute;
 	top: 0;
 	bottom: 0;
-	left: calc(100% - 65px);
+	left: calc(100% - 60px);
 	background: #e8e8e8;
 
 }
@@ -769,7 +769,6 @@ right: calc(100% - 62px);
       position: absolute;
       height: calc(100% - 50px);
       top: 0px;
-      width: 100%;
       left: 62px;
       background: #fff;
       right: 0;
@@ -1009,7 +1008,6 @@ right: calc(100% - 62px);
 
 /* settings tab */
 #settingsTab{
-	width: 400px;
 	line-height: 1.5;
 }
 #settingsTab>input, #settingsTab>select{

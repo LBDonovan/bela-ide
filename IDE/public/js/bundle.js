@@ -10651,7 +10651,7 @@ class TabView extends View {
 
 		// open/close tabs
 		$('#flexit').on('click', () => {
-			console.log("CLICKY");
+			//console.log("CLICKY");
 			if (_tabsOpen) {
 				this.closeTabs();
 			} else {
@@ -10717,6 +10717,16 @@ class TabView extends View {
 		});
 
 		layout.init();
+		layout.on('initialised', () => this.emit('change'));
+		layout.on('stateChanged', () => this.emit('change'));
+
+		$(window).on('resize', () => {
+			if (_tabsOpen) {
+				this.openTabs();
+			} else {
+				this.closeTabs();
+			}
+		});
 	}
 
 	openTabs() {
@@ -10724,6 +10734,7 @@ class TabView extends View {
 		$('#right').css('left', window.innerWidth - 500 + 'px');
 		_tabsOpen = true;
 		this.emit('change');
+		$('#tab-0').addClass('open');
 	}
 
 	closeTabs() {
@@ -10731,6 +10742,7 @@ class TabView extends View {
 		$('#right').css('left', window.innerWidth - 60 + 'px');
 		_tabsOpen = false;
 		this.emit('change');
+		$('#tab-0').removeClass('open');
 	}
 
 }

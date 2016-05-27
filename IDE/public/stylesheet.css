@@ -66,15 +66,22 @@ table {
 }
 
 #beaglert-console{
-	height: 150px;
-	/* border: 1px solid black; */
+	/*height: 150px;
 	position: absolute;
 	bottom: 0;
 	width: 100%;
 	overflow-x: hidden;
 	overflow-y: auto;
 	box-sizing: border-box;
-	z-index: 100;
+	z-index: 100;*/
+	width: 100%;
+	height: 100%;
+	position: relative;
+	overflow-x: hidden;
+	overflow-y: auto;
+	box-sizing: border-box;
+	background-color: white;
+	border-top: 1px solid grey;
 }
 #beaglert-consoleForm{
 	height: 21px;
@@ -292,13 +299,19 @@ table {
 }
 
 #toolbar {
-	position: absolute;
+	/*position: absolute;
 	bottom: 150px;
 	width: 100%;
 	height: 40px;
 	font-family: Consolas;
 	font-size: 10pt;
 	z-index: 99;
+	background-color: #e1e1e1;*/
+	width: 100%;
+	height: 40px;
+	position: relative;
+	font-family: Consolas;
+	font-size: 10pt;
 	background-color: #e1e1e1;
 }
 
@@ -323,6 +336,7 @@ table {
 	}
 	.control-text {
 		width: 30%;
+		height: 100%;
 	}
 	.toolbar-control:first-child {
 		margin-left: 20px;
@@ -546,24 +560,26 @@ body {
 }
 
 #editor {
-	position: absolute;
+	/*position: absolute;
 	overflow: hidden;
-	/*width: calc(100% - 62px);
-	height: calc(100% - 220px);
-	*/
 	top: 0;
 	left: 0;
 	right: 90px;
 	bottom: 0;
-	z-index: 97;
-	}
+	z-index: 97;*/
+	width: 100%;
+	height: 100%;
+	position: relative;
+}
 #right {
-	position: absolute;
+	/*position: absolute;
 	top: 0;
 	bottom: 0;
 	left: calc(100% - 65px);
-	
-	background: #e8e8e8;
+	background: #e8e8e8;*/
+	width: 100%;
+	height: 100%;
+	position: relative;
 
 }
 #saveAsName{

@@ -45,7 +45,11 @@ class ProcessManager extends EventEmitter {
 	
 	build(project, data){
 	//console.log('build', data);
-		if (this.checkingSyntax()){
+		if(this.running()){
+			belaProcess.kill().queue(function(){
+				buildProcess.execute(project, data.debug);
+			});
+		} else if (this.checkingSyntax()){
 			syntaxCheckProcess.kill().queue(function(){
 				buildProcess.execute(project, data.debug);
 			});

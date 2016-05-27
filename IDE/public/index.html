@@ -366,45 +366,46 @@
 				</div>
 			</div> <!-- end right -->
 
+			<!-- NEW TOOLBAR -->
+			<div id="toolbar">
+				<div class="toolbar-wrapper toolBar-parent">
+					<div class="toolbar-control">	 
+						<div class="control-button toolBar" id="run" data-func="run"></div>
+						<div class="control-button toolBar" id="stop" data-func="stop"></div>
+						<span id="control-text-1" class="control-text"></span>
+					</div>
+					<div class="toolbar-control">	 
+						<a target="_blank" href=""><div class="control-button" id="new-tab"></div></a>
+						<a id="downloadLink"><div class="control-button" id="download"></div></a>
+						<span id="control-text-2" class="control-text"></span>
+					</div>
+					<div class="toolbar-control">	 
+						<a target="_blank" href="scope"><div class="control-button" id="scope"></div></a>
+						<div class="control-button toolBar" id="console" data-func="clearConsole"></div>
+						<span id="control-text-3" class="control-text"></span>
+					</div>
+					<!-- This is the field for system status text -->
+					<div class="toolbar-control control-text">	
+						<span class="status-text" style="display:none" >Field 1</span> 
+						<span id="ide-cpu" class="status-text"></span>
+						<span id="bela-cpu" class="status-text"></span>
+					</div>
+
+					<!-- This is the image that signifies the status of syntax checking -->
+					<div id="status">
+					</div>
+
+					<!-- This is the Bela logo -->
+					<div id="logo">
+						<img src="images/logo_bar3.png">
+					</div><!-- end logo -->
+
+				</div><!-- end toolbar wrapper -->
+			</div> <!-- end toolbar -->
 			
 		</div> <!-- end innerContent -->
 
-		<!-- NEW TOOLBAR -->
-		<div id="toolbar">
-			<div class="toolbar-wrapper toolBar-parent">
-				<div class="toolbar-control">	 
-					<div class="control-button toolBar" id="run" data-func="run"></div>
-					<div class="control-button toolBar" id="stop" data-func="stop"></div>
-					<span id="control-text-1" class="control-text"></span>
-				</div>
-				<div class="toolbar-control">	 
-					<a target="_blank" href=""><div class="control-button" id="new-tab"></div></a>
-					<a id="downloadLink"><div class="control-button" id="download"></div></a>
-					<span id="control-text-2" class="control-text"></span>
-				</div>
-				<div class="toolbar-control">	 
-					<a target="_blank" href="scope"><div class="control-button" id="scope"></div></a>
-					<div class="control-button toolBar" id="console" data-func="clearConsole"></div>
-					<span id="control-text-3" class="control-text"></span>
-				</div>
-				<!-- This is the field for system status text -->
-				<div class="toolbar-control control-text">	
-					<span class="status-text" style="display:none" >Field 1</span> 
-					<span id="ide-cpu" class="status-text"></span>
-					<span id="bela-cpu" class="status-text"></span>
-				</div>
-
-				<!-- This is the image that signifies the status of syntax checking -->
-				<div id="status">
-				</div>
-
-				<!-- This is the Bela logo -->
-				<div id="logo">
-					<img src="images/logo_bar3.png">
-				</div><!-- end logo -->
-
-			</div><!-- end toolbar wrapper -->
-		</div> <!-- end toolbar -->
+		
 
 		<div id="xml">
 			<section>

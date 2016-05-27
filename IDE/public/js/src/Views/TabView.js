@@ -10,7 +10,7 @@ class TabView extends View {
 		super('tab');
 
 		// open/close tabs 
-		/*$('#flexit').on('click', () => {
+		$('#flexit').on('click', () => {
 			console.log("CLICKY");
 			if (_tabsOpen){
 				this.closeTabs();
@@ -24,7 +24,7 @@ class TabView extends View {
 				this.openTabs();
 				e.stopPropagation();
 			}
-		});*/
+		});
 		
 		// golden layout
 		var layout = new GoldenLayout({
@@ -61,9 +61,6 @@ class TabView extends View {
 					content: [{
 						type:'component',
 						componentName: 'Editor',
-					}, {
-						type:'component',
-						componentName: 'Tabs',
 					}]
 				}, {
 					type:'component',
@@ -73,13 +70,10 @@ class TabView extends View {
 			}]
 		});
 		layout.registerComponent( 'Editor', function( container, componentState ){
-			container.getElement().append($('#editor'));
-		});
-		layout.registerComponent( 'Tabs', function( container, componentState ){
-			container.getElement().append($('#right'));
+			container.getElement().append($('#innerContent'));
 		});
 		layout.registerComponent( 'Console', function( container, componentState ){
-			container.getElement().append($('#toolbar')).append($('#beaglert-console'));
+			container.getElement().append($('#beaglert-console'));
 		});
 		
 		layout.init();

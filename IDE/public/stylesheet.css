@@ -81,7 +81,6 @@ table {
 	overflow-y: auto;
 	box-sizing: border-box;
 	background-color: white;
-	border-top: 1px solid grey;
 }
 #beaglert-consoleForm{
 	height: 21px;
@@ -308,11 +307,13 @@ table {
 	z-index: 99;
 	background-color: #e1e1e1;*/
 	width: 100%;
-	height: 40px;
-	position: relative;
-	font-family: Consolas;
-	font-size: 10pt;
-	background-color: #e1e1e1;
+    height: 40px;
+    position: absolute;
+    bottom: 0;
+    font-family: Consolas;
+    font-size: 10pt;
+    background-color: #e1e1e1;
+    z-index: 100;
 }
 
 /* This is the container for the two buttons and text. */
@@ -560,26 +561,20 @@ body {
 }
 
 #editor {
-	/*position: absolute;
+	position: absolute;
 	overflow: hidden;
 	top: 0;
 	left: 0;
-	right: 90px;
+	right: 64px;
 	bottom: 0;
-	z-index: 97;*/
-	width: 100%;
-	height: 100%;
-	position: relative;
+	z-index: 97;
 }
 #right {
-	/*position: absolute;
+	position: absolute;
 	top: 0;
 	bottom: 0;
 	left: calc(100% - 65px);
-	background: #e8e8e8;*/
-	width: 100%;
-	height: 100%;
-	position: relative;
+	background: #e8e8e8;
 
 }
 #saveAsName{
@@ -676,11 +671,11 @@ body {
 	margin: 0;
 }
 #innerContent {
-	position: absolute;
+	position: relative;
 	top: 0;
 	left: 0;
-	right: 0;
-	bottom: 190px;
+	width: 100%;
+	height: 100%;
 	overflow: hidden;
 }
 
@@ -772,14 +767,14 @@ right: calc(100% - 62px);
     /* == Style for the content pane of each tab == */
     .tabContent {
       position: absolute;
-      height: calc(100% - 20px);
+      height: calc(100% - 50px);
       top: 0px;
       width: 100%;
       left: 62px;
       background: #fff;
       right: 0;
       bottom: 0;
-      padding: 20px 0 20px 20px;
+      padding: 20px 12px 20px 20px;
       
       visibility: hidden;
       overflow: scroll;

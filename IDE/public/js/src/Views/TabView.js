@@ -11,6 +11,7 @@ class TabView extends View {
 
 		// open/close tabs 
 		$('#flexit').on('click', () => {
+			console.log("CLICKY");
 			if (_tabsOpen){
 				this.closeTabs();
 			} else {
@@ -35,8 +36,8 @@ class TabView extends View {
 	}
 
 	closeTabs(){
-		$('#editor').css('right', '63px');
-		$('#right').css('left', window.innerWidth - 63 + 'px');
+		$('#editor').css('right', '60px');
+		$('#right').css('left', window.innerWidth - 60 + 'px');
 		_tabsOpen = false;
 		this.emit('change');
 	}

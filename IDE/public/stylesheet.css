@@ -67,7 +67,7 @@ table {
 
 #beaglert-console{
 	height: 150px;
-	border: 1px solid black;
+	/* border: 1px solid black; */
 	position: absolute;
 	bottom: 0;
 	width: 100%;
@@ -224,11 +224,11 @@ table {
 	width: 100%;
 	height: 100%;
 	z-index: 0;
-}*/
-.toolbar-dark .toolbar-underlay{
-	background-color: #d8d8d8;
 }
-/*
+// .toolbar-dark .toolbar-underlay{
+// 	background-color: #d8d8d8;
+// }
+
 .mainButton{
 	width: 30px;
 	height: 30px;
@@ -296,124 +296,245 @@ table {
 	bottom: 150px;
 	width: 100%;
 	height: 40px;
-	font-family: inconsolata;
+	font-family: Consolas;
 	font-size: 10pt;
 	z-index: 99;
-	background-color: #d8d8d8;
-	
+	background-color: #e1e1e1;
 }
 
-#control {
-	margin: 0 0 0 20px;
+/* This is the container for the two buttons and text. */
+.toolbar-wrapper {
+	width: calc(100% - 260px);
+}
+.toolbar-control {
+	width: 22%;
 	float: left;
-	display: inline-block;
-	
+	/*border: 1px solid red;*/
+	height: 40px;
+	margin-left: -2px;
 }
-
-	.controlPair{
+	.control-button {
+		min-height: 39px;
+		width: 40px;
+		display: inline-block;
+		margin-left: 1px;
+		margin-top: 5px;
 		float: left;
 	}
-		.controlButtons {
-			width: 75px;
-			float: left;
-			cursor: pointer;
-		}
-		.controlButtons span {
-			display: inline-block;
-		}
-			#run {
-				background: url("images/toolbar.png") 0 30px;
-				width: 30px;
-				height: 30px;
-				margin-top: 4px;
-			}
-			#run:hover {
-				background: url("images/toolbar.png") -35px 30px;
-			}
-			#stop {
-				background: url("images/toolbar.png") -70px 30px;	
-				width: 30px;
-				height: 30px;
-				margin-top: 4px;
-			}
-			#stop:hover {
-				background: url("images/toolbar.png") -105px 30px;	
-			}
-			.one {
-				margin: 0;
-			}
+	.control-text {
+		width: 30%;
+	}
+	.toolbar-control:first-child {
+		margin-left: 20px;
+	}
 
-			#newTab {
-				background: url("images/toolbar.png") -245px 0;
-				width: 30px;
-				height: 30px;
-				margin-top: 4px;
-			}
-			#newTab:hover {
-				background: url("images/toolbar.png") -210px 0;
-			}
-			#download {
-				background: url("images/toolbar.png") 0 0;	
-				width: 30px;
-				height: 30px;
-			}
-			#download:hover {
-				background: url("images/toolbar.png") -35px 0;	
-			}
-				.two {
-					margin: 0;
-				}
-			#console {
-				background: url("images/toolbar.png") -70px 0;
-				width: 30px;
-				height: 35px;
-				margin-top: 4px;
-			}
-			#console:hover {
-				background: url("images/toolbar.png") -105px 0;
-			}
-			#scope {
-				background: url("images/toolbar.png") -140px 0;	
-				width: 30px;
-				height: 35px;
-			}
-			#scope:hover {
-				background: url("images/toolbar.png") -175px 0;	
-			}
-				.three {
-					margin: 0;
-				}
-			#status {
-				position: absolute;
-				width: 30px;
-				height: 35px;
-				left: calc(100% - 225px);
-				background: url("images/toolbar.png") -140px 35px;
-				cursor: initial;
-			}
-			.controlText {
-				font-family: inconsolata;
-				font-size: 14px;
-				color: white;
-				height: 15px;
-				width: 120px;
-				display: inline-block;
-				margin-top: 12px;
-			}
+/*	
+	.control-button:nth-child(2) {
+		margin-left: -7px;
+	}
+	*/
+// .statustool- {
+// 	width: calc((100% - 260px) / 4);
+// 	height: 40px;
+// 	margin-top: 5px;
+// 	float: left;
+// 	display: inline-block;
+// }
+	.status-text {
+		width: 33%;
+		float: left;
+		color: #fff;
+		text-align: right;
+	}
+		.status-text:nth-child(3) {
+			margin-right: 0;
+		}
+
+
+#run {
+	background: url("images/icons/run_grey2.png") no-repeat;
+}
+#run:hover {
+	background: url("images/icons/run_white2.png") no-repeat;
+}
+#stop {
+	margin-left: -2px;
+	background: url("images/icons/stop_grey.png") no-repeat;
+}
+#stop:hover {
+	margin-left: -2px;
+	background: url("images/icons/stop_white.png") no-repeat;
+}
+.one {
+	margin: 0;
+}
+
+#new-tab {
+	background: url("images/icons/tab_grey.png") no-repeat;
+}
+#new-tab:hover {
+	background: url("images/icons/tab_white.png") no-repeat;
+}
+#download {
+	background: url("images/icons/dl_grey.png") no-repeat;	
+}
+#download:hover {
+	background: url("images/icons/down_white.png") no-repeat;	
+}
+#console {
+	background: url("images/icons/console_grey4.png") no-repeat;
+}
+#console:hover {
+	background: url("images/icons/console_white4.png") no-repeat;
+}
+#scope {
+	background: url("images/icons/scope_grey10.png") no-repeat;	
+}
+#scope:hover {
+	background: url("images/icons/scope_white10.png") no-repeat;
+}
 
 
 #logo {
 	position: absolute;
-	top: -25px;
+	top: -27px;
 	left: calc(100% - 160px);
 	margin-right: 20px;
-	
 	width: 140px;
 	float: right;
 	display: inline-block;
-
-	/*background: url("images/logo_bar.png");*/
 }
+
+#status {
+	position: absolute;
+	top: 0;
+	width: 30px;
+	height: 35px;
+	left: calc(100% - 225px);
+	background: url("images/toolbar.png") -140px 35px;
+	cursor: initial;
+	display: inline;
+}
+.control-text {
+	font-family: inconsolata;
+	font-size: 14px;
+	color: white;
+	display: inline-block;
+	margin-top: 12px;
+	float: left;
+}
+/*
+// OLD TOOLBAR STYLES
+// #control {
+// 	margin: 0 0 0 20px;
+// 	float: left;
+// 	display: inline-block;
+	
+// }
+
+// 	.controlPair{
+// 		float: left;
+// 	}
+// 		.controlButtons {
+// 			width: 75px;
+// 			float: left;
+// 			cursor: pointer;
+// 		}
+// 		.controlButtons span {
+// 			display: inline-block;
+// 		}
+// 		.toolbar-button {
+// 			margin:0;
+// 			padding: 0;
+// 			background: #ccc;
+// 			height: 45px;
+// 			width: 45px;
+// 			display: inline-block;
+// 		}
+// 			.toolbar-button:hover {
+// 				background: #aaa;
+// 			}
+// 			#run {
+// 				background: url("images/toolbar.png") 0 30px;
+// 				width: 30px;
+// 				height: 30px;
+// 			}
+// 			#run:hover {
+// 				background: url("images/toolbar.png") -35px 30px;
+// 			}
+// 			#stop {
+// 				background: url("images/toolbar.png") -70px 30px;	
+// 				width: 30px;
+// 				height: 30px;
+// 			}
+// 			#stop:hover {
+// 				background: url("images/toolbar.png") -105px 30px;	
+// 			}
+// 			.one {
+// 				margin: 0;
+// 			}
+
+// 			#newTab {
+// 				background: url("images/toolbar.png") -245px 0;
+// 				width: 30px;
+// 				height: 30px;
+// 			}
+// 			#newTab:hover {
+// 				background: url("images/toolbar.png") -210px 0;
+// 			}
+// 			#download {
+// 				background: url("images/toolbar.png") 0 0;	
+// 				width: 30px;
+// 				height: 30px;
+// 			}
+// 			#download:hover {
+// 				background: url("images/toolbar.png") -35px 0;	
+// 			}
+// 				.two {
+// 					margin: 0;
+// 				}
+// 			#console {
+// 				background: url("images/toolbar.png") -70px 0;
+// 				width: 30px;
+// 				height: 35px;
+// 			}
+// 			#console:hover {
+// 				background: url("images/toolbar.png") -105px 0;
+// 			}
+// 			#scope {
+// 				background: url("images/toolbar.png") -140px 0;	
+// 				width: 30px;
+// 				height: 35px;
+// 			}
+// 			#scope:hover {
+// 				background: url("images/toolbar.png") -175px 0;	
+// 			}
+// 				.three {
+// 					margin: 0;
+// 				}
+// 			#status {
+// 				position: absolute;
+// 				top: 2px;
+// 				width: 30px;
+// 				height: 35px;
+// 				left: calc(100% - 225px);
+// 				background: url("images/toolbar.png") -140px 35px;
+// 				cursor: initial;
+// 				display: inline;
+// 			}
+// 			.control-text {
+// 				font-family: inconsolata;
+// 				font-size: 14px;
+// 				color: white;
+// 				height: 15px;
+// 				width: 120px;
+// 				display: inline-block;
+// 				margin-top: 12px;
+// 			}
+*/
+
+
+
 
 body {
 	overflow: hidden;
@@ -427,16 +548,17 @@ body {
 	*/
 	top: 0;
 	left: 0;
-	right: 63px;
+	right: 90px;
 	bottom: 0;
+	z-index: 97;
 	}
 #right {
 	position: absolute;
 	top: 0;
 	bottom: 0;
-	right: 0;
-	left: calc(100% - 63px);
-	background: transparent;
+	left: calc(100% - 65px);
+	
+	background: #e8e8e8;
 
 }
 #saveAsName{
@@ -522,23 +644,23 @@ body {
 			height: 25px;
 			float: right;
 			clear: right;
-			margin-top: 3px;
+			// margin-top: 3px;
 		}
 
 /* ======= FLEX STUFF ====== */
 
 
 #flexit {
-display: inline-block;
-margin: 0;
+	display: inline-block;
+	margin: 0;
 }
 #innerContent {
-position: absolute;
-top: 0;
-left: 0;
-right: 0;
-bottom: 190px;
-overflow: hidden;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 190px;
+	overflow: hidden;
 }
 
 
@@ -602,22 +724,29 @@ right: calc(100% - 62px);
 	width: 100%;
 	height: 100%;
 	top: 0;
-    z-index: 98;
+    z-index: 101;
     }
     /* == Style for each pullout tab == */
     .tab label {
-      background: #eee; 
-      /*padding: 10px 10px 20px 0; */
-      padding: 10px 5px;
-      border: 1px solid #ccc; 
-      margin-left: -1px; 
-      position: relative;
-      left: 1px;        
-      width: 50px;
+      background: #bbbbbb; 
+      padding: 12px 0;
+      margin: 0 auto;
+      
+      width: 65px;
+      height: 30px;
       display: block;
     }
+    .tab span {
+    	padding-top: 40px;
+    	cursor: pointer;
+    	}
+
     .tab [type=radio] {
       display: none;   
+    }
+    .tab label:hover {
+    	background: #ddd;
+    	cursor: pointer;
     }
     /* == Style for the content pane of each tab == */
     .tabContent {
@@ -625,84 +754,144 @@ right: calc(100% - 62px);
       height: calc(100% - 20px);
       top: 0px;
       width: 100%;
-      left: 63px;
-      background: white;
+      left: 62px;
+      background: #fff;
       right: 0;
       bottom: 0;
-      padding: 20px;
-      border: 1px solid #ccc;    
-      visibility: hidden;   
+      padding: 20px 0 20px 20px;
+      
+      visibility: hidden;
       overflow: scroll;
+      width: 405px;
     }
+
+    .tab h1 {
+    	font-family: Consolas;
+    	font-size: 25px;
+    	color: #82C889;
+    	display: inline;
+    	line-height: 40px;
+    }
+
+    .tab h2 {
+    	font-family: Consolas, sans-serif;
+    	font-size: 16px;
+    	color: #A8E2AD;
+    	line-height: 30px;
+    }
+	.tab h3 {
+    	font-family: Consolas, sans-serif;
+    	font-size: 14px;
+    	color: #666;
+    	line-height: 30px;
+    	padding-left: 20px;
+    }
+    .tab .docContent {
+    	font-family: Consolas, sans-serif;
+    	font-size: 12px;
+    	color: #000;
+    	line-height: 18px;
+    	padding-left: 20px;
+    }
+    label.ticky {
+    	display: inline-block;
+    	height: 16px;
+    	padding: 0;
+	background: #fff;
+	width: 100%;
+	}
+		label.ticky:hover {
+			background: #fff;
+			cursor: default;
+		}
+
+
+
+
     /* ======== IMAGES IN EACH TAB FROM SPRITE ======== */
     
-    #open-tabs{
-    	width: 28px;
-    	height: 28px;
-    	background: url("images/tabSprite.png") 0px 0px;
+    #open-tabs {
+    	width: 30px;
     	display: block;
     	margin: 0 auto;
+    	cursor: pointer;
     }
+    #tab-0 {
+		background: url("images/icons/arrow2_25.png") center center no-repeat #e8e8e8;
+    	margin-bottom: -3px; 
+    	height: 25px;
+    	}
+		#tab-0.open {
+			background: url("images/icons/x25.png") center center no-repeat;
+			}    
     
     #settings {
-    	width: 28px;
-    	height: 28px;
-    	background: url("images/tabSprite.png") -30px 0px;
+    	width: 30px;
+    	background: url("images/icons/gear-white25.png") no-repeat;
     	display: block;
     	margin: 0 auto;
     }
+
     #tab-1:checked + label>span{
-    	background: url("images/tabSprite.png") -60px 0px;
+    	background: url("images/icons/gear-grey25.png") no-repeat;
+    	cursor: default;
     }
     
     #file-explorer {
-    	width: 28px;
-    	height: 28px;
-    	background: url("images/tabSprite.png") -90px 0px;
+    	width: 30px;
+    	background: url("images/icons/folder-white25.png") no-repeat;
     	display: block;
     	margin: 0 auto;
     }
     #tab-2:checked + label>span{
-    	background: url("images/tabSprite.png") -120px 0px;
+   		background: url("images/icons/folder-grey25.png") no-repeat;
+   		cursor: default;
     }
     
-    #code-examples {
-    	width: 28px;
-    	height: 28px;
-    	background: url("images/tabSprite.png") 0px -30px;
+    #debugger {
+    	width: 30px;
+    	background: url("images/icons/bug-white25.png") no-repeat;
     	display: block;
     	margin: 0 auto;
     }
     #tab-3:checked + label>span{
-    	background: url("images/tabSprite.png") -30px -30px;
+    	background: url("images/icons/bug-grey25.png") no-repeat;
+    	cursor: default;
     }
     
     #gpio-ref {
     	width: 28px;
-    	height: 28px;
-    	background: url("images/tabSprite.png") -90px -30px;
+    	background: url("images/icons/gpio-white25.png") no-repeat;
     	display: block;
     	margin: 0 auto;
     }
     #tab-4:checked + label>span{
-    	background: url("images/tabSprite.png") -60px -30px;
+    	background: url("images/icons/gpio-grey25.png") no-repeat;
+    	cursor: default;
     }
+
+
+    object {
+    	width: 400px;
+    	height: 100%;
+    }
+
+
     
     #api-ref {
     	width: 28px;
-    	height: 28px;
-    	background: url("images/tabSprite.png") -120px -30px;
+    	background: url("images/icons/book-white25.png") no-repeat;
     	display: block;
     	margin: 0 auto;
     }
     #tab-5:checked + label>span{
-    	background: url("images/tabSprite.png") -150px -30px;
+    	background: url("images/icons/book-grey25.png") no-repeat;
     }
 
     [type=radio]:checked ~ label {
-      background: white;
-      /*border-bottom: 1px solid white;*/
+      background: #fff;
       z-index: 2;
+      border-left: 1px solid #e8e8e8;
     }
     [type=radio]:checked ~ label ~ .tabContent {
       z-index: 1;
@@ -716,6 +905,7 @@ right: calc(100% - 62px);
 /* tab content */
 
 .tabContent > h1{
+	box-shadow: -10px -10px -5px #888888;
 	margin: 10px 0;
 }
 
@@ -730,8 +920,11 @@ right: calc(100% - 62px);
     list-style: none;
 }
 #fileList > li{
-	margin-top: 0.2em;
-	width: 50%
+	margin-top: 0.4em;
+	width: 97%;
+	font-family: Consolas;
+	color: #aaa;
+	font-size: 12px;
 }
 .sourceFile{
 	cursor: pointer;
@@ -740,7 +933,7 @@ right: calc(100% - 62px);
 	margin-left: 1em;
 }
 .sourceFile:before, .resourceFile:before { 
-    content: "-";
+    content: "–";
     display: block;
     height: 0;
     width: 0;
@@ -748,10 +941,10 @@ right: calc(100% - 62px);
     position: relative;
 }
 .sourceFile:hover { 
-    background-color: #d8d8d8;
+    background-color: #dffdd5;
 }
 .selectedFile{
-	border: 1px solid green;
+	background-color: #A8DA97;
 }
 #uploadFileInput{
 	display: none;
@@ -759,6 +952,43 @@ right: calc(100% - 62px);
 
 #commits{
 	max-width: 50%;
+}
+
+
+.settingsManager-parent {
+	font-family: Consolas;
+	font-size: 11px;
+	line-height: 18px;
+}
+.tabTable {
+	width: 100%;
+}
+	.tabTable td {
+		width: 175px;
+		text-align: right;
+		padding-right: 5px;
+	}
+	.tabTable td + td {
+		text-align: left;
+	}
+
+.debug-table {
+}
+	.debug-table td {
+		width: 120px;
+		text-align: right;
+		padding-right: 5px;
+	}
+	.debug-table td + td {
+		text-align: left;
+	}
+
+.debug-buttons {
+	margin: 10px 0;
+}
+
+.settings-button {
+	margin-top: -7px;
 }
 
 /* settings tab */
@@ -772,7 +1002,159 @@ right: calc(100% - 62px);
 }
 #C_L_ARGS{
 	left: 20px;
-    width: 360px;
+    width: 200px;
     margin-bottom: 30px;
 	background-color: gainsboro;
+}
+
+/* Project explorer */
+/*
+.proj-expl-table tr {
+	border: 1px solid red;
+	width: 100%;
+}
+*/
+.proj-expl-table {
+	width: 100%;
+}
+
+	.proj-expl-table td {
+		border: 1px solid red;
+		text-align: left;
+		width: 100%;
+	}
+
+
+
+.proj-expl {
+	text-align: left;
+	border: 1px solid #ddd;
+	border-radius: 10px;
+	background: #f9f9f9;
+	padding: 10px;
+	margin-bottom: 10px;
+	width: 94%;
+}
+	.proj-expl h2 {
+		line-height: 30px;
+		margin: -5px 0 5px 0;
+		text-align: left;
+		padding-left: 5px;
+		color: #7DC684;
+	}
+
+.file-buttons {
+	text-align: center;
+	margin-bottom: 10px;
+}
+
+.fileSection {
+	background: #e8e8e8;
+	font-family: Consolas;
+	font-color: #fff;
+	padding: 3px 0 3px 10px;
+}
+
+button {
+	line-height: 16px;
+	padding: 1px 4px 0;
+	font-family: Consolas;
+	background: #eee;
+	color: #aaa;
+	border: 1px solid #ccc;
+	display: inline-block;
+	vertical-align: middle;
+	
+}
+	button:hover {
+		cursor: pointer;
+		background: #aaa;
+		color: #fff;
+		box-shadow: 2px 2px 2px #ddd;
+		border: 1px solid #aaa;
+	}
+/* DOCS AND XML */
+#xml {
+	/* Hide the XML in the HTML */
+	display: none;
+}
+
+label.docSectionHeader {
+	margin: 5px 0 0 0;
+	height: 15px;
+	width: 100%;
+	padding-left: 20px;
+	background: #cccccc;
+	font-family: Consolas, sans-serif;
+	color: #fff;
+	font-size: 14px;
+}
+	label.docSectionHeader:hover {
+		background: #BFCCBB;
+	}
+label.docSectionHeader.sub {
+	background: #ddd;
+	margin-left: 20px;
+}
+	label.docSectionHeader.sub:hover {
+		background: #D7E2D3;
+		margin-left: 20px;
+	}
+	p {
+		margin-left: 30px;
+		font-family: Consolas, sans-serif;
+		font-size: 12px;
+		padding: 10px 0;
+	}
+.sections input + label + ul
+{
+	display: none;
+}
+.sections input:checked:not(:disabled) + label + ul
+{
+	display: block;
+}
+
+.subsections input + label + p
+{
+	display: none;
+}
+
+.subsections input:checked:not(:disabled) + label + p
+{
+	display: block;
+}
+
+.docs, docSectionHeader input[type=checkbox] {
+	display: none;
+}
+
+/* Styles for dropdown menus */
+
+select {
+   -webkit-appearance: none;
+   -moz-appearance: none;
+   appearance: none;
+    width: 220px;
+    padding-left: 28px;
+    padding-top: 2px;
+    font-size: 10px;
+    font-family: Consolas;
+    border: 1px solid #ccc;
+    height: 20px;
+    display: inline;
+    background: #fff url("images/icons/drop_arrow.png") 10px 6px no-repeat;
+    border-radius: 2px;
+}
+	.small {
+		width: 100px;
+		background: #fff url("images/icons/drop_arrow.png") 5px 6px no-repeat;
+		padding-left: 22px;
+	}
+hr {
+    border: 0; 
+    height: 1px; 
+    background: #ccc; 
+    background-image: linear-gradient(to right, #ccc, #333, #ccc); 
+    width: 90%;
 }

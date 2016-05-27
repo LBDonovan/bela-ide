@@ -27,7 +27,7 @@
 				   
 				   	<div class="tab">
 				        <input type="radio" id="tab-1" name="tab-group-1">
-				        <label for="tab-1"><span id="settings" /></label>
+				        <label for="tab-1"><span id="settings" title="Settings"/></label>
 				        <div id="settingsTab" class="tabContent">
 				        	<div class="settingsManager-parent">
 								<!-- TAB 1: PROJECT SETTINGS -->
@@ -89,7 +89,7 @@
 								   
 								    <tr>
 								    	<td><label for="use-digital" class="ticky">Use Digital:</label></td> 
-								    	<td><input type="checkbox"  class="tickBox" id="use-digital" data-func="setCLArg" value="1" checked><span></span></td>
+								    	<td><input type="checkbox" id="use-digital" class="settingsManager" data-func="setCLArg" data-key="-G" value="1"><span></span></td>
 								    </tr>
 								   
 									<tr>
@@ -151,40 +151,41 @@
 
 									<tr>
 										<td>Autocomplete:</td>
-										<td><input type="checkbox" id="liveAutocompletion" class="settingsManager" data-func="setIDESetting" data-key="liveAutocompletion" value="1" checked></td>
+										<td><input type="checkbox" id="liveAutocompletion" class="settingsManager" data-func="setIDESetting" data-key="liveAutocompletion" value="1" ></td>
 
 									</tr>
 
 									<tr>
 										<td>Syntax Checking:</td>
-										<td><input type="checkbox" id="liveSyntaxChecking" class="settingsManager" data-func="setIDESetting" data-key="liveSyntaxChecking" value="1" checked></td>
+										<td><input type="checkbox" id="liveSyntaxChecking" class="settingsManager" data-func="setIDESetting" data-key="liveSyntaxChecking" value="1" ></td>
 									</tr>
 
 									<tr>
 										<td>Verbose build errors:</td>
-										<td><input type="checkbox" id="verboseErrors" class="settingsManager" data-func="setIDESetting" data-key="verboseErrors" value="1" checked></td>
+										<td><input type="checkbox" id="verboseErrors" class="settingsManager" data-func="setIDESetting" data-key="verboseErrors" value="1" ></td>
 									</tr>
 
 									<tr>
 										<td>CPU monitoring:</td>
-										<td><input type="checkbox" id="cpuMonitoring" class="settingsManager" data-func="setIDESetting" data-key="cpuMonitoring" value="1" checked></td>
+										<td><input type="checkbox" id="cpuMonitoring" class="settingsManager" data-func="setIDESetting" data-key="cpuMonitoring" value="1" ></td>
 									</tr>
 									
 									<tr>
 										<td>Xenomai CPU Monitoring:</td>
-										<td><input type="checkbox" id="cpuMonitoringVerbose" class="settingsMatdnager" data-func="setIDESetting" data-key="cpuMonitoringVerbose" value="1" checked></td>
+										<td><input type="checkbox" id="cpuMonitoringVerbose" class="settingsManager" data-func="setIDESetting" data-key="cpuMonitoringVerbose" value="1" ></td>
 									</tr>
 
 									<tr>
 								  		<td>Delete old console records:</td>
-								  		<td><input type="checkbox" id="consoleDelete" class="settingsManager" data-func="setIDESetting" data-key="consoleDelete" value="1" checked></td>
+								  		<td><input type="checkbox" id="consoleDelete" class="settingsManager" data-func="setIDESetting" data-key="consoleDelete" value="1" ></td>
 									</tr>
 
 									<tr>
 										<td>Verbose debugger output:</td>
-										<td><input type="checkbox" id="verboseDebug" class="settingsManager" data-func="setIDESetting" data-key="verboseDebug" value="1" checked></td>
+										<td><input type="checkbox" id="verboseDebug" class="settingsManager" data-func="setIDESetting" data-key="verboseDebug" value="1" ></td>
 									</tr>
 							</table>
+							</br></br>
 							<!-- END TAB 1: PROJECT SETTINGS -->
 
 							<!-- SETTINGS FOR GIT: NOT DISPLAYED -->
@@ -210,12 +211,12 @@
 				    <div class="tab">
 				        <input type="radio" id="tab-2" name="tab-group-1">
 				        <label for="tab-2"><span id="file-explorer" title="File Explorer" /></label>
-				        <div class="tabContent"> 
+				        <div class="tabContent projectManager-parent fileManager-parent"> 
 				        	<!-- <div class="settingsManager-parent"> -->
 								<h1 class="tabTitle">Project Explorer</h1>
 									<div class="proj-expl">
 										<h2>Open existing project:</h2>
-											<select id="projects" data-func="openProject">
+											<select id="projects" class="projectManager" data-func="openProject">
 												<option selected>Choose project from your board</option>
 												<option>Thing 1</option>
 												<option>Thing 2</option>
@@ -239,16 +240,16 @@
 
 									<div class="proj-expl file-buttons">
 										<h2>Manage files:</h2>
-										<button class="button" id="new" data-func="newProject">new project</button>
-										<button class="button" id="saveas" data-func="saveAs">save as</button>
-										<button class="button" id="deleteProject" data-func="deleteProject">delete project</button>
-										<button class="button" id="cleanProject" data-func="cleanProject">clean</button>
+										<button class="button projectManager" id="new" data-func="newProject">new project</button>
+										<button class="button projectManager" id="saveas" data-func="saveAs">save as</button>
+										<button class="button projectManager" id="deleteProject" data-func="deleteProject">delete project</button>
+										<button class="button projectManager" id="cleanProject" data-func="cleanProject">clean</button>
 										
 										<hr />
 										
 										<button class="button fileManager" data-func="newFile">new</button>
 										<button class="button fileManager" data-func="uploadFile" id="uploadFile">upload</button>
-										<a id href="/download" download><button id="downloadFile"  class="button fileManager">download</button></a>
+										<a id="downloadFileLink" href="/download" download><button id="downloadFile"  class="button fileManager">download</button></a>
 										<button class="button fileManager" data-func="renameFile">rename</button>
 										<button  class="button fileManager" data-func="deleteFile">delete</button>
 										<input type="file" id="uploadFileInput"></input>
@@ -293,7 +294,7 @@
 				        </div> 
 				    </div>
 				    
-				    <div class="tab settingsManager-parent" >
+				    <div class="tab" >
 						<input type="radio" id="tab-3" name="tab-group-1">
 						<label for="tab-3"><span id="debugger" title="Debugger" /></label>
 						<div class="tabContent debugger-parent">
@@ -369,27 +370,27 @@
 
 		<!-- NEW TOOLBAR -->
 		<div id="toolbar">
-			<div class="toolbar-wrapper">
+			<div class="toolbar-wrapper toolBar-parent">
 				<div class="toolbar-control">	 
-					<div class="control-button" id="run" data-func="run"></div>
-					<div class="control-button" id="stop" data-func="stop"></div>
-					<span class="control-text"></span>
+					<div class="control-button toolBar" id="run" data-func="run"></div>
+					<div class="control-button toolBar" id="stop" data-func="stop"></div>
+					<span id="control-text-1" class="control-text"></span>
 				</div>
 				<div class="toolbar-control">	 
-					<div class="control-button" id="new-tab" data-func="run"></div>
-					<div class="control-button" id="download"></div>
-					<span class="control-text"></span>
+					<a target="_blank" href=""><div class="control-button" id="new-tab"></div></a>
+					<a id="downloadLink"><div class="control-button" id="download"></div></a>
+					<span id="control-text-2" class="control-text"></span>
 				</div>
 				<div class="toolbar-control">	 
-					<div class="control-button" id="scope"></div>
-					<div class="control-button" id="console"></div>
-					<span class="control-text"></span>
+					<a target="_blank" href="scope"><div class="control-button" id="scope"></div></a>
+					<div class="control-button toolBar" id="console" data-func="clearConsole"></div>
+					<span id="control-text-3" class="control-text"></span>
 				</div>
 				<!-- This is the field for system status text -->
-				<div class="toolbar-control control-text">	 
-					<span class="status-text">Field 1</span>
-					<span class="status-text">Field 2</span>
-					<span class="status-text">Field 3</span>
+				<div class="toolbar-control control-text">	
+					<span class="status-text" style="display:none" >Field 1</span> 
+					<span id="ide-cpu" class="status-text"></span>
+					<span id="bela-cpu" class="status-text"></span>
 				</div>
 
 				<!-- This is the image that signifies the status of syntax checking -->
@@ -470,7 +471,7 @@
 		<script src="js/ace/ext-language_tools.js"></script>
 		<script src="socket.io/socket.io.js"></script>
 		<script src="js/bundle.js"></script>
-		<script src="js/jquery.js"></script>
+		<!--<script src="js/jquery.js"></script>-->
 		<script>
 			// Script to collect XML into the documentation tab.
 

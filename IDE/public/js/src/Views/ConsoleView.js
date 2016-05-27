@@ -150,6 +150,7 @@ module.exports = ConsoleView;
 
 var funcKey = {
 	'openProject'	: 'Opening project',
+	'openExample'	: 'Opening example',
 	'newProject'	: 'Creating project',
 	'saveAs'		: 'Saving project',
 	'deleteProject'	: 'Deleting project',

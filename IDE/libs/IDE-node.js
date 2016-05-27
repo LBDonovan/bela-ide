@@ -147,7 +147,7 @@ function socketEvents(socket){
 	
 	// IDE settings
 	socket.on('IDE-settings', (data) => {
-	
+	console.log('IDE-settings', data);
 		if (!data.func || !SettingsManager[data.func]) {
 			console.log('bad IDE-settings', data);
 			return;
@@ -228,7 +228,7 @@ var SettingsManager = {
 
 	// change a single settings parameter and save the settings JSON
 	setIDESetting(data){
-		if (!data || !data.key || !data.value) return;
+		if (!data || !data.key || data.value===undefined) return;
 		return this.getSettings()
 			.then((settings) => {
 				settings[data.key] = data.value;

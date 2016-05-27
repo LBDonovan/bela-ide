@@ -10005,6 +10005,7 @@ module.exports = ConsoleView;
 
 var funcKey = {
 	'openProject': 'Opening project',
+	'openExample': 'Opening example',
 	'newProject': 'Creating project',
 	'saveAs': 'Saving project',
 	'deleteProject': 'Deleting project',
@@ -10261,6 +10262,7 @@ class EditorView extends View {
 	}
 	// autocomplete settings have changed
 	_liveAutocompletion(status) {
+		//console.log(status, (parseInt(status) === 1));
 		this.editor.setOptions({
 			enableLiveAutocompletion: parseInt(status) === 1
 		});
@@ -10559,7 +10561,7 @@ class SettingsView extends View {
 
 	constructor(className, models, settings) {
 		super(className, models, settings);
-		this.$elements.filter('input').on('change', e => this.selectChanged($(e.currentTarget), e));
+		//this.$elements.filter('input').on('change', (e) => this.selectChanged($(e.currentTarget), e));
 		this.settings.on('change', data => this._IDESettings(data));
 	}
 
@@ -10577,6 +10579,21 @@ class SettingsView extends View {
 			this[func](func);
 		}
 	}
+	inputChanged($element, e) {
+		var data = $element.data();
+		var func = data.func;
+		var key = data.key;
+		var type = $element.prop('type');
+		if (type === 'number' || type === 'text') {
+			if (func && this[func]) {
+				this[func](func, key, $element.val());
+			}
+		} else if (type === 'checkbox') {
+			if (func && this[func]) {
+				this[func](func, key, $element.is(':checked') ? 1 : 0);
+			}
+		}
+	}
 
 	setCLArg(func, key, value) {
 		this.emit('project-settings', { func, key, value });
@@ -10586,6 +10603,7 @@ class SettingsView extends View {
 	}
 
 	setIDESetting(func, key, value) {
+		console.log(func, key, value);
 		this.emit('IDE-settings', { func, key, value: value });
 	}
 	restoreDefaultIDESettings(func) {
@@ -10596,14 +10614,14 @@ class SettingsView extends View {
 	_CLArgs(data) {
 		var fullString = '';
 		for (let key in data) {
-			this.$elements.filterByData('key', key).val(data[key]);
+			this.$elements.filterByData('key', key).val(data[key]).prop('checked', data[key]);
 			fullString += (key === 'user' ? '' : key) + data[key] + ' ';
 		}
 		$('#C_L_ARGS').val(fullString);
 	}
 	_IDESettings(data) {
 		for (let key in data) {
-			this.$elements.filterByData('key', key).val(data[key]);
+			this.$elements.filterByData('key', key).val(data[key]).prop('checked', data[key]);
 		}
 	}
 	_breakpoints(value, keys) {
@@ -10633,6 +10651,7 @@ class TabView extends View {
 
 		// open/close tabs
 		$('#flexit').on('click', () => {
+			console.log("CLICKY");
 			if (_tabsOpen) {
 				this.closeTabs();
 			} else {
@@ -10656,8 +10675,8 @@ class TabView extends View {
 	}
 
 	closeTabs() {
-		$('#editor').css('right', '63px');
-		$('#right').css('left', window.innerWidth - 63 + 'px');
+		$('#editor').css('right', '60px');
+		$('#right').css('left', window.innerWidth - 60 + 'px');
 		_tabsOpen = false;
 		this.emit('change');
 	}
@@ -10673,42 +10692,43 @@ class ToolbarView extends View {
 
 	constructor(className, models) {
 		super(className, models);
-		this.$elements.filter('span').on('click', e => this.buttonClicked($(e.currentTarget), e));
+		console.log(this.$elements);
+		this.$elements.on('click', e => this.buttonClicked($(e.currentTarget), e));
 
 		$('#run').mouseover(function () {
-			$('.one').html('<p>Run</p>');
+			$('#control-text-1').html('<p>Run</p>');
 		}).mouseout(function () {
-			$('.one').html('');
+			$('#control-text-1').html('');
 		});
 
 		$('#stop').mouseover(function () {
-			$('.one').html('<p>Stop</p>');
+			$('#control-text-1').html('<p>Stop</p>');
 		}).mouseout(function () {
-			$('.one').html('');
+			$('#control-text-1').html('');
 		});
 
-		$('#newTab').mouseover(function () {
-			$('.two').html('<p>New tab</p>');
+		$('#new-tab').mouseover(function () {
+			$('#control-text-2').html('<p>New Tab</p>');
 		}).mouseout(function () {
-			$('.two').html('');
+			$('#control-text-2').html('');
 		});
 
 		$('#download').mouseover(function () {
-			$('.two').html('<p>Download project</p>');
+			$('#control-text-2').html('<p>Download project</p>');
 		}).mouseout(function () {
-			$('.two').html('');
+			$('#control-text-2').html('');
 		});
 
 		$('#console').mouseover(function () {
-			$('.three').html('<p>Clear console</p>');
+			$('#control-text-3').html('<p>Clear console</p>');
 		}).mouseout(function () {
-			$('.three').html('');
+			$('#control-text-3').html('');
 		});
 
 		$('#scope').mouseover(function () {
-			$('.three').html('<p>Open scope</p>');
+			$('#control-text-3').html('<p>Open scope</p>');
 		}).mouseout(function () {
-			$('.three').html('');
+			$('#control-text-3').html('');
 		});
 	}
 
@@ -10857,6 +10877,7 @@ class View extends EventEmitter {
 
 		this.$elements.filter('select').on('change', e => this.selectChanged($(e.currentTarget), e));
 		this.$elements.filter('input').on('input', e => this.inputChanged($(e.currentTarget), e));
+		this.$elements.filter('input[type=checkbox]').on('change', e => this.inputChanged($(e.currentTarget), e));
 		this.$elements.filter('button').on('click', e => this.buttonClicked($(e.currentTarget), e));
 	}
 

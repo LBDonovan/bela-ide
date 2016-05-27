@@ -4,55 +4,56 @@ class ToolbarView extends View {
 	
 	constructor(className, models){
 		super(className, models);
-		this.$elements.filter('span').on('click', (e) => this.buttonClicked($(e.currentTarget), e));
+		console.log(this.$elements);
+		this.$elements.on('click', (e) => this.buttonClicked($(e.currentTarget), e));
 		
 		$('#run')
 			.mouseover(function() {
-				$('.one').html('<p>Run</p>');
+				$('#control-text-1').html('<p>Run</p>');
 			})
 			.mouseout(function() {
-				$('.one').html('');
+				$('#control-text-1').html('');
 			});
 		
 		$('#stop')
 			.mouseover(function() {
-				$('.one').html('<p>Stop</p>');
+				$('#control-text-1').html('<p>Stop</p>');
 			})
 			.mouseout(function() {
-				$('.one').html('');
+				$('#control-text-1').html('');
 			});
 
-		$('#newTab')
+		$('#new-tab')
 			.mouseover(function() {
-				$('.two').html('<p>New tab</p>');
+				$('#control-text-2').html('<p>New Tab</p>');
 			})
 			.mouseout(function() {
-				$('.two').html('');
+				$('#control-text-2').html('');
 			});
 		
 		$('#download')
 			.mouseover(function() {
-				$('.two').html('<p>Download project</p>');
+				$('#control-text-2').html('<p>Download project</p>');
 			})
 			.mouseout(function() {
-			$('.two').html('');
-		});
+				$('#control-text-2').html('');
+			});
 
 		$('#console')
 			.mouseover(function() {
-				$('.three').html('<p>Clear console</p>');
+				$('#control-text-3').html('<p>Clear console</p>');
 			})
 			.mouseout(function() {
-				$('.three').html('');
+				$('#control-text-3').html('');
 			});
 		
 		$('#scope')
 			.mouseover(function() {
-			$('.three').html('<p>Open scope</p>');
-		})
+				$('#control-text-3').html('<p>Open scope</p>');
+			})
 			.mouseout(function() {
-			$('.three').html('');
-		});
+				$('#control-text-3').html('');
+			});
 	}
 	
 	// UI events

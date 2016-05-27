@@ -115,6 +115,7 @@ class EditorView extends View {
 	}	
 	// autocomplete settings have changed
 	_liveAutocompletion(status){
+	//console.log(status, (parseInt(status) === 1));
 		this.editor.setOptions({
 			enableLiveAutocompletion: (parseInt(status) === 1)
 		});

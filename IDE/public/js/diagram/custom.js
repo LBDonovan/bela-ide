@@ -10,7 +10,7 @@ $(document).ready(function() {
     paper.image(imageURL, 0, 0, 300, 482);
 
     var url = 'belaDiagram/json/data.json';
-    console.log('about to do the json');
+    //console.log('about to do the json');
     $.getJSON(url, function(data){
         for (var i in data){
             for (var k in data[i].things){

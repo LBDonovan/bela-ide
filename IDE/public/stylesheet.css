@@ -352,11 +352,16 @@ table {
 
 
 #run {
+	transform-origin: 15px 15px;
 	background: url("images/icons/run_grey2.png") no-repeat;
 }
 #run:hover {
 	background: url("images/icons/run_white2.png") no-repeat;
 }
+#run.spinning{
+	background: url("images/icons/run_green30.png") no-repeat;
+}
+
 #stop {
 	margin-left: -2px;
 	background: url("images/icons/stop_grey.png") no-repeat;

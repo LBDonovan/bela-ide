@@ -16,6 +16,20 @@ class FileView extends View {
 				reader.readAsArrayBuffer(file);
 			}
 		});
+		
+		// drag and drop file upload on editor
+		$('#editor').on('dragenter dragover drop', (e) => {
+			e.stopPropagation();
+			if (e.type === 'drop'){
+				console.log(e.originalEvent.dataTransfer);
+				for (let file of e.originalEvent.dataTransfer.files){
+					var reader = new FileReader();
+					reader.onload = (ev) => this.emit('message', 'project-event', {func: 'uploadFile', newFile: file.name, fileData: ev.target.result} );
+					reader.readAsArrayBuffer(file);
+				}
+			}
+			return false;
+		});
 	
 	}
 	

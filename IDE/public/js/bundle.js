@@ -10340,9 +10340,11 @@ class FileView extends View {
 
 		// hack to upload file
 		$('#uploadFileInput').on('change', e => {
-			var reader = new FileReader();
-			reader.onload = ev => this.emit('message', 'project-event', { func: 'uploadFile', newFile: e.target.files[0].name, fileData: ev.target.result });
-			reader.readAsArrayBuffer(e.target.files[0]);
+			for (let file of e.target.files) {
+				var reader = new FileReader();
+				reader.onload = ev => this.emit('message', 'project-event', { func: 'uploadFile', newFile: file.name, fileData: ev.target.result });
+				reader.readAsArrayBuffer(file);
+			}
 		});
 	}
 

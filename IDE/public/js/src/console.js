@@ -1,6 +1,6 @@
 'use strict';
 var EventEmitter = require('events').EventEmitter;
-var $ = require('jquery-browserify');
+//var $ = require('jquery-browserify');
 
 // module variables
 var numElements = 0, maxElements = 200, consoleDelete = true;

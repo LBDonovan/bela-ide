@@ -6,6 +6,11 @@ class SettingsView extends View {
 		super(className, models, settings);
 		//this.$elements.filter('input').on('change', (e) => this.selectChanged($(e.currentTarget), e));
 		this.settings.on('change', (data) => this._IDESettings(data) );
+		this.$elements.filterByData = function(prop, val) {
+			return this.filter(
+				function() { return $(this).data(prop)==val; }
+			);
+		}
 	}
 	
 	selectChanged($element, e){
@@ -73,9 +78,3 @@ class SettingsView extends View {
 }
 
 module.exports = SettingsView;
-
-$.fn.filterByData = function(prop, val) {
-    return this.filter(
-        function() { return $(this).data(prop)==val; }
-    );
-}

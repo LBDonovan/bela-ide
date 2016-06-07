@@ -98,7 +98,6 @@ gulp.task('restartnode', ['upload'], startNode);
 
 gulp.task('browserify', () => {
     return browserify('../IDE/public/js/src/main.js', { debug: true })
-    	.transform(babelify)
         .bundle()
         .on('error', function(error){
     		console.error(error);

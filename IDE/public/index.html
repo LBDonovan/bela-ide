@@ -225,45 +225,34 @@
 											</select>
 									</div>
 
-
-									<div class="proj-expl">
-										<h2>Current project files:</h2>
-										<ul id="fileList">
-											<li class="fileSection">Headers:</li>
-											<li class="sourceFile">blah.h</li>
-											<li class="fileSection">Sources:</li>
-											<li class="sourceFile">render.cpp</li>
-											<li class="sourceFile">main.cpp</li>
-											<li class="fileSection">Resources:</li>
-											<li class="sourceFile">data.json</li>
-										</ul>
-									</div>
-
 									<div class="proj-expl file-buttons">
-										<h2>Manage files:</h2>
+										<h2>Manage projects:</h2>
 										<button class="button projectManager" id="new" data-func="newProject">new project</button>
 										<button class="button projectManager" id="saveas" data-func="saveAs">save as</button>
 										<button class="button projectManager" id="deleteProject" data-func="deleteProject">delete project</button>
 										<button class="button projectManager" id="cleanProject" data-func="cleanProject">clean</button>
+									</div>
 										
-										<hr />
-										
+									<div class="proj-expl file-buttons">
+										<h2>Manage project files:</h2>
 										<button class="button fileManager" data-func="newFile">new</button>
 										<button class="button fileManager" data-func="uploadFile" id="uploadFile">upload</button>
 										<a id="downloadFileLink" href="/download" download><button id="downloadFile"  class="button fileManager">download</button></a>
 										<button class="button fileManager" data-func="renameFile">rename</button>
 										<button  class="button fileManager" data-func="deleteFile">delete</button>
 										<input type="file" id="uploadFileInput" multiple></input>
-										<ul class="fileManager" id="fileList" data-func="openFile"></ul>
+									</div>
+									
+									<div class="proj-expl">
+										<h2>Current project files:</h2>
+										<ul id="fileList">
+										</ul>
 									</div>
 									
 									<div class="proj-expl">
 										<h2>Open Example Project:</h2>
 											<select class="projectManager" id="examples" data-func="openExample">
-												<option checked>Choose an example:</option>
-												<option>Filtery filters</option>
-												<option>White Noise</option>
-												<option>Beeptown</option>
+												<option checked>--Examples--</option>
 											</select>
 									</div>
 

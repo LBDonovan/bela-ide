@@ -79,6 +79,7 @@ function socketEvents(socket){
 
 		if ((!data.currentProject && !data.newProject) || !data.func || !ProjectManager[data.func]) {
 			console.log('bad project-event', data);
+			if (data.func === 'openProject') socket.emit('project-data', data);
 			return;
 		}
 

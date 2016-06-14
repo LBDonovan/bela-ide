@@ -47,7 +47,7 @@ class buildProcess extends MakeProcess{
 	}
 	
 	start(project, _args, opts){
-		super.start(project, _args, opts);
+		var ret = super.start(project, _args, opts);
 		
 		this.childProcess.stderr.on('data', (data) => {
 			// separate errors from warnings in the stderr of g++
@@ -65,6 +65,8 @@ class buildProcess extends MakeProcess{
 				}
 			}
 		});
+		
+		return ret;
 	}
 	
 	CPU(){
@@ -120,7 +122,8 @@ class belaProcess extends MakeProcess{
 				}
 				super.start(project, args);
 			});
-
+		
+		return this;
 	}
 	
 	CPU(){

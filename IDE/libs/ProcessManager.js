@@ -33,6 +33,8 @@ class ProcessManager extends EventEmitter {
 	
 	// process functions
 	upload(project, data){
+	
+		this.emptyAllQueues();
 		
 		if (data.currentProject && data.newFile && data.fileData){
 			fs.outputFileAsync(projectPath+data.currentProject+'/'+data.newFile, data.fileData)
@@ -86,9 +88,40 @@ class ProcessManager extends EventEmitter {
 	}
 	
 	run(project, data){
-		this.build(project).queue(function(){
-			belaProcess.start(project);
-		});
+	
+		this.emptyAllQueues();
+
+		if (this.running()){
+			belaProcess
+				.queue(function(){
+					buildProcess.start(project)
+						.queue(function(){
+							belaProcess.start(project);
+						});
+				});
+			stopProcess.start();
+		} else if (this.building()){
+			buildProcess.kill()
+				.queue(function(){
+					buildProcess.start(project)
+						.queue(function(){
+							belaProcess.start(project);
+						});
+				});
+		} else if (this.checkingSyntax()){
+			syntaxCheckProcess.kill()
+				.queue(function(){
+					buildProcess.start(project)
+						.queue(function(){
+							belaProcess.start(project);
+						});
+				});
+		} else {
+			buildProcess.start(project)
+				.queue(function(){
+					belaProcess.start(project);
+				});
+		}
 	}
 	
 	stop(project, data){

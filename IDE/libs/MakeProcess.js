@@ -33,7 +33,7 @@ class MakeProcess extends EventEmitter{
 		}
 
 		// make a local copy of this.args
-		var args = this.args.concat([]);
+		var args = this.args.slice();
 		
 		args.push(this.target);
 		
@@ -54,7 +54,7 @@ class MakeProcess extends EventEmitter{
 		this.emit('started');
 		
 		var childProcess = spawn('make', args);
-	console.log('spawning', 'make', args, childProcess.pid);
+	//console.log('spawning', 'make', args, childProcess.pid);
 		this.pid = childProcess.pid;
 		
 		childProcess.stdout.setEncoding('utf8');

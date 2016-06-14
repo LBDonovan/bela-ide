@@ -1,5 +1,4 @@
 var EventEmitter = require('events').EventEmitter;
-var $ = require('jquery-browserify');
 
 class View extends EventEmitter{
 

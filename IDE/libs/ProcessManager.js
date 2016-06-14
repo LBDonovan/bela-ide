@@ -172,7 +172,7 @@ class ProcessManager extends EventEmitter {
 		syntaxCheckProcess.on('started', () => this.emit('status', syntaxCheckProcess.project, this.getStatus()) );
 		syntaxCheckProcess.on('stdout', (data) => this.emit('status', syntaxCheckProcess.project, {syntaxLog: data}) );
 		syntaxCheckProcess.on('cancelled', (data) => {
-		console.log('cancelled');
+		//console.log('cancelled');
 			var status = this.getStatus();
 			status.syntaxError = data.stderr;
 			this.emit('status', data.project, status);
@@ -206,16 +206,16 @@ class ProcessManager extends EventEmitter {
 		belaProcess.on('stdout', (data) => this.emit('broadcast-status', {belaLog: data}) );
 		belaProcess.on('stderr', (data) => this.emit('broadcast-status', {belaLogErr: data}) );
 		belaProcess.on('cancelled', (data) => {
-		console.log('cancelled');
+		//console.log('cancelled');
 			var status = this.getStatus();
 			status.belaResult = data;
 			this.emit('broadcast-status', status);
 		});
 		belaProcess.on('finished', (data) => {
-		console.log('finished');
+		//console.log('finished');
 			var status = this.getStatus();
 			status.belaResult = data;
-			console.log(status);
+			//console.log(status);
 			this.emit('broadcast-status', status);
 		});
 		

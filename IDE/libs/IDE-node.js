@@ -143,6 +143,10 @@ function socketEvents(socket){
 		}
 		
 		ProcessManager[data.event](data.currentProject, data);
+		
+		/*if (data.event === 'stop'){
+			socket.emit('stop-reply', data);
+		}*/
 
 	});
 	

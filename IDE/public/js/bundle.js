@@ -92,13 +92,16 @@ editorView.on('breakpoint', (line) => {
 var toolbarView = new (require('./Views/ToolbarView'))('toolBar', [models.project, models.error, models.status, models.settings, models.debug]);
 toolbarView.on('process-event', (event) => {
 	var breakpoints;
-	if (models.debug.getKey('debugMode')) breakpoints = models.project.getKey('breakpoints')
-	socket.emit('process-event', {
+	if (models.debug.getKey('debugMode')) breakpoints = models.project.getKey('breakpoints');
+	var data = {
 		event,
 		currentProject	: models.project.getKey('currentProject'),
 		debug			: models.debug.getKey('debugMode'),
 		breakpoints
-	});
+	};
+	//data.timestamp = performance.now();
+	if (event === 'stop') consoleView.emit('openProcessNotification', 'Stopping Bela...');
+	socket.emit('process-event', data);
 });
 toolbarView.on('clear-console', () => consoleView.emit('clear') );
 
@@ -158,13 +161,16 @@ socket.on('project-data', (data) => {
 		debug = data.debug
 		data.debug = undefined;
 	}
-	consoleView.emit('closeNotification', data)
+	consoleView.emit('closeNotification', data);
 	models.project.setData(data);
 	if (debug){
 		models.debug.setData(debug);
 	}
 	//models.settings.setData(data.settings);
 	//models.project.print();
+});
+socket.on('stop-reply', (data) => {
+	consoleView.emit('closeNotification', data);
 });
 socket.on('project-list', (project, list) =>  {
 	if (list.indexOf(models.project.getKey('currentProject')) === -1){
@@ -550,6 +556,8 @@ class ConsoleView extends View{
 		
 		this.on('openNotification', this.openNotification);
 		this.on('closeNotification', this.closeNotification);
+		this.on('openProcessNotification', this.openProcessNotification);
+
 		this.on('warn', function(warning, id){
 			console.log(warning);
 			_console.warn(warning, id);
@@ -580,6 +588,13 @@ class ConsoleView extends View{
 			_console.fulfill(' done', data.timestamp);
 		}
 	}
+	
+	openProcessNotification(text){
+		var timestamp = performance.now();
+		_console.notify(text, timestamp);
+		_console.fulfill('', timestamp, false);
+	}
+	
 	disconnect(){
 		console.log('disconnected');
 		_console.warn('You have been disconnected from the Bela IDE and any more changes you make will not be saved. Please check your USB connection and reboot your BeagleBone', 'console-disconnect');
@@ -695,7 +710,8 @@ var funcKey = {
 	'uploadFile'	: 'Uploading file',
 	'renameFile'	: 'Renaming file',
 	'deleteFile'	: 'Deleting file',
-	'init'			: 'Initialising'
+	'init'			: 'Initialising',
+	'stop'			: 'Stopping'
 };
 },{"../console":12,"./View":11}],4:[function(require,module,exports){
 var View = require('./View');

@@ -73,7 +73,7 @@ class MakeProcess extends EventEmitter{
 		
 		//childProcess.on('exit', (code, signal) => console.log('exit', childProcess.pid, code, signal) );
 		childProcess.on('close', (code, signal) => {
-			console.log('close', this.target, childProcess.pid, code, signal);
+			//console.log('close', this.target, childProcess.pid, code, signal);
 			var stdout = this.stdout.join ? this.stdout.join('') : this.stdout;
 			var stderr = this.stderr.join ? this.stderr.join('') : this.stderr;
 			if (this.dying){

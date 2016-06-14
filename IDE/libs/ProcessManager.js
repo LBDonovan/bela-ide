@@ -38,9 +38,11 @@ class ProcessManager extends EventEmitter {
 		
 		if (data.currentProject && data.newFile && data.fileData){
 			fs.outputFileAsync(projectPath+data.currentProject+'/'+data.newFile, data.fileData)
-				.then( () => this.checkSyntax(project) );
+				.then( () => {
+					if (data.checkSyntax) this.checkSyntax(project)
+				});
 		} else {
-			this.checkSyntax(project);
+			if (data.checkSyntax) this.checkSyntax(project);
 		}
 		
 		return syntaxCheckProcess;

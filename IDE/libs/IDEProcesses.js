@@ -6,7 +6,7 @@ var pusage = Promise.promisifyAll(require('pidusage'));
 var pgrep = require('pgrep');
 var fs = Promise.promisifyAll(require('fs-extra'));
 
-var belaPath = '/root/BeagleRT/';
+var belaPath = '/root/Bela/';
 var makePath = belaPath;
 var projectPath = belaPath+'projects/';
 

@@ -19,7 +19,7 @@ app.get('/download', function(req, res){
 	if (req.query.project){
 		if (req.query.file){
 		
-			var file = '/root/BeagleRT/projects/'+req.query.project+'/'+req.query.file;
+			var file = '/root/Bela/projects/'+req.query.project+'/'+req.query.file;
 			res.setHeader('Content-disposition', 'attachment; filename='+req.query.file);
 			res.setHeader('Content-type', mime.lookup(file));
 			
@@ -32,7 +32,7 @@ app.get('/download', function(req, res){
 	
 			var archive = archiver('zip');
 			archive.pipe(res);
-			archive.directory('/root/BeagleRT/projects/'+req.query.project, req.query.project, {name: req.query.project+'.zip'});
+			archive.directory('/root/Bela/projects/'+req.query.project, req.query.project, {name: req.query.project+'.zip'});
 			archive.finalize();
 		}
 	}

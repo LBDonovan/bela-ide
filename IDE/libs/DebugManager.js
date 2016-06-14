@@ -8,7 +8,7 @@ var pgrep = require('pgrep');
 var pusage = Promise.promisifyAll(require('pidusage'));
 
 var ProjectManager = require('./ProjectManager');
-var projectPath = '/root/BeagleRT/projects/';
+var projectPath = '/root/Bela/projects/';
 var print_debug = true;
 
 var maxChildren = 50, maxRecursions = 20;
@@ -186,7 +186,7 @@ class DebugManager extends EventEmitter {
 		if (!state.status || !state.status.frame){
 			throw(new nonFatalDebuggerError('bad frame data '+state.state));
 		}
-		if (state.status.frame.func === 'PRU::loop(rt_intr_placeholder*, void*)' || state.status.frame.func === 'BeagleRT_initAudio(BeagleRTInitSettings*, void*)'){
+		if (state.status.frame.func === 'PRU::loop(rt_intr_placeholder*, void*)' || state.status.frame.func === 'Bela_initAudio(BelaInitSettings*, void*)'){
 			console.log('debugger out of range');
 			setTimeout(() => this.debugContinue(), 100);
 			return;

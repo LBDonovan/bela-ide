@@ -5,7 +5,7 @@ var fs = Promise.promisifyAll(require('fs-extra'));
 
 // private variables
 // paths
-var belaPath = '/root/BeagleRT/';
+var belaPath = '/root/Bela/';
 var projectPath = belaPath+'projects/';
 var examplePath = belaPath+'examples/';
 var newProjectPath = examplePath+'minimal';

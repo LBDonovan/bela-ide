@@ -15,7 +15,7 @@ var scope = require('./scope-node');
 
 // module variables - only accesible from this file
 var allSockets;
-var belaPath = '/root/BeagleRT/';
+var belaPath = '/root/Bela/';
 
 // settings
 var cpuMonitoring = false;
@@ -26,7 +26,7 @@ function IDE(){
 	console.log('starting IDE');
 	
 	// start serving the IDE
-	server.start(3000);
+	server.start(80);
 
 	// open websocket in namespace /IDE
 	var io = require('socket.io')(server.http);

@@ -95,36 +95,33 @@ class buildProcess extends MakeProcess{
 class belaProcess extends MakeProcess{
 
 	constructor(){
-		super('runquiet');
+		super('runide');
 	}
 	
-	/*execute(project){
-	
-		if (this.active) return;
-		this.active = true;
-		
+	start(project){
+
 		_co(ProjectManager, 'getCLArgs', project)
 			.then( (CLArgs) => {
 				this.active = false;
 				if (this.next) {
 					this.dequeue();
 				} else {
-					this.args = ['-i0', '-o0', '-e0', projectPath+project+'/'+project];
+					//this.args = ['-i0', '-o0', '-e0', projectPath+project+'/'+project];
+					var args = '';
 					for (let key in CLArgs) {
 						if (key[0] === '-' && key[1] === '-'){
-							this.args.push(key+'='+CLArgs[key]);
+							args += key+'='+CLArgs[key]+' ';
+						} else if (key === 'user'){
+							args += CLArgs[key];
 						} else {
-							this.args.push(key+CLArgs[key]);
+							args += key+CLArgs[key]+' ';
 						}
 					}
-					this.opts = {cwd: projectPath+project+'/'};
-					this.project = project;
-					this.start();
 				}
-			})
-			.catch( (err) => this.emit('upload-error', err) );
+				super.start(project, args);
+			});
 
-	}*/
+	}
 	
 	CPU(){
 		if (!this.active || !this.pid) return Promise.resolve(0);

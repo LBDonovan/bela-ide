@@ -25,22 +25,25 @@ class MakeProcess extends EventEmitter{
 		this.start();
 	}*/
 	
-	start(project, _args, opts){
+	start(project, _args){
 	
 		if (this.active){
 			console.log('process '+this.target+' already active');
 			return;
 		}
-		
-		var args;
-		if (_args) args = this.args.concat(_args);
-		else args = this.args.concat([]);
+
+		// make a local copy of this.args
+		var args = this.args.concat([]);
 		
 		args.push(this.target);
 		
 		if (project !== undefined){
 			args.push('PROJECT='+project);
 			this.project = project;
+		}
+		
+		if (_args){
+			args.push('CL='+_args);
 		}
 		
 		this.active = true;
@@ -50,8 +53,8 @@ class MakeProcess extends EventEmitter{
 		
 		this.emit('started');
 		
-		var childProcess = spawn('make', args, opts);
-	console.log('spawning', 'make', args, opts, childProcess.pid);
+		var childProcess = spawn('make', args);
+	console.log('spawning', 'make', args, childProcess.pid);
 		this.pid = childProcess.pid;
 		
 		childProcess.stdout.setEncoding('utf8');

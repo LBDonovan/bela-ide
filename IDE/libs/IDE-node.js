@@ -129,7 +129,7 @@ function socketEvents(socket){
 	// process events
 	socket.on('process-event', (data) => {
 	
-		//console.log('process-event', data);
+		console.log('process-event', data);
 		
 		if (!data || !data.currentProject || !data.event || !ProcessManager[data.event]){
 			console.log('bad process-event', data);

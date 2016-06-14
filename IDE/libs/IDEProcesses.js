@@ -1,6 +1,6 @@
 'use strict';
 var Promise = require('bluebird');
-var ChildProcess = require('./ChildProcess');
+var MakeProcess = require('./MakeProcess');
 var ProjectManager = require('./ProjectManager');
 var pusage = Promise.promisifyAll(require('pidusage'));
 var pgrep = require('pgrep');
@@ -10,43 +10,10 @@ var belaPath = '/root/Bela/';
 var makePath = belaPath;
 var projectPath = belaPath+'projects/';
 
-class SyntaxCheckProcess extends ChildProcess{
+class SyntaxCheckProcess extends MakeProcess{
 	
 	constructor(){
-		super('make', ['--no-print-directory', '-C', makePath,  'syntax',  'PROJECT=']);
-	}
-	
-	execute(project, upload, checkSyntax){
-		if (this.active) return;
-		
-		this.args[this.args.length-1] = 'PROJECT='+project;
-		
-		if (upload && upload.newFile && upload.fileData){
-
-			this.active = true;
-
-			_co(ProjectManager, 'uploadFile', upload)
-				.then( () => {
-
-					this.active = false;
-					if (this.next) {
-						this.dequeue();
-					} else if (checkSyntax) {
-						this.project = project;
-						this.start();
-					} else {
-						this.closed();
-					}
-				})
-				.catch( (err) => this.emit('upload-error', err) );
-				
-		} else if (checkSyntax) {
-			this.project = project;
-			this.start();
-			
-		} else {
-			this.closed();
-		}
+		super('syntax');
 	}
 	
 	CPU(){
@@ -73,24 +40,15 @@ class SyntaxCheckProcess extends ChildProcess{
 	}
 }
 
-class buildProcess extends ChildProcess{
+class buildProcess extends MakeProcess{
 
 	constructor(){
-		super('make', ['--no-print-directory', '-C', makePath,  'all',  'PROJECT=']);
+		super('all');
 	}
 	
-	execute(project, debug){
-		if (this.active) return;
+	start(project, _args, opts){
+		super.start(project, _args, opts);
 		
-		if (debug) 
-			this.args[3] = 'debug';
-		else
-			this.args[3] = 'all';
-			
-		this.args[4] = 'PROJECT='+project;
-		this.project = project;
-		this.start();
-		this.buildError = false;
 		this.childProcess.stderr.on('data', (data) => {
 			// separate errors from warnings in the stderr of g++
 			var lines = data.split('\n');
@@ -134,13 +92,13 @@ class buildProcess extends ChildProcess{
 
 }
 
-class belaProcess extends ChildProcess{
+class belaProcess extends MakeProcess{
 
 	constructor(){
-		super('stdbuf');
+		super('runquiet');
 	}
 	
-	execute(project){
+	/*execute(project){
 	
 		if (this.active) return;
 		this.active = true;
@@ -166,18 +124,28 @@ class belaProcess extends ChildProcess{
 			})
 			.catch( (err) => this.emit('upload-error', err) );
 
-	}
+	}*/
 	
 	CPU(){
 		if (!this.active || !this.pid) return Promise.resolve(0);
 		return fs.readFileAsync('/proc/xenomai/stat', 'utf8');
 	}
+
+}
+
+class stopProcess extends MakeProcess{
+
+	constructor(){
+		super('stop');
+	}
+
 }
 
 module.exports = {
 	syntax	: new SyntaxCheckProcess(),
 	build	: new buildProcess(),
-	bela	: new belaProcess()
+	bela	: new belaProcess(),
+	stop	: new stopProcess()
 }
 
 // coroutine factory and binder

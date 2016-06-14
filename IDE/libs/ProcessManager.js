@@ -98,7 +98,7 @@ class ProcessManager extends EventEmitter {
 				.queue(function(){
 					buildProcess.start(project)
 						.queue(function(){
-							belaProcess.start(project);
+							if (!buildProcess.buildError) belaProcess.start(project);
 						});
 				});
 			stopProcess.start();
@@ -107,7 +107,7 @@ class ProcessManager extends EventEmitter {
 				.queue(function(){
 					buildProcess.start(project)
 						.queue(function(){
-							belaProcess.start(project);
+							if (!buildProcess.buildError) belaProcess.start(project);
 						});
 				});
 		} else if (this.checkingSyntax()){
@@ -115,13 +115,14 @@ class ProcessManager extends EventEmitter {
 				.queue(function(){
 					buildProcess.start(project)
 						.queue(function(){
-							belaProcess.start(project);
+							if (!buildProcess.buildError) belaProcess.start(project);
 						});
 				});
 		} else {
 			buildProcess.start(project)
 				.queue(function(){
-					belaProcess.start(project);
+					console.log(buildProcess.buildError);
+					if (!buildProcess.buildError) belaProcess.start(project);
 				});
 		}
 	}

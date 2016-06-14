@@ -61,12 +61,12 @@ class MakeProcess extends EventEmitter{
 		childProcess.stderr.setEncoding('utf8');
  
 		childProcess.stdout.on('data', (data) => {
-			console.log('stdout', data);
+			//console.log('stdout', data);
 			this.stdout.push(data);
 			this.emit('stdout', data);
 		});
 		childProcess.stderr.on('data', (data) => {
-			console.log('stderr', data);
+			//console.log('stderr', data);
 			this.stderr.push(data);
 			this.emit('stderr', data);
 		});

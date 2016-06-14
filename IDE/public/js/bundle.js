@@ -1274,14 +1274,12 @@ class ProjectView extends View {
 		
 		if (project === 'exampleTempProject'){
 			// select no project
-			$('#projects option:first-child').attr('selected', 'selected');
+			$('#projects').val($('#projects > option:first').val())
 		} else {
 			// select new project
 			$('#projects option[value="'+project+'"]').attr('selected', 'selected');
 			// unselect currently selected example
-			$('#examples').find('option').filter(':selected').attr('selected', '');
-			// select no example
-			$('#examples option:first-child').attr('selected', 'selected');
+			$('#examples').val($('#examples > option:first').val())
 		}
 		
 		// set download link

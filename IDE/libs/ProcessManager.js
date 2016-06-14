@@ -121,7 +121,6 @@ class ProcessManager extends EventEmitter {
 		} else {
 			buildProcess.start(project)
 				.queue(function(){
-					console.log(buildProcess.buildError);
 					if (!buildProcess.buildError) belaProcess.start(project);
 				});
 		}

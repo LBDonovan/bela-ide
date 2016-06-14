@@ -53,20 +53,17 @@ class buildProcess extends MakeProcess{
 		var ret = super.start(project, _args, opts);
 		
 		this.childProcess.stderr.on('data', (data) => {
-		console.log('fake stderr', data);
 			// separate errors from warnings in the stderr of g++
 			var lines = data.split('\n');
 			for (let line of lines){
 				// do not count warnings as buildErrors
 				// this allows the executable to be built and run even with warnings
 				line = line.split(':');
-				console.log(line);
 				if (line.length > 4){
 					if (line[3] === ' error' || line[3] === ' fatal error'){
 						this.buildError = true;
-						console.log('error');
 					} else if (line[3] === ' warning'){
-						console.log('warning');
+						//console.log('warning');
 					}
 				}
 			}

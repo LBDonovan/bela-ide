@@ -1,6 +1,6 @@
 var View = require('./View');
 
-var apiFuncs = ['setup', 'render', 'cleanup'];
+var apiFuncs = ['setup', 'render', 'cleanup', 'Bela_createAuxiliaryTask', 'Bela_scheduleAuxiliaryTask'];
 
 class DocumentationView extends View {
 	

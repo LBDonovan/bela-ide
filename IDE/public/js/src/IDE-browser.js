@@ -135,10 +135,10 @@ var documentationView = new (require('./Views/DocumentationView'))
 
 // git view
 var gitView = new (require('./Views/GitView'))('gitManager', [models.git]);
-gitView.on('git-event', func => socket.emit('git-event', {
-	func, 
-	project: models.project.getKey('currentProject')
-}));
+gitView.on('git-event', data => {
+	data.project = models.project.getKey('currentProject');
+	socket.emit('git-event', data);
+});
 gitView.on('console', text => consoleView.emit('log', text) );
 
 // setup socket

@@ -47,6 +47,11 @@ module.exports = {
 		return data;
 	},
 	
+	*command(data){
+		data = yield this.execute(data);
+		return yield _co(this, 'info', data);
+	},
+	
 	execute(data){
 		return new Promise( (resolve, reject) => {			
 			exec('git '+data.command, {cwd: belaPath+'projects/'+data.project+'/'}, (err, stdout, stderr) => {

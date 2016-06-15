@@ -184,6 +184,8 @@ function socketEvents(socket){
 			return;
 		}
 		
+		console.log('git-event', data);
+		
 		co(GitManager, data.func, data)
 			.then((result) => {
 				allSockets.emit('git-reply', data.project, result);

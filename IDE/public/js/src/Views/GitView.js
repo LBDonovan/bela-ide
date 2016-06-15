@@ -19,9 +19,18 @@ class GitView extends View{
 	
 	buttonClicked($element, e){
 		var func = $element.data().func;
-		if (func){
-			this.emit('git-event', func);
+		if (func === 'commit'){
+			this.commit();
+			return;
 		}
+		var command = $element.data().command;
+		this.emit('git-event', {func, command});
+	}
+	
+	commit(){
+	console.log('commit');
+		var message = prompt('enter a commit message');
+		this.emit('git-event', {func: 'command', command: 'commit -am "'+message+'"'});
 	}
 	
 	_repoExists(exists){
@@ -54,7 +63,8 @@ class GitView extends View{
 					$(opt).attr('selected', 'selected');
 				}
 			} else {
-				$('<option></option>').html(commit).appendTo($commits);
+				//$('<option></option>').html(commit).appendTo($commits);
+				console.log('skipped commit', commit);
 			}
 		}
 		

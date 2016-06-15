@@ -273,6 +273,17 @@
 		"outputPathIsSetByUser": 0,
 		"processed": 0
 		},
+	"\/IDE\/public\/belaDiagram\/images\/bela_pins_jun2016.jpg": {
+		"fileType": 16384,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"initialSize": 59505,
+		"inputAbbreviatedPath": "\/IDE\/public\/belaDiagram\/images\/bela_pins_jun2016.jpg",
+		"outputAbbreviatedPath": "\/IDE\/public\/belaDiagram\/images\/bela_pins_jun2016.jpg",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"processed": 0
+		},
 	"\/IDE\/public\/belaDiagram\/json\/data.json": {
 		"fileType": 524288,
 		"ignore": 1,
@@ -1816,6 +1827,39 @@
 		"initialSize": 2478,
 		"inputAbbreviatedPath": "\/IDE\/public\/images\/logo_bar3.png",
 		"outputAbbreviatedPath": "\/IDE\/public\/images\/logo_bar3.png",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"processed": 0
+		},
+	"\/IDE\/public\/images\/logo_bar4.png": {
+		"fileType": 32768,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"initialSize": 2691,
+		"inputAbbreviatedPath": "\/IDE\/public\/images\/logo_bar4.png",
+		"outputAbbreviatedPath": "\/IDE\/public\/images\/logo_bar4.png",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"processed": 0
+		},
+	"\/IDE\/public\/images\/logo_bar5.png": {
+		"fileType": 32768,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"initialSize": 2474,
+		"inputAbbreviatedPath": "\/IDE\/public\/images\/logo_bar5.png",
+		"outputAbbreviatedPath": "\/IDE\/public\/images\/logo_bar5.png",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"processed": 0
+		},
+	"\/IDE\/public\/images\/logo_bar6.png": {
+		"fileType": 32768,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"initialSize": 5348,
+		"inputAbbreviatedPath": "\/IDE\/public\/images\/logo_bar6.png",
+		"outputAbbreviatedPath": "\/IDE\/public\/images\/logo_bar6.png",
 		"outputPathIsOutsideProject": 0,
 		"outputPathIsSetByUser": 0,
 		"processed": 0

@@ -397,7 +397,7 @@ table {
 
 #logo {
 	position: absolute;
-	top: -27px;
+	top: -22px;
 	left: calc(100% - 160px);
 	margin-right: 20px;
 	width: 140px;
@@ -745,7 +745,7 @@ right: calc(100% - 62px);
       display: none;   
     }
     .tab label:hover {
-    	background: #ddd;
+    	background: #88d372;
     	cursor: pointer;
     }
     /* == Style for the content pane of each tab == */

@@ -33,10 +33,10 @@ done
 shift $((OPTIND-1))
 
 # Find location of this script so we can locate the rest of the files
-SCRIPTPATH=$(readlink -f "$0")
+SCRIPTPATH=$(readlink "$0")
 SCRIPTDIR=$(dirname "$SCRIPTPATH")
 
-read -p "Warning: this script will DELETE any existing IDE files from your BeagleBone! Continue? " -n 1 -r
+read -p "Warning: this script will DELETE any existing IDE files from your BeagleBone and install the IDE. Continue? (y/N)" -r
 echo
 if [[ $REPLY = y ]]
 then

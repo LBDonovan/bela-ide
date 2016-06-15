@@ -12,6 +12,7 @@ var ProcessManager = require('./ProcessManager');
 var DebugManager = require('./DebugManager');
 var server = require('./fileServer');
 var scope = require('./scope-node');
+var GitManager = require('./GitManager');
 
 // module variables - only accesible from this file
 var allSockets;
@@ -173,6 +174,25 @@ function socketEvents(socket){
 	//console.log(DebugManager, func, DebugManager[func]);
 		if (DebugManager[func])
 			DebugManager[func](args);
+	});
+	
+	// git
+	socket.on('git-event', data => {
+	
+		if (!data.project || !data.func || !GitManager[data.func]) {
+			console.log('bad git-event', data);
+			return;
+		}
+		
+		co(GitManager, data.func, data)
+			.then((result) => {
+				allSockets.emit('git-reply', data.project, result);
+			})
+			.catch((error) => {
+				console.log(error, error.stack.split('\n'), error.toString());
+				socket.emit('report-error', error.toString() );
+			});
+
 	});
 
 }

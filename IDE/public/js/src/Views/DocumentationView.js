@@ -50,7 +50,7 @@ class DocumentationView extends View {
 			url: "documentation_xml?file=Utilities_8h",
 			dataType: "xml",
 			success: function(xml){
-				console.log(xml);
+				//console.log(xml);
 				var counter = 0;
 				$(xml).find('memberdef').each(function(){
 					var li = createlifrommemberdef($(this), 'utilityDocs'+counter);

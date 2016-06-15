@@ -10,6 +10,7 @@ models.settings = new Model();
 models.status = new Model();
 models.error = new Model();
 models.debug = new Model();
+models.git = new Model();
 
 // hack to prevent first status update causing wrong notifications
 models.status.setData({running: false, building: false});
@@ -132,6 +133,14 @@ debugView.on('debug-mode', (status) => models.debug.setKey('debugMode', status) 
 // documentation view
 var documentationView = new (require('./Views/DocumentationView'))
 
+// git view
+var gitView = new (require('./Views/GitView'))('gitManager', [models.git]);
+gitView.on('git-event', func => socket.emit('git-event', {
+	func, 
+	project: models.project.getKey('currentProject')
+}));
+gitView.on('console', text => consoleView.emit('log', text) );
+
 // setup socket
 var socket = io('/IDE');
 
@@ -171,6 +180,7 @@ socket.on('project-data', (data) => {
 	if (debug){
 		models.debug.setData(debug);
 	}
+	if (data.gitData) models.git.setData(data.gitData);
 	//models.settings.setData(data.settings);
 	//models.project.print();
 });
@@ -251,6 +261,12 @@ socket.on('debugger-data', (data) => {
 socket.on('debugger-variables', (project, variables) => {
 	if (project === models.project.getKey('currentProject')){
 		models.debug.setKey('variables', variables);
+	}
+});
+
+socket.on('git-reply', (project, data) => {
+	if (project === models.project.getKey('currentProject')){
+		models.git.setData(data);
 	}
 });
 

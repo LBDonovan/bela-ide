@@ -11,6 +11,7 @@ models.settings = new Model();
 models.status = new Model();
 models.error = new Model();
 models.debug = new Model();
+models.git = new Model();
 
 // hack to prevent first status update causing wrong notifications
 models.status.setData({running: false, building: false});
@@ -133,6 +134,14 @@ debugView.on('debug-mode', (status) => models.debug.setKey('debugMode', status) 
 // documentation view
 var documentationView = new (require('./Views/DocumentationView'))
 
+// git view
+var gitView = new (require('./Views/GitView'))('gitManager', [models.git]);
+gitView.on('git-event', func => socket.emit('git-event', {
+	func, 
+	project: models.project.getKey('currentProject')
+}));
+gitView.on('console', text => consoleView.emit('log', text) );
+
 // setup socket
 var socket = io('/IDE');
 
@@ -172,6 +181,7 @@ socket.on('project-data', (data) => {
 	if (debug){
 		models.debug.setData(debug);
 	}
+	if (data.gitData) models.git.setData(data.gitData);
 	//models.settings.setData(data.settings);
 	//models.project.print();
 });
@@ -252,6 +262,12 @@ socket.on('debugger-data', (data) => {
 socket.on('debugger-variables', (project, variables) => {
 	if (project === models.project.getKey('currentProject')){
 		models.debug.setKey('variables', variables);
+	}
+});
+
+socket.on('git-reply', (project, data) => {
+	if (project === models.project.getKey('currentProject')){
+		models.git.setData(data);
 	}
 });
 
@@ -460,7 +476,7 @@ function getDateString(){
 
 
 
-},{"./Models/Model":2,"./Views/ConsoleView":3,"./Views/DebugView":4,"./Views/DocumentationView":5,"./Views/EditorView":6,"./Views/FileView":7,"./Views/ProjectView":8,"./Views/SettingsView":9,"./Views/TabView":10,"./Views/ToolbarView":11}],2:[function(require,module,exports){
+},{"./Models/Model":2,"./Views/ConsoleView":3,"./Views/DebugView":4,"./Views/DocumentationView":5,"./Views/EditorView":6,"./Views/FileView":7,"./Views/GitView":8,"./Views/ProjectView":9,"./Views/SettingsView":10,"./Views/TabView":11,"./Views/ToolbarView":12}],2:[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter;
 
 class Model extends EventEmitter{
@@ -544,7 +560,7 @@ function _equals(a, b, log){
 	
 	
 	
-},{"events":15}],3:[function(require,module,exports){
+},{"events":16}],3:[function(require,module,exports){
 'use strict';
 var View = require('./View');
 var _console = require('../console');
@@ -564,6 +580,7 @@ class ConsoleView extends View{
 		this.on('closeNotification', this.closeNotification);
 		this.on('openProcessNotification', this.openProcessNotification);
 
+		this.on('log', text => _console.log(text));
 		this.on('warn', function(warning, id){
 			console.log(warning);
 			_console.warn(warning, id);
@@ -719,7 +736,7 @@ var funcKey = {
 	'init'			: 'Initialising',
 	'stop'			: 'Stopping'
 };
-},{"../console":13,"./View":12}],4:[function(require,module,exports){
+},{"../console":14,"./View":13}],4:[function(require,module,exports){
 var View = require('./View');
 
 class DebugView extends View {
@@ -871,7 +888,7 @@ function prepareList() {
 
 
 
-},{"./View":12}],5:[function(require,module,exports){
+},{"./View":13}],5:[function(require,module,exports){
 var View = require('./View');
 
 var apiFuncs = ['setup', 'render', 'cleanup', 'Bela_createAuxiliaryTask', 'Bela_scheduleAuxiliaryTask'];
@@ -924,7 +941,7 @@ class DocumentationView extends View {
 			url: "documentation_xml?file=Utilities_8h",
 			dataType: "xml",
 			success: function(xml){
-				console.log(xml);
+				//console.log(xml);
 				var counter = 0;
 				$(xml).find('memberdef').each(function(){
 					var li = createlifrommemberdef($(this), 'utilityDocs'+counter);
@@ -959,7 +976,7 @@ function createlifrommemberdef($xml, id){
 	li.append(content);
 	return li;
 }
-},{"./View":12}],6:[function(require,module,exports){
+},{"./View":13}],6:[function(require,module,exports){
 var View = require('./View');
 var Range = ace.require('ace/range').Range;
 
@@ -1141,7 +1158,7 @@ class EditorView extends View {
 }
 
 module.exports = EditorView;
-},{"./View":12}],7:[function(require,module,exports){
+},{"./View":13}],7:[function(require,module,exports){
 var View = require('./View');
 
 var sourceIndeces = ['cpp', 'c', 'S'];
@@ -1279,7 +1296,92 @@ class FileView extends View {
 }
 
 module.exports = FileView;
-},{"./View":12}],8:[function(require,module,exports){
+},{"./View":13}],8:[function(require,module,exports){
+'use strict';
+var View = require('./View');
+
+class GitView extends View{
+
+	constructor(className, models, settings){
+		super(className, models, settings);		
+
+		/*this.form = document.getElementById('beaglert-consoleForm');
+		this.input = document.getElementById('beaglert-consoleInput');
+		
+		// console command line input events
+		this.form.addEventListener('submit', (e) => {
+			e.preventDefault();
+			this.emit('input', this.input.value);
+			this.input.value = '';
+		});*/
+	}
+	
+	buttonClicked($element, e){
+		var func = $element.data().func;
+		if (func){
+			this.emit('git-event', func);
+		}
+	}
+	
+	_repoExists(exists){
+		console.log('REPO', exists);
+		if (exists){
+			$('#repo').css('display', 'block');
+			$('#noRepo').css('display', 'none');
+		} else {
+			$('#repo').css('display', 'none');
+			$('#noRepo').css('display', 'block');
+		}
+	}
+	_commits(commits, git){
+
+		var commits = commits.split('\n');
+		var current = git.currentCommit.trim();
+		var branches = git.branches.split('\n');
+		
+		// fill commits menu
+		var $commits = $('#commits');
+		$commits.empty();
+
+		var commit, hash, opt;
+		for (var i=0; i<commits.length; i++){
+			commit = commits[i].split(' ');
+			if (commit.length > 2){
+				hash = commit.pop().trim();
+				opt = $('<option></option>').html(commit.join(' ')).data('hash', hash).appendTo($commits);
+				if (hash === current){
+					$(opt).attr('selected', 'selected');
+				}
+			} else {
+				$('<option></option>').html(commit).appendTo($commits);
+			}
+		}
+		
+		// fill branches menu
+		var $branches = $('#branches');
+		$branches.empty();
+		
+		for (var i=0; i<branches.length; i++){
+			if (branches[i]){
+				opt = $('<option></option>').html(branches[i]).appendTo($branches);
+				if (branches[i][0] === '*'){
+					$(opt).attr('selected', 'selected');
+				}
+			}
+		}
+	}
+	__stdout(text){
+		this.emit('console', text);
+	}
+	__stderr(text){
+		this.emit('console', text);
+	}
+	
+}
+
+module.exports = GitView;
+
+},{"./View":13}],9:[function(require,module,exports){
 var View = require('./View');
 
 class ProjectView extends View {
@@ -1383,7 +1485,7 @@ class ProjectView extends View {
 }
 
 module.exports = ProjectView;
-},{"./View":12}],9:[function(require,module,exports){
+},{"./View":13}],10:[function(require,module,exports){
 var View = require('./View');
 
 class SettingsView extends View {
@@ -1464,7 +1566,7 @@ class SettingsView extends View {
 }
 
 module.exports = SettingsView;
-},{"./View":12}],10:[function(require,module,exports){
+},{"./View":13}],11:[function(require,module,exports){
 var View = require('./View');
 
 // private variables
@@ -1576,7 +1678,7 @@ class TabView extends View {
 }
 
 module.exports = new TabView();
-},{"./View":12}],11:[function(require,module,exports){
+},{"./View":13}],12:[function(require,module,exports){
 var View = require('./View');
 
 class ToolbarView extends View {
@@ -1756,7 +1858,7 @@ class ToolbarView extends View {
 }
 
 module.exports = ToolbarView;
-},{"./View":12}],12:[function(require,module,exports){
+},{"./View":13}],13:[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter;
 
 class View extends EventEmitter{
@@ -1812,7 +1914,7 @@ class View extends EventEmitter{
 }
 
 module.exports = View;
-},{"events":15}],13:[function(require,module,exports){
+},{"events":16}],14:[function(require,module,exports){
 'use strict';
 var EventEmitter = require('events').EventEmitter;
 //var $ = require('jquery-browserify');
@@ -1966,7 +2068,7 @@ module.exports = new Console();
 		}
 	}, 500);
 }*/
-},{"events":15}],14:[function(require,module,exports){
+},{"events":16}],15:[function(require,module,exports){
 //var $ = require('jquery-browserify');
 var IDE;
 
@@ -1975,7 +2077,7 @@ $(() => {
 });
 
 
-},{"./IDE-browser":1}],15:[function(require,module,exports){
+},{"./IDE-browser":1}],16:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -2275,7 +2377,7 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}]},{},[14])
+},{}]},{},[15])
 
 
 //# sourceMappingURL=bundle.js.map

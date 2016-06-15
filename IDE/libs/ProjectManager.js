@@ -3,6 +3,8 @@
 var Promise = require('bluebird');
 var fs = Promise.promisifyAll(require('fs-extra'));
 
+var git = require('./GitManager');
+
 // private variables
 // paths
 var belaPath = '/root/Bela/';
@@ -42,6 +44,7 @@ module.exports = {
 		for (let key in settings){
 			data[key] = settings[key];
 		}
+		data.gitData = yield _co(git, 'info', {project: data.currentProject});
 		return yield _co(this, 'openFile', data);
 	},
 	

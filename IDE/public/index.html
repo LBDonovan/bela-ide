@@ -265,20 +265,25 @@
 
 									</div> -->
 						   
-							<div class="gitParent" style="display: none">
+							<div class="proj-expl gitManager-parent">
 							   <h2>Git:</h2>
-							   <button class="gitButton" data-command="status">status</button>
-							   <button class="gitButton" data-command="log --pretty=oneline">log</button></br>
+							   <div id="noRepo">
+							   		<button class="gitManager" data-func="init">Initialise Repo</button>
+							   </div>
+							   <div id="repo" style="display:none">
+								   <button class="gitManager" data-command="status">status</button>
+								   <button class="gitManager" data-command="log --pretty=oneline">log</button></br>
 
-							   <select id="branches"></select>
-							   <button id="newBranch">new branch</button>
-							   <button id="gitMerge">merge</button></br>
+								   <select id="branches"></select>
+								   <button id="newBranch">new branch</button>
+								   <button id="gitMerge">merge</button></br>
 
-							   <button id="gitCommit">commit</button>
-							   <button id="gitDiscard">discard changes</button>
-							   <button class="gitButton" data-command="revert HEAD">revert previous commit</button></br>
+								   <button id="gitCommit">commit</button>
+								   <button id="gitDiscard">discard changes</button>
+								   <button class="gitManager" data-command="revert HEAD">revert previous commit</button></br>
 
-							   <select id="commits"></select>
+								   <select id="commits"></select>
+								</div>
 							</div>				           
 				           </br></br></br>
 				        </div> 

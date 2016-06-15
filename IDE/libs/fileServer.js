@@ -1,10 +1,13 @@
 var express = require('express'); 
-var fs = require('fs');
 var archiver = require('archiver');
 var mime = require('mime');
+var Promise = require('bluebird');
+var fs = Promise.promisifyAll(require('fs-extra'));
 
 var app = express();
 var http = require('http').Server(app);
+
+var belaPath = '/root/Bela/';
 
 function listen(port){
 	http.listen(port, function(){
@@ -20,7 +23,7 @@ app.get('/download', function(req, res){
 	if (req.query.project){
 		if (req.query.file){
 		
-			var file = '/root/Bela/projects/'+req.query.project+'/'+req.query.file;
+			var file = belaPath+'projects/'+req.query.project+'/'+req.query.file;
 			res.setHeader('Content-disposition', 'attachment; filename='+req.query.file);
 			res.setHeader('Content-type', mime.lookup(file));
 			
@@ -33,7 +36,7 @@ app.get('/download', function(req, res){
 	
 			var archive = archiver('zip');
 			archive.pipe(res);
-			archive.directory('/root/Bela/projects/'+req.query.project, req.query.project, {name: req.query.project+'.zip'});
+			archive.directory(belaPath+'projects/'+req.query.project, req.query.project, {name: req.query.project+'.zip'});
 			archive.finalize();
 		}
 	}
@@ -42,6 +45,17 @@ app.get('/download', function(req, res){
 
 // link for doxygen docs
 app.use('/documentation', express.static('../Documentation/html'));
+
+// link for doxygen xml
+app.get('/documentation_xml', function(req, res){
+
+	res.set('Content-Type', 'text/xml');
+
+	fs.readFileAsync(belaPath+'Documentation/xml/'+req.query.file+'.xml', 'utf-8')
+		.then( xml => res.send(xml) )
+		.catch( () => res.status(500).send('file '+req.query.file+'.xml not found') );
+	
+});
 
 module.exports = {
 	http: http,

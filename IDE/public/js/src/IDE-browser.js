@@ -129,6 +129,9 @@ var debugView = new (require('./Views/DebugView'))('debugger', [models.debug, mo
 debugView.on('debugger-event', (func) => socket.emit('debugger-event', func) );
 debugView.on('debug-mode', (status) => models.debug.setKey('debugMode', status) );
 
+// documentation view
+var documentationView = new (require('./Views/DocumentationView'))
+
 // setup socket
 var socket = io('/IDE');
 
@@ -151,6 +154,9 @@ socket.on('init', (data) => {
 	//models.settings.print();
 	
 	socket.emit('set-time', getDateString());
+	
+	documentationView.emit('init');
+	
 });
 
 // project events

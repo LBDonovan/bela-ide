@@ -130,6 +130,9 @@ var debugView = new (require('./Views/DebugView'))('debugger', [models.debug, mo
 debugView.on('debugger-event', (func) => socket.emit('debugger-event', func) );
 debugView.on('debug-mode', (status) => models.debug.setKey('debugMode', status) );
 
+// documentation view
+var documentationView = new (require('./Views/DocumentationView'))
+
 // setup socket
 var socket = io('/IDE');
 
@@ -152,6 +155,9 @@ socket.on('init', (data) => {
 	//models.settings.print();
 	
 	socket.emit('set-time', getDateString());
+	
+	documentationView.emit('init');
+	
 });
 
 // project events
@@ -454,7 +460,7 @@ function getDateString(){
 
 
 
-},{"./Models/Model":2,"./Views/ConsoleView":3,"./Views/DebugView":4,"./Views/EditorView":5,"./Views/FileView":6,"./Views/ProjectView":7,"./Views/SettingsView":8,"./Views/TabView":9,"./Views/ToolbarView":10}],2:[function(require,module,exports){
+},{"./Models/Model":2,"./Views/ConsoleView":3,"./Views/DebugView":4,"./Views/DocumentationView":5,"./Views/EditorView":6,"./Views/FileView":7,"./Views/ProjectView":8,"./Views/SettingsView":9,"./Views/TabView":10,"./Views/ToolbarView":11}],2:[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter;
 
 class Model extends EventEmitter{
@@ -538,7 +544,7 @@ function _equals(a, b, log){
 	
 	
 	
-},{"events":14}],3:[function(require,module,exports){
+},{"events":15}],3:[function(require,module,exports){
 'use strict';
 var View = require('./View');
 var _console = require('../console');
@@ -713,7 +719,7 @@ var funcKey = {
 	'init'			: 'Initialising',
 	'stop'			: 'Stopping'
 };
-},{"../console":12,"./View":11}],4:[function(require,module,exports){
+},{"../console":13,"./View":12}],4:[function(require,module,exports){
 var View = require('./View');
 
 class DebugView extends View {
@@ -865,7 +871,90 @@ function prepareList() {
 
 
 
-},{"./View":11}],5:[function(require,module,exports){
+},{"./View":12}],5:[function(require,module,exports){
+var View = require('./View');
+
+var apiFuncs = ['setup', 'render', 'cleanup'];
+
+class DocumentationView extends View {
+	
+	constructor(className, models){
+		super(className, models);
+		
+		this.on('init', this.init);
+	}
+	
+	init(){
+		
+		// The API
+		$.ajax({
+			type: "GET",
+			url: "documentation_xml?file=Bela_8h",
+			dataType: "xml",
+			success: function(xml){
+				//console.log(xml);
+				var counter = 0;
+				for (let item of apiFuncs){
+					var li = createlifrommemberdef($(xml).find('memberdef:has(name:contains('+item+'))'), 'APIDocs'+counter);
+					li.appendTo($('#APIDocs'));
+					counter += 1;
+				}
+			}
+		});
+		
+		// The Audio Context
+		$.ajax({
+			type: "GET",
+			url: "documentation_xml?file=structBelaContext",
+			dataType: "xml",
+			success: function(xml){
+				//console.log(xml);
+				var counter = 0;
+				$(xml).find('memberdef').each(function(){
+					var li = createlifrommemberdef($(this), 'contextDocs'+counter);
+					li.appendTo($('#contextDocs'));
+					counter += 1;
+				});
+			}
+		});
+		
+		// Utilities
+		$.ajax({
+			type: "GET",
+			url: "documentation_xml?file=Utilities_8h",
+			dataType: "xml",
+			success: function(xml){
+				//console.log(xml);
+				var counter = 0;
+				$(xml).find('memberdef').each(function(){
+					var li = createlifrommemberdef($(this), 'utilityDocs'+counter);
+					li.appendTo($('#utilityDocs'));
+					counter += 1;
+				});
+			}
+		});
+		
+	}
+	
+}
+
+module.exports = DocumentationView;
+
+function docFunction(xml, func){
+	var $m = $(xml).find('memberdef:has(name:contains('+func+'))');
+	var out = $m.find('type').html() +' '+ $m.find('name').html() + $m.find('argsstring').html() +':\n';
+	out += ($m.find('briefdescription > para').html() + '\n' + $m.find('detaileddescription > para').html());
+	$('#'+func+'Docs').html(out);
+}
+
+function createlifrommemberdef($m, id){
+	var li = $('<li></li>');
+	li.append($('<input></input>').prop('type', 'checkbox').addClass('docs').prop('id', id));
+	li.append($('<label></label>').prop('for', id).addClass('docSectionHeader').addClass('sub').html($m.find('name').html()));
+	li.append($('<p></p>').html( ($m.find('briefdescription > para').html() || '') +' '+ ($m.find('detaileddescription > para').html() || '')));
+	return li;
+}
+},{"./View":12}],6:[function(require,module,exports){
 var View = require('./View');
 var Range = ace.require('ace/range').Range;
 
@@ -1047,7 +1136,7 @@ class EditorView extends View {
 }
 
 module.exports = EditorView;
-},{"./View":11}],6:[function(require,module,exports){
+},{"./View":12}],7:[function(require,module,exports){
 var View = require('./View');
 
 var sourceIndeces = ['cpp', 'c', 'S'];
@@ -1185,7 +1274,7 @@ class FileView extends View {
 }
 
 module.exports = FileView;
-},{"./View":11}],7:[function(require,module,exports){
+},{"./View":12}],8:[function(require,module,exports){
 var View = require('./View');
 
 class ProjectView extends View {
@@ -1289,7 +1378,7 @@ class ProjectView extends View {
 }
 
 module.exports = ProjectView;
-},{"./View":11}],8:[function(require,module,exports){
+},{"./View":12}],9:[function(require,module,exports){
 var View = require('./View');
 
 class SettingsView extends View {
@@ -1370,7 +1459,7 @@ class SettingsView extends View {
 }
 
 module.exports = SettingsView;
-},{"./View":11}],9:[function(require,module,exports){
+},{"./View":12}],10:[function(require,module,exports){
 var View = require('./View');
 
 // private variables
@@ -1482,7 +1571,7 @@ class TabView extends View {
 }
 
 module.exports = new TabView();
-},{"./View":11}],10:[function(require,module,exports){
+},{"./View":12}],11:[function(require,module,exports){
 var View = require('./View');
 
 class ToolbarView extends View {
@@ -1662,7 +1751,7 @@ class ToolbarView extends View {
 }
 
 module.exports = ToolbarView;
-},{"./View":11}],11:[function(require,module,exports){
+},{"./View":12}],12:[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter;
 
 class View extends EventEmitter{
@@ -1718,7 +1807,7 @@ class View extends EventEmitter{
 }
 
 module.exports = View;
-},{"events":14}],12:[function(require,module,exports){
+},{"events":15}],13:[function(require,module,exports){
 'use strict';
 var EventEmitter = require('events').EventEmitter;
 //var $ = require('jquery-browserify');
@@ -1872,7 +1961,7 @@ module.exports = new Console();
 		}
 	}, 500);
 }*/
-},{"events":14}],13:[function(require,module,exports){
+},{"events":15}],14:[function(require,module,exports){
 //var $ = require('jquery-browserify');
 var IDE;
 
@@ -1881,7 +1970,7 @@ $(() => {
 });
 
 
-},{"./IDE-browser":1}],14:[function(require,module,exports){
+},{"./IDE-browser":1}],15:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -2181,7 +2270,7 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}]},{},[13])
+},{}]},{},[14])
 
 
 //# sourceMappingURL=bundle.js.map

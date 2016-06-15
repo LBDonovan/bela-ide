@@ -50,7 +50,7 @@ class DocumentationView extends View {
 			url: "documentation_xml?file=Utilities_8h",
 			dataType: "xml",
 			success: function(xml){
-				//console.log(xml);
+				console.log(xml);
 				var counter = 0;
 				$(xml).find('memberdef').each(function(){
 					var li = createlifrommemberdef($(this), 'utilityDocs'+counter);
@@ -66,17 +66,22 @@ class DocumentationView extends View {
 
 module.exports = DocumentationView;
 
-function docFunction(xml, func){
-	var $m = $(xml).find('memberdef:has(name:contains('+func+'))');
-	var out = $m.find('type').html() +' '+ $m.find('name').html() + $m.find('argsstring').html() +':\n';
-	out += ($m.find('briefdescription > para').html() + '\n' + $m.find('detaileddescription > para').html());
-	$('#'+func+'Docs').html(out);
-}
-
-function createlifrommemberdef($m, id){
+function createlifrommemberdef($xml, id){
 	var li = $('<li></li>');
 	li.append($('<input></input>').prop('type', 'checkbox').addClass('docs').prop('id', id));
-	li.append($('<label></label>').prop('for', id).addClass('docSectionHeader').addClass('sub').html($m.find('name').html()));
-	li.append($('<p></p>').html( ($m.find('briefdescription > para').html() || '') +' '+ ($m.find('detaileddescription > para').html() || '')));
+	li.append($('<label></label>').prop('for', id).addClass('docSectionHeader').addClass('sub').html($xml.find('name').html()));
+	
+	var content = $('<div></div>');
+	
+	// title
+	content.append($('<h2></h2>').html( $xml.find('definition').html() + $xml.find('argsstring').html() ));
+	
+	// subtitle
+	content.append($('<h3></h3>').html( $xml.find('briefdescription > para').html() || '' ));
+	
+	// main text
+	content.append($('<p></p>').html( $xml.find('detaileddescription > para').html() || '' ));
+
+	li.append(content);
 	return li;
 }

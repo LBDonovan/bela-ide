@@ -1110,16 +1110,30 @@ label.docSectionHeader.sub {
 	background: #ddd;
 	margin-left: 20px;
 }
-	label.docSectionHeader.sub:hover {
-		background: #D7E2D3;
-		margin-left: 20px;
-	}
-	p {
-		margin-left: 30px;
-		font-family: Consolas, sans-serif;
-		font-size: 12px;
-		padding: 10px 0;
-	}
+label.docSectionHeader.sub:hover {
+	background: #D7E2D3;
+	margin-left: 20px;
+}
+
+/**** Documentation content styles ****/
+.subsections div {
+	margin-left: 30px;
+	font-family: Consolas, sans-serif;
+	font-size: 12px;
+	padding: 10px 0;
+}
+
+.subsections div>h2 { /* title */
+
+}
+.subsections div>h3 { /* subtitle */
+
+}
+.subsections div>p { /* content */
+
+}
+
+
 .sections input + label + ul
 {
 	display: none;
@@ -1129,12 +1143,12 @@ label.docSectionHeader.sub {
 	display: block;
 }
 
-.subsections input + label + p
+.subsections input + label + div
 {
 	display: none;
 }
 
-.subsections input:checked:not(:disabled) + label + p
+.subsections input:checked:not(:disabled) + label + div
 {
 	display: block;
 }

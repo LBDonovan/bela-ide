@@ -14,6 +14,7 @@ function listen(port){
 
 app.use(express.static('public'));	//path to IDE index.html
 
+// link for downloading projects
 app.get('/download', function(req, res){
 
 	if (req.query.project){
@@ -38,6 +39,9 @@ app.get('/download', function(req, res){
 	}
 	
 });
+
+// link for doxygen docs
+app.use('/documentation', express.static('../Documentation/html'));
 
 module.exports = {
 	http: http,

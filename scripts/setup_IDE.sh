@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # This script copies the core BeagleRT files to the BeagleBone Black
 # in preparation for building projects. It will remove any existing
@@ -7,7 +7,7 @@
 BBB_ADDRESS="root@192.168.7.2"
 BBB_PATH="~/Bela"
 ALWAYS_YES=0
-function usage
+usage()
 {
     THIS_SCRIPT=`basename "$0"`
     echo "Usage: $THIS_SCRIPT [-y] [-b path-on-beaglebone]"

@@ -34,8 +34,14 @@ function IDE(){
 	allSockets = io.of('/IDE');
 	allSockets.on('connection', socketConnected);
 	
-	// CPU monitoring
+	// CPU & project monitoring
 	setInterval(function(){
+		
+		ProjectManager.listProjects()
+			.then( result => {
+				allSockets.emit('project-list', undefined, result);
+			});
+		
 		if (!cpuMonitoring) return;
 		co(ProcessManager, 'checkCPU')
 			.then((output) => allSockets.emit('cpu-usage', output));
@@ -217,6 +223,12 @@ function socketEvents(socket){
 				socket.emit('project-data', {gitData: data});
 			});
 
+	});
+	
+	// file list refresh
+	socket.on('list-files', project => {
+		ProjectManager.listFiles(project)
+			.then( list => socket.emit('file-list', project, list) );
 	});
 
 }

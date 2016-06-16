@@ -201,6 +201,10 @@ module.exports = {
 				else resolve(true);
 			});
 		});
+	},
+	
+	listFiles(project){
+		return _listFiles(project);
 	}
 }
 

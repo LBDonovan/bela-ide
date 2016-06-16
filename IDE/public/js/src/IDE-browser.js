@@ -142,6 +142,9 @@ gitView.on('git-event', data => {
 gitView.on('console', text => consoleView.emit('log', text) );
 gitView.on('console-warn', text => consoleView.emit('warn', text) );
 
+// refresh files
+setInterval( () => socket.emit('list-files', models.project.getKey('currentProject')), 5000);
+
 // setup socket
 var socket = io('/IDE');
 

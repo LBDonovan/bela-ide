@@ -36,8 +36,7 @@ done
 shift $((OPTIND-1))
 
 # Find location of this script so we can locate the rest of the files
-SCRIPTPATH=$(readlink "$0")
-SCRIPTDIR=$(dirname "$SCRIPTPATH")
+SCRIPTDIR=$(dirname "$0")
 
 if [ $ALWAYS_YES -eq 0 ];
 then

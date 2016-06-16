@@ -272,7 +272,9 @@ socket.on('debugger-variables', (project, variables) => {
 	}
 });
 
+// run-on-boot
 socket.on('run-on-boot-log', text => consoleView.emit('log', text) );
+socket.on('run-on-boot-project', project => $('#runOnBoot option[value="'+project+'"]').attr('selected', 'selected') );
 
 /*socket.on('git-reply', (project, data) => {
 	if (project === models.project.getKey('currentProject')){

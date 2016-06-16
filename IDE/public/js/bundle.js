@@ -1859,7 +1859,7 @@ class ToolbarView extends View {
 	_CPU(data){
 
 		var ide = data.syntaxCheckProcess + data.buildProcess + data.node + data.gdb;
-		var bela = 0;
+		var bela = 0, rootCPU = 1;
 		
 		if (data.bela != 0){
 		
@@ -1884,6 +1884,7 @@ class ToolbarView extends View {
 						'msw'	: taskData[j][2],
 						'csw'	: taskData[j][3]
 					};
+					if (proc.name === 'ROOT') rootCPU = proc.cpu*0.01;
 					// ignore uninteresting data
 					if (proc && proc.name && proc.name !== 'ROOT' && proc.name !== 'NAME' && proc.name !== 'IRQ29:'){
 						output.push(proc);
@@ -1900,8 +1901,8 @@ class ToolbarView extends View {
 		
 		}
 
-		$('#ide-cpu').html('IDE: '+ide.toFixed(1)+'%');
-		$('#bela-cpu').html('Bela: '+bela.toFixed(1)+'%');
+		$('#ide-cpu').html('IDE: '+(ide*rootCPU).toFixed(1)+'%');
+		$('#bela-cpu').html('Bela: '+( bela ? bela.toFixed(1)+'%' : '--'));
 	}
 	
 	_cpuMonitoring(value){

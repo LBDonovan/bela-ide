@@ -2,6 +2,8 @@
 var EventEmitter = require('events').EventEmitter;
 //var $ = require('jquery-browserify');
 
+var enabled = true;
+
 // module variables
 var numElements = 0, maxElements = 200, consoleDelete = true;
 
@@ -13,7 +15,15 @@ class Console extends EventEmitter {
 		this.parent = document.getElementById('beaglert-console');
 	}
 	
+	block(){
+		enabled = false;
+	}
+	unblock(){
+		enabled = true;
+	}
+	
 	print(text, className, id, onClick){
+		if (!enabled) return;
 		var el = $('<div></div>').addClass('beaglert-console-'+className).appendTo(this.$element);
 		if (id) el.prop('id', id);
 		$('<span></span>').html(text).appendTo(el);
@@ -81,6 +91,7 @@ class Console extends EventEmitter {
 	// if persist is not true, the notification will be removed quickly
 	// otherwise it will just fade
 	notify(notice, id){
+		if (!enabled) return;
 		$('#'+id).remove();
 		var el = this.print(notice, 'notify', id);
 		this.scroll();
@@ -88,6 +99,7 @@ class Console extends EventEmitter {
 	}
 	
 	fulfill(message, id, persist){
+		if (!enabled) return;
 		var el = document.getElementById(id);
 		//if (!el) el = this.notify(message, id);
 		var $el = $(el);

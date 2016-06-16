@@ -4,8 +4,12 @@ class ToolbarView extends View {
 	
 	constructor(className, models){
 		super(className, models);
-		console.log(this.$elements);
+
 		this.$elements.on('click', (e) => this.buttonClicked($(e.currentTarget), e));
+		
+		this.on('disconnected', () => {
+			$('#run').removeClass('spinning');
+		});
 		
 		$('#run')
 			.mouseover(function() {

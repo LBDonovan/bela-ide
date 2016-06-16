@@ -99,7 +99,7 @@ module.exports = {
 	
 	// file events
 	*openFile(data){
-		if (!data.newFile) data.newFile = data.fileName;
+		if (!data.newFile) data.newFile = data.fileName || '';
 		//console.log('openFile', data);
 		var splitName = data.newFile.split('.');
 		if (!splitName.length>1 || allowedIndeces.indexOf(splitName[splitName.length-1]) === -1){

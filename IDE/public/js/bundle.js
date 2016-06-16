@@ -151,7 +151,7 @@ socket.on('report-error', (error) => consoleView.emit('warn', error.message || e
 
 socket.on('init', (data) => {
 	
-	$('#console-disconnect').remove();
+	consoleView.connect();
 	
 	//console.log(data);
 	var timestamp = performance.now()
@@ -235,6 +235,7 @@ socket.on('cpu-usage', (data) => models.status.setKey('CPU', data) );
 
 socket.on('disconnect', () => {
 	consoleView.disconnect();
+	toolbarView.emit('disconnected');
 	models.project.setKey('readOnly', true);
 });
 
@@ -620,9 +621,14 @@ class ConsoleView extends View{
 		_console.fulfill('', timestamp, false);
 	}
 	
+	connect(){
+		$('#console-disconnect').remove();
+		_console.unblock();
+	}
 	disconnect(){
 		console.log('disconnected');
 		_console.warn('You have been disconnected from the Bela IDE and any more changes you make will not be saved. Please check your USB connection and reboot your BeagleBone', 'console-disconnect');
+		_console.block();
 	}
 	
 	// model events
@@ -1710,8 +1716,12 @@ class ToolbarView extends View {
 	
 	constructor(className, models){
 		super(className, models);
-		console.log(this.$elements);
+
 		this.$elements.on('click', (e) => this.buttonClicked($(e.currentTarget), e));
+		
+		this.on('disconnected', () => {
+			$('#run').removeClass('spinning');
+		});
 		
 		$('#run')
 			.mouseover(function() {
@@ -1944,6 +1954,8 @@ module.exports = View;
 var EventEmitter = require('events').EventEmitter;
 //var $ = require('jquery-browserify');
 
+var enabled = true;
+
 // module variables
 var numElements = 0, maxElements = 200, consoleDelete = true;
 
@@ -1955,7 +1967,15 @@ class Console extends EventEmitter {
 		this.parent = document.getElementById('beaglert-console');
 	}
 	
+	block(){
+		enabled = false;
+	}
+	unblock(){
+		enabled = true;
+	}
+	
 	print(text, className, id, onClick){
+		if (!enabled) return;
 		var el = $('<div></div>').addClass('beaglert-console-'+className).appendTo(this.$element);
 		if (id) el.prop('id', id);
 		$('<span></span>').html(text).appendTo(el);
@@ -2023,6 +2043,7 @@ class Console extends EventEmitter {
 	// if persist is not true, the notification will be removed quickly
 	// otherwise it will just fade
 	notify(notice, id){
+		if (!enabled) return;
 		$('#'+id).remove();
 		var el = this.print(notice, 'notify', id);
 		this.scroll();
@@ -2030,6 +2051,7 @@ class Console extends EventEmitter {
 	}
 	
 	fulfill(message, id, persist){
+		if (!enabled) return;
 		var el = document.getElementById(id);
 		//if (!el) el = this.notify(message, id);
 		var $el = $(el);

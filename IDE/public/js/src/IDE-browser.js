@@ -150,7 +150,7 @@ socket.on('report-error', (error) => consoleView.emit('warn', error.message || e
 
 socket.on('init', (data) => {
 	
-	$('#console-disconnect').remove();
+	consoleView.connect();
 	
 	//console.log(data);
 	var timestamp = performance.now()
@@ -234,6 +234,7 @@ socket.on('cpu-usage', (data) => models.status.setKey('CPU', data) );
 
 socket.on('disconnect', () => {
 	consoleView.disconnect();
+	toolbarView.emit('disconnected');
 	models.project.setKey('readOnly', true);
 });
 

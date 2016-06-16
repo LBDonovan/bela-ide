@@ -55,9 +55,14 @@ class ConsoleView extends View{
 		_console.fulfill('', timestamp, false);
 	}
 	
+	connect(){
+		$('#console-disconnect').remove();
+		_console.unblock();
+	}
 	disconnect(){
 		console.log('disconnected');
 		_console.warn('You have been disconnected from the Bela IDE and any more changes you make will not be saved. Please check your USB connection and reboot your BeagleBone', 'console-disconnect');
+		_console.block();
 	}
 	
 	// model events

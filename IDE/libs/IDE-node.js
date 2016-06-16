@@ -216,7 +216,7 @@ function socketEvents(socket){
 				console.log(error, error.stack.split('\n'), error.toString());
 				//socket.emit('report-error', error.toString() );
 				data.error = error.toString();
-				socket.emit('project-data', data);
+				socket.emit('project-data', {gitData: data});
 			});
 
 	});

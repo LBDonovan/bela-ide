@@ -140,6 +140,7 @@ gitView.on('git-event', data => {
 	socket.emit('git-event', data);
 });
 gitView.on('console', text => consoleView.emit('log', text) );
+gitView.on('console-warn', text => consoleView.emit('warn', text) );
 
 // setup socket
 var socket = io('/IDE');

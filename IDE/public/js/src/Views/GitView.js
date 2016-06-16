@@ -6,15 +6,18 @@ class GitView extends View{
 	constructor(className, models, settings){
 		super(className, models, settings);		
 
-		/*this.form = document.getElementById('beaglert-consoleForm');
-		this.input = document.getElementById('beaglert-consoleInput');
-		
-		// console command line input events
-		this.form.addEventListener('submit', (e) => {
+		this.$form = $('#gitForm');
+		this.$input = $('#gitInput');
+
+		// git input events
+		this.$form.on('submit', (e) => {
 			e.preventDefault();
-			this.emit('input', this.input.value);
-			this.input.value = '';
-		});*/
+			this.emit('git-event', {
+				func: 'command', 
+				command: this.$input.val()
+			});
+			this.$input.val('');
+		});
 	}
 	
 	buttonClicked($element, e){
@@ -91,7 +94,7 @@ class GitView extends View{
 			}
 		}
 	}
-	__stdout(text){
+	__stdout(text, git){
 		this.emit('console', text);
 	}
 	__stderr(text){

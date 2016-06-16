@@ -275,14 +275,17 @@
 								   <button class="gitManager" data-func="command" data-command="log --pretty=oneline">log</button></br>
 
 								   <select id="branches" class="gitManager" data-func="checkout"></select>
-								   <button class="gitManager" data-func="branch">new branch</button>
-								   <button class="gitManager" >merge</button></br>
+								   <button class="gitManager" data-func="branch">new branch</button></br>
 
+								   <button class="gitManager" data-func="command" data-command="add -A">stage all</button>
 								   <button class="gitManager" data-func="commit" >commit</button>
-								   <button class="gitManager" >discard changes</button>
-								   <button class="gitManager" data-func="command" data-command="revert HEAD">revert previous commit</button></br>
+								   <button class="gitManager" data-func="command" data-command="checkout -- .">discard changes</button>
+								   <!--<button class="gitManager" data-func="command" data-command="revert HEAD">revert previous commit</button>--></br>
 
-								   <select id="commits" class="gitManager" data-func="checkout"></select>
+								   <select id="commits" class="gitManager" data-func="checkout"></select></br>
+								   	<form id="gitForm" class="gitManager">
+								   		git <input id="gitInput" type="text">
+								   	</form>
 								</div>
 							</div>				           
 				           </br></br></br>

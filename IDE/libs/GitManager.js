@@ -20,8 +20,8 @@ module.exports = {
 		gitData.command = 'init';
 		gitData = yield this.execute(gitData);
 		
-		// create the .gitignore file, ignoring settings.json, the build/ folder and the binary
-		yield fs.outputFileAsync(belaPath+'projects/'+gitData.currentProject+'/.gitignore', 'settings.json\nbuild/*\n'+gitData.currentProject, 'utf-8');
+		// create the .gitignore file, ignoring .DS_Store, settings.json, the build/ folder and the binary
+		yield fs.outputFileAsync(belaPath+'projects/'+gitData.currentProject+'/.gitignore', '.DS_Store\nsettings.json\nbuild/*\n'+gitData.currentProject, 'utf-8');
 		
 		// add all files to the repo
 		gitData.command = 'add -A';

@@ -13,48 +13,56 @@ module.exports = {
 			.catch( err => false );
 	},
 	
-	*init(data){
-		if (yield this.repoExists(data.project)) throw new Error('repo already exists');
+	*init(gitData){
+		if (yield this.repoExists(gitData.currentProject)) throw new Error('repo already exists');
 		
 		// init the repo
-		data.command = 'init';
-		data = yield this.execute(data);
+		gitData.command = 'init';
+		gitData = yield this.execute(gitData);
 		
 		// create the .gitignore file, ignoring settings.json, the build/ folder and the binary
-		yield fs.outputFileAsync(belaPath+'projects/'+data.project+'/.gitignore', 'settings.json\nbuild/*\n'+data.project, 'utf-8');
+		yield fs.outputFileAsync(belaPath+'projects/'+gitData.currentProject+'/.gitignore', 'settings.json\nbuild/*\n'+gitData.currentProject, 'utf-8');
 		
 		// add all files to the repo
-		data.command = 'add -A';
-		data = yield this.execute(data);
+		gitData.command = 'add -A';
+		gitData = yield this.execute(gitData);
 		
 		// first commit
-		data.command = 'commit -am "first commit"';
-		data = yield this.execute(data);
+		gitData.command = 'commit -am "first commit"';
+		gitData = yield this.execute(gitData);
 		
-		return yield _co(this, 'info', data);
+		return gitData;
+		
 	},
 	
 	*info(data){
-		data.repoExists = yield this.repoExists(data.project);
+			
+		data.repoExists = yield this.repoExists(data.currentProject);
+		
 		if (data.repoExists){
-			var commits = yield this.execute({command: "log --all --pretty=oneline --format='%s, %ar %H' --graph", project: data.project});
+		
+			var commits = yield this.execute({currentProject: data.currentProject, command: "log --all --pretty=oneline --format='%s, %ar %H' --graph"});
 			data.commits = commits.stdout;
-			var currentCommit = yield this.execute({command: "log -1 --format='%H'", project: data.project});
+			
+			var currentCommit = yield this.execute({currentProject: data.currentProject, command: "log -1 --format='%H'"});
 			data.currentCommit = currentCommit.stdout
-			var branches = yield this.execute({command: "branch", project: data.project});
+			
+			var branches = yield this.execute({currentProject: data.currentProject, command: "branch"});
 			data.branches = branches.stdout;
+			
 		}
+		
 		return data;
 	},
 	
 	*command(data){
 		data = yield this.execute(data);
-		return yield _co(this, 'info', data);
+		return data;
 	},
 	
 	execute(data){
 		return new Promise( (resolve, reject) => {			
-			exec('git '+data.command, {cwd: belaPath+'projects/'+data.project+'/'}, (err, stdout, stderr) => {
+			exec('git '+data.command, {cwd: belaPath+'projects/'+data.currentProject+'/'}, (err, stdout, stderr) => {
 			console.log(data.command, stdout, stderr);
 				if (err) reject(err);
 				

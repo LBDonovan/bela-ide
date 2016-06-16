@@ -137,7 +137,7 @@ var documentationView = new (require('./Views/DocumentationView'))
 // git view
 var gitView = new (require('./Views/GitView'))('gitManager', [models.git]);
 gitView.on('git-event', data => {
-	data.project = models.project.getKey('currentProject');
+	data.currentProject = models.project.getKey('currentProject');
 	socket.emit('git-event', data);
 });
 gitView.on('console', text => consoleView.emit('log', text) );
@@ -182,6 +182,7 @@ socket.on('project-data', (data) => {
 		models.debug.setData(debug);
 	}
 	if (data.gitData) models.git.setData(data.gitData);
+	console.log(data, data.gitData);
 	//models.settings.setData(data.settings);
 	//models.project.print();
 });
@@ -265,11 +266,11 @@ socket.on('debugger-variables', (project, variables) => {
 	}
 });
 
-socket.on('git-reply', (project, data) => {
+/*socket.on('git-reply', (project, data) => {
 	if (project === models.project.getKey('currentProject')){
 		models.git.setData(data);
 	}
-});
+});*/
 
 // model events
 // build errors
@@ -1318,18 +1319,28 @@ class GitView extends View{
 	
 	buttonClicked($element, e){
 		var func = $element.data().func;
-		if (func === 'commit'){
-			this.commit();
+		if (this[func]){
+			this[func]();
 			return;
 		}
 		var command = $element.data().command;
 		this.emit('git-event', {func, command});
 	}
 	
+	selectChanged($element, e){
+		this.emit('git-event', {
+			func: 'command',
+			command: 'checkout ' + ($("option:selected", $element).data('hash') || $("option:selected", $element).val())
+		});
+	}
+	
 	commit(){
-	console.log('commit');
 		var message = prompt('enter a commit message');
 		this.emit('git-event', {func: 'command', command: 'commit -am "'+message+'"'});
+	}
+	branch(){
+		var message = prompt('enter a name for the new branch');
+		this.emit('git-event', {func: 'command', command: 'checkout -b '+message});
 	}
 	
 	_repoExists(exists){
@@ -1342,7 +1353,7 @@ class GitView extends View{
 			$('#noRepo').css('display', 'block');
 		}
 	}
-	_commits(commits, git){
+	__commits(commits, git){
 
 		var commits = commits.split('\n');
 		var current = git.currentCommit.trim();
@@ -1363,7 +1374,7 @@ class GitView extends View{
 				}
 			} else {
 				//$('<option></option>').html(commit).appendTo($commits);
-				console.log('skipped commit', commit);
+				if (commit !== ['']) console.log('skipped commit', commit);
 			}
 		}
 		

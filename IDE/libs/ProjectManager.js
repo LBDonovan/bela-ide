@@ -44,7 +44,9 @@ module.exports = {
 		for (let key in settings){
 			data[key] = settings[key];
 		}
-		data.gitData = yield _co(git, 'info', {project: data.currentProject});
+		if (!data.gitData) data.gitData = {};
+		data.gitData.currentProject = data.currentProject;
+		data.gitData = yield _co(git, 'info', data.gitData);
 		return yield _co(this, 'openFile', data);
 	},
 	

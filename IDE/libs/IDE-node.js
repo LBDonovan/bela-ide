@@ -179,20 +179,44 @@ function socketEvents(socket){
 	// git
 	socket.on('git-event', data => {
 	
-		if (!data.project || !data.func || !GitManager[data.func]) {
+		if (!data.currentProject || !data.func || !GitManager[data.func]) {
 			console.log('bad git-event', data);
 			return;
 		}
 		
+		//if (!data.gitData) data.gitData = {};
+		
 		console.log('git-event', data);
 		
 		co(GitManager, data.func, data)
-			.then((result) => {
-				allSockets.emit('git-reply', data.project, result);
+			.then ( result => {
+			console.log(result);
+				return co(ProjectManager, 'openProject', {
+					currentProject: result.currentProject,
+					gitData: result
+				});
 			})
-			.catch((error) => {
+			.then( result => {
+			
+				// send result to the tab that asked for it
+				socket.emit('project-data', result);
+				
+				// send relevant info to any other tabs
+				if (result.currentProject){
+					if (result.projectList){
+						socket.broadcast.emit('project-list', result.currentProject, result.projectList);
+					}
+					if (result.fileList){
+						socket.broadcast.emit('file-list', result.currentProject, result.fileList);
+					}
+					SettingsManager.setIDESetting({key: 'project', value: result.currentProject});
+				}
+			})
+			.catch( error => {
 				console.log(error, error.stack.split('\n'), error.toString());
-				socket.emit('report-error', error.toString() );
+				//socket.emit('report-error', error.toString() );
+				data.error = error.toString();
+				socket.emit('project-data', data);
 			});
 
 	});

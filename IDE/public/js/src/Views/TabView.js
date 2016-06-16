@@ -11,16 +11,18 @@ class TabView extends View {
 
 		// open/close tabs 
 		$('#flexit').on('click', () => {
-			//console.log("CLICKY");
 			if (_tabsOpen){
 				this.closeTabs();
-			} else {
+			} else {				
 				this.openTabs();
 			}
 		});
 
-		$('label').on('click', (e) => {
+		$('.tab > label').on('click', (e) => {
 			if (!_tabsOpen){
+				if ($(e.currentTarget).prop('id') === 'tab-0' && $('[type=radio]:checked ~ label').prop('id') === 'tab-0')
+					$('#file-explorer').parent().trigger('click');
+
 				this.openTabs();
 				e.stopPropagation();
 			}

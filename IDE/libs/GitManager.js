@@ -63,7 +63,7 @@ module.exports = {
 	execute(data){
 		return new Promise( (resolve, reject) => {			
 			exec('git '+data.command, {cwd: belaPath+'projects/'+data.currentProject+'/'}, (err, stdout, stderr) => {
-			console.log(data.command, stdout, stderr);
+			//console.log(data.command, stdout, stderr);
 				if (err) reject(err);
 				
 				if (data.stdout) 

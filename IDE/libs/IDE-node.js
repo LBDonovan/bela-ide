@@ -183,10 +183,8 @@ function socketEvents(socket){
 			console.log('bad git-event', data);
 			return;
 		}
-		
-		//if (!data.gitData) data.gitData = {};
-		
-		console.log('git-event', data);
+				
+		//console.log('git-event', data);
 		
 		co(GitManager, data.func, data)
 			.then ( result => {

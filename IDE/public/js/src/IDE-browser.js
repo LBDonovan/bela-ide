@@ -32,6 +32,7 @@ settingsView.on('IDE-settings', (data) => {
 	//console.log('IDE-settings', data);
 	socket.emit('IDE-settings', data);
 });
+settingsView.on('run-on-boot', project => socket.emit('run-on-boot', project) );
 
 // project view
 var projectView = new (require('./Views/ProjectView'))('projectManager', [models.project]);
@@ -269,6 +270,8 @@ socket.on('debugger-variables', (project, variables) => {
 		models.debug.setKey('variables', variables);
 	}
 });
+
+socket.on('run-on-boot-log', text => consoleView.emit('log', text) );
 
 /*socket.on('git-reply', (project, data) => {
 	if (project === models.project.getKey('currentProject')){

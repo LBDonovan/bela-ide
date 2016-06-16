@@ -33,6 +33,7 @@ settingsView.on('IDE-settings', (data) => {
 	//console.log('IDE-settings', data);
 	socket.emit('IDE-settings', data);
 });
+settingsView.on('run-on-boot', project => socket.emit('run-on-boot', project) );
 
 // project view
 var projectView = new (require('./Views/ProjectView'))('projectManager', [models.project]);
@@ -270,6 +271,8 @@ socket.on('debugger-variables', (project, variables) => {
 		models.debug.setKey('variables', variables);
 	}
 });
+
+socket.on('run-on-boot-log', text => consoleView.emit('log', text) );
 
 /*socket.on('git-reply', (project, data) => {
 	if (project === models.project.getKey('currentProject')){
@@ -1533,6 +1536,12 @@ class SettingsView extends View {
 				function() { return $(this).data(prop)==val; }
 			);
 		}
+		
+		$('#runOnBoot').on('change', () => {
+			if ($('#runOnBoot').val()) 
+				this.emit('run-on-boot', $('#runOnBoot').val());
+		});
+		
 	}
 	
 	selectChanged($element, e){
@@ -1596,6 +1605,26 @@ class SettingsView extends View {
 	}
 	_breakpoints(value, keys){
 		this.emit('project-settings', {func: 'setBreakpoints', value});
+	}
+	_projectList(projects, data){
+
+		var $projects = $('#runOnBoot');
+		$projects.empty();
+		
+		// add an empty option to menu and select it
+		$('<option></option>').attr({'value': '', 'selected': 'selected'}).html('--select--').appendTo($projects);
+		
+		// add a 'none' option
+		$('<option></option>').attr('value', 'none').html('none').appendTo($projects);
+
+		// fill project menu with projects
+		for (let i=0; i<projects.length; i++){
+			if (projects[i] && projects[i] !== 'undefined' && projects[i] !== 'exampleTempProject' && projects[i][0] !== '.'){
+				$('<option></option>').attr('value', projects[i]).html(projects[i]).appendTo($projects);
+			}
+		}
+
+		
 	}
 }
 

@@ -5,6 +5,7 @@
 var Promise = require('bluebird');
 var fs = Promise.promisifyAll(require('fs-extra'));
 var exec = require('child_process').exec;
+var spawn = require('child_process').spawn;
 
 // sub_modules
 var ProjectManager = require('./ProjectManager');
@@ -229,6 +230,22 @@ function socketEvents(socket){
 	socket.on('list-files', project => {
 		ProjectManager.listFiles(project)
 			.then( list => socket.emit('file-list', project, list) );
+	});
+	
+	// run-on-boot
+	socket.on('run-on-boot', project => {
+		var args;
+		if (project === 'none'){
+			args = ['nostartup'];
+		} else {
+			args = ['startup', 'PROJECT='+project]; 
+		}
+		var proc = spawn('make', args, {cwd: belaPath});
+		proc.stdout.setEncoding('utf-8');
+		proc.stderr.setEncoding('utf-8');
+		proc.stdout.on('data', data => socket.emit('run-on-boot-log', data) );
+		proc.stderr.on('data', data => socket.emit('run-on-boot-log', data) );
+		proc.on('close', () => socket.emit('run-on-boot-log', 'done') );
 	});
 
 }

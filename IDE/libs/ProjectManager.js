@@ -217,10 +217,10 @@ function *_setFile(data){
 function _getSettings(projectName){
 	return fs.readJSONAsync(projectPath+projectName+'/settings.json')
 		.catch((error) => {
-			console.log('settings.json error', error, error.stack);
-			console.log('creating default settings');
+			//console.log('settings.json error', error, error.stack);
+			console.log('could not find settings.json in project folder, creating default project settings');
 			// if there is an error loading the settings object, create a new default one
-			return _defaultSettings();
+			return _saveSettings(_defaultSettings(), {currentProject: projectName});
 		})
 }
 

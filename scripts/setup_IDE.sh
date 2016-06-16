@@ -57,8 +57,11 @@ then
   scp -rq $SCRIPTDIR/../IDE $BBB_ADDRESS:$BBB_PATH &&\
   printf "done\n" || { printf "\nError while copying files: error $?\n"; exit 1; }
 
-# Make remaining directories needed for building
-  printf "Rebuilding node dependencies (might take a minute - please wait)..."
+# Make sure the projects folder exists and there is a project in it
+  ssh $BBB_ADDRESS "cd $BBB_PATH/; mkdir -p projects/; [ -d projects/basic ] || cp -r examples/basic projects/" &&\
+  
+# rebuild node dependencies
+  printf "Rebuilding node dependencies..."
   ssh $BBB_ADDRESS "cd $BBB_PATH/IDE/; npm rebuild &>/dev/null" &&\
   printf "done\n" || { printf "\nError while rebuilding dependencies.\n"; exit 1; }
 else

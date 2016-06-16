@@ -239,7 +239,7 @@ var SettingsManager = {
 	// create the default IDE settings object
 	defaultSettings(){
 		return {
-			'project'				: undefined,
+			'project'				: 'basic',
 			'liveAutocompletion'	: 1,
 			'liveSyntaxChecking'	: 1,
 			'verboseErrors'			: 0,
@@ -258,10 +258,10 @@ var SettingsManager = {
 		// load the global settings
 		return fs.readJsonAsync('./settings.json')
 			.catch((error) => {
-				console.log('global settings.json error', error, error.stack);
-				console.log('creating default global settings');
+				//console.log('global settings.json error', error, error.stack);
+				console.log('could not find global settings.json, creating default global settings');
 				// if there is an error loading the settings object, create a new default one
-				return this.defaultSettings();
+				return this.setSettings(this.defaultSettings());
 			});
 	},
 

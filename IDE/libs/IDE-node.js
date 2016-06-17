@@ -88,7 +88,10 @@ var shell = {
 			// is it a path?
 			if (str.indexOf('/') !== -1){
 				var test = path.basename(str);
-				var searchDir = this.cwd + '/' + path.dirname(str);
+				if (path.isAbsolute(str))
+					var searchDir = path.dirname(str);
+				else
+					var searchDir = this.cwd + '/' + path.dirname(str);
 			} else {
 				var test = str;
 				var searchDir = this.cwd;
@@ -106,7 +109,7 @@ var shell = {
 							temp.pop();
 							
 							if (str.indexOf('/') !== -1)
-								temp.push(path.dirname(str) + '/' + item);
+								temp.push( (path.dirname(str) === '/') ? (path.dirname(str) + item) : (path.dirname(str) + '/' + item) );
 							else
 								temp.push(item);
 																
@@ -116,8 +119,13 @@ var shell = {
 					
 					if (matches.length === 1){
 						//let command = matches[0][matches[0].length-1]
-						console.log('matches[0]:', matches[0], 'fullpath:', this.cwd+'/'+matches[0][matches[0].length-1]);
-						fs.statAsync(this.cwd+'/'+matches[0][matches[0].length-1])
+						//console.log('matches[0]:', matches[0], 'fullpath:', this.cwd+'/'+matches[0][matches[0].length-1]);
+						if (path.isAbsolute(str))
+							var statDir = matches[0][matches[0].length-1];
+						else
+							var statDir = this.cwd+'/'+matches[0][matches[0].length-1];
+							
+						fs.statAsync(statDir)
 							.then( stat => {
 							
 								if (stat.isDirectory())

@@ -32,6 +32,11 @@ class ConsoleView extends View{
 			this.emit('input', this.input.value);
 			this.input.value = '';
 		});
+		
+		this.on('cwd', cwd => {
+			console.log('cwd', cwd);
+			$('#beaglert-consoleInput-pre').html(cwd+' $ ');
+		});
 	}
 	
 	openNotification(data){

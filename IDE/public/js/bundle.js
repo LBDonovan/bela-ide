@@ -120,11 +120,12 @@ consoleView.on('open-file', (fileName, focus) => {
 	socket.emit('project-event', data);
 });
 consoleView.on('input', (value) => {
-	if (value){
+	socket.emit('sh-command', value);
+	/*if (value){
 		var val = value.split(' ')
 		var command = val.splice(0, 1);
 		if (command[0] === 'gdb' && models.debug.getKey('debugMode')) socket.emit('debugger-event', 'exec', val.join(' '));
-	}
+	}*/
 });
 
 // debugger view
@@ -275,6 +276,11 @@ socket.on('debugger-variables', (project, variables) => {
 // run-on-boot
 socket.on('run-on-boot-log', text => consoleView.emit('log', text) );
 socket.on('run-on-boot-project', project => $('#runOnBoot option[value="'+project+'"]').attr('selected', 'selected') );
+
+// shell
+socket.on('sh-stdout', data => consoleView.emit('log', data) );
+socket.on('sh-stderr', data => consoleView.emit('warn', data) );
+socket.on('sh-cwd', cwd => consoleView.emit('cwd', cwd) );
 
 /*socket.on('git-reply', (project, data) => {
 	if (project === models.project.getKey('currentProject')){
@@ -605,6 +611,11 @@ class ConsoleView extends View{
 			e.preventDefault();
 			this.emit('input', this.input.value);
 			this.input.value = '';
+		});
+		
+		this.on('cwd', cwd => {
+			console.log('cwd', cwd);
+			$('#beaglert-consoleInput-pre').html(cwd+' $ ');
 		});
 	}
 	

@@ -23,6 +23,48 @@ var startupScript = '/root/Bela_startup.sh';
 // settings
 var cpuMonitoring = false;
 
+var shell = {
+	init(){
+	
+		var sh = spawn('sh');
+		
+		sh.stdout.setEncoding('utf-8');
+		sh.stderr.setEncoding('utf-8');
+		
+		sh.stdout.on('data', (data) => {
+			if (this.pwding) {
+				console.log('dir', data.split('\n').join(''));
+				fs.statAsync(data.split('\n').join(''))
+					.then( stat => allSockets.emit('sh-cwd', data.split('\n').join('')) )
+					.catch( this.pwd );
+				this.pwding = false;
+				return;
+			}
+			console.log(data);
+			allSockets.emit('sh-stdout', data);
+		});
+		
+		sh.stderr.on('data', (data) => allSockets.emit('sh-stderr', data) );
+		
+		sh.on('exit', () => allSockets.emit('sh-stderr', 'sh exited') );
+		
+		this.sh = sh;
+	},
+	
+	execute(command){
+		this.sh.stdin.write(command+'\n');
+		this.pwd();
+	},
+	
+	pwd(){
+		setTimeout( () => {
+			console.log('sh-pwd');
+			this.pwding = true;
+			this.sh.stdin.write('pwd\n');
+		}, 100);
+	}
+};
+
 // constructor function for IDE object
 function IDE(){
 	var runOnBootProject;
@@ -66,6 +108,9 @@ function IDE(){
 	
 	// scope
 	scope.init(io);
+	
+	// shell
+	shell.init();
 	
 }
 
@@ -263,6 +308,9 @@ function socketEvents(socket){
 		proc.stderr.on('data', data => socket.emit('run-on-boot-log', data) );
 		proc.on('close', () => socket.emit('run-on-boot-log', 'done') );
 	});
+	
+	// shell
+	socket.on('sh-command', cmd => shell.execute(cmd) );
 
 }
 
@@ -340,6 +388,7 @@ var SettingsManager = {
 	}
 
 };
+
 
 
 process.on('uncaughtException', (err) => {

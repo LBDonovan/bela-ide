@@ -25,13 +25,13 @@ class ProjectView extends View {
 	newProject(func){
 		var name = prompt("Enter the name of the new project");
 		if (name !== null){
-			this.emit('message', 'project-event', {func, newProject: name})
+			this.emit('message', 'project-event', {func, newProject: sanitise(name)})
 		}
 	}
 	saveAs(func){
 		var name = prompt("Enter the name of the new project");
 		if (name !== null){
-			this.emit('message', 'project-event', {func, newProject: name})
+			this.emit('message', 'project-event', {func, newProject: sanitise(name)})
 		}
 	}
 	deleteProject(func){
@@ -101,3 +101,10 @@ class ProjectView extends View {
 }
 
 module.exports = ProjectView;
+
+// replace ' ' with '_' and all non alpha-numeric chars other than '_' and '.' with '#'
+function sanitise(name){
+	return name
+		.split(' ').join('_')
+		.replace(/[^a-zA-Z0-9_\.]/g, '#');
+}

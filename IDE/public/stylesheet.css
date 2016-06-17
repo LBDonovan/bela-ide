@@ -258,6 +258,8 @@ table {
 	display: inline;
     white-space: nowrap;
 	padding: 5px;
+	opacity: 0.2;
+	transition: opacity 0.3s;
 }
 
 /*======= OLD TOOLBAR ========*/

@@ -12,7 +12,7 @@ class FileView extends View {
 		$('#uploadFileInput').on('change', (e) => {
 			for (let file of e.target.files){
 				var reader = new FileReader();
-				reader.onload = (ev) => this.emit('message', 'project-event', {func: 'uploadFile', newFile: file.name, fileData: ev.target.result} );
+				reader.onload = (ev) => this.emit('message', 'project-event', {func: 'uploadFile', newFile: sanitise(file.name), fileData: ev.target.result} );
 				reader.readAsArrayBuffer(file);
 			}
 		});
@@ -23,7 +23,7 @@ class FileView extends View {
 			if (e.type === 'drop'){
 				for (let file of e.originalEvent.dataTransfer.files){
 					var reader = new FileReader();
-					reader.onload = (ev) => this.emit('message', 'project-event', {func: 'uploadFile', newFile: file.name, fileData: ev.target.result} );
+					reader.onload = (ev) => this.emit('message', 'project-event', {func: 'uploadFile', newFile: sanitise(file.name), fileData: ev.target.result} );
 					reader.readAsArrayBuffer(file);
 				}
 			}
@@ -43,7 +43,7 @@ class FileView extends View {
 	newFile(func){
 		var name = prompt("Enter the name of the new file");
 		if (name !== null){
-			this.emit('message', 'project-event', {func, newFile: name})
+			this.emit('message', 'project-event', {func, newFile: sanitise(name)})
 		}
 	}
 	uploadFile(func){
@@ -52,7 +52,7 @@ class FileView extends View {
 	renameFile(func){
 		var name = prompt("Enter the new name of the file");
 		if (name !== null){
-			this.emit('message', 'project-event', {func, newFile: name})
+			this.emit('message', 'project-event', {func, newFile: sanitise(name)})
 		}
 	}
 	deleteFile(func){
@@ -77,7 +77,8 @@ class FileView extends View {
 		
 		for (let i=0; i<files.length; i++){
 			
-			let ext = files[i].split('.')[1];
+			let ext = files[i].split('.');
+			ext = ext[ext.length-1];
 			
 			if (sourceIndeces.indexOf(ext) !== -1){
 				sources.push(files[i]);
@@ -135,3 +136,10 @@ class FileView extends View {
 }
 
 module.exports = FileView;
+
+// replace ' ' with '_' and all non alpha-numeric chars other than '_' and '.' with '#'
+function sanitise(name){
+	return name
+		.split(' ').join('_')
+		.replace(/[^a-zA-Z0-9_\.]/g, '#');
+}

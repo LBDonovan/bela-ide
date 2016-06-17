@@ -21,7 +21,7 @@ var resourceIndeces = ['txt', 'json', 'xml'];
 //var allowedIndeces = [...sourceIndeces, ...headerIndeces, ...resourceIndeces];
 var allowedIndeces = sourceIndeces.concat(headerIndeces, resourceIndeces);
 
-var resourceData = 'This file type cannot be opened';
+var resourceData = 'This file type cannot be viewed in the IDE';
 
 // public functions
 module.exports = {

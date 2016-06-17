@@ -620,12 +620,21 @@ class ConsoleView extends View{
 			_console.log(this.input.value, 'log-in');
 			this.input.value = '';
 		});
-	
+		
+		$('#beaglert-consoleInput-pre')
+			.on('click', () => $(this.input).trigger('focus') );
+		
+		$('#beaglert-consoleInput-pre, #beaglert-consoleInput')
+			.on('mouseover', function(){ $('#beaglert-consoleInput-pre').css('opacity', 1) })
+			.on('mouseout', () => { if (!this.inputFocused) $('#beaglert-consoleInput-pre').css('opacity', 0.2) });
+		
 		this.input.addEventListener('focus', () => {
 			this.inputFocused = true;
+			$('#beaglert-consoleInput-pre').css('opacity', 1);//.html(shellCWD);
 		});
 		this.input.addEventListener('blur', () => {
 			this.inputFocused = false;
+			$('#beaglert-consoleInput-pre').css('opacity', 0.2);//.html('>');
 		});
 		window.addEventListener('keydown', (e) => {
 			if (this.inputFocused && e.which === 38){
@@ -1237,7 +1246,7 @@ class FileView extends View {
 		$('#uploadFileInput').on('change', (e) => {
 			for (let file of e.target.files){
 				var reader = new FileReader();
-				reader.onload = (ev) => this.emit('message', 'project-event', {func: 'uploadFile', newFile: file.name, fileData: ev.target.result} );
+				reader.onload = (ev) => this.emit('message', 'project-event', {func: 'uploadFile', newFile: sanitise(file.name), fileData: ev.target.result} );
 				reader.readAsArrayBuffer(file);
 			}
 		});
@@ -1248,7 +1257,7 @@ class FileView extends View {
 			if (e.type === 'drop'){
 				for (let file of e.originalEvent.dataTransfer.files){
 					var reader = new FileReader();
-					reader.onload = (ev) => this.emit('message', 'project-event', {func: 'uploadFile', newFile: file.name, fileData: ev.target.result} );
+					reader.onload = (ev) => this.emit('message', 'project-event', {func: 'uploadFile', newFile: sanitise(file.name), fileData: ev.target.result} );
 					reader.readAsArrayBuffer(file);
 				}
 			}
@@ -1268,7 +1277,7 @@ class FileView extends View {
 	newFile(func){
 		var name = prompt("Enter the name of the new file");
 		if (name !== null){
-			this.emit('message', 'project-event', {func, newFile: name})
+			this.emit('message', 'project-event', {func, newFile: sanitise(name)})
 		}
 	}
 	uploadFile(func){
@@ -1277,7 +1286,7 @@ class FileView extends View {
 	renameFile(func){
 		var name = prompt("Enter the new name of the file");
 		if (name !== null){
-			this.emit('message', 'project-event', {func, newFile: name})
+			this.emit('message', 'project-event', {func, newFile: sanitise(name)})
 		}
 	}
 	deleteFile(func){
@@ -1302,7 +1311,8 @@ class FileView extends View {
 		
 		for (let i=0; i<files.length; i++){
 			
-			let ext = files[i].split('.')[1];
+			let ext = files[i].split('.');
+			ext = ext[ext.length-1];
 			
 			if (sourceIndeces.indexOf(ext) !== -1){
 				sources.push(files[i]);
@@ -1360,6 +1370,13 @@ class FileView extends View {
 }
 
 module.exports = FileView;
+
+// replace ' ' with '_' and all non alpha-numeric chars other than '_' and '.' with '#'
+function sanitise(name){
+	return name
+		.split(' ').join('_')
+		.replace(/[^a-zA-Z0-9_\.]/g, '#');
+}
 },{"./View":13}],8:[function(require,module,exports){
 'use strict';
 var View = require('./View');
@@ -1496,13 +1513,13 @@ class ProjectView extends View {
 	newProject(func){
 		var name = prompt("Enter the name of the new project");
 		if (name !== null){
-			this.emit('message', 'project-event', {func, newProject: name})
+			this.emit('message', 'project-event', {func, newProject: sanitise(name)})
 		}
 	}
 	saveAs(func){
 		var name = prompt("Enter the name of the new project");
 		if (name !== null){
-			this.emit('message', 'project-event', {func, newProject: name})
+			this.emit('message', 'project-event', {func, newProject: sanitise(name)})
 		}
 	}
 	deleteProject(func){
@@ -1572,6 +1589,13 @@ class ProjectView extends View {
 }
 
 module.exports = ProjectView;
+
+// replace ' ' with '_' and all non alpha-numeric chars other than '_' and '.' with '#'
+function sanitise(name){
+	return name
+		.split(' ').join('_')
+		.replace(/[^a-zA-Z0-9_\.]/g, '#');
+}
 },{"./View":13}],10:[function(require,module,exports){
 var View = require('./View');
 

@@ -43,12 +43,21 @@ class ConsoleView extends View{
 			_console.log(this.input.value, 'log-in');
 			this.input.value = '';
 		});
-	
+		
+		$('#beaglert-consoleInput-pre')
+			.on('click', () => $(this.input).trigger('focus') );
+		
+		$('#beaglert-consoleInput-pre, #beaglert-consoleInput')
+			.on('mouseover', function(){ $('#beaglert-consoleInput-pre').css('opacity', 1) })
+			.on('mouseout', () => { if (!this.inputFocused) $('#beaglert-consoleInput-pre').css('opacity', 0.2) });
+		
 		this.input.addEventListener('focus', () => {
 			this.inputFocused = true;
+			$('#beaglert-consoleInput-pre').css('opacity', 1);//.html(shellCWD);
 		});
 		this.input.addEventListener('blur', () => {
 			this.inputFocused = false;
+			$('#beaglert-consoleInput-pre').css('opacity', 0.2);//.html('>');
 		});
 		window.addEventListener('keydown', (e) => {
 			if (this.inputFocused && e.which === 38){

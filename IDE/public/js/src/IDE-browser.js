@@ -139,6 +139,8 @@ var documentationView = new (require('./Views/DocumentationView'))
 var gitView = new (require('./Views/GitView'))('gitManager', [models.git]);
 gitView.on('git-event', data => {
 	data.currentProject = models.project.getKey('currentProject');
+	data.timestamp = performance.now();
+	consoleView.emit('openNotification', data);
 	socket.emit('git-event', data);
 });
 gitView.on('console', text => consoleView.emit('log', text, 'git') );
@@ -187,7 +189,7 @@ socket.on('project-data', (data) => {
 		models.debug.setData(debug);
 	}
 	if (data.gitData) models.git.setData(data.gitData);
-	console.log(data, data.gitData);
+	console.log(data);
 	//models.settings.setData(data.settings);
 	//models.project.print();
 });

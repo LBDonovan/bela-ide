@@ -29,7 +29,7 @@ var shell = {
 	
 		var sh = spawn('sh');
 		
-		sh.stdin.write('cd ~\n');
+		sh.stdin.write('cd ~/Bela\n');
 		
 		sh.stdout.setEncoding('utf-8');
 		sh.stderr.setEncoding('utf-8');
@@ -272,8 +272,9 @@ function socketEvents(socket){
 			.then ( result => {
 			console.log(result);
 				return co(ProjectManager, 'openProject', {
-					currentProject: result.currentProject,
-					gitData: result
+					currentProject	: result.currentProject,
+					timestamp		: result.timestamp,
+					gitData			: result
 				});
 			})
 			.then( result => {
@@ -296,7 +297,8 @@ function socketEvents(socket){
 				console.log(error, error.stack.split('\n'), error.toString());
 				//socket.emit('report-error', error.toString() );
 				data.error = error.toString();
-				socket.emit('project-data', {gitData: data});
+				socket.emit('project-data', {gitData: data, timestamp: data.timestamp});
+				socket.emit('report-error', error.toString() );
 			});
 
 	});

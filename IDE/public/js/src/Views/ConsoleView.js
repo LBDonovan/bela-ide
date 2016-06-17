@@ -77,9 +77,13 @@ class ConsoleView extends View{
 	
 	openNotification(data){
 		if (!funcKey[data.func]) console.log(data.func);
-		var output = funcKey[data.func];
-		if (data.newProject || data.currentProject) output += ' '+(data.newProject || data.currentProject);
-		if (data.newFile || data.fileName) output += ' '+(data.newFile || data.fileName);
+		if (data.func === 'command'){
+			var output = 'Executing git ' + (data.command || '');
+		} else {
+			var output = funcKey[data.func];
+			if (data.newProject || data.currentProject) output += ' '+(data.newProject || data.currentProject);
+			if (data.newFile || data.fileName) output += ' '+(data.newFile || data.fileName);
+		}
 		_console.notify(output+'...', data.timestamp);
 	}
 	closeNotification(data){

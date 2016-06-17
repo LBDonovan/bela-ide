@@ -63,8 +63,8 @@ class EditorView extends View {
 	
 	// model events
 	// new file saved
-	_fileData(data, opts){
-	
+	__fileData(data, opts){
+
 		if (data instanceof ArrayBuffer){
 			//console.log('arraybuffer');
 			try{

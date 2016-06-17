@@ -16,6 +16,7 @@ class SettingsView extends View {
 			if ($('#runOnBoot').val()) 
 				this.emit('run-on-boot', $('#runOnBoot').val());
 		});
+		$('#shutdownBBB').on('click', () => this.emit('halt') );
 		
 	}
 	

@@ -33,6 +33,7 @@ settingsView.on('IDE-settings', (data) => {
 	socket.emit('IDE-settings', data);
 });
 settingsView.on('run-on-boot', project => socket.emit('run-on-boot', project) );
+settingsView.on('halt', () => socket.emit('sh-command', 'halt') );
 
 // project view
 var projectView = new (require('./Views/ProjectView'))('projectManager', [models.project]);

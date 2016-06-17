@@ -51,13 +51,13 @@ class ConsoleView extends View{
 			this.inputFocused = false;
 		});
 		window.addEventListener('keydown', (e) => {
-			if (this.inputFocused && e.keyIdentifier === 'Up'){
+			if (this.inputFocused && e.which === 38){
 				if (this.history[this.history.length - ++this.historyIndex]){
 					this.input.value = this.history[this.history.length - this.historyIndex];
 				} else {
 					this.historyIndex -= 1;
 				}
-			} else if (this.inputFocused && e.keyIdentifier === 'Down'){
+			} else if (this.inputFocused && e.which === 40){
 				if (--this.historyIndex === 0){
 					this.input.value = '';
 				} else if (this.history[this.history.length - this.historyIndex]){

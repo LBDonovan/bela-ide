@@ -6,6 +6,7 @@ var Promise = require('bluebird');
 var fs = Promise.promisifyAll(require('fs-extra'));
 var exec = require('child_process').exec;
 var spawn = require('child_process').spawn;
+var path = require('path');;
 
 // sub_modules
 var ProjectManager = require('./ProjectManager');
@@ -80,23 +81,55 @@ var shell = {
 	tab(cmd){
 		if (!cmd) return;
 		try{
-			if (cmd.indexOf('/') === -1){
-				var test = cmd.split(' ').pop();
-				fs.readdirAsync(this.cwd)
-					.then( dir => {
-						var matches = [];
-						for (let item of dir){
-							if (item.startsWith(test)){
-								var temp = cmd.split(' ');
-								temp.pop();
-								temp.push(item);
-								matches.push(temp.join(' '));
-							}					
-						}
-						if (matches.length === 1) allSockets.emit('sh-tabcomplete', matches[0]);
-					})
-					.catch( e => console.log('error in shell tab', e) );
+			
+			// isolate the last command
+			var str = cmd.split(' ').pop();
+			
+			// is it a path?
+			if (str.indexOf('/') !== -1){
+				var test = path.basename(str);
+				var searchDir = this.cwd + '/' + path.dirname(str);
+			} else {
+				var test = str;
+				var searchDir = this.cwd;
 			}
+			
+			console.log('str:', str, 'test:', test, 'searchDir:', searchDir);
+			
+			fs.readdirAsync(searchDir)
+				.then( dir => {
+					let matches = [];
+					for (let item of dir){
+						if (item.startsWith(test)){
+						
+							let temp = cmd.split(' ');
+							temp.pop();
+							
+							if (str.indexOf('/') !== -1)
+								temp.push(path.dirname(str) + '/' + item);
+							else
+								temp.push(item);
+																
+							matches.push(temp);
+						}					
+					}
+					
+					if (matches.length === 1){
+						//let command = matches[0][matches[0].length-1]
+						console.log('matches[0]:', matches[0], 'fullpath:', this.cwd+'/'+matches[0][matches[0].length-1]);
+						fs.statAsync(this.cwd+'/'+matches[0][matches[0].length-1])
+							.then( stat => {
+							
+								if (stat.isDirectory())
+									matches[0][matches[0].length-1] += '/';
+									
+								allSockets.emit('sh-tabcomplete', matches[0].join(' '));
+							})
+							.catch( e => console.log('shell tab stat error', e) );
+					}
+				})
+				.catch( e => console.log('error in shell tab', e) );
+		
 		}
 		catch(e){ console.log('shell tab error') };
 	}

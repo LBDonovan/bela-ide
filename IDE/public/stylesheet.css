@@ -85,6 +85,7 @@ table {
 #beaglert-consoleForm{
 	height: 21px;
 	border-top: 1px solid black;
+	border-bottom: 1px solid rgba(0,0,0,0.2);
 }
 #beaglert-consoleWrapper{
 	width: 100%;
@@ -252,6 +253,9 @@ table {
 	color: inherit;
 	padding: 5px 5px;
 	font-family: inconsolata;
+}
+#beaglert-consoleInput:focus {
+    outline-width: 0;
 }
 #beaglert-consoleInput-pre{
 	color: inherit;

@@ -655,6 +655,9 @@ class ConsoleView extends View{
 			}
 		});
 		
+		$('#beaglert-console').on('click', () => $(this.input).trigger('focus') );
+		$('#beaglert-consoleWrapper').on('click', (e) => e.stopPropagation() );
+		
 		this.on('cwd', cwd => {
 			console.log('cwd', cwd);
 			shellCWD = 'root@arm ' + cwd.replace('/root', '~') + '#';

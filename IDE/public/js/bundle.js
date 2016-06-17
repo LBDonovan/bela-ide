@@ -584,6 +584,8 @@ var _console = require('../console');
 
 var verboseDebugOutput = false;
 
+var shellCWD = '~';
+
 class ConsoleView extends View{
 
 	constructor(className, models, settings){
@@ -607,15 +609,49 @@ class ConsoleView extends View{
 		this.input = document.getElementById('beaglert-consoleInput');
 		
 		// console command line input events
+		this.history = [];
+		this.historyIndex = 0;
+		this.inputFocused = false;
+		
 		this.form.addEventListener('submit', (e) => {
 			e.preventDefault();
+			
+			this.history.push(this.input.value);
+			this.historyIndex = 0;
+		
 			this.emit('input', this.input.value);
+			this.emit('log', shellCWD + ' ' + this.input.value);
 			this.input.value = '';
+		});
+	
+		this.input.addEventListener('focus', () => {
+			this.inputFocused = true;
+		});
+		this.input.addEventListener('blur', () => {
+			this.inputFocused = false;
+		});
+		window.addEventListener('keydown', (e) => {
+			if (this.inputFocused && e.keyIdentifier === 'Up'){
+				if (this.history[this.history.length - ++this.historyIndex]){
+					this.input.value = this.history[this.history.length - this.historyIndex];
+				} else {
+					this.historyIndex -= 1;
+				}
+			} else if (this.inputFocused && e.keyIdentifier === 'Down'){
+				if (--this.historyIndex === 0){
+					this.input.value = '';
+				} else if (this.history[this.history.length - this.historyIndex]){
+					this.input.value = this.history[this.history.length - this.historyIndex];
+				} else {
+					this.historyIndex += 1;
+				}	
+			}
 		});
 		
 		this.on('cwd', cwd => {
 			console.log('cwd', cwd);
-			$('#beaglert-consoleInput-pre').html(cwd+' $ ');
+			shellCWD = 'root@arm ' + cwd.replace('/root', '~') + '#';
+			$('#beaglert-consoleInput-pre').html(shellCWD);
 		});
 	}
 	

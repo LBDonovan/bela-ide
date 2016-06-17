@@ -24,9 +24,12 @@ var startupScript = '/root/Bela_startup.sh';
 var cpuMonitoring = false;
 
 var shell = {
+
 	init(){
 	
 		var sh = spawn('sh');
+		
+		sh.stdin.write('cd ~\n');
 		
 		sh.stdout.setEncoding('utf-8');
 		sh.stderr.setEncoding('utf-8');
@@ -35,9 +38,14 @@ var shell = {
 			if (this.pwding) {
 				console.log('dir', data.split('\n').join(''));
 				fs.statAsync(data.split('\n').join(''))
-					.then( stat => allSockets.emit('sh-cwd', data.split('\n').join('')) )
-					.catch( this.pwd );
-				this.pwding = false;
+					.then( stat => {
+						allSockets.emit('sh-cwd', data.split('\n').join(''));
+						this.pwding = false;
+					})
+					.catch( () => {
+						//this.pwd();
+						allSockets.emit('sh-stdout', data);
+					});
 				return;
 			}
 			console.log(data);
@@ -49,6 +57,8 @@ var shell = {
 		sh.on('exit', () => allSockets.emit('sh-stderr', 'sh exited') );
 		
 		this.sh = sh;
+		
+		this.pwd();
 	},
 	
 	execute(command){
@@ -57,6 +67,7 @@ var shell = {
 	},
 	
 	pwd(){
+		console.log('setting pwd timeout');
 		setTimeout( () => {
 			console.log('sh-pwd');
 			this.pwding = true;
@@ -130,6 +141,9 @@ function socketConnected(socket){
 	
 	// listen for messages
 	socketEvents(socket);
+	
+	// refresh the shell location
+	shell.pwd();
 
 }
 

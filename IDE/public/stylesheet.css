@@ -101,6 +101,53 @@ table {
 	border-bottom: 1px solid rgba(0, 0, 0, 0.2);
 	padding: 4px 30px;	
 }
+.beaglert-console-shell::before{
+	content: '#';
+	color: inherit;
+	padding-right: 0.65em;
+	opacity: 0.6;
+}
+.beaglert-console-shell{
+	text-indent: -1.65em;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+	padding: 4px 30px;
+	color: rgb(96, 96, 150);
+}
+.beaglert-console-git::before{
+	content: 'git:';
+	color: inherit;
+	padding-right: 0.65em;
+	opacity: 0.6;
+}
+.beaglert-console-git{
+	text-indent: -1.65em;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+	padding: 4px 30px;
+	color: rgb(96, 150, 96);
+}
+.beaglert-console-make::before{
+	content: 'make:';
+	color: inherit;
+	padding-right: 0.65em;
+	opacity: 0.6;
+}
+.beaglert-console-make{
+	text-indent: -1.65em;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+	padding: 4px 30px;
+}
+.beaglert-console-bela::before{
+	content: 'bela:';
+	color: inherit;
+	padding-right: 0.65em;
+	opacity: 0.6;
+}
+.beaglert-console-bela{
+	text-indent: -1.65em;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+	padding: 4px 30px;
+	color: rgb(96, 150, 96);
+}
 .beaglert-console-log{
 	border-bottom: 1px solid rgba(0, 0, 0, 0.2);
 	padding: 4px 30px;	

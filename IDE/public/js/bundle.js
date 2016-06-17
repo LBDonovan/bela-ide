@@ -142,7 +142,7 @@ gitView.on('git-event', data => {
 	data.currentProject = models.project.getKey('currentProject');
 	socket.emit('git-event', data);
 });
-gitView.on('console', text => consoleView.emit('log', text) );
+gitView.on('console', text => consoleView.emit('log', text, 'git') );
 gitView.on('console-warn', text => consoleView.emit('warn', text) );
 
 // refresh files
@@ -278,15 +278,10 @@ socket.on('run-on-boot-log', text => consoleView.emit('log', text) );
 socket.on('run-on-boot-project', project => $('#runOnBoot option[value="'+project+'"]').attr('selected', 'selected') );
 
 // shell
-socket.on('sh-stdout', data => consoleView.emit('log', data) );
+socket.on('sh-stdout', data => consoleView.emit('log', data, 'shell') );
 socket.on('sh-stderr', data => consoleView.emit('warn', data) );
 socket.on('sh-cwd', cwd => consoleView.emit('cwd', cwd) );
 
-/*socket.on('git-reply', (project, data) => {
-	if (project === models.project.getKey('currentProject')){
-		models.git.setData(data);
-	}
-});*/
 
 // model events
 // build errors
@@ -599,7 +594,7 @@ class ConsoleView extends View{
 		this.on('closeNotification', this.closeNotification);
 		this.on('openProcessNotification', this.openProcessNotification);
 
-		this.on('log', text => _console.log(text));
+		this.on('log', (text, css) => _console.log(text, css));
 		this.on('warn', function(warning, id){
 			console.log(warning);
 			_console.warn(warning, id);
@@ -620,7 +615,7 @@ class ConsoleView extends View{
 			this.historyIndex = 0;
 		
 			this.emit('input', this.input.value);
-			this.emit('log', shellCWD + ' ' + this.input.value);
+			_console.log(this.input.value, 'log-in');
 			this.input.value = '';
 		});
 	
@@ -696,7 +691,7 @@ class ConsoleView extends View{
 	__verboseSyntaxError(log, data){
 		if (parseInt(this.settings.getKey('verboseErrors'))){
 			for (let line of log){
-				_console.log(line.split(' ').join('&nbsp;'));
+				_console.log(line.split(' ').join('&nbsp;'), 'make');
 			}
 		}
 	}
@@ -709,13 +704,13 @@ class ConsoleView extends View{
 	_buildLog(log, data){
 	//console.log(log, data);
 		//if (this.settings.fullBuildOutput){
-			_console.log(log);
+			_console.log(log, 'make');
 		//}
 	}
 	
 	// bela
 	__belaLog(log, data){
-		_console.log(log);
+		_console.log(log, 'bela');
 	}
 	
 	_building(status, data){
@@ -2069,11 +2064,11 @@ class Console extends EventEmitter {
 	}
 
 	// log an unhighlighted message to the console
-	log(text){
+	log(text, css){
 		var msgs = text.split('\n');
 		for (let i=0;  i<msgs.length; i++){
 			if (msgs[i] !== '' && msgs[i] !== ' '){
-				this.print(msgs[i], 'log');
+				this.print(msgs[i], css || 'log');
 			}
 		}
 		this.scroll();

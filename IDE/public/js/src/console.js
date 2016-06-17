@@ -33,11 +33,11 @@ class Console extends EventEmitter {
 	}
 
 	// log an unhighlighted message to the console
-	log(text){
+	log(text, css){
 		var msgs = text.split('\n');
 		for (let i=0;  i<msgs.length; i++){
 			if (msgs[i] !== '' && msgs[i] !== ' '){
-				this.print(msgs[i], 'log');
+				this.print(msgs[i], css || 'log');
 			}
 		}
 		this.scroll();

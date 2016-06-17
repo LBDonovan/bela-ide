@@ -141,7 +141,7 @@ gitView.on('git-event', data => {
 	data.currentProject = models.project.getKey('currentProject');
 	socket.emit('git-event', data);
 });
-gitView.on('console', text => consoleView.emit('log', text) );
+gitView.on('console', text => consoleView.emit('log', text, 'git') );
 gitView.on('console-warn', text => consoleView.emit('warn', text) );
 
 // refresh files
@@ -277,15 +277,10 @@ socket.on('run-on-boot-log', text => consoleView.emit('log', text) );
 socket.on('run-on-boot-project', project => $('#runOnBoot option[value="'+project+'"]').attr('selected', 'selected') );
 
 // shell
-socket.on('sh-stdout', data => consoleView.emit('log', data) );
+socket.on('sh-stdout', data => consoleView.emit('log', data, 'shell') );
 socket.on('sh-stderr', data => consoleView.emit('warn', data) );
 socket.on('sh-cwd', cwd => consoleView.emit('cwd', cwd) );
 
-/*socket.on('git-reply', (project, data) => {
-	if (project === models.project.getKey('currentProject')){
-		models.git.setData(data);
-	}
-});*/
 
 // model events
 // build errors

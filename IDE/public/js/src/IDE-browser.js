@@ -119,14 +119,8 @@ consoleView.on('open-file', (fileName, focus) => {
 	};
 	socket.emit('project-event', data);
 });
-consoleView.on('input', (value) => {
-	socket.emit('sh-command', value);
-	/*if (value){
-		var val = value.split(' ')
-		var command = val.splice(0, 1);
-		if (command[0] === 'gdb' && models.debug.getKey('debugMode')) socket.emit('debugger-event', 'exec', val.join(' '));
-	}*/
-});
+consoleView.on('input', value => socket.emit('sh-command', value) );
+consoleView.on('tab', cmd => socket.emit('sh-tab', cmd) );
 
 // debugger view
 var debugView = new (require('./Views/DebugView'))('debugger', [models.debug, models.settings, models.project]);
@@ -283,6 +277,7 @@ socket.on('run-on-boot-project', project => $('#runOnBoot option[value="'+projec
 socket.on('sh-stdout', data => consoleView.emit('log', data, 'shell') );
 socket.on('sh-stderr', data => consoleView.emit('warn', data) );
 socket.on('sh-cwd', cwd => consoleView.emit('cwd', cwd) );
+socket.on('sh-tabcomplete', data => consoleView.emit('sh-tabcomplete', data) );
 
 
 // model events

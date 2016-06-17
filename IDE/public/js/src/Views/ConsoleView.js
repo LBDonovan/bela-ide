@@ -60,20 +60,25 @@ class ConsoleView extends View{
 			$('#beaglert-consoleInput-pre').css('opacity', 0.2);//.html('>');
 		});
 		window.addEventListener('keydown', (e) => {
-			if (this.inputFocused && e.which === 38){
-				if (this.history[this.history.length - ++this.historyIndex]){
-					this.input.value = this.history[this.history.length - this.historyIndex];
-				} else {
-					this.historyIndex -= 1;
+			if (this.inputFocused){
+				if (e.which === 38){	// up arrow
+					if (this.history[this.history.length - ++this.historyIndex]){
+						this.input.value = this.history[this.history.length - this.historyIndex];
+					} else {
+						this.historyIndex -= 1;
+					}
+				} else if (e.which === 40){		// down arrow
+					if (--this.historyIndex === 0){
+						this.input.value = '';
+					} else if (this.history[this.history.length - this.historyIndex]){
+						this.input.value = this.history[this.history.length - this.historyIndex];
+					} else {
+						this.historyIndex += 1;
+					}	
+				} else if (e.which === 9){	// tab
+					e.preventDefault();
+					this.emit('tab', this.input.value);
 				}
-			} else if (this.inputFocused && e.which === 40){
-				if (--this.historyIndex === 0){
-					this.input.value = '';
-				} else if (this.history[this.history.length - this.historyIndex]){
-					this.input.value = this.history[this.history.length - this.historyIndex];
-				} else {
-					this.historyIndex += 1;
-				}	
 			}
 		});
 		
@@ -82,6 +87,7 @@ class ConsoleView extends View{
 			shellCWD = 'root@arm ' + cwd.replace('/root', '~') + '#';
 			$('#beaglert-consoleInput-pre').html(shellCWD);
 		});
+		this.on('sh-tabcomplete', data => $('#beaglert-consoleInput').val(data) );
 	}
 	
 	openNotification(data){

@@ -36,10 +36,12 @@ var shell = {
 		
 		sh.stdout.on('data', (data) => {
 			if (this.pwding) {
-				console.log('dir', data.split('\n').join(''));
-				fs.statAsync(data.split('\n').join(''))
+				var dir = data.split('\n').join('');
+				//console.log('dir', dir);
+				fs.statAsync(dir)
 					.then( stat => {
-						allSockets.emit('sh-cwd', data.split('\n').join(''));
+						this.cwd = dir;
+						allSockets.emit('sh-cwd', dir);
 						this.pwding = false;
 					})
 					.catch( () => {
@@ -73,6 +75,30 @@ var shell = {
 			this.pwding = true;
 			this.sh.stdin.write('pwd\n');
 		}, 100);
+	},
+	
+	tab(cmd){
+		if (!cmd) return;
+		try{
+			if (cmd.indexOf('/') === -1){
+				var test = cmd.split(' ').pop();
+				fs.readdirAsync(this.cwd)
+					.then( dir => {
+						var matches = [];
+						for (let item of dir){
+							if (item.startsWith(test)){
+								var temp = cmd.split(' ');
+								temp.pop();
+								temp.push(item);
+								matches.push(temp.join(' '));
+							}					
+						}
+						if (matches.length === 1) allSockets.emit('sh-tabcomplete', matches[0]);
+					})
+					.catch( e => console.log('error in shell tab', e) );
+			}
+		}
+		catch(e){ console.log('shell tab error') };
 	}
 };
 
@@ -162,7 +188,7 @@ function socketEvents(socket){
 
 		if ((!data.currentProject && !data.newProject) || !data.func || !ProjectManager[data.func]) {
 			console.log('bad project-event', data);
-			if (data.func === 'openProject') socket.emit('project-data', data);
+			//if (data.func === 'openProject') socket.emit('project-data', data);
 			return;
 		}
 
@@ -270,7 +296,7 @@ function socketEvents(socket){
 		
 		co(GitManager, data.func, data)
 			.then ( result => {
-			console.log(result);
+			//console.log(result);
 				return co(ProjectManager, 'openProject', {
 					currentProject	: result.currentProject,
 					timestamp		: result.timestamp,
@@ -327,6 +353,7 @@ function socketEvents(socket){
 	
 	// shell
 	socket.on('sh-command', cmd => shell.execute(cmd) );
+	socket.on('sh-tab', cmd => shell.tab(cmd) );
 
 }
 

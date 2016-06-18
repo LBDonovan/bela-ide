@@ -643,6 +643,11 @@ body {
 #saveAsName{
 	height: 8px;
 }
+#img-display{
+	z-index: 100;
+    position: absolute;
+    display: 'none';
+}
 
 /* breakpoints */
 .ace_gutter-cell.ace_breakpoint{ 

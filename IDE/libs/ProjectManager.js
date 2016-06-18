@@ -2,6 +2,7 @@
 // node modules
 var Promise = require('bluebird');
 var fs = Promise.promisifyAll(require('fs-extra'));
+var fileType = require('file-type');
 
 var git = require('./GitManager');
 
@@ -103,7 +104,15 @@ module.exports = {
 		//console.log('openFile', data);
 		var splitName = data.newFile.split('.');
 		if (!splitName.length>1 || allowedIndeces.indexOf(splitName[splitName.length-1]) === -1){
-			data.fileData = resourceData;
+			let fileData = yield fs.readFileAsync(projectPath+data.currentProject+'/'+data.newFile);
+			let fileTypeData = fileType(fileData);
+			//console.log(fileTypeData);
+			if (fileTypeData && fileTypeData.mime.indexOf('image') !== -1){
+				data.fileData = fileData;
+				data.fileType = fileTypeData.mime;
+			} else {
+				data.fileData = resourceData;
+			}
 			data.readOnly = true;
 			data.fileName = data.newFile;
 			data.newFile = undefined;

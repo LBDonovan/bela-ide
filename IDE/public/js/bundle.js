@@ -1057,11 +1057,13 @@ function createlifrommemberdef($xml, id){
 },{"./View":13}],6:[function(require,module,exports){
 var View = require('./View');
 var Range = ace.require('ace/range').Range;
+var urlCreator = window.URL || window.webkitURL;
 
 const uploadDelay = 50;
 
 var uploadBlocked = false;
 var currentFile;
+var imageUrl;
 
 class EditorView extends View {
 	
@@ -1109,6 +1111,11 @@ class EditorView extends View {
 
 		});
 		
+		$('#img-display').on('load', () => {
+			if (imageUrl) 
+				urlCreator.revokeObjectURL(imageUrl);
+		});
+		
 		this.on('resize', () => this.editor.resize() );
 		
 	}
@@ -1122,16 +1129,32 @@ class EditorView extends View {
 	// new file saved
 	__fileData(data, opts){
 
-		if (data instanceof ArrayBuffer){
-			//console.log('arraybuffer');
+		if (data instanceof ArrayBuffer && opts.fileType.indexOf('image') !== -1){
+			//console.log('arraybuffer', opts.fileType);
+			var maxWidth = $('#editor').width()+'px';
+			var maxHeight = $('#editor').height()+'px';
 			try{
-				data = String.fromCharCode.apply(null, new Uint8Array(data));
+				var arrayBufferView = new Uint8Array(data);
+				var blob = new Blob( [ arrayBufferView ], { type: opts.fileType } );
+				imageUrl = urlCreator.createObjectURL( blob );
+				
+				$('#img-display').prop('src', imageUrl).css({
+					'display'	: 'block',
+					'max-width'	: maxWidth,
+					'max-height': maxHeight
+				});
+				
+				this.editor.session.setValue('', -1);
+				
 			}
 			catch(e){
 				console.log(e);
 				return;
 			}
+			return;
 		}
+		
+		$('#img-display').css('display', 'none');
 		
 		// block upload
 		uploadBlocked = true;

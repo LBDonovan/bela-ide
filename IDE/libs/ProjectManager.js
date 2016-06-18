@@ -3,6 +3,7 @@
 var Promise = require('bluebird');
 var fs = Promise.promisifyAll(require('fs-extra'));
 var fileType = require('file-type');
+var isBinaryFile = require("isbinaryfile");
 
 var git = require('./GitManager');
 
@@ -23,6 +24,7 @@ var resourceIndeces = ['pd', 'txt', 'json', 'xml'];
 var editableExtensions = sourceIndeces.concat(headerIndeces, resourceIndeces);
 
 var resourceData = 'This file type cannot be viewed in the IDE';
+var maxFileSize = 5000000;	// bytes (5Mb)
 
 // public functions
 module.exports = {
@@ -143,59 +145,96 @@ module.exports = {
 					data.readOnly = true;
 					data.newFile = undefined;
 					data.fileName = undefined;
-					data.fileType = undefined;
+					data.fileType = 0;
 					
 				});
 				
 		} else {
 			// either the file has no extension, or it's extension is not allowed by the IDE
-			// load the file as a buffer and try and find what type it is
+			// if the file is not too big, load it as a buffer and try to find its type
 			
-			yield fs.readFileAsync(projectDir + data.newFile)
-				.then( fileData => {
+			let stat = yield fs.lstatAsync(projectDir + data.newFile).catch( () => {size: 0} );
+			console.log('file size:', stat.size);
+			
+			if (stat.size > maxFileSize){
+			
+				// newFile has a bad extension and is too big
+				console.log('file is too large:', data.newFile, stat.size);
 				
-					// newFile was opened succesfully
-					console.log('opened', data.newFile);
-					
-					// attempt to get its type
-					let fileTypeData = fileType(fileData);
-					console.log('guessed filetype:', fileTypeData);
-					
-					if (fileTypeData && fileTypeData.mime.indexOf('image') !== -1){
-					
-						// the file is an image, and can be opened
-						data.fileData = fileData;
-						data.fileType = fileTypeData.mime;
-						
-					} else {
-					
-						// can't tell what the file is
-						data.fileData = resourceData;
-						data.fileType = undefined;
-						
-					}
-					
-					// return the data
-					data.readOnly = true;
-					data.fileName = data.newFile;
-					data.newFile = undefined;
-					
-				})
-				.catch( e => {
+				// return an error
+				data.error = 'file is too large: '+(stat.size/1000000)+'Mb';
+				data.fileData = "The IDE can't open non-source files larger than "+(maxFileSize/1000000)+"Mb";
+				data.readOnly = true;
+				data.fileName = data.newFile;
+				data.newFile = undefined;
+				data.fileType = 0;
 				
-					// newFile was not opened succesfully
-					console.log('could not open file', data.newFile);
-					console.log(e.toString());
+			} else {
+			
+				yield fs.readFileAsync(projectDir + data.newFile)
+					.then( fileData => {
+				
+						// newFile was opened succesfully
+						console.log('opened', data.newFile);
 					
-					// return an error
-					data.error = 'Could not open file '+data.newFile;
-					data.fileData = '';
-					data.readOnly = true;
-					data.newFile = undefined;
-					data.fileName = undefined;
-					data.fileType = undefined;
+						// attempt to get its type
+						let fileTypeData = fileType(fileData);
+						console.log('guessed filetype:', fileTypeData);
 					
-				});
+						if (fileTypeData && fileTypeData.mime.indexOf('image') !== -1){
+					
+							// the file is an image, and can be opened
+							data.fileData = fileData;
+							data.fileType = fileTypeData.mime;
+							
+							data.readOnly = true;
+						
+						} else {
+					
+							if (isBinaryFile.sync(fileData, stat.size)){
+							
+								// the file is (probably) binary and can't be displayed in the IDE
+								console.log(data.newFile, 'is binary');
+								
+								// return an error
+								data.error = "can't open binary files";
+								data.fileData = resourceData;
+								data.readOnly = true;
+								data.fileType = 0;
+								
+							} else {
+								
+								// the file is (probably) not a binary, so try to open it
+								console.log(data.newFile, 'is not binary, attempting to open...');
+								
+								// convert the file to a string
+								data.fileData = fileData.toString();
+								data.readOnly = false;
+								data.fileType = ext || 0;
+								
+							}
+						}
+
+						data.fileName = data.newFile;
+						data.newFile = undefined;
+					
+					})
+					.catch( e => {
+				
+						// newFile was not opened succesfully
+						console.log('could not open file', data.newFile);
+						console.log(e.toString());
+					
+						// return an error
+						data.error = 'Could not open file '+data.newFile;
+						data.fileData = '';
+						data.readOnly = true;
+						data.newFile = undefined;
+						data.fileName = undefined;
+						data.fileType = 0;
+					
+					});
+			}
 		}
 		
 		yield Promise.coroutine(_setFile)(data);

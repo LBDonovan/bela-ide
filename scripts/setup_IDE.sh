@@ -56,7 +56,7 @@ printf "Copying new IDE files to BeagleBone..."
 if [ $USE_RSYNC -eq 1 ]
 then
   printf "using rsync..."
-  rsync -ac --no-t --delete-after --exclude=node_modules $SCRIPTDIR/../IDE $BBB_ADDRESS:$BBB_PATH
+  rsync -ac --no-t --delete-after $SCRIPTDIR/../IDE $BBB_ADDRESS:$BBB_PATH
 else
   #if rsync is not available, let's clean the folder first
   ssh $BBB_ADDRESS "rm -rf $BBB_PATH/IDE ; mkdir -p $BBB_PATH/IDE" || { printf "\nError while removing the old files, is the board connected?\n"; exit 1; }

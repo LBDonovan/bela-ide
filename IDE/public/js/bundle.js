@@ -90,6 +90,8 @@ editorView.on('breakpoint', (line) => {
 	//console.log('after', breakpoints);
 	//models.project.setKey('breakpoints', breakpoints);
 });
+editorView.on('open-notification', data => consoleView.emit('openNotification', data) );
+editorView.on('close-notification', data => consoleView.emit('closeNotification', data) );
 
 // toolbar view
 var toolbarView = new (require('./Views/ToolbarView'))('toolBar', [models.project, models.error, models.status, models.settings, models.debug]);
@@ -185,7 +187,7 @@ socket.on('project-data', (data) => {
 		models.debug.setData(debug);
 	}
 	if (data.gitData) models.git.setData(data.gitData);
-	console.log(data);
+	//console.log(data);
 	//models.settings.setData(data.settings);
 	//models.project.print();
 });
@@ -667,9 +669,11 @@ class ConsoleView extends View{
 	}
 	
 	openNotification(data){
-		if (!funcKey[data.func]) console.log(data.func);
+		//if (!funcKey[data.func]) console.log(data.func);
 		if (data.func === 'command'){
 			var output = 'Executing git ' + (data.command || '');
+		} else if (data.func === 'editor'){
+			var output = data.text;
 		} else {
 			var output = funcKey[data.func];
 			if (data.newProject || data.currentProject) output += ' '+(data.newProject || data.currentProject);
@@ -1129,10 +1133,20 @@ class EditorView extends View {
 	// new file saved
 	__fileData(data, opts){
 
+		// hide the pd patch and image displays if present, and the editor
+		$('#pd-svg, #img-display, #editor').css('display', 'none');
+		
 		if (data instanceof ArrayBuffer && opts.fileType.indexOf('image') !== -1){
-			//console.log('arraybuffer', opts.fileType);
-			var maxWidth = $('#editor').width()+'px';
-			var maxHeight = $('#editor').height()+'px';
+			
+			// we're opening an image
+			let timestamp = performance.now();
+			this.emit('open-notification', {
+				func: 'editor',
+				timestamp,
+				text: 'Rendering image'
+			});
+			
+			// render the image			
 			try{
 				var arrayBufferView = new Uint8Array(data);
 				var blob = new Blob( [ arrayBufferView ], { type: opts.fileType } );
@@ -1140,36 +1154,76 @@ class EditorView extends View {
 				
 				$('#img-display').prop('src', imageUrl).css({
 					'display'	: 'block',
-					'max-width'	: maxWidth,
-					'max-height': maxHeight
+					'max-width'	: $('#editor').width()+'px',
+					'max-height': $('#editor').height()+'px'
 				});
 				
-				this.editor.session.setValue('', -1);
-				
+				this.emit('close-notification', {timestamp});
+
 			}
 			catch(e){
-				console.log(e);
-				return;
+				this.emit('close-notification', {
+					timestamp,
+					text: 'failed!'
+				});
+				throw e;
 			}
-			return;
-		}
+			
+		} else {
 		
-		$('#img-display').css('display', 'none');
+			if (opts.fileType === 'pd'){
+			
+				// we're opening a pd patch
+				let timestamp = performance.now();
+				this.emit('open-notification', {
+					func: 'editor',
+					timestamp,
+					text: 'Rendering pd patch'
+				});
 		
-		// block upload
-		uploadBlocked = true;
-		
-		// put the file into the editor
-		this.editor.session.setValue(data, -1);
-		
-		// unblock upload
-		uploadBlocked = false;
+				// render pd patch
+				try{
+					$('#pd-svg').html(pdfu.renderSvg(pdfu.parse(data), {svgFile: false})).css({
+						'display'	: 'block',
+						'max-width'	: $('#editor').width()+'px',
+						'max-height': $('#editor').height()+'px'
+					});
+					this.emit('close-notification', {timestamp});
+				}
+				catch(e){
+					this.emit('close-notification', {
+						timestamp,
+						text: 'failed!'
+					});
+					throw e;
+				}
+				
+				// load an empty string into the editor
+				data = '';
+			
+			} else {
+			
+				// show the editor
+				$('#editor').css('display', 'block');
+				
+			}
 
-		// force a syntax check
-		this.emit('change');
+			// block upload
+			uploadBlocked = true;
 	
-		// focus the editor
-		this._focus(opts.focus);
+			// put the file into the editor
+			this.editor.session.setValue(data, -1);
+	
+			// unblock upload
+			uploadBlocked = false;
+
+			// force a syntax check
+			this.emit('change');
+
+			// focus the editor
+			this._focus(opts.focus);
+		
+		}
 		
 	}
 	// editor focus has changed

@@ -18,9 +18,9 @@ var blockedFiles = ['build', 'settings.json'];
 var exampleTempProject = 'exampleTempProject';
 var sourceIndeces = ['cpp', 'c', 'S'];
 var headerIndeces = ['h', 'hh', 'hpp'];
-var resourceIndeces = ['txt', 'json', 'xml'];
-//var allowedIndeces = [...sourceIndeces, ...headerIndeces, ...resourceIndeces];
-var allowedIndeces = sourceIndeces.concat(headerIndeces, resourceIndeces);
+var resourceIndeces = ['pd', 'txt', 'json', 'xml'];
+//var editableExtensions = [...sourceIndeces, ...headerIndeces, ...resourceIndeces];
+var editableExtensions = sourceIndeces.concat(headerIndeces, resourceIndeces);
 
 var resourceData = 'This file type cannot be viewed in the IDE';
 
@@ -100,43 +100,104 @@ module.exports = {
 	
 	// file events
 	*openFile(data){
+		// data.newFile is the name of the file to be opened
+		// data.fileName will be set to the name of the file opened
+		// data.currentProject is the project
+	
 		if (!data.newFile) data.newFile = data.fileName || '';
-		//console.log('openFile', data);
-		var splitName = data.newFile.split('.');
-		if (!splitName.length>1 || allowedIndeces.indexOf(splitName[splitName.length-1]) === -1){
-			let fileData = yield fs.readFileAsync(projectPath+data.currentProject+'/'+data.newFile);
-			let fileTypeData = fileType(fileData);
-			//console.log(fileTypeData);
-			if (fileTypeData && fileTypeData.mime.indexOf('image') !== -1){
-				data.fileData = fileData;
-				data.fileType = fileTypeData.mime;
-			} else {
-				data.fileData = resourceData;
-			}
-			data.readOnly = true;
-			data.fileName = data.newFile;
-			data.newFile = undefined;
+		var projectDir = projectPath + data.currentProject + '/';
+		
+		// check the extension
+		var ext;
+		if (data.newFile.split && data.newFile.indexOf('.') !== -1)
+			ext = data.newFile.split('.').pop();
+			
+		console.log('opening file with extension', ext);
+		
+		// if the file can be displayed by the IDE, load it as a string
+		if (ext && editableExtensions.indexOf(ext) !== -1){
+		
+			yield fs.readFileAsync(projectDir + data.newFile, 'utf8')
+				.then( fileData => {
+				
+					// newFile was opened succesfully
+					console.log('opened', data.newFile);
+											
+					// return the data
+					data.fileData = fileData;
+					data.readOnly = false;
+					data.fileName = data.newFile;
+					data.newFile = undefined;
+					data.fileType = ext;
+					
+				})
+				.catch( e => {
+				
+					// newFile was not opened succesfully
+					console.log('could not open file', data.newFile);
+					console.log(e.toString());
+					
+					// return an error
+					data.error = 'Could not open file '+data.newFile;
+					data.fileData = '';
+					data.readOnly = true;
+					data.newFile = undefined;
+					data.fileName = undefined;
+					data.fileType = undefined;
+					
+				});
+				
 		} else {
-			if (yield this.fileExists(projectPath+data.currentProject+'/'+data.newFile)){
-				//console.log('opening newFile');
-				data.readOnly = false;
-				data.fileName = data.newFile;
-				data.newFile = undefined;
-				data.fileData = yield fs.readFileAsync(projectPath+data.currentProject+'/'+data.fileName, 'utf8');
-			} else if (yield this.fileExists(projectPath+data.currentProject+'/'+data.fileName)){
-				//console.log('opening oldFile');
-				data.error = 'Could not find file '+data.newFile+', opening file '+data.fileName;
-				data.readOnly = false;
-				data.newFile = undefined;
-				data.fileData = yield fs.readFileAsync(projectPath+data.currentProject+'/'+data.fileName, 'utf8');
-			} else {
-				data.error = 'Could not find file '+data.newFile+' or '+data.fileName;
-				data.fileData = '';
-				data.readOnly = true;
-				data.newFile = undefined;
-				data.fileName = undefined;
-			}		
+			// either the file has no extension, or it's extension is not allowed by the IDE
+			// load the file as a buffer and try and find what type it is
+			
+			yield fs.readFileAsync(projectDir + data.newFile)
+				.then( fileData => {
+				
+					// newFile was opened succesfully
+					console.log('opened', data.newFile);
+					
+					// attempt to get its type
+					let fileTypeData = fileType(fileData);
+					console.log('guessed filetype:', fileTypeData);
+					
+					if (fileTypeData && fileTypeData.mime.indexOf('image') !== -1){
+					
+						// the file is an image, and can be opened
+						data.fileData = fileData;
+						data.fileType = fileTypeData.mime;
+						
+					} else {
+					
+						// can't tell what the file is
+						data.fileData = resourceData;
+						data.fileType = undefined;
+						
+					}
+					
+					// return the data
+					data.readOnly = true;
+					data.fileName = data.newFile;
+					data.newFile = undefined;
+					
+				})
+				.catch( e => {
+				
+					// newFile was not opened succesfully
+					console.log('could not open file', data.newFile);
+					console.log(e.toString());
+					
+					// return an error
+					data.error = 'Could not open file '+data.newFile;
+					data.fileData = '';
+					data.readOnly = true;
+					data.newFile = undefined;
+					data.fileName = undefined;
+					data.fileType = undefined;
+					
+				});
 		}
+		
 		yield Promise.coroutine(_setFile)(data);
 		return data;
 	},
@@ -203,15 +264,6 @@ module.exports = {
 		return settings.CLArgs;
 	},
 	
-	fileExists(file){
-		return new Promise((resolve, reject) => {
-			fs.stat(file, function(err, stats){
-				if (err || !stats.isFile()) resolve(false);
-				else resolve(true);
-			});
-		});
-	},
-	
 	listFiles(project){
 		return _listFiles(project);
 	}
@@ -219,6 +271,21 @@ module.exports = {
 
 
 // private functions
+function *loadData(filePath, backupFilePath, encoding){
+	// if the file at filePath exists, open it. Otherwise open the file at backupFilePath
+	var file = yield _fileExists(filePath) ? filePath : backupFilePath;
+	return yield fs.readFileAsync(file, encoding);
+}
+
+function fileExists(file){
+	return new Promise((resolve, reject) => {
+		fs.stat(file, function(err, stats){
+			if (err || !stats.isFile()) resolve(false);
+			else resolve(true);
+		});
+	});
+}
+
 // save the last opened file
 function *_setFile(data){
 	var settings = yield _getSettings(data.currentProject)

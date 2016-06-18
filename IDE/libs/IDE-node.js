@@ -24,6 +24,7 @@ var startupScript = '/root/Bela_startup.sh';
 // settings
 var cpuMonitoring = false;
 
+// TODO fix tab search with ~
 var shell = {
 
 	init(){

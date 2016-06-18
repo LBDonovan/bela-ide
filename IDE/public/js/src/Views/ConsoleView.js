@@ -94,9 +94,11 @@ class ConsoleView extends View{
 	}
 	
 	openNotification(data){
-		if (!funcKey[data.func]) console.log(data.func);
+		//if (!funcKey[data.func]) console.log(data.func);
 		if (data.func === 'command'){
 			var output = 'Executing git ' + (data.command || '');
+		} else if (data.func === 'editor'){
+			var output = data.text;
 		} else {
 			var output = funcKey[data.func];
 			if (data.newProject || data.currentProject) output += ' '+(data.newProject || data.currentProject);

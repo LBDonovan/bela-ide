@@ -648,6 +648,11 @@ body {
     position: absolute;
     display: 'none';
 }
+#pd-svg{
+	z-index: 100;
+    position: absolute;
+    display: 'none';
+}
 
 /* breakpoints */
 .ace_gutter-cell.ace_breakpoint{ 

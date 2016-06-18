@@ -89,6 +89,8 @@ editorView.on('breakpoint', (line) => {
 	//console.log('after', breakpoints);
 	//models.project.setKey('breakpoints', breakpoints);
 });
+editorView.on('open-notification', data => consoleView.emit('openNotification', data) );
+editorView.on('close-notification', data => consoleView.emit('closeNotification', data) );
 
 // toolbar view
 var toolbarView = new (require('./Views/ToolbarView'))('toolBar', [models.project, models.error, models.status, models.settings, models.debug]);
@@ -184,7 +186,7 @@ socket.on('project-data', (data) => {
 		models.debug.setData(debug);
 	}
 	if (data.gitData) models.git.setData(data.gitData);
-	console.log(data);
+	//console.log(data);
 	//models.settings.setData(data.settings);
 	//models.project.print();
 });

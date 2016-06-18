@@ -45,15 +45,15 @@ then
   printf "y\n"
 else 
   read REPLY;
-  [ -z $REPLY ] || { [ $REPLY !=  y ]  && [ $REPLY != Y ]; } && { echo "Aborting..."; exit 1; }
+  [ -z "$REPLY" ] || { [ "$REPLY" !=  y ]  && [ "$REPLY" != Y ]; } && { echo "Aborting..."; exit 1; }
 fi
 
 
 # Copy relevant files to BeagleBone Black
 printf "Copying new IDE files to BeagleBone..."
-[ -z $RSYNC_AVAILABLE ] && { [ -z `which rsync` ] && RSYNC_AVAILABLE=0 || RSYNC_AVAILABLE=1; }
+[ -z $USE_RSYNC ] && { [ -z "`which rsync`" ] && USE_RSYNC=0 || USE_RSYNC=1; }
 
-if [ $RSYNC_AVAILABLE -eq 1 ]
+if [ $USE_RSYNC -eq 1 ]
 then
   printf "using rsync..."
   rsync -ac --no-t --delete-after --exclude=node_modules $SCRIPTDIR/../IDE $BBB_ADDRESS:$BBB_PATH

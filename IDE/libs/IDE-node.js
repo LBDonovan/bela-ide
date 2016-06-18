@@ -27,7 +27,15 @@ var shell = {
 
 	init(){
 	
-		var sh = spawn('sh');
+		var sh = spawn('sh', {
+			// when the IDE is run at startup, the HOME, USER and PATH environmental variables are incorrectly set.
+			// we hardcode them here, but if the use or PATH changes, those changes will have to be ported here.
+			env: {
+				HOME: '/root',
+				USER: 'root',
+				PATH: '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+			}
+		})
 		
 		sh.stdin.write('cd ~/Bela\n');
 		
@@ -443,5 +451,4 @@ process.on('SIGTERM', () => {
   console.log('!!!!!!!!!!!!!!!!! Got SIGTERM !!!!!!!!!!!!!!!!!!!', process.pid);
   //allSockets.emit('report-error', 'recieved SIGTERM'); 
 });
-	
-	
+

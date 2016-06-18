@@ -1453,11 +1453,11 @@ class FileView extends View {
 
 module.exports = FileView;
 
-// replace ' ' with '_' and all non alpha-numeric chars other than '_' and '.' with '#'
+// replace ' ' with '_' and all non alpha-numeric chars other than '_', '-' and '.' with '#'
 function sanitise(name){
 	return name
 		.split(' ').join('_')
-		.replace(/[^a-zA-Z0-9_\.]/g, '#');
+		.replace(/[^a-zA-Z0-9_\.\-]/g, '#');
 }
 },{"./View":13}],8:[function(require,module,exports){
 'use strict';
@@ -1672,11 +1672,11 @@ class ProjectView extends View {
 
 module.exports = ProjectView;
 
-// replace ' ' with '_' and all non alpha-numeric chars other than '_' and '.' with '#'
+// replace ' ' with '_' and all non alpha-numeric chars other than '_', '-' and '.' with '#'
 function sanitise(name){
 	return name
 		.split(' ').join('_')
-		.replace(/[^a-zA-Z0-9_\.]/g, '#');
+		.replace(/[^a-zA-Z0-9_\.\-]/g, '#');
 }
 },{"./View":13}],10:[function(require,module,exports){
 var View = require('./View');

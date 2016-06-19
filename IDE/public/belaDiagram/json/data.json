@@ -1,8 +1,8 @@
 [{
     "things": [{
         "elemclass": "dPin",
-        "x": "19",
-        "y": "307",
+        "x": "8",
+        "y": "322",
         "width": "10",
         "height": "10",
         "text": "Pin P8_08 - Digital 1",
@@ -10,8 +10,8 @@
         },
     {
         "elemclass": "dPin",
-        "x": "33",
-        "y": "307",
+        "x": "22",
+        "y": "322",
         "width": "10",
         "height": "10",
         "text": "Pin P8_07 - Digital 0",
@@ -19,8 +19,8 @@
         },
     {
         "elemclass": "dPin",
-        "x": "19",
-        "y": "293",
+        "x": "8",
+        "y": "308",
         "width": "10",
         "height": "10",
         "text": "Pin P8_10 - Digital 3",
@@ -28,8 +28,8 @@
         },
     {
         "elemclass": "dPin",
-        "x": "33",
-        "y": "293",
+        "x": "22",
+        "y": "308",
         "width": "10",
         "height": "10",
         "text": "Pin P8_09 - Digital 2",
@@ -37,8 +37,8 @@
         },
     {
         "elemclass": "dPin",
-        "x": "19",
-        "y": "279",
+        "x": "8",
+        "y": "294",
         "width": "10",
         "height": "10",
         "text": "Pin P8_12 - Digital 5",
@@ -46,8 +46,8 @@
         },
     {
         "elemclass": "dPin",
-        "x": "33",
-        "y": "279",
+        "x": "22",
+        "y": "294",
         "width": "10",
         "height": "10",
         "text": "Pin P8_11 - Digital 4",
@@ -55,8 +55,8 @@
         },
     {
         "elemclass": "dPin",
-        "x": "19",
-        "y": "254",
+        "x": "8",
+        "y": "266",
         "width": "10",
         "height": "10",
         "text": "Pin P8_16 - Digital 9",
@@ -64,8 +64,8 @@
         },
     {
         "elemclass": "dPin",
-        "x": "33",
-        "y": "254",
+        "x": "22",
+        "y": "266",
         "width": "10",
         "height": "10",
         "text": "Pin P8_15 - Digital 8",
@@ -73,8 +73,8 @@
         },
     {
         "elemclass": "dPin",
-        "x": "19",
-        "y": "240",
+        "x": "8",
+        "y": "252",
         "width": "10",
         "height": "10",
         "text": "Pin P8_18 - Digital 11",
@@ -82,8 +82,8 @@
         },
     {
         "elemclass": "dPin",
-        "x": "19",
-        "y": "170",
+        "x": "8",
+        "y": "186",
         "width": "10",
         "height": "10",
         "text": "Pin P8_28 - Digital 13",
@@ -91,8 +91,8 @@
         },
     {
         "elemclass": "dPin",
-        "x": "33",
-        "y": "170",
+        "x": "22",
+        "y": "186",
         "width": "10",
         "height": "10",
         "text": "Pin P8_27 - Digital 12",
@@ -100,8 +100,8 @@
         },
     {
         "elemclass": "dPin",
-        "x": "19",
-        "y": "156",
+        "x": "8",
+        "y": "170",
         "width": "10",
         "height": "10",
         "text": "Pin P8_30 - Digital 15",
@@ -109,8 +109,8 @@
         },
     {
         "elemclass": "dPin",
-        "x": "33",
-        "y": "156",
+        "x": "22",
+        "y": "170",
         "width": "10",
         "height": "10",
         "text": "Pin P8_29 - Digital 14",
@@ -118,8 +118,8 @@
         },
     {
         "elemclass": "gnd",
-        "x": "275",
-        "y": "363",
+        "x": "270",
+        "y": "360",
         "width": "10",
         "height": "10",
         "text": "Pin P9_02 - GND",
@@ -127,8 +127,8 @@
         },
     {
         "elemclass": "gnd",
-        "x": "289",
-        "y": "363",
+        "x": "283",
+        "y": "360",
         "width": "10",
         "height": "10",
         "text": "Pin P9_01 - GND",
@@ -136,8 +136,8 @@
         },
     {
         "elemclass": "util",
-        "x": "289",
-        "y": "349",
+        "x": "283",
+        "y": "345",
         "width": "10",
         "height": "10",
         "text": "Pin P9_03 - 3.3V supply",
@@ -145,7 +145,7 @@
         },
     {
         "elemclass": "gnd",
-        "x": "19",
+        "x": "8",
         "y": "361",
         "width": "10",
         "height": "10",
@@ -154,7 +154,7 @@
         },
     {
         "elemclass": "gnd",
-        "x": "33",
+        "x": "22",
         "y": "361",
         "width": "10",
         "height": "10",
@@ -163,8 +163,8 @@
         },
     {
         "elemclass": "dPin",
-        "x": "273",
-        "y": "296",
+        "x": "270",
+        "y": "290",
         "width": "10",
         "height": "10",
         "text": "Pin P9_12 - Digital 6",
@@ -172,8 +172,8 @@
         },
     {
         "elemclass": "dPin",
-        "x": "273",
-        "y": "284",
+        "x": "270",
+        "y": "277",
         "width": "10",
         "height": "10",
         "text": "Pin P9_14 - Digital 7",
@@ -181,8 +181,8 @@
         },
     {
         "elemclass": "dPin",
-        "x": "273",
-        "y": "271",
+        "x": "270",
+        "y": "263",
         "width": "10",
         "height": "10",
         "text": "Pin P9_16 - Digital 10",
@@ -190,35 +190,8 @@
         },
     {
         "elemclass": "aPin",
-        "x": "63",
+        "x": "50",
         "y": "235",
-        "width": "10",
-        "height": "10",
-        "text": "Analog OUT, Pin 6",
-        "tip": "tooltip"
-        },
-    {
-        "elemclass": "aPin",
-        "x": "63",
-        "y": "249",
-        "width": "10",
-        "height": "10",
-        "text": "Analog OUT, Pin 4",
-        "tip": "tooltip"
-        },
-    {
-        "elemclass": "aPin",
-        "x": "63",
-        "y": "262",
-        "width": "10",
-        "height": "10",
-        "text": "Analog OUT, Pin 2",
-        "tip": "tooltip"
-        },
-    {
-        "elemclass": "aPin",
-        "x": "63",
-        "y": "275",
         "width": "10",
         "height": "10",
         "text": "Analog OUT, Pin 0",
@@ -226,8 +199,8 @@
         },
     {
         "elemclass": "aPin",
-        "x": "63",
-        "y": "289",
+        "x": "50",
+        "y": "249",
         "width": "10",
         "height": "10",
         "text": "Analog OUT, Pin 1",
@@ -235,8 +208,17 @@
         },
     {
         "elemclass": "aPin",
-        "x": "63",
-        "y": "303",
+        "x": "50",
+        "y": "263",
+        "width": "10",
+        "height": "10",
+        "text": "Analog OUT, Pin 2",
+        "tip": "tooltip"
+        },
+    {
+        "elemclass": "aPin",
+        "x": "50",
+        "y": "277",
         "width": "10",
         "height": "10",
         "text": "Analog OUT, Pin 3",
@@ -244,8 +226,17 @@
         },
     {
         "elemclass": "aPin",
-        "x": "63",
-        "y": "316",
+        "x": "50",
+        "y": "291",
+        "width": "10",
+        "height": "10",
+        "text": "Analog OUT, Pin 4",
+        "tip": "tooltip"
+        },
+    {
+        "elemclass": "aPin",
+        "x": "50",
+        "y": "305",
         "width": "10",
         "height": "10",
         "text": "Analog OUT, Pin 5",
@@ -253,17 +244,26 @@
         },
     {
         "elemclass": "aPin",
-        "x": "63",
-        "y": "330",
+        "x": "50",
+        "y": "319",
+        "width": "10",
+        "height": "10",
+        "text": "Analog OUT, Pin 6",
+        "tip": "tooltip"
+        },
+    {
+        "elemclass": "aPin",
+        "x": "50",
+        "y": "333",
         "width": "10",
         "height": "10",
         "text": "Analog OUT, Pin 7",
         "tip": "tooltip"    
         },
     {
-        "elemclass": "pins",
-        "x": "63",
-        "y": "343",
+        "elemclass": "caution",
+        "x": "50",
+        "y": "347",
         "width": "10",
         "height": "10",
         "text": "5V - NEVER use 5V with P8 or P9!",
@@ -271,8 +271,8 @@
         },
     {
         "elemclass": "gnd",
-        "x": "63",
-        "y": "356",
+        "x": "50",
+        "y": "361",
         "width": "10",
         "height": "10",
         "text": "GND",
@@ -280,7 +280,7 @@
         },
     {
         "elemclass": "gnd",
-        "x": "53",
+        "x": "50",
         "y": "142",
         "width": "10",
         "height": "10",
@@ -289,7 +289,7 @@
         },
     {
         "elemclass": "aInPin",
-        "x": "80",
+        "x": "78",
         "y": "142",
         "width": "10",
         "height": "10",
@@ -298,7 +298,7 @@
         },
     {
         "elemclass": "aInPin",
-        "x": "94",
+        "x": "92",
         "y": "142",
         "width": "10",
         "height": "10",
@@ -307,7 +307,7 @@
         },
     {
         "elemclass": "aInPin",
-        "x": "108",
+        "x": "105",
         "y": "142",
         "width": "10",
         "height": "10",
@@ -316,7 +316,7 @@
         },
     {
         "elemclass": "aInPin",
-        "x": "122",
+        "x": "118",
         "y": "142",
         "width": "10",
         "height": "10",
@@ -325,7 +325,7 @@
         },
     {
         "elemclass": "aInPin",
-        "x": "135",
+        "x": "131",
         "y": "142",
         "width": "10",
         "height": "10",
@@ -334,16 +334,7 @@
         },
     {
         "elemclass": "aInPin",
-        "x": "149",
-        "y": "142",
-        "width": "10",
-        "height": "10",
-        "text": "Analog IN - Pin 1",
-        "tip": "tooltip" 
-        },
-    {
-        "elemclass": "aInPin",
-        "x": "163",
+        "x": "144",
         "y": "142",
         "width": "10",
         "height": "10",
@@ -352,7 +343,16 @@
         },
     {
         "elemclass": "aInPin",
-        "x": "177",
+        "x": "157",
+        "y": "142",
+        "width": "10",
+        "height": "10",
+        "text": "Analog IN - Pin 1",
+        "tip": "tooltip" 
+        },
+    {
+        "elemclass": "aInPin",
+        "x": "170",
         "y": "142",
         "width": "10",
         "height": "10",
@@ -361,26 +361,26 @@
         },
     {
         "elemclass": "audio",
-        "x": "72",
-        "y": "27",
+        "x": "60",
+        "y": "7",
         "width": "31",
-        "height": "46",
+        "height": "40",
         "text": "Speaker out - RIGHT",
         "tip": "tooltip" 
         },
     {
         "elemclass": "audio",
-        "x": "110",
-        "y": "27",
+        "x": "100",
+        "y": "7",
         "width": "31",
-        "height": "46",
+        "height": "40",
         "text": "Speaker out - LEFT",
         "tip": "tooltip" 
         },
     {
         "elemclass": "audio",
-        "x": "155",
-        "y": "27",
+        "x": "145",
+        "y": "7",
         "width": "45",
         "height": "46",
         "text": "Audio OUT",
@@ -388,17 +388,26 @@
         },
     {
         "elemclass": "audio",
-        "x": "205",
-        "y": "27",
+        "x": "195",
+        "y": "7",
         "width": "45",
         "height": "46",
         "text": "Audio IN",
         "tip": "tooltip" 
         },
     {
+        "elemclass": "util",
+        "x": "243",
+        "y": "20",
+        "width": "20",
+        "height": "30",
+        "text": "Bela shutdown button",
+        "tip": "tooltip" 
+        },
+    {
         "elemclass": "pins",
-        "x": "163",
-        "y": "30",
+        "x": "150",
+        "y": "18",
         "width": "10",
         "height": "10",
         "text": "RIGHT",
@@ -406,8 +415,8 @@
         },
     {
         "elemclass": "pins",
-        "x": "176",
-        "y": "30",
+        "x": "164",
+        "y": "18",
         "width": "10",
         "height": "10",
         "text": "LEFT",
@@ -415,8 +424,8 @@
         },
     {
         "elemclass": "gnd",
-        "x": "189",
-        "y": "30",
+        "x": "178",
+        "y": "18",
         "width": "10",
         "height": "10",
         "text": "GND",
@@ -424,8 +433,8 @@
         },
     {
         "elemclass": "pins",
-        "x": "216",
-        "y": "30",
+        "x": "205",
+        "y": "18",
         "width": "10",
         "height": "10",
         "text": "RIGHT",
@@ -433,8 +442,8 @@
         },
     {
         "elemclass": "pins",
-        "x": "229",
-        "y": "30",
+        "x": "219",
+        "y": "18",
         "width": "10",
         "height": "10",
         "text": "LEFT",
@@ -442,8 +451,8 @@
         },
     {
         "elemclass": "gnd",
-        "x": "242",
-        "y": "30",
+        "x": "232",
+        "y": "18",
         "width": "10",
         "height": "10",
         "text": "GND",
@@ -451,8 +460,8 @@
         },
     {
         "elemclass": "led",
-        "x": "53",
-        "y": "440",
+        "x": "45",
+        "y": "430",
         "width": "09",
         "height": "15",
         "text": "LED",
@@ -460,8 +469,8 @@
         },
     {
         "elemclass": "led",
-        "x": "64",
-        "y": "440",
+        "x": "55",
+        "y": "430",
         "width": "09",
         "height": "15",
         "text": "LED - provides system heartbeat blink",
@@ -469,8 +478,8 @@
         },
     {
         "elemclass": "led",
-        "x": "74",
-        "y": "440",
+        "x": "65",
+        "y": "430",
         "width": "09",
         "height": "15",
         "text": "LED",
@@ -478,8 +487,8 @@
         },
     {
         "elemclass": "led",
-        "x": "83",
-        "y": "440",
+        "x": "75",
+        "y": "430",
         "width": "09",
         "height": "15",
         "text": "LED - Blinks when BeagleRT program is running",
@@ -487,17 +496,17 @@
         },
     {
         "elemclass": "util",
-        "x": "30",
-        "y": "410",
+        "x": "20",
+        "y": "400",
         "width": "17",
         "height": "30",
-        "text": "Reset button",
+        "text": "BeagleBone reset button",
         "tip": "tooltip" 
         },
     {
         "elemclass": "util",
-        "x": "75",
-        "y": "410",
+        "x": "67",
+        "y": "400",
         "width": "17",
         "height": "30",
         "text": "Power button",
@@ -506,7 +515,7 @@
     {
         "elemclass": "util",
         "x": "50",
-        "y": "463",
+        "y": "455",
         "width": "35",
         "height": "08",
         "text": "Mini USB power jack",
@@ -514,11 +523,56 @@
         },
     {
         "elemclass": "util",
-        "x": "78",
-        "y": "17",
+        "x": "62",
+        "y": "-1",
         "width": "68",
         "height": "08",
         "text": "SD card slot",
+        "tip": "tooltip" 
+        },
+    {
+        "elemclass": "util",
+        "x": "215",
+        "y": "205",
+        "width": "38",
+        "height": "60",
+        "text": "I2C",
+        "tip": "tooltip" 
+        },
+    {
+        "elemclass": "pins",
+        "x": "232",
+        "y": "252",
+        "width": "10",
+        "height": "10",
+        "text": "I2C Power - 3.3V",
+        "tip": "tooltip" 
+        },
+    {
+        "elemclass": "pins",
+        "x": "232",
+        "y": "238",
+        "width": "10",
+        "height": "10",
+        "text": "SCL (clock)",
+        "tip": "tooltip" 
+        },
+    {
+        "elemclass": "pins",
+        "x": "232",
+        "y": "224",
+        "width": "10",
+        "height": "10",
+        "text": "SDA (data)",
+        "tip": "tooltip" 
+        },
+    {
+        "elemclass": "gnd",
+        "x": "232",
+        "y": "210",
+        "width": "10",
+        "height": "10",
+        "text": "I2C GND",
         "tip": "tooltip" 
         }]
 }]

@@ -1091,6 +1091,7 @@ class EditorView extends View {
 		
 		// set theme
 		this.editor.setTheme("ace/theme/chrome");
+		this.editor.setShowPrintMargin(false);
 		
 		// autocomplete settings
 		this.editor.setOptions({

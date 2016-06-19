@@ -82,7 +82,7 @@ body {
 }
 #beaglert-consoleWrapper{
 	width: 100%;
-	font-family: sofia;
+	font-family: inconsolata;
 	font-size: 10pt;
 }
 .beaglert-console-log-in::before{
@@ -245,14 +245,14 @@ body {
 	border: inherit;
 	color: inherit;
 	padding: 5px 5px;
-	font-family: sofia;
+	font-family: inconsolata;
 }
 #beaglert-consoleInput:focus {
     outline-width: 0;
 }
 #beaglert-consoleInput-pre{
 	color: inherit;
-	font-family: sofia;
+	font-family: inconsolata;
 	font-size: 0.8em;
 	display: inline;
     white-space: nowrap;
@@ -284,9 +284,9 @@ body {
     height: 40px;
     position: absolute;
     bottom: 0;
-    font-family: sofia;
+    font-family: Consolas;
     font-size: 10pt;
-    background-color: #eee;
+    background-color: #f5f5f5;
     z-index: 100;
 }
 
@@ -341,39 +341,39 @@ body {
 
 #stop {
 	margin-left: -2px;
-	background: url("images/icons/stop_grey10.png") no-repeat;
+	background: url("images/icons/stop_inactive.png") no-repeat;
 }
 #stop:hover {
 	margin-left: -2px;
-	background: url("images/icons/stop_green.png") no-repeat;
+	background: url("images/icons/stop_active.png") no-repeat;
 }
 .one {
 	margin: 0;
 }
 
 #new-tab {
-	background: url("images/icons/tab_grey10.png") no-repeat;
+	background: url("images/icons/tab_inactive4.png") no-repeat;
 }
 #new-tab:hover {
-	background: url("images/icons/tab_greenFill.png") no-repeat;
+	background: url("images/icons/tab_green2.png") no-repeat;
 }
 #download {
-	background: url("images/icons/dl_greyClear.png") no-repeat;	
+	background: url("images/icons/dl_inactive5.png") no-repeat;	
 }
 #download:hover {
-	background: url("images/icons/dl_greenFill.png") no-repeat;	
+	background: url("images/icons/dl_active.png") no-repeat;	
 }
 #console {
-	background: url("images/icons/console_greyF.png") no-repeat;
+	background: url("images/icons/console_grey30.png") no-repeat;
 }
 #console:hover {
-	background: url("images/icons/console_greenF.png") no-repeat;
+	background: url("images/icons/console_white4.png") no-repeat;
 }
 #scope {
-	background: url("images/icons/scope_greyF.png") no-repeat;	
+	background: url("images/icons/scope_grey3.png") no-repeat;	
 }
 #scope:hover {
-	background: url("images/icons/scope_greenF.png") no-repeat;
+	background: url("images/icons/scope_green.png") no-repeat;
 }
 
 
@@ -399,7 +399,7 @@ body {
 	display: inline;
 }
 .control-text {
-	font-family: sofia;
+	font-family: inconsolata;
 	font-size: 12px;
 	color: white;
 	display: inline-block;
@@ -407,15 +407,6 @@ body {
 	float: left;
 	width: 50%;
 	color: #bdbdbd;
-}
-
-hr.sep {
-		border-top: 1px dotted #8c8b8b;
-	border-bottom: 1px dotted #fff;
-	margin-top: 15px;
-	// height: 6px;
-	// background: url("images/hr.png") repeat-x 0 0;
- //    border: 0;
 }
 
 /* ===== EDITOR ===== */
@@ -440,19 +431,15 @@ hr.sep {
 #saveAsName{
 	height: 8px;
 }
-
-#img-display-parent, #pd-svg-parent{
-	display: 'none';
-	text-align: center;
-	font-family: inconsolata;
-	overflow: scroll;
+#img-display{
+	z-index: 100;
+    position: absolute;
+    display: 'none';
 }
-
-#audio-parent{
-	display: 'none';
-	text-align: center;
-    margin-top: 50px;
-    bottom: 50px;
+#pd-svg{
+	z-index: 100;
+    position: absolute;
+    display: 'none';
 }
 
 /* breakpoints */
@@ -624,7 +611,7 @@ right: calc(100% - 62px);
       margin: 0 auto;
       width: 65px;
       height: 30px;
-      display: block;t
+      display: block;
       border-bottom: 0.25px solid #e9e9e9;
     }
     .tab span {
@@ -806,42 +793,25 @@ right: calc(100% - 62px);
 
 /* file manager tab */
 
-#fileList{
+#fileList {
     margin: 5px 0;
     list-style: none;
 }
-#fileList li{
+#fileList > li{
 	margin-top: 0.4em;
 	width: 97%;
-	font-family: sofia;
+	font-family: Consolas;
 	color: #aaa;
 	font-size: 12px;
 }
-#fileList ul{
-	margin: 5px 0 0 3px;
-    font-family: Consolas;
-    color: #aaa;
-    font-size: 12px;
-    border-left: 1px solid rgba(0,0,0,0.2);
-    padding-left: 13px;
-}
-
 .sourceFile{
 	cursor: pointer;
 }
 .resourceFile, .sourceFile{
 	margin-left: 1em;
 }
-.sourceFile:before, .resourceFile:before{ 
+.sourceFile:before, .resourceFile:before { 
     content: "–";
-    display: block;
-    height: 0;
-    width: 0;
-    left: -0.75em;
-    position: relative;
-}
-#fileList ul:before{
-	content: "+";
     display: block;
     height: 0;
     width: 0;
@@ -864,18 +834,13 @@ right: calc(100% - 62px);
 
 
 .settingsManager-parent {
-	font-family: sofia;
+	font-family: Consolas;
 	font-size: 11px;
 	line-height: 18px;
 }
-
 .tabTable {
 	width: 100%;
-	margin-top: 10px;
 }
-	.tabTable tr {
-		padding-bottom: 5px;
-	}
 	.tabTable td {
 		width: 175px;
 		text-align: right;
@@ -887,6 +852,14 @@ right: calc(100% - 62px);
 
 .debug-table {
 }
+	.debug-table td {
+		width: 120px;
+		text-align: right;
+		padding-right: 5px;
+	}
+	.debug-table td + td {
+		text-align: left;
+	}
 
 .debug-buttons {
 	margin: 10px 0;
@@ -896,15 +869,11 @@ right: calc(100% - 62px);
 	margin-top: -7px;
 }
 
-.doc-button {
-	margin-top: -7px;
-}
-
 /* settings tab */
 #settingsTab{
 	line-height: 1.5;
 }
-#settingsTab > input, #settingsTab>select{
+#settingsTab>input, #settingsTab>select{
 	position: absolute;
 	right: 50px;
 }
@@ -958,21 +927,20 @@ right: calc(100% - 62px);
 
 .fileSection {
 	background: #e8e8e8;
-	font-family: sofia;
+	font-family: Consolas;
 	font-color: #fff;
 	padding: 3px 0 3px 10px;
 }
 
 button {
 	line-height: 16px;
-	padding: 0 8px 0;
-	font-family: sofia;
+	padding: 1px 4px 0;
+	font-family: Consolas;
 	background: #eee;
 	color: #aaa;
 	border: 1px solid #ccc;
 	display: inline-block;
 	vertical-align: middle;
-	border-radius: 5px;
 	
 }
 	button:hover {
@@ -994,29 +962,26 @@ label.docSectionHeader {
 	width: 100%;
 	padding-left: 20px;
 	background: #bdbdbd;
-	font-family: sofia, sans-serif;
+	font-family: Consolas, sans-serif;
 	color: #fff;
 	font-size: 14px;
 }
-	label.docSectionHeader:first-child {
-		margin-top: 10px;
-	}
 	label.docSectionHeader:hover {
 		background: #c4e4b4;
 	}
-	label.docSectionHeader.sub {
-		background: #e0e0e0;
-		margin-left: 20px;
-	}
-	label.docSectionHeader.sub:hover {
-		background: #e1f2d9;
-		margin-left: 20px;
-	}
+label.docSectionHeader.sub {
+	background: #e0e0e0;
+	margin-left: 20px;
+}
+label.docSectionHeader.sub:hover {
+	background: #e1f2d9;
+	margin-left: 20px;
+}
 
 /**** Documentation content styles ****/
 .subsections div {
 	margin-left: 30px;
-	font-family: sofia, sans-serif;
+	font-family: Consolas, sans-serif;
 	font-size: 12px;
 	padding: 10px 0;
 }
@@ -1063,39 +1028,27 @@ select {
    appearance: none;
     width: 220px;
     padding-left: 28px;
-    padding-top: 0;
-    font-size: 11px;
-    font-family: sofia;
+    padding-top: 2px;
+    font-size: 10px;
+    font-family: Consolas;
     border: 1px solid #ccc;
-    height: 22px;
+    height: 20px;
     display: inline;
     background: #fff url("images/icons/drop_arrow.png") 10px 6px no-repeat;
     border-radius: 2px;
-    padding-bottom: 2px;
 }
 	.small {
 		width: 100px;
 		background: #fff url("images/icons/drop_arrow.png") 5px 6px no-repeat;
 		padding-left: 22px;
 	}
-input {
-	width: 70px;
-	background: #fafafa;
-    font-size: 11px;
-    font-family: sofia;
-    border: 1px solid #ccc;
-    height: 19px;
-    display: inline;
-    border-radius: 2px;
+hr {
+    border: 0; 
+    height: 1px; 
+    background: #ccc; 
+    background-image: linear-gradient(to right, #ccc, #333, #ccc); 
+    width: 90%;
 }
-
-// hr {
-//     border: 0; 
-//     height: 1px; 
-//     background: #ccc; 
-//     background-image: linear-gradient(to right, #ccc, #333, #ccc); 
-//     width: 90%;
-// }
 
 @font-face {
     font-family: 'sofia';
@@ -1107,13 +1060,13 @@ input {
 }
 
 @font-face {
-    font-family: 'sofia';
-    src: url('./fonts/sofia-webfont.eot');
-    src: url('./fonts/sofia-webfont.eot?#iefix') format('embedded-opentype'),
-         url('./fonts/sofia-webfont.woff2') format('woff2'),
-         url('./fonts/sofia-webfont.woff') format('woff'),
-         url('./fonts/sofia-webfont.ttf') format('truetype'),
-         url('./fonts/sofia-webfont.svg#sofiamedium') format('svg');
+    font-family: 'inconsolata';
+    src: url('./fonts/inconsolata-webfont.eot');
+    src: url('./fonts/inconsolata-webfont.eot?#iefix') format('embedded-opentype'),
+         url('./fonts/inconsolata-webfont.woff2') format('woff2'),
+         url('./fonts/inconsolata-webfont.woff') format('woff'),
+         url('./fonts/inconsolata-webfont.ttf') format('truetype'),
+         url('./fonts/inconsolata-webfont.svg#inconsolatamedium') format('svg');
     font-weight: normal;
     font-style: normal;
 }

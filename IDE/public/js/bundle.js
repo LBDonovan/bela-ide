@@ -1937,6 +1937,8 @@ module.exports = new TabView();
 },{"./View":13}],12:[function(require,module,exports){
 var View = require('./View');
 
+// ohhhhh i am a comment
+
 class ToolbarView extends View {
 	
 	constructor(className, models){
@@ -1974,7 +1976,7 @@ class ToolbarView extends View {
 		
 		$('#download')
 			.mouseover(function() {
-				$('#control-text-2').html('<p>Download project</p>');
+				$('#control-text-2').html('<p>Download</p>');
 			})
 			.mouseout(function() {
 				$('#control-text-2').html('');
@@ -2031,7 +2033,7 @@ class ToolbarView extends View {
 	}
 	__checkingSyntax(status){
 		if (status){
-			$('#status').css('background', 'url("images/toolbar.png") -210px 35px').prop('title', 'checking syntax...');
+			$('#status').css('background', 'url("images/icons/status_wait.png") -210px 35px').prop('title', 'checking syntax...');
 		} else {
 			//this.syntaxTimeout = setTimeout(() => $('#status').css('background', 'url("images/toolbar.png") -140px 35px'), 10);
 		}
@@ -2039,9 +2041,9 @@ class ToolbarView extends View {
 	__allErrors(errors){
 		//if (this.syntaxTimeout) clearTimeout(this.syntaxTimeout); 
 		if (errors.length){
-			$('#status').css('background', 'url("images/toolbar.png") -175px 35px').prop('title', 'syntax errors found');
+			$('#status').css('background', 'url("images/icons/status_stop.png") -175px 35px').prop('title', 'syntax errors found');
 		} else {
-			$('#status').css('background', 'url("images/toolbar.png") -140px 35px').prop('title', 'syntax check clear');
+			$('#status').css('background', 'url("images/icons/status_ok.png") -140px 35px').prop('title', 'syntax check clear');
 		}
 	}
 	

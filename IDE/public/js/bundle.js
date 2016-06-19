@@ -1090,7 +1090,7 @@ class EditorView extends View {
 		this.editor.$blockScrolling = Infinity;
 		
 		// set theme
-		this.editor.setTheme("ace/theme/github");
+		this.editor.setTheme("ace/theme/chrome");
 		
 		// autocomplete settings
 		this.editor.setOptions({

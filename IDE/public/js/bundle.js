@@ -277,10 +277,11 @@ socket.on('run-on-boot-log', text => consoleView.emit('log', text) );
 socket.on('run-on-boot-project', project => $('#runOnBoot option[value="'+project+'"]').attr('selected', 'selected') );
 
 // shell
-socket.on('sh-stdout', data => consoleView.emit('log', data, 'shell') );
+/*socket.on('sh-stdout', data => consoleView.emit('log', data, 'shell') );
 socket.on('sh-stderr', data => consoleView.emit('warn', data) );
 socket.on('sh-cwd', cwd => consoleView.emit('cwd', cwd) );
-socket.on('sh-tabcomplete', data => consoleView.emit('sh-tabcomplete', data) );
+socket.on('sh-tabcomplete', data => consoleView.emit('sh-tabcomplete', data) );*/
+socket.on('shell-event', (evt, data) => consoleView.emit('shell-'+evt, data) )
 
 
 // model events
@@ -615,7 +616,7 @@ class ConsoleView extends View{
 			this.historyIndex = 0;
 		
 			this.emit('input', this.input.value);
-			_console.log(this.input.value, 'log-in');
+			_console.log(shellCWD+' '+this.input.value, 'log-in');
 			this.input.value = '';
 		});
 		
@@ -660,12 +661,14 @@ class ConsoleView extends View{
 		$('#beaglert-console').on('click', () => $(this.input).trigger('focus') );
 		$('#beaglert-consoleWrapper').on('click', (e) => e.stopPropagation() );
 		
-		this.on('cwd', cwd => {
-			console.log('cwd', cwd);
+		this.on('shell-stdout', data => this.emit('log', data, 'shell') );
+		this.on('shell-stderr', data => this.emit('warn', data) );
+		this.on('shell-cwd', cwd => {
+			//console.log('cwd', cwd);
 			shellCWD = 'root@arm ' + cwd.replace('/root', '~') + '#';
 			$('#beaglert-consoleInput-pre').html(shellCWD);
 		});
-		this.on('sh-tabcomplete', data => $('#beaglert-consoleInput').val(data) );
+		this.on('shell-tabcomplete', data => $('#beaglert-consoleInput').val(data) );
 	}
 	
 	openNotification(data){

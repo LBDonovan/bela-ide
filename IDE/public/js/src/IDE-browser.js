@@ -276,10 +276,11 @@ socket.on('run-on-boot-log', text => consoleView.emit('log', text) );
 socket.on('run-on-boot-project', project => $('#runOnBoot option[value="'+project+'"]').attr('selected', 'selected') );
 
 // shell
-socket.on('sh-stdout', data => consoleView.emit('log', data, 'shell') );
+/*socket.on('sh-stdout', data => consoleView.emit('log', data, 'shell') );
 socket.on('sh-stderr', data => consoleView.emit('warn', data) );
 socket.on('sh-cwd', cwd => consoleView.emit('cwd', cwd) );
-socket.on('sh-tabcomplete', data => consoleView.emit('sh-tabcomplete', data) );
+socket.on('sh-tabcomplete', data => consoleView.emit('sh-tabcomplete', data) );*/
+socket.on('shell-event', (evt, data) => consoleView.emit('shell-'+evt, data) )
 
 
 // model events

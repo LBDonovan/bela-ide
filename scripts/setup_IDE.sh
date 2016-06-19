@@ -67,7 +67,7 @@ fi
 printf "done\n" || { printf "\nError while copying files: error $?\n"; exit 1; }
 
 # Make sure the projects folder exists and there is a project in it
-ssh $BBB_ADDRESS "cd $BBB_PATH/; mkdir -p projects/; [ -d projects/basic ] || cp -r examples/basic projects/" &&\
+ssh $BBB_ADDRESS "cd $BBB_PATH/; mkdir -p $BBB_PATH/IDE/public/media; mkdir -p projects/; [ -d projects/basic ] || cp -r examples/basic projects/" &&\
 
 # If there are any C/C++ files, rebuild node dependencies
 find $SCRIPTDIR/../IDE | grep '\(\.cpp\|\.cc\|\.c\|\.hpp\|\.hh\|\.h\)$' >/dev/null 2>&1 &&\

@@ -4,6 +4,7 @@ var Promise = require('bluebird');
 var fs = Promise.promisifyAll(require('fs-extra'));
 var fileType = require('file-type');
 var isBinaryFile = require("isbinaryfile");
+var exec = require('child_process').exec;
 
 var git = require('./GitManager');
 
@@ -13,6 +14,7 @@ var belaPath = '/root/Bela/';
 var projectPath = belaPath+'projects/';
 var examplePath = belaPath+'examples/';
 var newProjectPath = examplePath+'minimal';
+var mediaPath = belaPath+'IDE/public/media/';
 
 //files
 var blockedFiles = ['build', 'settings.json'];
@@ -24,7 +26,7 @@ var resourceIndeces = ['pd', 'txt', 'json', 'xml'];
 var editableExtensions = sourceIndeces.concat(headerIndeces, resourceIndeces);
 
 var resourceData = 'This file type cannot be viewed in the IDE';
-var maxFileSize = 5000000;	// bytes (5Mb)
+var maxFileSize = 50000000;	// bytes (50Mb)
 
 // public functions
 module.exports = {
@@ -119,35 +121,37 @@ module.exports = {
 		// if the file can be displayed by the IDE, load it as a string
 		if (ext && editableExtensions.indexOf(ext) !== -1){
 		
-			yield fs.readFileAsync(projectDir + data.newFile, 'utf8')
-				.then( fileData => {
+			try{
+				let fileData = yield fs.readFileAsync(projectDir + data.newFile, 'utf8');
+				//.then( fileData => {
 				
-					// newFile was opened succesfully
-					console.log('opened', data.newFile);
-											
-					// return the data
-					data.fileData = fileData;
-					data.readOnly = false;
-					data.fileName = data.newFile;
-					data.newFile = undefined;
-					data.fileType = ext;
+				// newFile was opened succesfully
+				console.log('opened', data.newFile);
+										
+				// return the data
+				data.fileData = fileData;
+				data.readOnly = false;
+				data.fileName = data.newFile;
+				data.newFile = undefined;
+				data.fileType = ext;
 					
-				})
-				.catch( e => {
+				//})
+			}
+			catch(e){
 				
-					// newFile was not opened succesfully
-					console.log('could not open file', data.newFile);
-					console.log(e.toString());
+				// newFile was not opened succesfully
+				console.log('could not open file', data.newFile);
+				console.log(e.toString());
+				
+				// return an error
+				data.error = 'Could not open file '+data.newFile;
+				data.fileData = '';
+				data.readOnly = true;
+				data.newFile = undefined;
+				data.fileName = undefined;
+				data.fileType = 0;
 					
-					// return an error
-					data.error = 'Could not open file '+data.newFile;
-					data.fileData = '';
-					data.readOnly = true;
-					data.newFile = undefined;
-					data.fileName = undefined;
-					data.fileType = 0;
-					
-				});
+			}
 				
 		} else {
 			// either the file has no extension, or it's extension is not allowed by the IDE
@@ -171,69 +175,72 @@ module.exports = {
 				
 			} else {
 			
-				yield fs.readFileAsync(projectDir + data.newFile)
-					.then( fileData => {
+				try{				
 				
-						// newFile was opened succesfully
-						console.log('opened', data.newFile);
-					
-						// attempt to get its type
-						let fileTypeData = fileType(fileData);
-						console.log('guessed filetype:', fileTypeData);
-					
-						if (fileTypeData && fileTypeData.mime.indexOf('image') !== -1){
-					
-							// the file is an image, and can be opened
-							data.fileData = fileData;
-							data.fileType = fileTypeData.mime;
-							
-							data.readOnly = true;
-						
-						} else {
-					
-							if (isBinaryFile.sync(fileData, stat.size)){
-							
-								// the file is (probably) binary and can't be displayed in the IDE
-								console.log(data.newFile, 'is binary');
-								
-								// return an error
-								data.error = "can't open binary files";
-								data.fileData = resourceData;
-								data.readOnly = true;
-								data.fileType = 0;
-								
-							} else {
-								
-								// the file is (probably) not a binary, so try to open it
-								console.log(data.newFile, 'is not binary, attempting to open...');
-								
-								// convert the file to a string
-								data.fileData = fileData.toString();
-								data.readOnly = false;
-								data.fileType = ext || 0;
-								
-							}
-						}
+					let fileData = yield fs.readFileAsync(projectDir + data.newFile);
 
-						data.fileName = data.newFile;
-						data.newFile = undefined;
-					
-					})
-					.catch( e => {
+					// newFile was opened succesfully
+					console.log('opened', data.newFile);
 				
-						// newFile was not opened succesfully
-						console.log('could not open file', data.newFile);
-						console.log(e.toString());
-					
-						// return an error
-						data.error = 'Could not open file '+data.newFile;
+					// attempt to get its type
+					let fileTypeData = fileType(fileData);
+					console.log('guessed filetype:', fileTypeData);
+				
+					if (fileTypeData && (fileTypeData.mime.indexOf('image') !== -1 || fileTypeData.mime.indexOf('audio') !== -1)){
+				
+						// the file is image or audio
 						data.fileData = '';
+						data.fileType = fileTypeData.mime;
+						
 						data.readOnly = true;
-						data.newFile = undefined;
-						data.fileName = undefined;
-						data.fileType = 0;
+						
+						yield new Promise.coroutine(makeSymLink)(projectDir + data.newFile, mediaPath + data.newFile);
+											
+					} else {
+				
+						if (isBinaryFile.sync(fileData, stat.size)){
+						
+							// the file is (probably) binary and can't be displayed in the IDE
+							console.log(data.newFile, 'is binary');
+							
+							// return an error
+							data.error = "can't open binary files";
+							data.fileData = resourceData;
+							data.readOnly = true;
+							data.fileType = 0;
+							
+						} else {
+							
+							// the file is (probably) not a binary, so try to open it
+							console.log(data.newFile, 'is not binary, attempting to open...');
+							
+							// convert the file to a string
+							data.fileData = fileData.toString();
+							data.readOnly = false;
+							data.fileType = ext || 0;
+							
+						}
+					}
+
+					data.fileName = data.newFile;
+					data.newFile = undefined;
 					
-					});
+				}
+				catch(e){
+			
+					// newFile was not opened succesfully
+					console.log('could not open file', data.newFile);
+					console.log(e.toString());
+				
+					// return an error
+					data.error = 'Could not open file '+data.newFile;
+					data.fileData = '';
+					data.readOnly = true;
+					data.newFile = undefined;
+					data.fileName = undefined;
+					data.fileType = 0;
+				
+				}
 			}
 		}
 		
@@ -323,6 +330,20 @@ function fileExists(file){
 			else resolve(true);
 		});
 	});
+}
+
+function *makeSymLink(file, link){
+	return fs.emptyDirAsync(mediaPath)
+		.then( () => {
+			return new Promise( (resolve, reject) => {
+				exec('ln -s '+file+' '+link, (err, stdout, stderr) => {
+					if (err) reject(err);
+					//console.log(stdout, stderr);
+					else resolve();
+				});
+			});
+		})
+		.catch( e => console.log('error making symlink', e.toString()) );
 }
 
 // save the last opened file

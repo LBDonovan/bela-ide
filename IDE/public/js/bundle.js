@@ -1063,6 +1063,11 @@ var View = require('./View');
 var Range = ace.require('ace/range').Range;
 var urlCreator = window.URL || window.webkitURL;
 
+// audio context for playing samples
+window.AudioContext = window.AudioContext || window.webkitAudioContext;
+var audioContext = new AudioContext();
+var audioSource;
+
 const uploadDelay = 50;
 
 var uploadBlocked = false;
@@ -1120,6 +1125,8 @@ class EditorView extends View {
 				urlCreator.revokeObjectURL(imageUrl);
 		});
 		
+		$('#audioControl').find('button').on('click', () => audioSource.start(0) );
+		
 		this.on('resize', () => this.editor.resize() );
 		
 	}
@@ -1134,40 +1141,32 @@ class EditorView extends View {
 	__fileData(data, opts){
 
 		// hide the pd patch and image displays if present, and the editor
-		$('#pd-svg, #img-display, #editor').css('display', 'none');
+		$('#pd-svg-parent, #img-display-parent, #editor, #audio-parent').css('display', 'none');
 		
-		if (data instanceof ArrayBuffer && opts.fileType.indexOf('image') !== -1){
+		if (!opts.fileType) opts.fileType = '0';
+		
+		if (opts.fileType.indexOf('image') !== -1){
+		
+			// opening image file
+			$('#img-display-parent, #img-display').css({
+				'max-width'	: $('#editor').width()+'px',
+				'max-height': $('#editor').height()+'px'
+			});
+			$('#img-display-parent').css('display', 'block');
 			
-			// we're opening an image
-			let timestamp = performance.now();
-			this.emit('open-notification', {
-				func: 'editor',
-				timestamp,
-				text: 'Rendering image'
+			$('#img-display').prop('src', 'media/'+opts.fileName);
+			
+		} else if (opts.fileType.indexOf('audio') !== -1){
+			
+			//console.log('opening audio file');
+			
+			$('#audio-parent').css({
+				'display'	: 'block',
+				'max-width'	: $('#editor').width()+'px',
+				'max-height': $('#editor').height()+'px'
 			});
 			
-			// render the image			
-			try{
-				var arrayBufferView = new Uint8Array(data);
-				var blob = new Blob( [ arrayBufferView ], { type: opts.fileType } );
-				imageUrl = urlCreator.createObjectURL( blob );
-				
-				$('#img-display').prop('src', imageUrl).css({
-					'display'	: 'block',
-					'max-width'	: $('#editor').width()+'px',
-					'max-height': $('#editor').height()+'px'
-				});
-				
-				this.emit('close-notification', {timestamp});
-
-			}
-			catch(e){
-				this.emit('close-notification', {
-					timestamp,
-					text: 'failed!'
-				});
-				throw e;
-			}
+			$('#audio').prop('src', 'media/'+opts.fileName); 
 			
 		} else {
 		
@@ -1183,12 +1182,20 @@ class EditorView extends View {
 		
 				// render pd patch
 				try{
+					
 					$('#pd-svg').html(pdfu.renderSvg(pdfu.parse(data), {svgFile: false})).css({
+						'max-width'	: $('#editor').width()+'px',
+						'max-height': $('#editor').height()+'px'
+					});
+					
+					$('#pd-svg-parent').css({
 						'display'	: 'block',
 						'max-width'	: $('#editor').width()+'px',
 						'max-height': $('#editor').height()+'px'
 					});
+					
 					this.emit('close-notification', {timestamp});
+					
 				}
 				catch(e){
 					this.emit('close-notification', {
@@ -1453,11 +1460,9 @@ class FileView extends View {
 
 module.exports = FileView;
 
-// replace ' ' with '_' and all non alpha-numeric chars other than '_', '-' and '.' with '#'
+// replace all non alpha-numeric chars other than '-' and '.' with '_'
 function sanitise(name){
-	return name
-		.split(' ').join('_')
-		.replace(/[^a-zA-Z0-9_\.\-]/g, '#');
+	return name.replace(/[^a-zA-Z0-9\.\-]/g, '_');
 }
 },{"./View":13}],8:[function(require,module,exports){
 'use strict';
@@ -1672,11 +1677,9 @@ class ProjectView extends View {
 
 module.exports = ProjectView;
 
-// replace ' ' with '_' and all non alpha-numeric chars other than '_', '-' and '.' with '#'
+// replace all non alpha-numeric chars other than '-' and '.' with '_'
 function sanitise(name){
-	return name
-		.split(' ').join('_')
-		.replace(/[^a-zA-Z0-9_\.\-]/g, '#');
+	return name.replace(/[^a-zA-Z0-9\.\-]/g, '_');
 }
 },{"./View":13}],10:[function(require,module,exports){
 var View = require('./View');

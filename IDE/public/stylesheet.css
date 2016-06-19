@@ -643,15 +643,17 @@ body {
 #saveAsName{
 	height: 8px;
 }
-#img-display{
-	z-index: 100;
-    position: absolute;
-    display: 'none';
+
+#img-display-parent, #pd-svg-parent{
+	display: 'none';
+	text-align: center;
 }
-#pd-svg{
-	z-index: 100;
-    position: absolute;
-    display: 'none';
+
+#audio-parent{
+	display: 'none';
+	text-align: center;
+    margin-top: 50px;
+    bottom: 50px;
 }
 
 /* breakpoints */

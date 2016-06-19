@@ -137,9 +137,7 @@ class FileView extends View {
 
 module.exports = FileView;
 
-// replace ' ' with '_' and all non alpha-numeric chars other than '_', '-' and '.' with '#'
+// replace all non alpha-numeric chars other than '-' and '.' with '_'
 function sanitise(name){
-	return name
-		.split(' ').join('_')
-		.replace(/[^a-zA-Z0-9_\.\-]/g, '#');
+	return name.replace(/[^a-zA-Z0-9\.\-]/g, '_');
 }

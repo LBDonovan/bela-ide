@@ -4,8 +4,9 @@
 # in preparation for building projects. It will remove any existing
 # BeagleRT directory before copying the files over
 
-BBB_ADDRESS="root@192.168.7.2"
-BBB_PATH="~/Bela"
+[ -z "$BBB_ADDRESS" ] && BBB_ADDRESS="root@192.168.7.2"
+[ -z "$BBB_BELA_HOME" ] && BBB_BELA_HOME="~/Bela"
+
 ALWAYS_YES=0
 usage()
 {
@@ -16,17 +17,16 @@ usage()
     This script copies the Bela IDE files to the BeagleBone, REMOVING
     any previous files found at that location. This should be done after
     running setup_board.sh. The -b option
-    changes the default path, which is otherwise $BBB_PATH.
+    changes the default path, which is otherwise $BBB_BELA_HOME.
     The -y option prevents the script from prompting for confirmation."
 }
 
 OPTIND=1
-
 while getopts "b:hy" opt; do
     case $opt in
         y)            ALWAYS_YES=1
                       ;;
-        b)            BBB_PATH=$OPTARG
+        b)            BBB_BELA_HOME=$OPTARG
                       ;;
         h|\?)         usage
                       exit 1
@@ -56,24 +56,24 @@ printf "Copying new IDE files to BeagleBone..."
 if [ $USE_RSYNC -eq 1 ]
 then
   printf "using rsync..."
-  rsync -ac --no-t --delete-after $SCRIPTDIR/../IDE $BBB_ADDRESS:$BBB_PATH
+  rsync -ac --no-t --delete-after $SCRIPTDIR/../IDE $BBB_ADDRESS:$BBB_BELA_HOME
 else
   #if rsync is not available, let's clean the folder first
-  ssh $BBB_ADDRESS "rm -rf $BBB_PATH/IDE ; mkdir -p $BBB_PATH/IDE" || { printf "\nError while removing the old files, is the board connected?\n"; exit 1; }
+  ssh $BBB_ADDRESS "rm -rf $BBB_BELA_HOME/IDE ; mkdir -p $BBB_BELA_HOME/IDE" || { printf "\nError while removing the old files, is the board connected?\n"; exit 1; }
   printf "using scp...might take a while ..."
-  scp -rq $SCRIPTDIR/../IDE $BBB_ADDRESS:$BBB_PATH
+  scp -rq $SCRIPTDIR/../IDE $BBB_ADDRESS:$BBB_BELA_HOME
 fi
 [ $? -eq 0 ] &&\
 printf "done\n" || { printf "\nError while copying files: error $?\n"; exit 1; }
 
 # Make sure the projects folder exists and there is a project in it
-ssh $BBB_ADDRESS "cd $BBB_PATH/; mkdir -p $BBB_PATH/IDE/public/media; mkdir -p projects/; [ -d projects/basic ] || cp -r examples/basic projects/" &&\
+ssh $BBB_ADDRESS "cd $BBB_BELA_HOME/; mkdir -p $BBB_BELA_HOME/IDE/public/media; mkdir -p projects/; [ -d projects/basic ] || cp -r examples/basic projects/" &&\
 
 # If there are any C/C++ files, rebuild node dependencies
 find $SCRIPTDIR/../IDE | grep '\(\.cpp\|\.cc\|\.c\|\.hpp\|\.hh\|\.h\)$' >/dev/null 2>&1 &&\
 { 
 	printf "Rebuilding node dependencies..."
-	ssh $BBB_ADDRESS "cd $BBB_PATH/IDE/; npm rebuild &>/dev/null" &&\
+	ssh $BBB_ADDRESS "cd $BBB_BELA_HOME/IDE/; npm rebuild &>/dev/null" &&\
 	printf "done\n" || { printf "\nError while rebuilding dependencies.\n"; exit 1; }
 }
 

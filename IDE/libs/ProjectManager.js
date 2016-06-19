@@ -149,7 +149,7 @@ module.exports = {
 				data.fileData = '';
 				data.readOnly = true;
 				data.newFile = undefined;
-				data.fileName = undefined;
+				data.fileName = '';
 				data.fileType = 0;
 					
 			}
@@ -158,8 +158,8 @@ module.exports = {
 			// either the file has no extension, or it's extension is not allowed by the IDE
 			// if the file is not too big, load it as a buffer and try to find its type
 			
-			let stat = yield fs.lstatAsync(projectDir + data.newFile).catch( () => {size: 0} );
-			console.log('file size:', stat.size);
+			let stat = yield fs.statAsync(projectDir + data.newFile).catch( () => {size: 0} );
+			console.log(data.newFile, stat);
 			
 			if (stat.size > maxFileSize){
 			
@@ -238,7 +238,7 @@ module.exports = {
 					data.fileData = '';
 					data.readOnly = true;
 					data.newFile = undefined;
-					data.fileName = undefined;
+					data.fileName = '';
 					data.fileType = 0;
 				
 				}
@@ -384,7 +384,7 @@ function _listFiles(projectName){
 // recursive listFiles, returning an array of objects with names, sizes, and (if dir) children
 function *listFiles(dir, subDir){
 
-	//console.log('listFiles entering dir', dir);
+	console.log('listFiles entering dir', dir);
 
 	var contents = yield fs.readdirAsync(dir).filter( item => {
 			if (!subDir && item && item[0] && item[0] !== '.' && item !== dir.split('/').pop() && blockedFiles.indexOf(item) === -1) return item;
@@ -394,7 +394,9 @@ function *listFiles(dir, subDir){
 	var output = [];
 	for (let item of contents){
 	
-		let stat = yield fs.lstatAsync(dir+'/'+item);
+		let stat = yield fs.statAsync(dir+'/'+item);
+		
+		console.log(stat);
 		
 		let data = {
 			name: item,
@@ -409,8 +411,8 @@ function *listFiles(dir, subDir){
 	
 	}
 
-	//console.log('listFiles exiting dir', dir);
-	//if (!subDir) console.dir(output,{depth:null})
+	console.log('listFiles exiting dir', dir);
+	if (!subDir) console.dir(output,{depth:null})
 	return output;
 }
 

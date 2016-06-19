@@ -1459,12 +1459,15 @@ class FileView extends View {
 
 		// select the opened file in the file manager tab
 		$('.selectedFile').removeClass('selectedFile');
+		
+		var foundFile = false
 		$('#fileList li').each(function(){
 			if ($(this).data('file') === file){
 				$(this).addClass('selectedFile');
+				foundFile = true;
 			}
 		});
-		
+				
 		if (data && data.currentProject){
 			// set download link
 			$('#downloadFileLink').attr('href', '/download?project='+data.currentProject+'&file='+file);

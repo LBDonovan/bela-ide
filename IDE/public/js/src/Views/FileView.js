@@ -18,7 +18,7 @@ class FileView extends View {
 		});
 		
 		// drag and drop file upload on editor
-		$('#editor').on('dragenter dragover drop', (e) => {
+		$('body').on('dragenter dragover drop', (e) => {
 			e.stopPropagation();
 			if (e.type === 'drop'){
 				for (let file of e.originalEvent.dataTransfer.files){

@@ -1,11 +1,5 @@
 var View = require('./View');
 var Range = ace.require('ace/range').Range;
-var urlCreator = window.URL || window.webkitURL;
-
-// audio context for playing samples
-window.AudioContext = window.AudioContext || window.webkitAudioContext;
-var audioContext = new AudioContext();
-var audioSource;
 
 const uploadDelay = 50;
 
@@ -58,11 +52,6 @@ class EditorView extends View {
 
 			e.stop();
 
-		});
-		
-		$('#img-display').on('load', () => {
-			if (imageUrl) 
-				urlCreator.revokeObjectURL(imageUrl);
 		});
 		
 		$('#audioControl').find('button').on('click', () => audioSource.start(0) );

@@ -99,9 +99,7 @@ function socketConnected(socket){
 function socketEvents(socket){
 
 	// set the time on the bbb
-	socket.on('set-time', (time) => {
-		exec('date '+time, console.log);
-	});
+	socket.on('set-time', (time) => exec('date -s "'+time+'"') );
 	
 	// project events
 	socket.on('project-event', (data) => {

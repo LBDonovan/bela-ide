@@ -167,7 +167,7 @@ socket.on('init', (data) => {
 	//models.project.print();
 	//models.settings.print();
 	
-	socket.emit('set-time', getDateString());
+	socket.emit('set-time', new Date().toString());
 	
 	documentationView.emit('init');
 	

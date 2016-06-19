@@ -40,11 +40,11 @@ function IDE(){
 	
 	// CPU & project monitoring
 	setInterval(function(){
-		ProjectManager.listProjects()
+		/*ProjectManager.listProjects()
 			.then( result => {
 				allSockets.emit('project-list', undefined, result);
 				if (runOnBootProject) allSockets.emit('run-on-boot-project', runOnBootProject);
-			});
+			});*/
 		
 		if (!cpuMonitoring) return;
 		co(ProcessManager, 'checkCPU')

@@ -381,7 +381,8 @@ function _listFiles(projectName){
 }
 
 function *listFiles(dir, subDir){
-	console.log('listFiles entering dir', dir);
+
+	//console.log('listFiles entering dir', dir);
 
 	var contents = yield fs.readdirAsync(dir).filter( item => {
 			if (!subDir && item && item[0] && item[0] !== '.' && item !== dir.split('/').pop() && blockedFiles.indexOf(item) === -1) return item;

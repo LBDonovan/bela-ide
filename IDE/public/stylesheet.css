@@ -648,6 +648,7 @@ body {
 	display: 'none';
 	text-align: center;
 	font-family: inconsolata;
+	overflow: scroll;
 }
 
 #audio-parent{

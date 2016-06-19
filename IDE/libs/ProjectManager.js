@@ -5,6 +5,7 @@ var fs = Promise.promisifyAll(require('fs-extra'));
 var fileType = require('file-type');
 var isBinaryFile = require("isbinaryfile");
 var exec = require('child_process').exec;
+var path = require('path');
 
 var git = require('./GitManager');
 
@@ -336,7 +337,7 @@ function *makeSymLink(file, link){
 	return fs.emptyDirAsync(mediaPath)
 		.then( () => {
 			return new Promise( (resolve, reject) => {
-				exec('ln -s '+file+' '+link, (err, stdout, stderr) => {
+				exec('mkdir --parents '+path.dirname(link)+'; ln -s '+file+' '+link, (err, stdout, stderr) => {
 					if (err) reject(err);
 					//console.log(stdout, stderr);
 					else resolve();

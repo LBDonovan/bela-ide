@@ -1168,7 +1168,7 @@ class EditorView extends View {
 				'max-width'	: $('#editor').width()+'px',
 				'max-height': $('#editor').height()+'px'
 			});
-			
+						
 			$('#audio').prop('src', 'media/'+opts.fileName); 
 			
 		} else {

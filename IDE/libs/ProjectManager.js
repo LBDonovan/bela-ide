@@ -44,7 +44,7 @@ module.exports = {
 	// functions called directly over websocket
 	// project & example events
 	*openProject(data){
-		data.fileList = yield _listFiles(data.currentProject);
+		data.fileList = yield new Promise.coroutine(listFiles)(projectPath+data.currentProject);
 		var settings = yield _getSettings(data.currentProject);
 		for (let key in settings){
 			data[key] = settings[key];
@@ -378,6 +378,37 @@ function _listFiles(projectName){
 		.filter((fileName) => {
 			if (fileName && fileName[0] && fileName[0] !== '.' && fileName !== projectName && blockedFiles.indexOf(fileName) === -1) return fileName;
 		});
+}
+
+function *listFiles(dir, subDir){
+	console.log('listFiles entering dir', dir);
+
+	var contents = yield fs.readdirAsync(dir).filter( item => {
+			if (!subDir && item && item[0] && item[0] !== '.' && item !== dir.split('/').pop() && blockedFiles.indexOf(item) === -1) return item;
+			else if(subDir && item && item[0] && item[0] !== '.') return item;
+		});
+		
+	var output = [];
+	for (let item of contents){
+	
+		let stat = yield fs.lstatAsync(dir+'/'+item);
+		
+		let data = {
+			name: item,
+			dir: stat.isDirectory(),
+			size: stat.size
+		};
+		
+		if (data.dir) 
+			data.children = yield new Promise.coroutine(listFiles)(dir + '/' + data.name, true);
+			
+		output.push(data);
+	
+	}
+
+	console.log('listFiles exiting dir', dir);
+	if (!subDir) console.dir(output,{depth:null})
+	return output;
 }
 
 // create default project settings

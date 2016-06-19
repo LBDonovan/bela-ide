@@ -647,6 +647,7 @@ body {
 #img-display-parent, #pd-svg-parent{
 	display: 'none';
 	text-align: center;
+	font-family: inconsolata;
 }
 
 #audio-parent{

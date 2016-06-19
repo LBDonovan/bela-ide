@@ -1019,10 +1019,12 @@ right: calc(100% - 62px);
 	font-size: 12px;
 }
 #fileList ul{
-	margin: 5px 0 0 12px;
+	margin: 5px 0 0 3px;
     font-family: Consolas;
     color: #aaa;
     font-size: 12px;
+    border-left: 1px solid rgba(0,0,0,0.2);
+    padding-left: 13px;
 }
 
 .sourceFile{

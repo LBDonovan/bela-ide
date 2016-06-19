@@ -1469,8 +1469,8 @@ class FileView extends View {
 
 		// select the opened file in the file manager tab
 		$('.selectedFile').removeClass('selectedFile');
-		$('#fileList>li').each(function(){
-			if ($(this).html() === file){
+		$('#fileList li').each(function(){
+			if ($(this).data('file') === file){
 				$(this).addClass('selectedFile');
 			}
 		});
@@ -1500,7 +1500,7 @@ module.exports = FileView;
 
 // replace all non alpha-numeric chars other than '-' and '.' with '_'
 function sanitise(name){
-	return name.replace(/[^a-zA-Z0-9\.\-]/g, '_');
+	return name.replace(/[^a-zA-Z0-9\.\-/]/g, '_');
 }
 },{"./View":13}],8:[function(require,module,exports){
 'use strict';

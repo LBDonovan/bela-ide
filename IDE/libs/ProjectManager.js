@@ -253,7 +253,7 @@ module.exports = {
 		yield fs.outputFileAsync(projectPath+data.currentProject+'/'+data.newFile, '/***** '+data.newFile+' *****/\n');
 		data.fileName = data.newFile;
 		data.newFile = undefined;
-		data.fileList = yield _listFiles(data.currentProject);
+		data.fileList = yield new Promise.coroutine(listFiles)(projectPath+data.currentProject);
 		data.focus = {line: 2, column: 1};
 		return yield _co(this, 'openFile', data);
 	},
@@ -262,7 +262,7 @@ module.exports = {
 		yield fs.outputFileAsync(projectPath+data.currentProject+'/'+data.newFile, data.fileData);
 		data.fileName = data.newFile;
 		data.newFile = undefined;
-		data.fileList = yield _listFiles(data.currentProject);
+		data.fileList = yield new Promise.coroutine(listFiles)(projectPath+data.currentProject);
 		return yield _co(this, 'openFile', data);
 	},
 	
@@ -270,16 +270,20 @@ module.exports = {
 		yield fs.moveAsync(projectPath+data.currentProject+'/'+data.fileName, projectPath+data.currentProject+'/'+data.newFile);
 		data.fileName = data.newFile;
 		data.newFile = undefined;
-		data.fileList = yield _listFiles(data.currentProject);
+		data.fileList = yield new Promise.coroutine(listFiles)(projectPath+data.currentProject);
 		return yield _co(this, 'openFile', data);
 	},
 	
 	*deleteFile(data){
 		yield fs.removeAsync(projectPath+data.currentProject+'/'+data.fileName);
-		data.fileList = yield _listFiles(data.currentProject);
+		data.fileList = yield new Promise.coroutine(listFiles)(projectPath+data.currentProject);
 		if (data.fileList.length){
-			data.fileName = data.fileList[0];
-			return yield _co(this, 'openFile', data);
+			for (let item of data.fileList){
+				if (!item.dir && item.name){
+					data.fileName = item.name;
+					return yield _co(this, 'openFile', data);
+				}
+			}
 		}
 		data.fileName = '';
 		data.fileData = '';
@@ -309,10 +313,6 @@ module.exports = {
 	*getCLArgs(project){
 		var settings = yield _getSettings(project);
 		return settings.CLArgs;
-	},
-	
-	listFiles(project){
-		return _listFiles(project);
 	}
 }
 
@@ -381,6 +381,7 @@ function _listFiles(projectName){
 		});
 }
 
+// recursive listFiles, returning an array of objects with names, sizes, and (if dir) children
 function *listFiles(dir, subDir){
 
 	//console.log('listFiles entering dir', dir);
@@ -408,8 +409,8 @@ function *listFiles(dir, subDir){
 	
 	}
 
-	console.log('listFiles exiting dir', dir);
-	if (!subDir) console.dir(output,{depth:null})
+	//console.log('listFiles exiting dir', dir);
+	//if (!subDir) console.dir(output,{depth:null})
 	return output;
 }
 

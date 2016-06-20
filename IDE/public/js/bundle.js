@@ -1384,7 +1384,7 @@ class FileView extends View {
 	// model events
 	_fileList(files, data){
 	console.log(files);
-	if (!files[0].name) return;
+	if (!files.length || !files[0].name) return;
 
 		var $files = $('#fileList')
 		$files.empty();

@@ -616,7 +616,7 @@ right: calc(100% - 62px);
     }
     /* == Style for each pullout tab == */
     .tab label {
-      background: #e0e0e0; 
+      background: #bdbdbd; 
       padding: 12px 0;
       margin: 0 auto;
       width: 65px;
@@ -743,6 +743,17 @@ right: calc(100% - 62px);
     }
     #tab-3:checked + label>span{
     	background: url("images/icons/bug_active2.png") no-repeat;
+    	cursor: default;
+    }
+
+    #examples {
+    	width: 30px;
+    	background: url("images/icons/bulb_white.png") no-repeat;
+    	display: block;
+    	margin: 0 auto;
+    }
+    #tab-6:checked + label>span {
+    	background: url("images/icons/bulb_active.png") no-repeat;
     	cursor: default;
     }
     

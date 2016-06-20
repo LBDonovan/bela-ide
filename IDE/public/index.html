@@ -38,7 +38,7 @@
 				    	</div> 
 				    </div>
 				   
-				   	<div class="tab">
+				   	<div class="tab"><!-- Begin Project Settings, Tab 1 -->
 				        <input type="radio" id="tab-1" name="tab-group-1">
 				        <label for="tab-1"><span id="settings" title="Settings"/></label>
 				        <div id="settingsTab" class="tabContent">
@@ -227,9 +227,9 @@
 						
 							</div><!-- end settingsManager-parent -->
 				        </div> <!-- end tabContent -->
-				    </div><!-- end tab -->
+				    </div><!-- end Project Settings tab -->
 				    
-				    <div class="tab">
+				    <div class="tab"><!-- Begin File Explorer, Tab 2 -->
 				        <input type="radio" id="tab-2" name="tab-group-1">
 				        <label for="tab-2"><span id="file-explorer" title="File Explorer" /></label>
 				        <div class="tabContent projectManager-parent fileManager-parent"> 
@@ -265,12 +265,6 @@
 										<ul id="fileList">
 										</ul>
 
-									<hr class="sep" />
-									
-									<h2>Open Example Project:</h2>
-											<select class="projectManager" id="examples" data-func="openExample">
-												<option checked>--Examples--</option>
-											</select>
 
 
 							<!-- </div> -->
@@ -307,9 +301,9 @@
 							</div>				           
 				           </br></br></br>
 				        </div> 
-				    </div>
+				    </div><!-- end File Explorer tab -->
 				    
-				    <div class="tab" >
+				    <div class="tab" ><!-- begin Debugger, Tab 3 -->
 						<input type="radio" id="tab-3" name="tab-group-1">
 						<label for="tab-3"><span id="debugger" title="Debugger" /></label>
 						<div class="tabContent debugger-parent">
@@ -355,9 +349,21 @@
 							</div>
 							</br></br></br>
 				       </div> 
-				   </div>
+				   </div><!-- End debugger tab -->
 
-				   	<div class="tab">
+				   	<div class="tab"><!-- Start Examples, Tab 6 -->
+				       <input type="radio" id="tab-6" name="tab-group-1">
+				       <label for="tab-6"><span id="examples" title="Code Examples" /></label>
+				       <div class="tabContent">
+				            <h1>Code Examples</h1>
+							<h2>Open Example Project:</h2>
+								<select class="projectManager" id="examples" data-func="openExample">
+									<option checked>--Examples--</option>
+								</select>
+				       </div> 
+				    </div><!-- End Examples -->
+
+				   	<div class="tab"><!-- Start GPIO, Tab 4 -->
 				       <input type="radio" id="tab-4" name="tab-group-1">
 				       <label for="tab-4"><span id="gpio-ref" title="GPIO Pin Reference" /></label>
 				       <div class="tabContent">
@@ -366,9 +372,9 @@
     							Your browser doesn’t support the object tag. 
 							</object>
 				       </div> 
-				    </div>
+				    </div><!-- End GPIO -->
 
-				    <div class="tab">
+				    <div class="tab"><!-- Start Doc, Tab 5 -->
 				       <input type="radio" id="tab-5" name="tab-group-1">
 				       <label for="tab-5"><span id="api-ref" title="API Reference" /></label>
 				       <div class="tabContent">
@@ -401,9 +407,9 @@
 								</li>-->
 							</ul>
 				       </div><!-- Xenomai --> 
-				    </div>
+				    </div><!-- end Doc tab -->
 				    
-				</div>
+				</div><!-- end tabs -->
 			</div> <!-- end right -->
 
 			<!-- NEW TOOLBAR -->

@@ -342,11 +342,19 @@ body {
 }
 
 #stop {
+<<<<<<< HEAD
 	// margin-left: -2px;
 	background: url("images/icons/stop_grey6.png") no-repeat;
 }
 #stop:hover {
 	// margin-left: -2px;
+=======
+	margin-left: -2px;
+	background: url("images/icons/stop_grey6.png") no-repeat;
+}
+#stop:hover {
+	margin-left: -2px;
+>>>>>>> af9806ed1a3d8ccbf1ea95abda28e28f0b28afa6
 	background: url("images/icons/stop_active6.png") no-repeat;
 }
 .one {
@@ -395,7 +403,7 @@ body {
 	width: 35px;
 	height: 35px;
 	left: calc(100% - 195px);
-	background: url("images/icons/status_wait.png") no-repeat;
+	background: url("images/icons/status_ok.png") no-repeat;
 	// background: url("images/toolbar.png") -140px 35px;
 	cursor: initial;
 	display: inline;

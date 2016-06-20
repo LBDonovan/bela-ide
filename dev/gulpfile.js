@@ -10,13 +10,15 @@ var source = require('vinyl-source-stream');
 var sourcemaps = require('gulp-sourcemaps');
 var buffer = require('vinyl-buffer');
 var less = require('gulp-less');
+var rsync = require('gulp-rsync');
+var debug = require('gulp-debug');
 
 var host = '192.168.7.2';
 var user = 'root';
 var pass = 'a';
 var remotePath = '/root/Bela/IDE/';
 
-gulp.task('default', ['killnode', 'browserify', 'upload', 'restartnode', 'watch']);
+gulp.task('default', ['browserify', 'killnode', 'upload', 'restartnode', 'watch']);
 
 gulp.task('watch', ['killnode', 'browserify', 'upload', 'restartnode'], function(){
 
@@ -52,27 +54,59 @@ gulp.task('watch', ['killnode', 'browserify', 'upload', 'restartnode'], function
 	
 });
 
-gulp.task('upload', ['killnode', 'browserify'], () => {
-	return gulp.src(['../IDE/**', '!../IDE/public/js/src/**', '!../IDE/node_modules/**', '!../IDE/public/js/ace/**', '!../IDE/public/scope/js/src/**'])
-		.pipe(cache('IDE'))
-		.pipe(sftp({host, user, pass, remotePath}));
+gulp.task('upload', ['killnode'], (callback) => {
+
+	var ssh = spawn('rsync', ['-av', '--delete', '../IDE/', user+'@'+host+':'+remotePath]);
+	
+	ssh.stdout.setEncoding('utf8');
+	ssh.stdout.on('data', function(data){
+		process.stdout.write(data);
+	});
+	
+	ssh.stderr.setEncoding('utf8');
+	ssh.stderr.on('data', function(data){
+		process.stdout.write('error: '+data);
+	});
+	
+	ssh.on('exit', function(){
+		callback();
+	});
+	
 });
 
-gulp.task('upload-no-kill', () => {
-	return gulp.src(['../IDE/**', '!../IDE/public/js/src/**', '!../IDE/node_modules/**', '!../IDE/public/js/ace/**', '!../IDE/public/scope/js/src/**'])
-		.pipe(cache('IDE'))
-		.pipe(sftp({host, user, pass, remotePath}))
-		.on('end', () => {
-			livereload.reload();
-		});
+gulp.task('upload-no-kill', (callback) => {
+
+	var ssh = spawn('rsync', ['-av', '--delete', '../IDE/', user+'@'+host+':'+remotePath]);
+	
+	ssh.stdout.setEncoding('utf8');
+	ssh.stdout.on('data', function(data){
+		process.stdout.write(data);
+	});
+	
+	ssh.stderr.setEncoding('utf8');
+	ssh.stderr.on('data', function(data){
+		process.stdout.write('error: '+data);
+	});
+	
+	ssh.on('exit', function(){
+		callback();
+		livereload.reload();
+	});
+	
 });
 
 gulp.task('nodemodules', ['upload-nodemodules', 'rebuild-nodemodules']);
 
 gulp.task('upload-nodemodules', () => {
-	return gulp.src(['../IDE/node_modules/**'])
-		.pipe(cache('IDE'))
-		.pipe(sftp({host, user, pass, remotePath: remotePath+'node_modules/'}));
+	return gulp.src(['../IDE/node_modules'])
+		.pipe(rsync({
+			root: '../IDE/node_modules/',
+			hostname: user+'@'+host,
+			destination: remotePath+'node_modules/',
+			archive: true,
+			clean: true,
+			command: true
+		}));
 });
 
 gulp.task('rebuild-nodemodules', ['upload-nodemodules'], (callback) => {
@@ -149,16 +183,13 @@ function startNode(callback){
 	ssh.stdout.setEncoding('utf8');
 	ssh.stdout.on('data', function(data){
 		process.stdout.write(data);
+		if (data.indexOf('listening on port') !== -1) livereload.reload();
 	});
 	
 	ssh.stderr.setEncoding('utf8');
 	ssh.stderr.on('data', function(data){
 		process.stdout.write('error: '+data);
 	});
-	
-	ssh.on('exit', function(){
-		
-	});
-	livereload.reload();
+
 	callback();
 }

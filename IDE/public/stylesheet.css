@@ -339,11 +339,11 @@ body {
 
 #stop {
 	margin-left: -2px;
-	background: url("images/icons/stop_grey5.png") no-repeat;
+	background: url("images/icons/stop_grey6.png") no-repeat;
 }
 #stop:hover {
 	margin-left: -2px;
-	background: url("images/icons/stop_active5.png") no-repeat;
+	background: url("images/icons/stop_active6.png") no-repeat;
 }
 .one {
 	margin: 0;
@@ -391,7 +391,7 @@ body {
 	width: 35px;
 	height: 35px;
 	left: calc(100% - 195px);
-	background: url("images/icons/status_wait.png") no-repeat;
+	background: url("images/icons/status_ok.png") no-repeat;
 	// background: url("images/toolbar.png") -140px 35px;
 	cursor: initial;
 	display: inline;
@@ -790,7 +790,7 @@ right: calc(100% - 62px);
       background: #fff;
       z-index: 99;
       border-left: 1px solid #e8e8e8;
-      box-shadow: 0 2px 10px #e5e5e5;
+      // box-shadow: 0 2px 10px #e5e5e5;
     }
     [type=radio]:checked ~ label ~ .tabContent {
       z-index: 1;

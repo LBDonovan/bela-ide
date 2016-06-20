@@ -300,9 +300,8 @@ body {
 }
 	.control-button {
 		min-height: 39px;
-		width: 40px;
+		width: 35px;
 		display: inline-block;
-		margin-left: 1px;
 		margin-top: 5px;
 		float: left;
 	}
@@ -339,11 +338,11 @@ body {
 
 #stop {
 	margin-left: -2px;
-	background: url("images/icons/stop_grey10.png") no-repeat;
+	background: url("images/icons/stop_grey5.png") no-repeat;
 }
 #stop:hover {
 	margin-left: -2px;
-	background: url("images/icons/stop_green.png") no-repeat;
+	background: url("images/icons/stop_active5.png") no-repeat;
 }
 .one {
 	margin: 0;

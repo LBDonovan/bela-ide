@@ -24,17 +24,6 @@
 		"outputPathIsSetByUser": 0,
 		"outputStyle": 1
 		},
-	"\/examples\/scope_modulation\/settings.json": {
-		"fileType": 524288,
-		"ignore": 1,
-		"ignoreWasSetByUser": 0,
-		"inputAbbreviatedPath": "\/examples\/scope_modulation\/settings.json",
-		"orderOutput": 0,
-		"outputAbbreviatedPath": "\/examples\/scope_modulation\/settings-min.json",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"outputStyle": 1
-		},
 	"\/graphicalAssets\/icons\/arrow.png": {
 		"fileType": 32768,
 		"ignore": 0,
@@ -134,6 +123,17 @@
 		"outputStyle": 1,
 		"syntaxCheckerStyle": 1
 		},
+	"\/IDE\/libs\/GitManager.js": {
+		"fileType": 64,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"inputAbbreviatedPath": "\/IDE\/libs\/GitManager.js",
+		"outputAbbreviatedPath": "\/IDE\/libs\/min\/GitManager-min.js",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"outputStyle": 1,
+		"syntaxCheckerStyle": 1
+		},
 	"\/IDE\/libs\/IDE-node.js": {
 		"fileType": 64,
 		"ignore": 0,
@@ -156,6 +156,17 @@
 		"outputStyle": 1,
 		"syntaxCheckerStyle": 1
 		},
+	"\/IDE\/libs\/MakeProcess.js": {
+		"fileType": 64,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"inputAbbreviatedPath": "\/IDE\/libs\/MakeProcess.js",
+		"outputAbbreviatedPath": "\/IDE\/libs\/min\/MakeProcess-min.js",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"outputStyle": 1,
+		"syntaxCheckerStyle": 1
+		},
 	"\/IDE\/libs\/ngdbmi.js": {
 		"fileType": 64,
 		"ignore": 0,
@@ -173,17 +184,6 @@
 		"ignoreWasSetByUser": 0,
 		"inputAbbreviatedPath": "\/IDE\/libs\/ProcessManager.js",
 		"outputAbbreviatedPath": "\/IDE\/libs\/min\/ProcessManager-min.js",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"outputStyle": 1,
-		"syntaxCheckerStyle": 1
-		},
-	"\/IDE\/libs\/Project.js": {
-		"fileType": 64,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"inputAbbreviatedPath": "\/IDE\/libs\/Project.js",
-		"outputAbbreviatedPath": "\/IDE\/libs\/min\/Project-min.js",
 		"outputPathIsOutsideProject": 0,
 		"outputPathIsSetByUser": 0,
 		"outputStyle": 1,
@@ -233,6 +233,26 @@
 		"outputPathIsSetByUser": 0,
 		"outputStyle": 1
 		},
+	"\/IDE\/public\/0stylesheet.less": {
+		"allowInsecureImports": 0,
+		"createSourceMap": 0,
+		"disableJavascript": 0,
+		"fileType": 1,
+		"ieCompatibility": 0,
+		"ignore": 1,
+		"ignoreWasSetByUser": 0,
+		"inputAbbreviatedPath": "\/IDE\/public\/0stylesheet.less",
+		"outputAbbreviatedPath": "\/IDE\/public\/0stylesheet.css",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"outputStyle": 0,
+		"relativeURLS": 0,
+		"shouldRunAutoprefixer": 0,
+		"shouldRunBless": 0,
+		"strictImports": 0,
+		"strictMath": 0,
+		"strictUnits": 0
+		},
 	"\/IDE\/public\/belaDiagram\/css\/style.css": {
 		"fileType": 16,
 		"ignore": 0,
@@ -273,6 +293,17 @@
 		"outputPathIsSetByUser": 0,
 		"processed": 0
 		},
+	"\/IDE\/public\/belaDiagram\/images\/bela_pins_jun2016.jpg": {
+		"fileType": 16384,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"initialSize": 59505,
+		"inputAbbreviatedPath": "\/IDE\/public\/belaDiagram\/images\/bela_pins_jun2016.jpg",
+		"outputAbbreviatedPath": "\/IDE\/public\/belaDiagram\/images\/bela_pins_jun2016.jpg",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"processed": 0
+		},
 	"\/IDE\/public\/belaDiagram\/json\/data.json": {
 		"fileType": 524288,
 		"ignore": 1,
@@ -302,27 +333,32 @@
 		"outputPathIsOutsideProject": 0,
 		"outputPathIsSetByUser": 0
 		},
-	"\/IDE\/public\/images\/collapsed.png": {
-		"fileType": 32768,
+	"\/IDE\/public\/goldenlayout-base.css": {
+		"fileType": 16,
 		"ignore": 0,
 		"ignoreWasSetByUser": 0,
-		"initialSize": 1241,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/collapsed.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/collapsed.png",
+		"inputAbbreviatedPath": "\/IDE\/public\/goldenlayout-base.css",
+		"outputAbbreviatedPath": "No Output Path",
 		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
+		"outputPathIsSetByUser": 0
 		},
-	"\/IDE\/public\/images\/expanded.png": {
-		"fileType": 32768,
+	"\/IDE\/public\/goldenlayout-dark-theme.css": {
+		"fileType": 16,
 		"ignore": 0,
 		"ignoreWasSetByUser": 0,
-		"initialSize": 207,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/expanded.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/expanded.png",
+		"inputAbbreviatedPath": "\/IDE\/public\/goldenlayout-dark-theme.css",
+		"outputAbbreviatedPath": "No Output Path",
 		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
+		"outputPathIsSetByUser": 0
+		},
+	"\/IDE\/public\/goldenlayout-light-theme.css": {
+		"fileType": 16,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"inputAbbreviatedPath": "\/IDE\/public\/goldenlayout-light-theme.css",
+		"outputAbbreviatedPath": "No Output Path",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0
 		},
 	"\/IDE\/public\/images\/icons\/arrow-25.png": {
 		"fileType": 32768,
@@ -379,200 +415,46 @@
 		"outputPathIsSetByUser": 0,
 		"processed": 0
 		},
-	"\/IDE\/public\/images\/icons\/book-dgrey28.png": {
+	"\/IDE\/public\/images\/icons\/book_active.png": {
 		"fileType": 32768,
 		"ignore": 0,
 		"ignoreWasSetByUser": 0,
-		"initialSize": 404,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/book-dgrey28.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/book-dgrey28.png",
+		"initialSize": 282,
+		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/book_active.png",
+		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/book_active.png",
 		"outputPathIsOutsideProject": 0,
 		"outputPathIsSetByUser": 0,
 		"processed": 0
 		},
-	"\/IDE\/public\/images\/icons\/book-grey20.png": {
+	"\/IDE\/public\/images\/icons\/book_inactive.png": {
 		"fileType": 32768,
 		"ignore": 0,
 		"ignoreWasSetByUser": 0,
-		"initialSize": 423,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/book-grey20.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/book-grey20.png",
+		"initialSize": 279,
+		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/book_inactive.png",
+		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/book_inactive.png",
 		"outputPathIsOutsideProject": 0,
 		"outputPathIsSetByUser": 0,
 		"processed": 0
 		},
-	"\/IDE\/public\/images\/icons\/book-grey22.png": {
+	"\/IDE\/public\/images\/icons\/bug_active2.png": {
 		"fileType": 32768,
 		"ignore": 0,
 		"ignoreWasSetByUser": 0,
-		"initialSize": 249,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/book-grey22.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/book-grey22.png",
+		"initialSize": 571,
+		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/bug_active2.png",
+		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/bug_active2.png",
 		"outputPathIsOutsideProject": 0,
 		"outputPathIsSetByUser": 0,
 		"processed": 0
 		},
-	"\/IDE\/public\/images\/icons\/book-grey24.png": {
+	"\/IDE\/public\/images\/icons\/bug_inactive.png": {
 		"fileType": 32768,
 		"ignore": 0,
 		"ignoreWasSetByUser": 0,
-		"initialSize": 331,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/book-grey24.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/book-grey24.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/book-grey25.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 375,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/book-grey25.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/book-grey25.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/book-grey28.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 283,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/book-grey28.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/book-grey28.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/book-white.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 453,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/book-white.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/book-white.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/book-white20.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 378,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/book-white20.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/book-white20.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/book-white22.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 242,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/book-white22.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/book-white22.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/book-white25.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 252,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/book-white25.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/book-white25.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/book-white28.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 275,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/book-white28.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/book-white28.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/bug-dgrey23.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 687,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/bug-dgrey23.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/bug-dgrey23.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/bug-dgrey28.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 787,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/bug-dgrey28.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/bug-dgrey28.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/bug-grey25.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 724,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/bug-grey25.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/bug-grey25.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/bug-grey28.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 620,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/bug-grey28.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/bug-grey28.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/bug-white.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 661,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/bug-white.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/bug-white.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/bug-white25.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 618,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/bug-white25.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/bug-white25.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/bug-white28.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 540,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/bug-white28.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/bug-white28.png",
+		"initialSize": 475,
+		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/bug_inactive.png",
+		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/bug_inactive.png",
 		"outputPathIsOutsideProject": 0,
 		"outputPathIsSetByUser": 0,
 		"processed": 0
@@ -588,6 +470,28 @@
 		"outputPathIsSetByUser": 0,
 		"processed": 0
 		},
+	"\/IDE\/public\/images\/icons\/console_green.png": {
+		"fileType": 32768,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"initialSize": 321,
+		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/console_green.png",
+		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/console_green.png",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"processed": 0
+		},
+	"\/IDE\/public\/images\/icons\/console_greenF.png": {
+		"fileType": 32768,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"initialSize": 357,
+		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/console_greenF.png",
+		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/console_greenF.png",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"processed": 0
+		},
 	"\/IDE\/public\/images\/icons\/console_grey.png": {
 		"fileType": 32768,
 		"ignore": 0,
@@ -595,6 +499,17 @@
 		"initialSize": 339,
 		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/console_grey.png",
 		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/console_grey.png",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"processed": 0
+		},
+	"\/IDE\/public\/images\/icons\/console_grey03.png": {
+		"fileType": 32768,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"initialSize": 321,
+		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/console_grey03.png",
+		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/console_grey03.png",
 		"outputPathIsOutsideProject": 0,
 		"outputPathIsSetByUser": 0,
 		"processed": 0
@@ -621,6 +536,17 @@
 		"outputPathIsSetByUser": 0,
 		"processed": 0
 		},
+	"\/IDE\/public\/images\/icons\/console_grey30.png": {
+		"fileType": 32768,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"initialSize": 288,
+		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/console_grey30.png",
+		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/console_grey30.png",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"processed": 0
+		},
 	"\/IDE\/public\/images\/icons\/console_grey4.png": {
 		"fileType": 32768,
 		"ignore": 0,
@@ -628,6 +554,17 @@
 		"initialSize": 293,
 		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/console_grey4.png",
 		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/console_grey4.png",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"processed": 0
+		},
+	"\/IDE\/public\/images\/icons\/console_greyF.png": {
+		"fileType": 32768,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"initialSize": 309,
+		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/console_greyF.png",
+		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/console_greyF.png",
 		"outputPathIsOutsideProject": 0,
 		"outputPathIsSetByUser": 0,
 		"processed": 0
@@ -665,35 +602,24 @@
 		"outputPathIsSetByUser": 0,
 		"processed": 0
 		},
-	"\/IDE\/public\/images\/icons\/dl_d.png": {
+	"\/IDE\/public\/images\/icons\/dl_greenFill.png": {
 		"fileType": 32768,
 		"ignore": 0,
 		"ignoreWasSetByUser": 0,
-		"initialSize": 331,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/dl_d.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/dl_d.png",
+		"initialSize": 477,
+		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/dl_greenFill.png",
+		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/dl_greenFill.png",
 		"outputPathIsOutsideProject": 0,
 		"outputPathIsSetByUser": 0,
 		"processed": 0
 		},
-	"\/IDE\/public\/images\/icons\/dl_grey.png": {
+	"\/IDE\/public\/images\/icons\/dl_greyClear.png": {
 		"fileType": 32768,
 		"ignore": 0,
 		"ignoreWasSetByUser": 0,
-		"initialSize": 280,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/dl_grey.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/dl_grey.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/dl_l.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 324,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/dl_l.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/dl_l.png",
+		"initialSize": 388,
+		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/dl_greyClear.png",
+		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/dl_greyClear.png",
 		"outputPathIsOutsideProject": 0,
 		"outputPathIsSetByUser": 0,
 		"processed": 0
@@ -753,94 +679,6 @@
 		"outputPathIsSetByUser": 0,
 		"processed": 0
 		},
-	"\/IDE\/public\/images\/icons\/folder-dgrey23.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 699,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/folder-dgrey23.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/folder-dgrey23.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/folder-grey23h.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 685,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/folder-grey23h.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/folder-grey23h.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/folder-grey25.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 414,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/folder-grey25.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/folder-grey25.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/folder-grey25h.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 477,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/folder-grey25h.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/folder-grey25h.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/folder-grey28.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 289,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/folder-grey28.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/folder-grey28.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/folder-grey30.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 337,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/folder-grey30.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/folder-grey30.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/folder-grey30h.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 466,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/folder-grey30h.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/folder-grey30h.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/folder-white23h.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 552,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/folder-white23h.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/folder-white23h.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
 	"\/IDE\/public\/images\/icons\/folder-white25.png": {
 		"fileType": 32768,
 		"ignore": 0,
@@ -852,123 +690,13 @@
 		"outputPathIsSetByUser": 0,
 		"processed": 0
 		},
-	"\/IDE\/public\/images\/icons\/folder-white25h.png": {
+	"\/IDE\/public\/images\/icons\/folder.png": {
 		"fileType": 32768,
 		"ignore": 0,
 		"ignoreWasSetByUser": 0,
-		"initialSize": 441,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/folder-white25h.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/folder-white25h.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/folder-white28.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 277,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/folder-white28.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/folder-white28.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/folder-white30.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 330,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/folder-white30.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/folder-white30.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/folder-white30h.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 394,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/folder-white30h.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/folder-white30h.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/gear-dgrey28.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 1535,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gear-dgrey28.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gear-dgrey28.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/gear-dgrey30.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 750,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gear-dgrey30.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gear-dgrey30.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/gear-grey20.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 491,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gear-grey20.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gear-grey20.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/gear-grey25.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 483,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gear-grey25.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gear-grey25.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/gear-grey28.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 1324,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gear-grey28.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gear-grey28.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/gear-grey30.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 526,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gear-grey30.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gear-grey30.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/gear-white20.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 403,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gear-white20.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gear-white20.png",
+		"initialSize": 323,
+		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/folder.png",
+		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/folder.png",
 		"outputPathIsOutsideProject": 0,
 		"outputPathIsSetByUser": 0,
 		"processed": 0
@@ -984,145 +712,35 @@
 		"outputPathIsSetByUser": 0,
 		"processed": 0
 		},
-	"\/IDE\/public\/images\/icons\/gear-white28.png": {
+	"\/IDE\/public\/images\/icons\/gear_active.png": {
 		"fileType": 32768,
 		"ignore": 0,
 		"ignoreWasSetByUser": 0,
-		"initialSize": 949,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gear-white28.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gear-white28.png",
+		"initialSize": 486,
+		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gear_active.png",
+		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gear_active.png",
 		"outputPathIsOutsideProject": 0,
 		"outputPathIsSetByUser": 0,
 		"processed": 0
 		},
-	"\/IDE\/public\/images\/icons\/gear-white30.png": {
+	"\/IDE\/public\/images\/icons\/gpio_active.png": {
 		"fileType": 32768,
 		"ignore": 0,
 		"ignoreWasSetByUser": 0,
-		"initialSize": 458,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gear-white30.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gear-white30.png",
+		"initialSize": 361,
+		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gpio_active.png",
+		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gpio_active.png",
 		"outputPathIsOutsideProject": 0,
 		"outputPathIsSetByUser": 0,
 		"processed": 0
 		},
-	"\/IDE\/public\/images\/icons\/gear-white35.png": {
+	"\/IDE\/public\/images\/icons\/gpio_inactive.png": {
 		"fileType": 32768,
 		"ignore": 0,
 		"ignoreWasSetByUser": 0,
-		"initialSize": 566,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gear-white35.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gear-white35.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/gpio-dgrey28.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 522,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gpio-dgrey28.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gpio-dgrey28.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/gpio-dgrey30.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 619,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gpio-dgrey30.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gpio-dgrey30.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/gpio-grey23.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 503,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gpio-grey23.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gpio-grey23.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/gpio-grey25.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 460,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gpio-grey25.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gpio-grey25.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/gpio-grey28.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 522,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gpio-grey28.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gpio-grey28.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/gpio-white.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 390,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gpio-white.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gpio-white.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/gpio-white23.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 894,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gpio-white23.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gpio-white23.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/gpio-white25.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 433,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gpio-white25.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gpio-white25.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/gpio-white28.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 474,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gpio-white28.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gpio-white28.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/run.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 881,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/run.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/run.png",
+		"initialSize": 332,
+		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gpio_inactive.png",
+		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/gpio_inactive.png",
 		"outputPathIsOutsideProject": 0,
 		"outputPathIsSetByUser": 0,
 		"processed": 0
@@ -1134,6 +752,17 @@
 		"initialSize": 847,
 		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/run_active33.png",
 		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/run_active33.png",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"processed": 0
+		},
+	"\/IDE\/public\/images\/icons\/run_green30.png": {
+		"fileType": 32768,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"initialSize": 881,
+		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/run_green30.png",
+		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/run_green30.png",
 		"outputPathIsOutsideProject": 0,
 		"outputPathIsSetByUser": 0,
 		"processed": 0
@@ -1204,6 +833,17 @@
 		"outputPathIsSetByUser": 0,
 		"processed": 0
 		},
+	"\/IDE\/public\/images\/icons\/scope-grey25 copy.png": {
+		"fileType": 32768,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"initialSize": 456,
+		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/scope-grey25 copy.png",
+		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/scope-grey25 copy.png",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"processed": 0
+		},
 	"\/IDE\/public\/images\/icons\/scope_dark33.png": {
 		"fileType": 32768,
 		"ignore": 0,
@@ -1215,6 +855,28 @@
 		"outputPathIsSetByUser": 0,
 		"processed": 0
 		},
+	"\/IDE\/public\/images\/icons\/scope_green.png": {
+		"fileType": 32768,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"initialSize": 449,
+		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/scope_green.png",
+		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/scope_green.png",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"processed": 0
+		},
+	"\/IDE\/public\/images\/icons\/scope_greenF.png": {
+		"fileType": 32768,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"initialSize": 589,
+		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/scope_greenF.png",
+		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/scope_greenF.png",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"processed": 0
+		},
 	"\/IDE\/public\/images\/icons\/scope_grey.png": {
 		"fileType": 32768,
 		"ignore": 0,
@@ -1222,6 +884,17 @@
 		"initialSize": 601,
 		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/scope_grey.png",
 		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/scope_grey.png",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"processed": 0
+		},
+	"\/IDE\/public\/images\/icons\/scope_grey03.png": {
+		"fileType": 32768,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"initialSize": 491,
+		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/scope_grey03.png",
+		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/scope_grey03.png",
 		"outputPathIsOutsideProject": 0,
 		"outputPathIsSetByUser": 0,
 		"processed": 0
@@ -1248,6 +921,17 @@
 		"outputPathIsSetByUser": 0,
 		"processed": 0
 		},
+	"\/IDE\/public\/images\/icons\/scope_grey25.png": {
+		"fileType": 32768,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"initialSize": 456,
+		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/scope_grey25.png",
+		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/scope_grey25.png",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"processed": 0
+		},
 	"\/IDE\/public\/images\/icons\/scope_grey3.png": {
 		"fileType": 32768,
 		"ignore": 0,
@@ -1255,6 +939,17 @@
 		"initialSize": 7753,
 		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/scope_grey3.png",
 		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/scope_grey3.png",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"processed": 0
+		},
+	"\/IDE\/public\/images\/icons\/scope_grey30.png": {
+		"fileType": 32768,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"initialSize": 493,
+		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/scope_grey30.png",
+		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/scope_grey30.png",
 		"outputPathIsOutsideProject": 0,
 		"outputPathIsSetByUser": 0,
 		"processed": 0
@@ -1310,6 +1005,17 @@
 		"initialSize": 497,
 		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/scope_grey9.png",
 		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/scope_grey9.png",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"processed": 0
+		},
+	"\/IDE\/public\/images\/icons\/scope_greyF.png": {
+		"fileType": 32768,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"initialSize": 451,
+		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/scope_greyF.png",
+		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/scope_greyF.png",
 		"outputPathIsOutsideProject": 0,
 		"outputPathIsSetByUser": 0,
 		"processed": 0
@@ -1435,6 +1141,50 @@
 		"outputPathIsSetByUser": 0,
 		"processed": 0
 		},
+	"\/IDE\/public\/images\/icons\/status_ok.png": {
+		"fileType": 32768,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"initialSize": 1156,
+		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/status_ok.png",
+		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/status_ok.png",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"processed": 0
+		},
+	"\/IDE\/public\/images\/icons\/status_stop.png": {
+		"fileType": 32768,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"initialSize": 1189,
+		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/status_stop.png",
+		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/status_stop.png",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"processed": 0
+		},
+	"\/IDE\/public\/images\/icons\/status_wait.png": {
+		"fileType": 32768,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"initialSize": 1085,
+		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/status_wait.png",
+		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/status_wait.png",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"processed": 0
+		},
+	"\/IDE\/public\/images\/icons\/stop_active.png": {
+		"fileType": 32768,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"initialSize": 508,
+		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/stop_active.png",
+		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/stop_active.png",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"processed": 0
+		},
 	"\/IDE\/public\/images\/icons\/stop_active_eee33.png": {
 		"fileType": 32768,
 		"ignore": 0,
@@ -1457,6 +1207,17 @@
 		"outputPathIsSetByUser": 0,
 		"processed": 0
 		},
+	"\/IDE\/public\/images\/icons\/stop_green.png": {
+		"fileType": 32768,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"initialSize": 622,
+		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/stop_green.png",
+		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/stop_green.png",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"processed": 0
+		},
 	"\/IDE\/public\/images\/icons\/stop_grey.png": {
 		"fileType": 32768,
 		"ignore": 0,
@@ -1464,6 +1225,17 @@
 		"initialSize": 466,
 		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/stop_grey.png",
 		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/stop_grey.png",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"processed": 0
+		},
+	"\/IDE\/public\/images\/icons\/stop_grey10.png": {
+		"fileType": 32768,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"initialSize": 617,
+		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/stop_grey10.png",
+		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/stop_grey10.png",
 		"outputPathIsOutsideProject": 0,
 		"outputPathIsSetByUser": 0,
 		"processed": 0
@@ -1490,6 +1262,17 @@
 		"outputPathIsSetByUser": 0,
 		"processed": 0
 		},
+	"\/IDE\/public\/images\/icons\/stop_inactive.png": {
+		"fileType": 32768,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"initialSize": 460,
+		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/stop_inactive.png",
+		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/stop_inactive.png",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"processed": 0
+		},
 	"\/IDE\/public\/images\/icons\/stop_white.png": {
 		"fileType": 32768,
 		"ignore": 0,
@@ -1512,222 +1295,24 @@
 		"outputPathIsSetByUser": 0,
 		"processed": 0
 		},
-	"\/IDE\/public\/images\/icons\/tab_grey.png": {
+	"\/IDE\/public\/images\/icons\/tab_greenFill.png": {
 		"fileType": 32768,
 		"ignore": 0,
 		"ignoreWasSetByUser": 0,
-		"initialSize": 415,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_grey.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_grey.png",
+		"initialSize": 478,
+		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_greenFill.png",
+		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_greenFill.png",
 		"outputPathIsOutsideProject": 0,
 		"outputPathIsSetByUser": 0,
 		"processed": 0
 		},
-	"\/IDE\/public\/images\/icons\/tab_grey25.png": {
+	"\/IDE\/public\/images\/icons\/tab_grey10.png": {
 		"fileType": 32768,
 		"ignore": 0,
 		"ignoreWasSetByUser": 0,
-		"initialSize": 190,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_grey25.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_grey25.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/tab_grey33.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 655,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_grey33.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_grey33.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/tab_new_d.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 288,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_new_d.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_new_d.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/tab_new_grey.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 385,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_new_grey.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_new_grey.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/tab_new_l.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 291,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_new_l.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_new_l.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/tab_new_white.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 386,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_new_white.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_new_white.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/tab_sq_dark.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 241,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_sq_dark.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_sq_dark.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/tab_sq_light.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 237,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_sq_light.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_sq_light.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/tab_square_dark.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 359,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_square_dark.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_square_dark.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/tab_square_light.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 375,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_square_light.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_square_light.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/tab_test_d.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 301,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_test_d.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_test_d.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/tab_test_d2.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 359,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_test_d2.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_test_d2.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/tab_test_da.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 309,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_test_da.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_test_da.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/tab_test_l.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 300,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_test_l.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_test_l.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/tab_test_l2.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 352,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_test_l2.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_test_l2.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/tab_test_li.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 324,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_test_li.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_test_li.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/tab_white.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 401,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_white.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_white.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/tab_white25.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 177,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_white25.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_white25.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/icons\/tab_white33.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 196,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_white33.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_white33.png",
+		"initialSize": 447,
+		"inputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_grey10.png",
+		"outputAbbreviatedPath": "\/IDE\/public\/images\/icons\/tab_grey10.png",
 		"outputPathIsOutsideProject": 0,
 		"outputPathIsSetByUser": 0,
 		"processed": 0
@@ -1743,79 +1328,13 @@
 		"outputPathIsSetByUser": 0,
 		"processed": 0
 		},
-	"\/IDE\/public\/images\/logo.png": {
+	"\/IDE\/public\/images\/logo_bar12.png": {
 		"fileType": 32768,
 		"ignore": 0,
 		"ignoreWasSetByUser": 0,
-		"initialSize": 609,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/logo.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/logo.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/logo2.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 1702,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/logo2.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/logo2.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/logo3.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 609,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/logo3.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/logo3.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/logo4.obg.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 3332,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/logo4.obg.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/logo4.obg.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/logo4.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 3332,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/logo4.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/logo4.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/logo_bar.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 5607,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/logo_bar.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/logo_bar.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/logo_bar3.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 2478,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/logo_bar3.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/logo_bar3.png",
+		"initialSize": 1959,
+		"inputAbbreviatedPath": "\/IDE\/public\/images\/logo_bar12.png",
+		"outputAbbreviatedPath": "\/IDE\/public\/images\/logo_bar12.png",
 		"outputPathIsOutsideProject": 0,
 		"outputPathIsSetByUser": 0,
 		"processed": 0
@@ -1838,28 +1357,6 @@
 		"initialSize": 3163,
 		"inputAbbreviatedPath": "\/IDE\/public\/images\/tabSprite.png",
 		"outputAbbreviatedPath": "\/IDE\/public\/images\/tabSprite.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/toolbar.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 5650,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/toolbar.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/toolbar.png",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"processed": 0
-		},
-	"\/IDE\/public\/images\/trans.png": {
-		"fileType": 32768,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"initialSize": 108,
-		"inputAbbreviatedPath": "\/IDE\/public\/images\/trans.png",
-		"outputAbbreviatedPath": "\/IDE\/public\/images\/trans.png",
 		"outputPathIsOutsideProject": 0,
 		"outputPathIsSetByUser": 0,
 		"processed": 0
@@ -2181,6 +1678,17 @@
 		"outputStyle": 1,
 		"syntaxCheckerStyle": 1
 		},
+	"\/IDE\/public\/js\/bundleES5.js": {
+		"fileType": 64,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"inputAbbreviatedPath": "\/IDE\/public\/js\/bundleES5.js",
+		"outputAbbreviatedPath": "\/IDE\/public\/js\/min\/bundleES5-min.js",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"outputStyle": 1,
+		"syntaxCheckerStyle": 1
+		},
 	"\/IDE\/public\/js\/diagram\/custom.js": {
 		"fileType": 64,
 		"ignore": 0,
@@ -2236,6 +1744,17 @@
 		"outputStyle": 1,
 		"syntaxCheckerStyle": 1
 		},
+	"\/IDE\/public\/js\/goldenlayout.js": {
+		"fileType": 64,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"inputAbbreviatedPath": "\/IDE\/public\/js\/goldenlayout.js",
+		"outputAbbreviatedPath": "\/IDE\/public\/js\/min\/goldenlayout-min.js",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"outputStyle": 1,
+		"syntaxCheckerStyle": 1
+		},
 	"\/IDE\/public\/js\/jquery.js": {
 		"fileType": 64,
 		"ignore": 0,
@@ -2264,6 +1783,28 @@
 		"ignoreWasSetByUser": 0,
 		"inputAbbreviatedPath": "\/IDE\/public\/js\/min\/xml-min.js",
 		"outputAbbreviatedPath": "\/IDE\/public\/js\/min\/min\/xml-min-min.js",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"outputStyle": 1,
+		"syntaxCheckerStyle": 1
+		},
+	"\/IDE\/public\/js\/pd-fileutils.js": {
+		"fileType": 64,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"inputAbbreviatedPath": "\/IDE\/public\/js\/pd-fileutils.js",
+		"outputAbbreviatedPath": "\/IDE\/public\/js\/min\/pd-fileutils-min.js",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"outputStyle": 1,
+		"syntaxCheckerStyle": 1
+		},
+	"\/IDE\/public\/js\/polyfill.js": {
+		"fileType": 64,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"inputAbbreviatedPath": "\/IDE\/public\/js\/polyfill.js",
+		"outputAbbreviatedPath": "\/IDE\/public\/js\/min\/polyfill-min.js",
 		"outputPathIsOutsideProject": 0,
 		"outputPathIsSetByUser": 0,
 		"outputStyle": 1,
@@ -2335,6 +1876,17 @@
 		"outputStyle": 1,
 		"syntaxCheckerStyle": 1
 		},
+	"\/IDE\/public\/js\/src\/Views\/DocumentationView.js": {
+		"fileType": 64,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"inputAbbreviatedPath": "\/IDE\/public\/js\/src\/Views\/DocumentationView.js",
+		"outputAbbreviatedPath": "\/IDE\/public\/js\/src\/Views\/min\/DocumentationView-min.js",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"outputStyle": 1,
+		"syntaxCheckerStyle": 1
+		},
 	"\/IDE\/public\/js\/src\/Views\/EditorView.js": {
 		"fileType": 64,
 		"ignore": 0,
@@ -2352,6 +1904,17 @@
 		"ignoreWasSetByUser": 0,
 		"inputAbbreviatedPath": "\/IDE\/public\/js\/src\/Views\/FileView.js",
 		"outputAbbreviatedPath": "\/IDE\/public\/js\/src\/Views\/min\/FileView-min.js",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"outputStyle": 1,
+		"syntaxCheckerStyle": 1
+		},
+	"\/IDE\/public\/js\/src\/Views\/GitView.js": {
+		"fileType": 64,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"inputAbbreviatedPath": "\/IDE\/public\/js\/src\/Views\/GitView.js",
+		"outputAbbreviatedPath": "\/IDE\/public\/js\/src\/Views\/min\/GitView-min.js",
 		"outputPathIsOutsideProject": 0,
 		"outputPathIsSetByUser": 0,
 		"outputStyle": 1,
@@ -2423,6 +1986,35 @@
 		"outputStyle": 1,
 		"syntaxCheckerStyle": 1
 		},
+	"\/IDE\/public\/logo_bar11.png": {
+		"fileType": 32768,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"initialSize": 1970,
+		"inputAbbreviatedPath": "\/IDE\/public\/logo_bar11.png",
+		"outputAbbreviatedPath": "\/IDE\/public\/logo_bar11.png",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"processed": 0
+		},
+	"\/IDE\/public\/old-stylesheet.css": {
+		"fileType": 16,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"inputAbbreviatedPath": "\/IDE\/public\/old-stylesheet.css",
+		"outputAbbreviatedPath": "No Output Path",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0
+		},
+	"\/IDE\/public\/reset.css": {
+		"fileType": 16,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"inputAbbreviatedPath": "\/IDE\/public\/reset.css",
+		"outputAbbreviatedPath": "No Output Path",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0
+		},
 	"\/IDE\/public\/scope\/index.html": {
 		"fileType": 8192,
 		"ignore": 0,
@@ -2438,6 +2030,39 @@
 		"ignoreWasSetByUser": 0,
 		"inputAbbreviatedPath": "\/IDE\/public\/scope\/js\/bundle.js",
 		"outputAbbreviatedPath": "\/IDE\/public\/scope\/js\/min\/bundle-min.js",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"outputStyle": 1,
+		"syntaxCheckerStyle": 1
+		},
+	"\/IDE\/public\/scope\/js\/bundleES5.js": {
+		"fileType": 64,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"inputAbbreviatedPath": "\/IDE\/public\/scope\/js\/bundleES5.js",
+		"outputAbbreviatedPath": "\/IDE\/public\/scope\/js\/min\/bundleES5-min.js",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"outputStyle": 1,
+		"syntaxCheckerStyle": 1
+		},
+	"\/IDE\/public\/scope\/js\/jquery.js": {
+		"fileType": 64,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"inputAbbreviatedPath": "\/IDE\/public\/scope\/js\/jquery.js",
+		"outputAbbreviatedPath": "\/IDE\/public\/scope\/js\/min\/jquery-min.js",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"outputStyle": 1,
+		"syntaxCheckerStyle": 1
+		},
+	"\/IDE\/public\/scope\/js\/polyfill.js": {
+		"fileType": 64,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"inputAbbreviatedPath": "\/IDE\/public\/scope\/js\/polyfill.js",
+		"outputAbbreviatedPath": "\/IDE\/public\/scope\/js\/min\/polyfill-min.js",
 		"outputPathIsOutsideProject": 0,
 		"outputPathIsSetByUser": 0,
 		"outputStyle": 1,
@@ -2542,7 +2167,7 @@
 		},
 	"\/IDE\/public\/stylesheet.css": {
 		"fileType": 16,
-		"ignore": 0,
+		"ignore": 1,
 		"ignoreWasSetByUser": 0,
 		"inputAbbreviatedPath": "\/IDE\/public\/stylesheet.css",
 		"outputAbbreviatedPath": "No Output Path",
@@ -3122,15 +2747,15 @@
 	"kitAutoOutputPathReplace2": "",
 	"kitAutoOutputPathStyle": 0,
 	"lessAllowInsecureImports": 0,
-	"lessAutoOutputPathEnabled": 1,
+	"lessAutoOutputPathEnabled": 0,
 	"lessAutoOutputPathFilenamePattern": "*.css",
 	"lessAutoOutputPathRelativePath": "..\/css",
 	"lessAutoOutputPathReplace1": "less",
 	"lessAutoOutputPathReplace2": "css",
-	"lessAutoOutputPathStyle": 2,
+	"lessAutoOutputPathStyle": 0,
 	"lessCreateSourceMap": 0,
 	"lessDisableJavascript": 0,
-	"lessIeCompatibility": 1,
+	"lessIeCompatibility": 0,
 	"lessOutputStyle": 0,
 	"lessRelativeURLS": 0,
 	"lessStrictImports": 0,

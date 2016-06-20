@@ -37,9 +37,18 @@ module.exports = {
 		return fs.readdirAsync(projectPath)
 			.catch((err) => console.error(err));
 	},
-	listExamples(){
-		return fs.readdirAsync(examplePath)
-			.catch((err) => console.error(err));
+	*listExamples(){
+		var examples = [];
+		var categories = yield fs.readdirAsync(examplePath);
+		for (let category of categories){
+			if (yield fs.statAsync(examplePath+category).then( stat => stat.isDirectory() )){
+				examples.push({
+					name		: category,
+					children	: yield fs.readdirAsync(examplePath + category)
+				});
+			}
+		}
+		return examples;
 	},
 
 	// functions called directly over websocket

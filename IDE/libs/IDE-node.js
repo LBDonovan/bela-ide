@@ -84,7 +84,7 @@ function reportError(error){
 function socketConnected(socket){
 	
 	// send project lists and settings to the browser
-	Promise.all([ProjectManager.listProjects(), ProjectManager.listExamples(), SettingsManager.getSettings()])
+	Promise.all([ProjectManager.listProjects(), new Promise.coroutine(ProjectManager.listExamples)(), SettingsManager.getSettings()])
 		.then( (result) => socket.emit('init', result) );
 	
 	// listen for messages

@@ -82,16 +82,23 @@ class ProjectView extends View {
 
 		var $examples = $('#examples');
 		$examples.empty();
-		
+
 		if (!examplesDir.length) return;
 
 		for (let item of examplesDir){
-		
-			if (item.dir){
-			
-				$examples.append(this.subDirs(item).on('click', (e) => console.log('click')));
-				
+			let ul = $('<ul></ul>').html(item.name+':');
+			for (let child of item.children){
+				$('<li></li>').addClass('sourceFile').html(child).appendTo(ul)
+					.on('click', (e) => {
+						this.emit('message', 'project-event', {
+							func: 'openExample',
+							currentProject: item.name+'/'+child
+						});
+						$('.selectedExample').removeClass('selectedExample');
+						$(e.target).addClass('selectedExample');
+					});
 			}
+			ul.appendTo($examples);
 		}
 		
 	}

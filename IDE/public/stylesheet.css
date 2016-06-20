@@ -876,7 +876,7 @@ right: calc(100% - 62px);
 .sourceFile:hover { 
     background-color: #e1f2d9;
 }
-.selectedFile{
+.selectedFile, .selectedExample{
 	background-color: #c4e4b4;
 	font-color: #fff;
 }

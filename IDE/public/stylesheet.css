@@ -301,10 +301,14 @@ body {
 }
 	.control-button {
 		min-height: 39px;
-		width: 35px;
+		width: 28px;
+		height: auto;
 		display: inline-block;
 		margin-top: 5px;
 		float: left;
+	}
+	.control-button:hover {
+		transition: 0.2s;
 	}
 	.control-text {
 		width: 30%;
@@ -327,48 +331,48 @@ body {
 
 
 #run {
-	transform-origin: 15px 15px;
-	background: url("images/icons/run_grey2.png") no-repeat;
+	// transform-origin: 15px 15px;
+	background: url("images/icons/run_greyF.png") no-repeat;
 }
 #run:hover {
-	background: url("images/icons/run_white2.png") no-repeat;
+	background: url("images/icons/run_activeF.png") no-repeat;
 }
 #run.spinning{
-	background: url("images/icons/run_green30.png") no-repeat;
+	background: url("images/icons/run_activeF.png") no-repeat;
 }
 
 #stop {
-	margin-left: -2px;
-	background: url("images/icons/stop_grey5.png") no-repeat;
+	// margin-left: -2px;
+	background: url("images/icons/stop_grey6.png") no-repeat;
 }
 #stop:hover {
-	margin-left: -2px;
-	background: url("images/icons/stop_active5.png") no-repeat;
+	// margin-left: -2px;
+	background: url("images/icons/stop_active6.png") no-repeat;
 }
 .one {
 	margin: 0;
 }
 
 #new-tab {
-	background: url("images/icons/tab_grey10.png") no-repeat;
+	background: url("images/icons/tab_greyFF.png") no-repeat;
 }
 #new-tab:hover {
 	background: url("images/icons/tab_greenFill.png") no-repeat;
 }
 #download {
-	background: url("images/icons/dl_greyClear.png") no-repeat;	
+	background: url("images/icons/dl_greyF.png") no-repeat;	
 }
 #download:hover {
-	background: url("images/icons/dl_greenFill.png") no-repeat;	
+	background: url("images/icons/dl_greenFill.png") no-repeat;
 }
 #console {
-	background: url("images/icons/console_greyF.png") no-repeat;
+	background: url("images/icons/console_greyFF.png") no-repeat;
 }
 #console:hover {
 	background: url("images/icons/console_greenF.png") no-repeat;
 }
 #scope {
-	background: url("images/icons/scope_greyF.png") no-repeat;	
+	background: url("images/icons/scope_greyFF.png") no-repeat;	
 }
 #scope:hover {
 	background: url("images/icons/scope_greenF.png") no-repeat;
@@ -405,6 +409,7 @@ body {
 	float: left;
 	width: 20%;
 	color: #bdbdbd;
+	margin-left: 10px;
 }
 
 hr.sep {
@@ -617,7 +622,7 @@ right: calc(100% - 62px);
     }
     /* == Style for each pullout tab == */
     .tab label {
-      background: #bdbdbd; 
+      background-color: #bdbdbd; 
       padding: 12px 0;
       margin: 0 auto;
       width: 65px;
@@ -634,8 +639,10 @@ right: calc(100% - 62px);
       display: none;   
     }
     .tab label:hover {
-    	background: #c4e4b4;
+    	background-color: #c4e4b4;
     	cursor: pointer;
+    	transistion: 0.2s;
+
     }
     /* == Style for the content pane of each tab == */
     .tabContent {
@@ -672,7 +679,8 @@ right: calc(100% - 62px);
     	font-size: 14px;
     	color: #666;
     	line-height: 30px;
-    	padding-left: 20px;
+    	margin: -2px 0 3px;
+    	// padding-left: 20px;
     }
     .tab .docContent {
     	font-family: sofia, sans-serif;
@@ -681,17 +689,6 @@ right: calc(100% - 62px);
     	line-height: 18px;
     	padding-left: 20px;
     }
-    label.ticky {
-    	display: inline-block;
-    	height: 16px;
-    	padding: 0;
-	background: #fff;
-	width: 100%;
-	}
-		label.ticky:hover {
-			background: #fff;
-			cursor: default;
-		}
 
 
 
@@ -790,7 +787,7 @@ right: calc(100% - 62px);
       background: #fff;
       z-index: 99;
       border-left: 1px solid #e8e8e8;
-      box-shadow: 0 2px 10px #e5e5e5;
+      // box-shadow: 0 2px 10px #e5e5e5;
     }
     [type=radio]:checked ~ label ~ .tabContent {
       z-index: 1;
@@ -888,11 +885,13 @@ right: calc(100% - 62px);
 }
 	.tabTable tr {
 		padding-bottom: 5px;
+		line-height: 16px;
 	}
 	.tabTable td {
 		width: 175px;
 		text-align: right;
 		padding-right: 5px;
+		vertical-align: middle;
 	}
 	.tabTable td + td {
 		text-align: left;
@@ -1015,14 +1014,15 @@ label.docSectionHeader {
 		margin-top: 10px;
 	}
 	label.docSectionHeader:hover {
-		background: #c4e4b4;
+		background: #a7d68f;
+		transition: 0.2s;
 	}
 	label.docSectionHeader.sub {
 		background: #e0e0e0;
 		margin-left: 20px;
 	}
 	label.docSectionHeader.sub:hover {
-		background: #e1f2d9;
+		background: #a7d68f;
 		margin-left: 20px;
 	}
 
@@ -1097,7 +1097,7 @@ input {
     font-size: 11px;
     font-family: sofia;
     border: 1px solid #ccc;
-    height: 19px;
+    // height: 19px;
     display: inline;
     border-radius: 2px;
 }

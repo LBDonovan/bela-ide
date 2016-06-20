@@ -243,14 +243,14 @@ body {
 	border: inherit;
 	color: inherit;
 	padding: 5px 5px;
-	font-family: sofia;
+	font-family: inconsolata;
 }
 #beaglert-consoleInput:focus {
     outline-width: 0;
 }
 #beaglert-consoleInput-pre{
 	color: inherit;
-	font-family: sofia;
+	font-family: inconsolata;
 	font-size: 0.8em;
 	display: inline;
     white-space: nowrap;

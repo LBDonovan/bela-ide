@@ -294,7 +294,7 @@ body {
 	width: calc(100% - 260px);
 }
 .toolbar-control {
-	width: 25%;
+	width: 20%;
 	float: left;
 	height: 40px;
 	margin-left: -2px;
@@ -379,10 +379,10 @@ body {
 	background: url("images/icons/console_greenF.png");
 }
 #scope {
-	background: url("images/icons/scope_greyFF.png");	
+	background: url("images/icons/scope_greyFFF.png");	
 }
 #scope:hover {
-	background: url("images/icons/scope_greenF.png");
+	background: url("images/icons/scope_greenFFF.png");
 }
 
 
@@ -414,7 +414,7 @@ body {
 	display: inline-block;
 	margin-top: 14px;
 	float: left;
-	width: 20%;
+	width: 30%;
 	margin-left: 3px;
 	color: #bdbdbd;
 }

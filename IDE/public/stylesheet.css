@@ -640,7 +640,7 @@ right: calc(100% - 62px);
     /* == Style for the content pane of each tab == */
     .tabContent {
       position: absolute;
-      height: calc(100% - 50px);
+      height: calc(100% - 70px);
       top: 0px;
       left: 62px;
       background: #fff;

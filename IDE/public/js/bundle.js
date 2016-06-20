@@ -2033,7 +2033,7 @@ class ToolbarView extends View {
 	}
 	__checkingSyntax(status){
 		if (status){
-			$('#status').css('background', 'url("images/icons/status_wait.png") -210px 35px').prop('title', 'checking syntax...');
+			$('#status').css('background', 'url("images/icons/status_wait.png")').prop('title', 'checking syntax...');
 		} else {
 			//this.syntaxTimeout = setTimeout(() => $('#status').css('background', 'url("images/toolbar.png") -140px 35px'), 10);
 		}
@@ -2041,9 +2041,9 @@ class ToolbarView extends View {
 	__allErrors(errors){
 		//if (this.syntaxTimeout) clearTimeout(this.syntaxTimeout); 
 		if (errors.length){
-			$('#status').css('background', 'url("images/icons/status_stop.png") -175px 35px').prop('title', 'syntax errors found');
+			$('#status').css('background', 'url("images/icons/status_stop.png")').prop('title', 'syntax errors found');
 		} else {
-			$('#status').css('background', 'url("images/icons/status_ok.png") -140px 35px').prop('title', 'syntax check clear');
+			$('#status').css('background', 'url("images/icons/status_ok.png")').prop('title', 'syntax check clear');
 		}
 	}
 	

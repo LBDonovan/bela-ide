@@ -1109,7 +1109,6 @@ input {
     src: url('./fonts/sofia-webfont.eot?#iefix') format('embedded-opentype'),
          url('./fonts/sofia-webfont.woff2') format('woff2'),
          url('./fonts/sofia-webfont.woff') format('woff'),
-         url('./fonts/sofia-webfont.ttf') format('truetype'),
          url('./fonts/sofia-webfont.svg#sofiamedium') format('svg');
     font-weight: normal;
     font-style: normal;

@@ -11,10 +11,11 @@
 	
 	<body>
 
+
 		<!-- <div id="content"> -->
 			<div id="innerContent">
 			<!-- this is the whole left pane, the entire editor is included here: -->
-			
+
 			<pre id="editor"></pre>
 			
 			<!-- media divs -->
@@ -38,7 +39,7 @@
 				    	</div> 
 				    </div>
 				   
-				   	<div class="tab">
+				   	<div class="tab"><!-- Begin Project Settings, Tab 1 -->
 				        <input type="radio" id="tab-1" name="tab-group-1">
 				        <label for="tab-1"><span id="settings" title="Settings"/></label>
 				        <div id="settingsTab" class="tabContent">
@@ -201,35 +202,29 @@
 										<td>Run project on boot:</td>
 										<td><select id="runOnBoot"></select></td>
 									</tr>
+								</table>
+
+								<h2>Other system functions</h2>
+								<table class="tabTable">
 									<tr>
-										<td></td>
-										<td><button id="shutdownBBB">Shutdown Board</button></td>
+										<td>Shut down Bela cape:</td>
+										<td><button id="shutdownBBB">Bela shutdown</button></td>
 									</tr>
-							</table>
-							</br></br>
-							<!-- END TAB 1: PROJECT SETTINGS -->
+									<tr>
+										<td>Credits and info:</td>
+										<td><button id="about-popup">About Bela</button></td>
 
-							<!-- SETTINGS FOR GIT: NOT DISPLAYED -->
-						   <!-- <div style="display: none">
-							   
-							   <h1>Git Settings</h1>
-							   Use git: <select id="useGit" class="settingsManager" data-func="setIDESetting" data-key="useGit">
-									<option value="1">On</option>
-									<option value="0">Off</option>
-							   </select></br>
-							   Auto-stage all files: <select id="gitAutostage" class="settingsManager" data-func="setIDESetting" data-key="gitAutostage">
-									<option value="1">On</option>
-									<option value="0">Off</option>
-							   </select></br>
-						   </div> -->
-							
 
+									</tr>
+								</table>							
 						
 							</div><!-- end settingsManager-parent -->
 				        </div> <!-- end tabContent -->
-				    </div><!-- end tab -->
+				    </div><!-- end Project Settings tab -->
+
+
 				    
-				    <div class="tab">
+				    <div class="tab"><!-- Begin File Explorer, Tab 2 -->
 				        <input type="radio" id="tab-2" name="tab-group-1">
 				        <label for="tab-2"><span id="file-explorer" title="File Explorer" /></label>
 				        <div class="tabContent projectManager-parent fileManager-parent"> 
@@ -265,12 +260,6 @@
 										<ul id="fileList">
 										</ul>
 
-									<hr class="sep" />
-									
-									<h2>Open Example Project:</h2>
-											<select class="projectManager" id="examples" data-func="openExample">
-												<option checked>--Examples--</option>
-											</select>
 
 
 							<!-- </div> -->
@@ -307,9 +296,9 @@
 							</div>				           
 				           </br></br></br>
 				        </div> 
-				    </div>
+				    </div><!-- end File Explorer tab -->
 				    
-				    <div class="tab" >
+				    <div class="tab" ><!-- begin Debugger, Tab 3 -->
 						<input type="radio" id="tab-3" name="tab-group-1">
 						<label for="tab-3"><span id="debugger" title="Debugger" /></label>
 						<div class="tabContent debugger-parent">
@@ -355,9 +344,21 @@
 							</div>
 							</br></br></br>
 				       </div> 
-				   </div>
+				   </div><!-- End debugger tab -->
 
-				   	<div class="tab">
+				   	<div class="tab"><!-- Start Examples, Tab 6 -->
+				       <input type="radio" id="tab-6" name="tab-group-1">
+				       <label for="tab-6"><span id="example-tab" title="Code Examples" /></label>
+				       <div class="tabContent">
+				            <h1>Code Examples</h1>
+							<h2>Open Example Project:</h2>
+								<select class="projectManager" id="examples" data-func="openExample">
+									<option checked>-- Examples --</option>
+								</select>
+				       </div> 
+				    </div><!-- End Examples -->
+
+				   	<div class="tab"><!-- Start GPIO, Tab 4 -->
 				       <input type="radio" id="tab-4" name="tab-group-1">
 				       <label for="tab-4"><span id="gpio-ref" title="GPIO Pin Reference" /></label>
 				       <div class="tabContent">
@@ -366,9 +367,9 @@
     							Your browser doesn’t support the object tag. 
 							</object>
 				       </div> 
-				    </div>
+				    </div><!-- End GPIO -->
 
-				    <div class="tab">
+				    <div class="tab"><!-- Start Doc, Tab 5 -->
 				       <input type="radio" id="tab-5" name="tab-group-1">
 				       <label for="tab-5"><span id="api-ref" title="API Reference" /></label>
 				       <div class="tabContent">
@@ -401,9 +402,9 @@
 								</li>-->
 							</ul>
 				       </div><!-- Xenomai --> 
-				    </div>
+				    </div><!-- end Doc tab -->
 				    
-				</div>
+				</div><!-- end tabs -->
 			</div> <!-- end right -->
 
 			<!-- NEW TOOLBAR -->
@@ -442,7 +443,10 @@
 
 				</div><!-- end toolbar wrapper -->
 			</div> <!-- end toolbar -->
-			
+		
+
+
+	
 		</div> <!-- end innerContent -->
 
 		

@@ -64,6 +64,13 @@ module.exports = {
 	},
 	
 	*newProject(data){
+	
+		// if the project already exists, reject the request
+		if (yield dirExists(projectPath+data.newProject)){
+			data.error = 'failed, project '+data.newProject+' already exists!';
+			return data;
+		}
+		
 		yield fs.copyAsync(newProjectPath, projectPath+data.newProject, {clobber: true});
 		data.projectList = yield this.listProjects();
 		data.currentProject = data.newProject;
@@ -72,6 +79,13 @@ module.exports = {
 	},
 	
 	*saveAs(data){
+	
+		// if the project already exists, reject the request
+		if (yield dirExists(projectPath+data.newProject)){
+			data.error = 'failed, project '+data.newProject+' already exists!';
+			return data;
+		}
+		
 		yield fs.copyAsync(projectPath+data.currentProject, projectPath+data.newProject);
 		yield fs.removeAsync(projectPath+data.newProject+'/'+data.currentProject);
 		data.projectList = yield this.listProjects();
@@ -250,6 +264,14 @@ module.exports = {
 	},
 	
 	*newFile(data){
+	
+		// if the file already exists, reject the request
+		/*console.log(projectPath+data.newFile, yield fileExists(projectPath+data.newFile));
+		if (yield fileExists(projectPath+data.newFile)){
+			data.error = 'failed, file '+data.newFile+' already exists!';
+			return data;
+		}*/
+		
 		yield fs.outputFileAsync(projectPath+data.currentProject+'/'+data.newFile, '/***** '+data.newFile+' *****/\n');
 		data.fileName = data.newFile;
 		data.newFile = undefined;
@@ -328,6 +350,15 @@ function fileExists(file){
 	return new Promise((resolve, reject) => {
 		fs.stat(file, function(err, stats){
 			if (err || !stats.isFile()) resolve(false);
+			else resolve(true);
+		});
+	});
+}
+
+function dirExists(dir){
+	return new Promise((resolve, reject) => {
+		fs.stat(dir, function(err, stats){
+			if (err || !stats.isDirectory()) resolve(false);
 			else resolve(true);
 		});
 	});

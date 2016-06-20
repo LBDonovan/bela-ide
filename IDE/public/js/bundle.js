@@ -187,7 +187,7 @@ socket.on('project-data', (data) => {
 		models.debug.setData(debug);
 	}
 	if (data.gitData) models.git.setData(data.gitData);
-	//console.log(data);
+	console.log(data);
 	//models.settings.setData(data.settings);
 	//models.project.print();
 });

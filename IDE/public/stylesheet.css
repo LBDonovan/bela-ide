@@ -72,6 +72,7 @@ body {
 	overflow-y: auto;
 	box-sizing: border-box;
 	background-color: white;
+	font-family: inconsolata;
 }
 #beaglert-consoleForm{
 	height: 21px;
@@ -80,7 +81,7 @@ body {
 }
 #beaglert-consoleWrapper{
 	width: 100%;
-	font-family: sofia;
+	font-family: inconsolata;
 	font-size: 10pt;
 }
 .beaglert-console-log-in::before{
@@ -243,14 +244,14 @@ body {
 	border: inherit;
 	color: inherit;
 	padding: 5px 5px;
-	font-family: sofia;
+	font-family: inconsolata;
 }
 #beaglert-consoleInput:focus {
     outline-width: 0;
 }
 #beaglert-consoleInput-pre{
 	color: inherit;
-	font-family: sofia;
+	font-family: inconsolata;
 	font-size: 0.8em;
 	display: inline;
     white-space: nowrap;
@@ -317,7 +318,7 @@ body {
 	.status-text {
 		width: 33%;
 		float: left;
-		color: #fff;
+		color: #424242;
 		text-align: right;
 	}
 		.status-text:nth-child(3) {
@@ -338,11 +339,11 @@ body {
 
 #stop {
 	margin-left: -2px;
-	background: url("images/icons/stop_grey5.png") no-repeat;
+	background: url("images/icons/stop_grey6.png") no-repeat;
 }
 #stop:hover {
 	margin-left: -2px;
-	background: url("images/icons/stop_active5.png") no-repeat;
+	background: url("images/icons/stop_active6.png") no-repeat;
 }
 .one {
 	margin: 0;
@@ -390,7 +391,7 @@ body {
 	width: 35px;
 	height: 35px;
 	left: calc(100% - 195px);
-	background: url("images/icons/status_wait.png") no-repeat;
+	background: url("images/icons/status_ok.png") no-repeat;
 	// background: url("images/toolbar.png") -140px 35px;
 	cursor: initial;
 	display: inline;
@@ -616,7 +617,7 @@ right: calc(100% - 62px);
     }
     /* == Style for each pullout tab == */
     .tab label {
-      background: #e0e0e0; 
+      background: #bdbdbd; 
       padding: 12px 0;
       margin: 0 auto;
       width: 65px;
@@ -639,7 +640,7 @@ right: calc(100% - 62px);
     /* == Style for the content pane of each tab == */
     .tabContent {
       position: absolute;
-      height: calc(100% - 50px);
+      height: calc(100% - 70px);
       top: 0px;
       left: 62px;
       background: #fff;
@@ -745,6 +746,17 @@ right: calc(100% - 62px);
     	background: url("images/icons/bug_active2.png") no-repeat;
     	cursor: default;
     }
+
+    #example-tab {
+    	width: 30px;
+    	background: url("images/icons/bulb_white.png") no-repeat;
+    	display: block;
+    	margin: 0 auto;
+    }
+    #tab-6:checked + label>span {
+    	background: url("images/icons/bulb_active.png") no-repeat;
+    	cursor: default;
+    }
     
     #gpio-ref {
     	width: 28px;
@@ -778,7 +790,7 @@ right: calc(100% - 62px);
       background: #fff;
       z-index: 99;
       border-left: 1px solid #e8e8e8;
-      box-shadow: 0 2px 10px #e5e5e5;
+      // box-shadow: 0 2px 10px #e5e5e5;
     }
     [type=radio]:checked ~ label ~ .tabContent {
       z-index: 1;
@@ -844,11 +856,16 @@ right: calc(100% - 62px);
     left: -0.75em;
     position: relative;
 }
+	#fileList > li {
+		line-height: 16px;
+		padding-bottom: 4px;
+	}
 .sourceFile:hover { 
-    background-color: #dffdd5;
+    background-color: #e1f2d9;
 }
 .selectedFile{
-	background-color: #A8DA97;
+	background-color: #c4e4b4;
+	font-color: #fff;
 }
 #uploadFileInput{
 	display: none;
@@ -895,6 +912,13 @@ right: calc(100% - 62px);
 .doc-button {
 	margin-top: -7px;
 }
+
+#about-us {
+
+}
+
+
+
 
 /* settings tab */
 #settingsTab{
@@ -1109,7 +1133,6 @@ input {
     src: url('./fonts/sofia-webfont.eot?#iefix') format('embedded-opentype'),
          url('./fonts/sofia-webfont.woff2') format('woff2'),
          url('./fonts/sofia-webfont.woff') format('woff'),
-         url('./fonts/sofia-webfont.ttf') format('truetype'),
          url('./fonts/sofia-webfont.svg#sofiamedium') format('svg');
     font-weight: normal;
     font-style: normal;

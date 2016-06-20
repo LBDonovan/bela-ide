@@ -64,6 +64,13 @@ module.exports = {
 	},
 	
 	*newProject(data){
+	
+		// if the project already exists, reject the request
+		if (yield dirExists(projectPath+data.newProject)){
+			data.error = 'failed, project '+data.newProject+' already exists!';
+			return data;
+		}
+		
 		yield fs.copyAsync(newProjectPath, projectPath+data.newProject, {clobber: true});
 		data.projectList = yield this.listProjects();
 		data.currentProject = data.newProject;
@@ -72,6 +79,13 @@ module.exports = {
 	},
 	
 	*saveAs(data){
+	
+		// if the project already exists, reject the request
+		if (yield dirExists(projectPath+data.newProject)){
+			data.error = 'failed, project '+data.newProject+' already exists!';
+			return data;
+		}
+		
 		yield fs.copyAsync(projectPath+data.currentProject, projectPath+data.newProject);
 		yield fs.removeAsync(projectPath+data.newProject+'/'+data.currentProject);
 		data.projectList = yield this.listProjects();
@@ -250,6 +264,13 @@ module.exports = {
 	},
 	
 	*newFile(data){
+	
+		// if the file already exists, reject the request
+		if (yield fileExists(projectPath+data.currentProject+'/'+data.newFile)){
+			data.error = 'failed, file '+data.newFile+' already exists!';
+			return data;
+		}
+		
 		yield fs.outputFileAsync(projectPath+data.currentProject+'/'+data.newFile, '/***** '+data.newFile+' *****/\n');
 		data.fileName = data.newFile;
 		data.newFile = undefined;
@@ -259,6 +280,15 @@ module.exports = {
 	},
 	
 	*uploadFile(data){
+	
+		// if the file already exists, reject the request
+		console.log(projectPath+data.currentProject+'/'+data.newFile, yield fileExists(projectPath+data.currentProject+'/'+data.newFile));
+		if (yield fileExists(projectPath+data.currentProject+'/'+data.newFile)){
+			data.error = 'failed, file '+data.newFile+' already exists!';
+			data.fileData = undefined;
+			return data;
+		}
+		
 		yield fs.outputFileAsync(projectPath+data.currentProject+'/'+data.newFile, data.fileData);
 		data.fileName = data.newFile;
 		data.newFile = undefined;
@@ -267,6 +297,15 @@ module.exports = {
 	},
 	
 	*renameFile(data){
+		
+		// if the file already exists, reject the request
+		console.log(projectPath+data.currentProject+'/'+data.newFile, yield fileExists(projectPath+data.currentProject+'/'+data.newFile));
+		if (yield fileExists(projectPath+data.currentProject+'/'+data.newFile)){
+			data.error = 'failed, file '+data.newFile+' already exists!';
+			data.fileData = undefined;
+			return data;
+		}
+		
 		yield fs.moveAsync(projectPath+data.currentProject+'/'+data.fileName, projectPath+data.currentProject+'/'+data.newFile);
 		data.fileName = data.newFile;
 		data.newFile = undefined;
@@ -333,6 +372,15 @@ function fileExists(file){
 	});
 }
 
+function dirExists(dir){
+	return new Promise((resolve, reject) => {
+		fs.stat(dir, function(err, stats){
+			if (err || !stats.isDirectory()) resolve(false);
+			else resolve(true);
+		});
+	});
+}
+
 function *makeSymLink(file, link){
 	return fs.emptyDirAsync(mediaPath)
 		.then( () => {
@@ -384,7 +432,7 @@ function _listFiles(projectName){
 // recursive listFiles, returning an array of objects with names, sizes, and (if dir) children
 function *listFiles(dir, subDir){
 
-	console.log('listFiles entering dir', dir);
+	//console.log('listFiles entering dir', dir);
 
 	var contents = yield fs.readdirAsync(dir).filter( item => {
 			if (!subDir && item && item[0] && item[0] !== '.' && item !== dir.split('/').pop() && blockedFiles.indexOf(item) === -1) return item;
@@ -396,7 +444,7 @@ function *listFiles(dir, subDir){
 	
 		let stat = yield fs.statAsync(dir+'/'+item);
 		
-		console.log(stat);
+		//console.log(stat);
 		
 		let data = {
 			name: item,
@@ -411,8 +459,8 @@ function *listFiles(dir, subDir){
 	
 	}
 
-	console.log('listFiles exiting dir', dir);
-	if (!subDir) console.dir(output,{depth:null})
+	//console.log('listFiles exiting dir', dir);
+	//if (!subDir) console.dir(output,{depth:null})
 	return output;
 }
 

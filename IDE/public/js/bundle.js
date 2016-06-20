@@ -1383,11 +1383,11 @@ class FileView extends View {
 	
 	// model events
 	_fileList(files, data){
-	console.log(files);
-	if (!files.length || !files[0].name) return;
 
 		var $files = $('#fileList')
 		$files.empty();
+		
+		if (!files.length) return;
 
 		var headers = [];
 		var sources = [];
@@ -1669,9 +1669,9 @@ class ProjectView extends View {
 		if (data && data.currentProject) this._currentProject(data.currentProject);
 		
 	}
-	_exampleList(examples){
+	_exampleList(examplesDir){
 	
-		var $examples = $('#examples');
+		/*var $examples = $('#examples');
 		$examples.empty();
 		
 		// add an empty option to menu and select it
@@ -1681,6 +1681,22 @@ class ProjectView extends View {
 		for (let i=0; i<examples.length; i++){
 			if (examples[i] && examples[i] !== 'undefined' && examples[i] !== 'exampleTempProject' && examples[i][0] !== '.'){
 				var opt = $('<option></option>').attr('value', examples[i]).html(examples[i]).appendTo($examples);
+			}
+		}*/
+		
+		console.log(examplesDir);
+
+		var $examples = $('#examples');
+		$examples.empty();
+		
+		if (!examplesDir.length) return;
+
+		for (let item of examplesDir){
+		
+			if (item.dir){
+			
+				$examples.append(this.subDirs(item).on('click', (e) => console.log('click')));
+				
 			}
 		}
 		
@@ -1702,6 +1718,19 @@ class ProjectView extends View {
 		
 		// set download link
 		$('#downloadLink').attr('href', '/download?project='+project);
+	}
+	
+	subDirs(dir){
+		var ul = $('<ul></ul>').html(dir.name+':');
+		for (let child of dir.children){
+			if (!child.dir)
+				$('<li></li>').addClass('sourceFile').html(child.name).data('file', (dir.dirPath || dir.name)+'/'+child.name).appendTo(ul);
+			else {
+				child.dirPath = (dir.dirPath || dir.name) + '/' + child.name;
+				ul.append(this.subDirs(child));
+			}
+		}
+		return ul;
 	}
 	
 }

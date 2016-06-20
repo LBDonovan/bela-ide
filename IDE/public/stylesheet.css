@@ -827,18 +827,18 @@ right: calc(100% - 62px);
 
 /* file manager tab */
 
-#fileList{
+#fileList, #examples{
     margin: 5px 0;
     list-style: none;
 }
-#fileList li{
+#fileList li, #examples li{
 	margin-top: 0.4em;
 	width: 97%;
 	font-family: sofia;
 	color: #aaa;
 	font-size: 12px;
 }
-#fileList ul{
+#fileList ul, #examples ul{
 	margin: 5px 0 0 3px;
     font-family: Consolas;
     color: #aaa;
@@ -861,7 +861,7 @@ right: calc(100% - 62px);
     left: -0.75em;
     position: relative;
 }
-#fileList ul:before{
+#fileList ul:before, #examples ul:before{
 	content: "+";
     display: block;
     height: 0;
@@ -869,7 +869,7 @@ right: calc(100% - 62px);
     left: -0.75em;
     position: relative;
 }
-	#fileList > li {
+	#fileList > li , #examples > li{
 		line-height: 16px;
 		padding-bottom: 4px;
 	}

@@ -72,6 +72,7 @@ body {
 	overflow-y: auto;
 	box-sizing: border-box;
 	background-color: white;
+	font-family: inconsolata;
 }
 #beaglert-consoleForm{
 	height: 21px;
@@ -80,7 +81,7 @@ body {
 }
 #beaglert-consoleWrapper{
 	width: 100%;
-	font-family: sofia;
+	font-family: inconsolata;
 	font-size: 10pt;
 }
 .beaglert-console-log-in::before{

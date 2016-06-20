@@ -317,7 +317,7 @@ body {
 	.status-text {
 		width: 33%;
 		float: left;
-		color: #fff;
+		color: #424242;
 		text-align: right;
 	}
 		.status-text:nth-child(3) {
@@ -746,7 +746,7 @@ right: calc(100% - 62px);
     	cursor: default;
     }
 
-    #examples {
+    #example-tab {
     	width: 30px;
     	background: url("images/icons/bulb_white.png") no-repeat;
     	display: block;

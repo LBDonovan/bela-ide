@@ -266,11 +266,10 @@ module.exports = {
 	*newFile(data){
 	
 		// if the file already exists, reject the request
-		/*console.log(projectPath+data.newFile, yield fileExists(projectPath+data.newFile));
-		if (yield fileExists(projectPath+data.newFile)){
+		if (yield fileExists(projectPath+data.currentProject+'/'+data.newFile)){
 			data.error = 'failed, file '+data.newFile+' already exists!';
 			return data;
-		}*/
+		}
 		
 		yield fs.outputFileAsync(projectPath+data.currentProject+'/'+data.newFile, '/***** '+data.newFile+' *****/\n');
 		data.fileName = data.newFile;
@@ -281,6 +280,15 @@ module.exports = {
 	},
 	
 	*uploadFile(data){
+	
+		// if the file already exists, reject the request
+		console.log(projectPath+data.currentProject+'/'+data.newFile, yield fileExists(projectPath+data.currentProject+'/'+data.newFile));
+		if (yield fileExists(projectPath+data.currentProject+'/'+data.newFile)){
+			data.error = 'failed, file '+data.newFile+' already exists!';
+			data.fileData = undefined;
+			return data;
+		}
+		
 		yield fs.outputFileAsync(projectPath+data.currentProject+'/'+data.newFile, data.fileData);
 		data.fileName = data.newFile;
 		data.newFile = undefined;
@@ -289,6 +297,15 @@ module.exports = {
 	},
 	
 	*renameFile(data){
+		
+		// if the file already exists, reject the request
+		console.log(projectPath+data.currentProject+'/'+data.newFile, yield fileExists(projectPath+data.currentProject+'/'+data.newFile));
+		if (yield fileExists(projectPath+data.currentProject+'/'+data.newFile)){
+			data.error = 'failed, file '+data.newFile+' already exists!';
+			data.fileData = undefined;
+			return data;
+		}
+		
 		yield fs.moveAsync(projectPath+data.currentProject+'/'+data.fileName, projectPath+data.currentProject+'/'+data.newFile);
 		data.fileName = data.newFile;
 		data.newFile = undefined;
@@ -415,7 +432,7 @@ function _listFiles(projectName){
 // recursive listFiles, returning an array of objects with names, sizes, and (if dir) children
 function *listFiles(dir, subDir){
 
-	console.log('listFiles entering dir', dir);
+	//console.log('listFiles entering dir', dir);
 
 	var contents = yield fs.readdirAsync(dir).filter( item => {
 			if (!subDir && item && item[0] && item[0] !== '.' && item !== dir.split('/').pop() && blockedFiles.indexOf(item) === -1) return item;
@@ -427,7 +444,7 @@ function *listFiles(dir, subDir){
 	
 		let stat = yield fs.statAsync(dir+'/'+item);
 		
-		console.log(stat);
+		//console.log(stat);
 		
 		let data = {
 			name: item,
@@ -442,8 +459,8 @@ function *listFiles(dir, subDir){
 	
 	}
 
-	console.log('listFiles exiting dir', dir);
-	if (!subDir) console.dir(output,{depth:null})
+	//console.log('listFiles exiting dir', dir);
+	//if (!subDir) console.dir(output,{depth:null})
 	return output;
 }
 

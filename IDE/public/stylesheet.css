@@ -856,11 +856,16 @@ right: calc(100% - 62px);
     left: -0.75em;
     position: relative;
 }
+	#fileList > li {
+		line-height: 16px;
+		padding-bottom: 4px;
+	}
 .sourceFile:hover { 
-    background-color: #dffdd5;
+    background-color: #e1f2d9;
 }
 .selectedFile{
-	background-color: #A8DA97;
+	background-color: #c4e4b4;
+	font-color: #fff;
 }
 #uploadFileInput{
 	display: none;

@@ -145,7 +145,7 @@ gitView.on('console', text => consoleView.emit('log', text, 'git') );
 gitView.on('console-warn', text => consoleView.emit('warn', text) );
 
 // refresh files
-setInterval( () => socket.emit('list-files', models.project.getKey('currentProject')), 5000);
+//setInterval( () => socket.emit('list-files', models.project.getKey('currentProject')), 5000);
 
 // setup socket
 var socket = io('/IDE');
@@ -168,7 +168,7 @@ socket.on('init', (data) => {
 	//models.project.print();
 	//models.settings.print();
 	
-	socket.emit('set-time', getDateString());
+	socket.emit('set-time', new Date().toString());
 	
 	documentationView.emit('init');
 	
@@ -277,10 +277,11 @@ socket.on('run-on-boot-log', text => consoleView.emit('log', text) );
 socket.on('run-on-boot-project', project => $('#runOnBoot option[value="'+project+'"]').attr('selected', 'selected') );
 
 // shell
-socket.on('sh-stdout', data => consoleView.emit('log', data, 'shell') );
+/*socket.on('sh-stdout', data => consoleView.emit('log', data, 'shell') );
 socket.on('sh-stderr', data => consoleView.emit('warn', data) );
 socket.on('sh-cwd', cwd => consoleView.emit('cwd', cwd) );
-socket.on('sh-tabcomplete', data => consoleView.emit('sh-tabcomplete', data) );
+socket.on('sh-tabcomplete', data => consoleView.emit('sh-tabcomplete', data) );*/
+socket.on('shell-event', (evt, data) => consoleView.emit('shell-'+evt, data) )
 
 
 // model events
@@ -615,7 +616,7 @@ class ConsoleView extends View{
 			this.historyIndex = 0;
 		
 			this.emit('input', this.input.value);
-			_console.log(this.input.value, 'log-in');
+			_console.log(shellCWD+' '+this.input.value, 'log-in');
 			this.input.value = '';
 		});
 		
@@ -660,12 +661,14 @@ class ConsoleView extends View{
 		$('#beaglert-console').on('click', () => $(this.input).trigger('focus') );
 		$('#beaglert-consoleWrapper').on('click', (e) => e.stopPropagation() );
 		
-		this.on('cwd', cwd => {
-			console.log('cwd', cwd);
+		this.on('shell-stdout', data => this.emit('log', data, 'shell') );
+		this.on('shell-stderr', data => this.emit('warn', data) );
+		this.on('shell-cwd', cwd => {
+			//console.log('cwd', cwd);
 			shellCWD = 'root@arm ' + cwd.replace('/root', '~') + '#';
 			$('#beaglert-consoleInput-pre').html(shellCWD);
 		});
-		this.on('sh-tabcomplete', data => $('#beaglert-consoleInput').val(data) );
+		this.on('shell-tabcomplete', data => $('#beaglert-consoleInput').val(data) );
 	}
 	
 	openNotification(data){
@@ -1061,7 +1064,6 @@ function createlifrommemberdef($xml, id){
 },{"./View":13}],6:[function(require,module,exports){
 var View = require('./View');
 var Range = ace.require('ace/range').Range;
-var urlCreator = window.URL || window.webkitURL;
 
 const uploadDelay = 50;
 
@@ -1082,7 +1084,8 @@ class EditorView extends View {
 		this.editor.$blockScrolling = Infinity;
 		
 		// set theme
-		this.editor.setTheme("ace/theme/github");
+		this.editor.setTheme("ace/theme/chrome");
+		this.editor.setShowPrintMargin(false);
 		
 		// autocomplete settings
 		this.editor.setOptions({
@@ -1115,10 +1118,7 @@ class EditorView extends View {
 
 		});
 		
-		$('#img-display').on('load', () => {
-			if (imageUrl) 
-				urlCreator.revokeObjectURL(imageUrl);
-		});
+		$('#audioControl').find('button').on('click', () => audioSource.start(0) );
 		
 		this.on('resize', () => this.editor.resize() );
 		
@@ -1134,40 +1134,32 @@ class EditorView extends View {
 	__fileData(data, opts){
 
 		// hide the pd patch and image displays if present, and the editor
-		$('#pd-svg, #img-display, #editor').css('display', 'none');
+		$('#pd-svg-parent, #img-display-parent, #editor, #audio-parent').css('display', 'none');
 		
-		if (data instanceof ArrayBuffer && opts.fileType.indexOf('image') !== -1){
-			
-			// we're opening an image
-			let timestamp = performance.now();
-			this.emit('open-notification', {
-				func: 'editor',
-				timestamp,
-				text: 'Rendering image'
+		if (!opts.fileType) opts.fileType = '0';
+		
+		if (opts.fileType.indexOf('image') !== -1){
+		
+			// opening image file
+			$('#img-display-parent, #img-display').css({
+				'max-width'	: $('#editor').width()+'px',
+				'max-height': $('#editor').height()+'px'
 			});
+			$('#img-display-parent').css('display', 'block');
 			
-			// render the image			
-			try{
-				var arrayBufferView = new Uint8Array(data);
-				var blob = new Blob( [ arrayBufferView ], { type: opts.fileType } );
-				imageUrl = urlCreator.createObjectURL( blob );
-				
-				$('#img-display').prop('src', imageUrl).css({
-					'display'	: 'block',
-					'max-width'	: $('#editor').width()+'px',
-					'max-height': $('#editor').height()+'px'
-				});
-				
-				this.emit('close-notification', {timestamp});
-
-			}
-			catch(e){
-				this.emit('close-notification', {
-					timestamp,
-					text: 'failed!'
-				});
-				throw e;
-			}
+			$('#img-display').prop('src', 'media/'+opts.fileName);
+			
+		} else if (opts.fileType.indexOf('audio') !== -1){
+			
+			//console.log('opening audio file');
+			
+			$('#audio-parent').css({
+				'display'	: 'block',
+				'max-width'	: $('#editor').width()+'px',
+				'max-height': $('#editor').height()+'px'
+			});
+						
+			$('#audio').prop('src', 'media/'+opts.fileName); 
 			
 		} else {
 		
@@ -1183,12 +1175,20 @@ class EditorView extends View {
 		
 				// render pd patch
 				try{
+					
 					$('#pd-svg').html(pdfu.renderSvg(pdfu.parse(data), {svgFile: false})).css({
+						'max-width'	: $('#editor').width()+'px',
+						'max-height': $('#editor').height()+'px'
+					});
+					
+					$('#pd-svg-parent').css({
 						'display'	: 'block',
 						'max-width'	: $('#editor').width()+'px',
 						'max-height': $('#editor').height()+'px'
 					});
+					
 					this.emit('close-notification', {timestamp});
+					
 				}
 				catch(e){
 					this.emit('close-notification', {
@@ -1334,7 +1334,7 @@ class FileView extends View {
 		});
 		
 		// drag and drop file upload on editor
-		$('#editor').on('dragenter dragover drop', (e) => {
+		$('body').on('dragenter dragover drop', (e) => {
 			e.stopPropagation();
 			if (e.type === 'drop'){
 				for (let file of e.originalEvent.dataTransfer.files){
@@ -1378,11 +1378,13 @@ class FileView extends View {
 		}
 	}
 	openFile(e){
-		this.emit('message', 'project-event', {func: 'openFile', newFile: $(e.currentTarget).html()})
+		this.emit('message', 'project-event', {func: 'openFile', newFile: $(e.currentTarget).data('file')})
 	}
 	
 	// model events
 	_fileList(files, data){
+	console.log(files);
+	if (!files[0].name) return;
 
 		var $files = $('#fileList')
 		$files.empty();
@@ -1390,45 +1392,65 @@ class FileView extends View {
 		var headers = [];
 		var sources = [];
 		var resources = [];
+		var directories = [];
 		
-		for (let i=0; i<files.length; i++){
+		for (let item of files){
+		
+			if (item.dir){
 			
-			let ext = files[i].split('.');
-			ext = ext[ext.length-1];
+				directories.push(item);
+				
+			} else {
 			
-			if (sourceIndeces.indexOf(ext) !== -1){
-				sources.push(files[i]);
-			} else if (headerIndeces.indexOf(ext) !== -1){
-				headers.push(files[i]);
-			} else if (files[i]){
-				resources.push(files[i]);
+				let ext = item.name.split('.').pop();
+			
+				if (sourceIndeces.indexOf(ext) !== -1){
+					sources.push(item);
+				} else if (headerIndeces.indexOf(ext) !== -1){
+					headers.push(item);
+				} else if (item){
+					resources.push(item);
+				}
+				
 			}
 			
 		}
 		
-		headers.sort();
-		sources.sort();
-		resources.sort();
+		//console.log(headers, sources, resources, directories);
+
+		headers.sort( (a, b) => a.name - b.name );
+		sources.sort( (a, b) => a.name - b.name );
+		resources.sort( (a, b) => a.name - b.name );
+		directories.sort( (a, b) => a.name - b.name );
+		
+		//console.log(headers, sources, resources, directories);
 				
 		if (headers.length){
 			$('<li></li>').html('Headers:').appendTo($files);
 		}
 		for (let i=0; i<headers.length; i++){
-			$('<li></li>').addClass('sourceFile').html(headers[i]).appendTo($files).on('click', (e) => this.openFile(e));
+			$('<li></li>').addClass('sourceFile').html(headers[i].name).data('file', headers[i].name).appendTo($files).on('click', (e) => this.openFile(e));
 		}
 		
 		if (sources.length){
 			$('<li></li>').html('Sources:').appendTo($files);
 		}
 		for (let i=0; i<sources.length; i++){
-			$('<li></li>').addClass('sourceFile').html(sources[i]).appendTo($files).on('click', (e) => this.openFile(e));
+			$('<li></li>').addClass('sourceFile').html(sources[i].name).data('file', sources[i].name).appendTo($files).on('click', (e) => this.openFile(e));
 		}
 		
 		if (resources.length){
 			$('<li></li>').html('Resources:').appendTo($files);
 		}
 		for (let i=0; i<resources.length; i++){
-			$('<li></li>').addClass('sourceFile').html(resources[i]).appendTo($files).on('click', (e) => this.openFile(e));
+			$('<li></li>').addClass('sourceFile').html(resources[i].name).data('file', resources[i].name).appendTo($files).on('click', (e) => this.openFile(e));
+		}
+		
+		if (directories.length){
+			$('<li></li>').html('Directories:').appendTo($files);
+		}
+		for (let dir of directories){
+			$files.append(this.subDirs(dir));
 		}
 		
 		if (data && data.fileName) this._fileName(data.fileName);
@@ -1437,27 +1459,41 @@ class FileView extends View {
 
 		// select the opened file in the file manager tab
 		$('.selectedFile').removeClass('selectedFile');
-		$('#fileList>li').each(function(){
-			if ($(this).html() === file){
+		
+		var foundFile = false
+		$('#fileList li').each(function(){
+			if ($(this).data('file') === file){
 				$(this).addClass('selectedFile');
+				foundFile = true;
 			}
 		});
-		
+				
 		if (data && data.currentProject){
 			// set download link
 			$('#downloadFileLink').attr('href', '/download?project='+data.currentProject+'&file='+file);
 		}
 	}
 	
+	subDirs(dir){
+		var ul = $('<ul></ul>').html(dir.name+':');
+		for (let child of dir.children){
+			if (!child.dir)
+				$('<li></li>').addClass('sourceFile').html(child.name).data('file', (dir.dirPath || dir.name)+'/'+child.name).appendTo(ul).on('click', (e) => this.openFile(e));
+			else {
+				child.dirPath = (dir.dirPath || dir.name) + '/' + child.name;
+				ul.append(this.subDirs(child));
+			}
+		}
+		return ul;
+	}
+	
 }
 
 module.exports = FileView;
 
-// replace ' ' with '_' and all non alpha-numeric chars other than '_' and '.' with '#'
+// replace all non alpha-numeric chars other than '-' and '.' with '_'
 function sanitise(name){
-	return name
-		.split(' ').join('_')
-		.replace(/[^a-zA-Z0-9_\.]/g, '#');
+	return name.replace(/[^a-zA-Z0-9\.\-/]/g, '_');
 }
 },{"./View":13}],8:[function(require,module,exports){
 'use strict';
@@ -1672,11 +1708,9 @@ class ProjectView extends View {
 
 module.exports = ProjectView;
 
-// replace ' ' with '_' and all non alpha-numeric chars other than '_' and '.' with '#'
+// replace all non alpha-numeric chars other than '-' and '.' with '_'
 function sanitise(name){
-	return name
-		.split(' ').join('_')
-		.replace(/[^a-zA-Z0-9_\.]/g, '#');
+	return name.replace(/[^a-zA-Z0-9\.\-]/g, '_');
 }
 },{"./View":13}],10:[function(require,module,exports){
 var View = require('./View');

@@ -40,7 +40,7 @@ class ConsoleView extends View{
 			this.historyIndex = 0;
 		
 			this.emit('input', this.input.value);
-			_console.log(this.input.value, 'log-in');
+			_console.log(shellCWD+' '+this.input.value, 'log-in');
 			this.input.value = '';
 		});
 		
@@ -85,12 +85,14 @@ class ConsoleView extends View{
 		$('#beaglert-console').on('click', () => $(this.input).trigger('focus') );
 		$('#beaglert-consoleWrapper').on('click', (e) => e.stopPropagation() );
 		
-		this.on('cwd', cwd => {
-			console.log('cwd', cwd);
+		this.on('shell-stdout', data => this.emit('log', data, 'shell') );
+		this.on('shell-stderr', data => this.emit('warn', data) );
+		this.on('shell-cwd', cwd => {
+			//console.log('cwd', cwd);
 			shellCWD = 'root@arm ' + cwd.replace('/root', '~') + '#';
 			$('#beaglert-consoleInput-pre').html(shellCWD);
 		});
-		this.on('sh-tabcomplete', data => $('#beaglert-consoleInput').val(data) );
+		this.on('shell-tabcomplete', data => $('#beaglert-consoleInput').val(data) );
 	}
 	
 	openNotification(data){

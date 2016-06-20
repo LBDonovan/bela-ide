@@ -6,7 +6,6 @@ var Promise = require('bluebird');
 var fs = Promise.promisifyAll(require('fs-extra'));
 var exec = require('child_process').exec;
 var spawn = require('child_process').spawn;
-var path = require('path');;
 
 // sub_modules
 var ProjectManager = require('./ProjectManager');
@@ -15,6 +14,7 @@ var DebugManager = require('./DebugManager');
 var server = require('./fileServer');
 var scope = require('./scope-node');
 var GitManager = require('./GitManager');
+var TerminalManager = require('./TerminalManager');
 
 // module variables - only accesible from this file
 var allSockets;
@@ -23,134 +23,6 @@ var startupScript = '/root/Bela_startup.sh';
 
 // settings
 var cpuMonitoring = false;
-
-// TODO fix tab search with ~
-var shell = {
-
-	init(){
-	
-		var sh = spawn('sh', {
-			// when the IDE is run at startup, the HOME, USER and PATH environmental variables are incorrectly set.
-			// we hardcode them here, but if the use or PATH changes, those changes will have to be ported here.
-			env: {
-				HOME: '/root',
-				USER: 'root',
-				PATH: '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
-			}
-		})
-		
-		sh.stdin.write('cd ~/Bela\n');
-		
-		sh.stdout.setEncoding('utf-8');
-		sh.stderr.setEncoding('utf-8');
-		
-		sh.stdout.on('data', (data) => {
-			if (this.pwding) {
-				var dir = data.split('\n').join('');
-				//console.log('dir', dir);
-				fs.statAsync(dir)
-					.then( stat => {
-						this.cwd = dir;
-						allSockets.emit('sh-cwd', dir);
-						this.pwding = false;
-					})
-					.catch( () => {
-						//this.pwd();
-						allSockets.emit('sh-stdout', data);
-					});
-				return;
-			}
-			console.log(data);
-			allSockets.emit('sh-stdout', data);
-		});
-		
-		sh.stderr.on('data', (data) => allSockets.emit('sh-stderr', data) );
-		
-		sh.on('exit', () => allSockets.emit('sh-stderr', 'sh exited') );
-		
-		this.sh = sh;
-		
-		this.pwd();
-	},
-	
-	execute(command){
-		this.sh.stdin.write(command+'\n');
-		this.pwd();
-	},
-	
-	pwd(){
-		console.log('setting pwd timeout');
-		setTimeout( () => {
-			console.log('sh-pwd');
-			this.pwding = true;
-			this.sh.stdin.write('pwd\n');
-		}, 100);
-	},
-	
-	tab(cmd){
-		if (!cmd) return;
-		try{
-			
-			// isolate the last command
-			var str = cmd.split(' ').pop();
-			
-			// is it a path?
-			if (str.indexOf('/') !== -1){
-				var test = path.basename(str);
-				if (path.isAbsolute(str))
-					var searchDir = path.dirname(str);
-				else
-					var searchDir = this.cwd + '/' + path.dirname(str);
-			} else {
-				var test = str;
-				var searchDir = this.cwd;
-			}
-			
-			console.log('str:', str, 'test:', test, 'searchDir:', searchDir);
-			
-			fs.readdirAsync(searchDir)
-				.then( dir => {
-					let matches = [];
-					for (let item of dir){
-						if (item.startsWith(test)){
-						
-							let temp = cmd.split(' ');
-							temp.pop();
-							
-							if (str.indexOf('/') !== -1)
-								temp.push( (path.dirname(str) === '/') ? (path.dirname(str) + item) : (path.dirname(str) + '/' + item) );
-							else
-								temp.push(item);
-																
-							matches.push(temp);
-						}					
-					}
-					
-					if (matches.length === 1){
-						//let command = matches[0][matches[0].length-1]
-						//console.log('matches[0]:', matches[0], 'fullpath:', this.cwd+'/'+matches[0][matches[0].length-1]);
-						if (path.isAbsolute(str))
-							var statDir = matches[0][matches[0].length-1];
-						else
-							var statDir = this.cwd+'/'+matches[0][matches[0].length-1];
-							
-						fs.statAsync(statDir)
-							.then( stat => {
-							
-								if (stat.isDirectory())
-									matches[0][matches[0].length-1] += '/';
-									
-								allSockets.emit('sh-tabcomplete', matches[0].join(' '));
-							})
-							.catch( e => console.log('shell tab stat error', e) );
-					}
-				})
-				.catch( e => console.log('error in shell tab', e) );
-		
-		}
-		catch(e){ console.log('shell tab error') };
-	}
-};
 
 // constructor function for IDE object
 function IDE(){
@@ -168,11 +40,11 @@ function IDE(){
 	
 	// CPU & project monitoring
 	setInterval(function(){
-		ProjectManager.listProjects()
+		/*ProjectManager.listProjects()
 			.then( result => {
 				allSockets.emit('project-list', undefined, result);
 				if (runOnBootProject) allSockets.emit('run-on-boot-project', runOnBootProject);
-			});
+			});*/
 		
 		if (!cpuMonitoring) return;
 		co(ProcessManager, 'checkCPU')
@@ -197,7 +69,7 @@ function IDE(){
 	scope.init(io);
 	
 	// shell
-	shell.init();
+	TerminalManager.init();
 	
 }
 
@@ -219,7 +91,7 @@ function socketConnected(socket){
 	socketEvents(socket);
 	
 	// refresh the shell location
-	shell.pwd();
+	TerminalManager.pwd();
 
 }
 
@@ -227,9 +99,7 @@ function socketConnected(socket){
 function socketEvents(socket){
 
 	// set the time on the bbb
-	socket.on('set-time', (time) => {
-		exec('date '+time, console.log);
-	});
+	socket.on('set-time', (time) => exec('date -s "'+time+'"') );
 	
 	// project events
 	socket.on('project-event', (data) => {
@@ -402,8 +272,8 @@ function socketEvents(socket){
 	});
 	
 	// shell
-	socket.on('sh-command', cmd => shell.execute(cmd) );
-	socket.on('sh-tab', cmd => shell.tab(cmd) );
+	socket.on('sh-command', cmd => TerminalManager.execute(cmd) );
+	socket.on('sh-tab', cmd => TerminalManager.tab(cmd) );
 
 }
 
@@ -413,6 +283,8 @@ ProcessManager.on('broadcast-status', (status) => allSockets.emit('status', stat
 DebugManager.on('status', (status) =>  allSockets.emit('debugger-data', status) );
 DebugManager.on('variables', (project, variables) =>  allSockets.emit('debugger-variables', project, variables) );
 DebugManager.on('error', (err) => allSockets.emit('report-error', err) );
+
+TerminalManager.on('shell-event', (evt, data) => allSockets.emit('shell-event', evt, data) );
 
 // module functions - only accesible from this file
 function co(obj, func, args){

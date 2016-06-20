@@ -1,6 +1,5 @@
 var View = require('./View');
 var Range = ace.require('ace/range').Range;
-var urlCreator = window.URL || window.webkitURL;
 
 const uploadDelay = 50;
 
@@ -21,7 +20,8 @@ class EditorView extends View {
 		this.editor.$blockScrolling = Infinity;
 		
 		// set theme
-		this.editor.setTheme("ace/theme/github");
+		this.editor.setTheme("ace/theme/chrome");
+		this.editor.setShowPrintMargin(false);
 		
 		// autocomplete settings
 		this.editor.setOptions({
@@ -54,10 +54,7 @@ class EditorView extends View {
 
 		});
 		
-		$('#img-display').on('load', () => {
-			if (imageUrl) 
-				urlCreator.revokeObjectURL(imageUrl);
-		});
+		$('#audioControl').find('button').on('click', () => audioSource.start(0) );
 		
 		this.on('resize', () => this.editor.resize() );
 		
@@ -73,40 +70,32 @@ class EditorView extends View {
 	__fileData(data, opts){
 
 		// hide the pd patch and image displays if present, and the editor
-		$('#pd-svg, #img-display, #editor').css('display', 'none');
+		$('#pd-svg-parent, #img-display-parent, #editor, #audio-parent').css('display', 'none');
 		
-		if (data instanceof ArrayBuffer && opts.fileType.indexOf('image') !== -1){
-			
-			// we're opening an image
-			let timestamp = performance.now();
-			this.emit('open-notification', {
-				func: 'editor',
-				timestamp,
-				text: 'Rendering image'
+		if (!opts.fileType) opts.fileType = '0';
+		
+		if (opts.fileType.indexOf('image') !== -1){
+		
+			// opening image file
+			$('#img-display-parent, #img-display').css({
+				'max-width'	: $('#editor').width()+'px',
+				'max-height': $('#editor').height()+'px'
 			});
+			$('#img-display-parent').css('display', 'block');
 			
-			// render the image			
-			try{
-				var arrayBufferView = new Uint8Array(data);
-				var blob = new Blob( [ arrayBufferView ], { type: opts.fileType } );
-				imageUrl = urlCreator.createObjectURL( blob );
-				
-				$('#img-display').prop('src', imageUrl).css({
-					'display'	: 'block',
-					'max-width'	: $('#editor').width()+'px',
-					'max-height': $('#editor').height()+'px'
-				});
-				
-				this.emit('close-notification', {timestamp});
-
-			}
-			catch(e){
-				this.emit('close-notification', {
-					timestamp,
-					text: 'failed!'
-				});
-				throw e;
-			}
+			$('#img-display').prop('src', 'media/'+opts.fileName);
+			
+		} else if (opts.fileType.indexOf('audio') !== -1){
+			
+			//console.log('opening audio file');
+			
+			$('#audio-parent').css({
+				'display'	: 'block',
+				'max-width'	: $('#editor').width()+'px',
+				'max-height': $('#editor').height()+'px'
+			});
+						
+			$('#audio').prop('src', 'media/'+opts.fileName); 
 			
 		} else {
 		
@@ -122,12 +111,20 @@ class EditorView extends View {
 		
 				// render pd patch
 				try{
+					
 					$('#pd-svg').html(pdfu.renderSvg(pdfu.parse(data), {svgFile: false})).css({
+						'max-width'	: $('#editor').width()+'px',
+						'max-height': $('#editor').height()+'px'
+					});
+					
+					$('#pd-svg-parent').css({
 						'display'	: 'block',
 						'max-width'	: $('#editor').width()+'px',
 						'max-height': $('#editor').height()+'px'
 					});
+					
 					this.emit('close-notification', {timestamp});
+					
 				}
 				catch(e){
 					this.emit('close-notification', {

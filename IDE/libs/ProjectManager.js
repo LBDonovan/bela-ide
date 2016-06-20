@@ -4,6 +4,8 @@ var Promise = require('bluebird');
 var fs = Promise.promisifyAll(require('fs-extra'));
 var fileType = require('file-type');
 var isBinaryFile = require("isbinaryfile");
+var exec = require('child_process').exec;
+var path = require('path');
 
 var git = require('./GitManager');
 
@@ -13,6 +15,7 @@ var belaPath = '/root/Bela/';
 var projectPath = belaPath+'projects/';
 var examplePath = belaPath+'examples/';
 var newProjectPath = examplePath+'minimal';
+var mediaPath = belaPath+'IDE/public/media/';
 
 //files
 var blockedFiles = ['build', 'settings.json'];
@@ -24,7 +27,7 @@ var resourceIndeces = ['pd', 'txt', 'json', 'xml'];
 var editableExtensions = sourceIndeces.concat(headerIndeces, resourceIndeces);
 
 var resourceData = 'This file type cannot be viewed in the IDE';
-var maxFileSize = 5000000;	// bytes (5Mb)
+var maxFileSize = 50000000;	// bytes (50Mb)
 
 // public functions
 module.exports = {
@@ -42,7 +45,7 @@ module.exports = {
 	// functions called directly over websocket
 	// project & example events
 	*openProject(data){
-		data.fileList = yield _listFiles(data.currentProject);
+		data.fileList = yield new Promise.coroutine(listFiles)(projectPath+data.currentProject);
 		var settings = yield _getSettings(data.currentProject);
 		for (let key in settings){
 			data[key] = settings[key];
@@ -119,42 +122,44 @@ module.exports = {
 		// if the file can be displayed by the IDE, load it as a string
 		if (ext && editableExtensions.indexOf(ext) !== -1){
 		
-			yield fs.readFileAsync(projectDir + data.newFile, 'utf8')
-				.then( fileData => {
+			try{
+				let fileData = yield fs.readFileAsync(projectDir + data.newFile, 'utf8');
+				//.then( fileData => {
 				
-					// newFile was opened succesfully
-					console.log('opened', data.newFile);
-											
-					// return the data
-					data.fileData = fileData;
-					data.readOnly = false;
-					data.fileName = data.newFile;
-					data.newFile = undefined;
-					data.fileType = ext;
+				// newFile was opened succesfully
+				console.log('opened', data.newFile);
+										
+				// return the data
+				data.fileData = fileData;
+				data.readOnly = false;
+				data.fileName = data.newFile;
+				data.newFile = undefined;
+				data.fileType = ext;
 					
-				})
-				.catch( e => {
+				//})
+			}
+			catch(e){
 				
-					// newFile was not opened succesfully
-					console.log('could not open file', data.newFile);
-					console.log(e.toString());
+				// newFile was not opened succesfully
+				console.log('could not open file', data.newFile);
+				console.log(e.toString());
+				
+				// return an error
+				data.error = 'Could not open file '+data.newFile;
+				data.fileData = '';
+				data.readOnly = true;
+				data.newFile = undefined;
+				data.fileName = '';
+				data.fileType = 0;
 					
-					// return an error
-					data.error = 'Could not open file '+data.newFile;
-					data.fileData = '';
-					data.readOnly = true;
-					data.newFile = undefined;
-					data.fileName = undefined;
-					data.fileType = 0;
-					
-				});
+			}
 				
 		} else {
 			// either the file has no extension, or it's extension is not allowed by the IDE
 			// if the file is not too big, load it as a buffer and try to find its type
 			
-			let stat = yield fs.lstatAsync(projectDir + data.newFile).catch( () => {size: 0} );
-			console.log('file size:', stat.size);
+			let stat = yield fs.statAsync(projectDir + data.newFile).catch( () => {size: 0} );
+			console.log(data.newFile, stat);
 			
 			if (stat.size > maxFileSize){
 			
@@ -171,69 +176,72 @@ module.exports = {
 				
 			} else {
 			
-				yield fs.readFileAsync(projectDir + data.newFile)
-					.then( fileData => {
+				try{				
 				
-						// newFile was opened succesfully
-						console.log('opened', data.newFile);
-					
-						// attempt to get its type
-						let fileTypeData = fileType(fileData);
-						console.log('guessed filetype:', fileTypeData);
-					
-						if (fileTypeData && fileTypeData.mime.indexOf('image') !== -1){
-					
-							// the file is an image, and can be opened
-							data.fileData = fileData;
-							data.fileType = fileTypeData.mime;
-							
-							data.readOnly = true;
-						
-						} else {
-					
-							if (isBinaryFile.sync(fileData, stat.size)){
-							
-								// the file is (probably) binary and can't be displayed in the IDE
-								console.log(data.newFile, 'is binary');
-								
-								// return an error
-								data.error = "can't open binary files";
-								data.fileData = resourceData;
-								data.readOnly = true;
-								data.fileType = 0;
-								
-							} else {
-								
-								// the file is (probably) not a binary, so try to open it
-								console.log(data.newFile, 'is not binary, attempting to open...');
-								
-								// convert the file to a string
-								data.fileData = fileData.toString();
-								data.readOnly = false;
-								data.fileType = ext || 0;
-								
-							}
-						}
+					let fileData = yield fs.readFileAsync(projectDir + data.newFile);
 
-						data.fileName = data.newFile;
-						data.newFile = undefined;
-					
-					})
-					.catch( e => {
+					// newFile was opened succesfully
+					console.log('opened', data.newFile);
 				
-						// newFile was not opened succesfully
-						console.log('could not open file', data.newFile);
-						console.log(e.toString());
-					
-						// return an error
-						data.error = 'Could not open file '+data.newFile;
+					// attempt to get its type
+					let fileTypeData = fileType(fileData);
+					console.log('guessed filetype:', fileTypeData);
+				
+					if (fileTypeData && (fileTypeData.mime.indexOf('image') !== -1 || fileTypeData.mime.indexOf('audio') !== -1)){
+				
+						// the file is image or audio
 						data.fileData = '';
+						data.fileType = fileTypeData.mime;
+						
 						data.readOnly = true;
-						data.newFile = undefined;
-						data.fileName = undefined;
-						data.fileType = 0;
+						
+						yield new Promise.coroutine(makeSymLink)(projectDir + data.newFile, mediaPath + data.newFile);
+											
+					} else {
+				
+						if (isBinaryFile.sync(fileData, stat.size)){
+						
+							// the file is (probably) binary and can't be displayed in the IDE
+							console.log(data.newFile, 'is binary');
+							
+							// return an error
+							data.error = "can't open binary files";
+							data.fileData = resourceData;
+							data.readOnly = true;
+							data.fileType = 0;
+							
+						} else {
+							
+							// the file is (probably) not a binary, so try to open it
+							console.log(data.newFile, 'is not binary, attempting to open...');
+							
+							// convert the file to a string
+							data.fileData = fileData.toString();
+							data.readOnly = false;
+							data.fileType = ext || 0;
+							
+						}
+					}
+
+					data.fileName = data.newFile;
+					data.newFile = undefined;
 					
-					});
+				}
+				catch(e){
+			
+					// newFile was not opened succesfully
+					console.log('could not open file', data.newFile);
+					console.log(e.toString());
+				
+					// return an error
+					data.error = 'Could not open file '+data.newFile;
+					data.fileData = '';
+					data.readOnly = true;
+					data.newFile = undefined;
+					data.fileName = '';
+					data.fileType = 0;
+				
+				}
 			}
 		}
 		
@@ -245,7 +253,7 @@ module.exports = {
 		yield fs.outputFileAsync(projectPath+data.currentProject+'/'+data.newFile, '/***** '+data.newFile+' *****/\n');
 		data.fileName = data.newFile;
 		data.newFile = undefined;
-		data.fileList = yield _listFiles(data.currentProject);
+		data.fileList = yield new Promise.coroutine(listFiles)(projectPath+data.currentProject);
 		data.focus = {line: 2, column: 1};
 		return yield _co(this, 'openFile', data);
 	},
@@ -254,7 +262,7 @@ module.exports = {
 		yield fs.outputFileAsync(projectPath+data.currentProject+'/'+data.newFile, data.fileData);
 		data.fileName = data.newFile;
 		data.newFile = undefined;
-		data.fileList = yield _listFiles(data.currentProject);
+		data.fileList = yield new Promise.coroutine(listFiles)(projectPath+data.currentProject);
 		return yield _co(this, 'openFile', data);
 	},
 	
@@ -262,16 +270,20 @@ module.exports = {
 		yield fs.moveAsync(projectPath+data.currentProject+'/'+data.fileName, projectPath+data.currentProject+'/'+data.newFile);
 		data.fileName = data.newFile;
 		data.newFile = undefined;
-		data.fileList = yield _listFiles(data.currentProject);
+		data.fileList = yield new Promise.coroutine(listFiles)(projectPath+data.currentProject);
 		return yield _co(this, 'openFile', data);
 	},
 	
 	*deleteFile(data){
 		yield fs.removeAsync(projectPath+data.currentProject+'/'+data.fileName);
-		data.fileList = yield _listFiles(data.currentProject);
+		data.fileList = yield new Promise.coroutine(listFiles)(projectPath+data.currentProject);
 		if (data.fileList.length){
-			data.fileName = data.fileList[0];
-			return yield _co(this, 'openFile', data);
+			for (let item of data.fileList){
+				if (!item.dir && item.name){
+					data.fileName = item.name;
+					return yield _co(this, 'openFile', data);
+				}
+			}
 		}
 		data.fileName = '';
 		data.fileData = '';
@@ -301,10 +313,6 @@ module.exports = {
 	*getCLArgs(project){
 		var settings = yield _getSettings(project);
 		return settings.CLArgs;
-	},
-	
-	listFiles(project){
-		return _listFiles(project);
 	}
 }
 
@@ -323,6 +331,20 @@ function fileExists(file){
 			else resolve(true);
 		});
 	});
+}
+
+function *makeSymLink(file, link){
+	return fs.emptyDirAsync(mediaPath)
+		.then( () => {
+			return new Promise( (resolve, reject) => {
+				exec('mkdir --parents '+path.dirname(link)+'; ln -s '+file+' '+link, (err, stdout, stderr) => {
+					if (err) reject(err);
+					//console.log(stdout, stderr);
+					else resolve();
+				});
+			});
+		})
+		.catch( e => console.log('error making symlink', e.toString()) );
 }
 
 // save the last opened file
@@ -357,6 +379,41 @@ function _listFiles(projectName){
 		.filter((fileName) => {
 			if (fileName && fileName[0] && fileName[0] !== '.' && fileName !== projectName && blockedFiles.indexOf(fileName) === -1) return fileName;
 		});
+}
+
+// recursive listFiles, returning an array of objects with names, sizes, and (if dir) children
+function *listFiles(dir, subDir){
+
+	console.log('listFiles entering dir', dir);
+
+	var contents = yield fs.readdirAsync(dir).filter( item => {
+			if (!subDir && item && item[0] && item[0] !== '.' && item !== dir.split('/').pop() && blockedFiles.indexOf(item) === -1) return item;
+			else if(subDir && item && item[0] && item[0] !== '.') return item;
+		});
+		
+	var output = [];
+	for (let item of contents){
+	
+		let stat = yield fs.statAsync(dir+'/'+item);
+		
+		console.log(stat);
+		
+		let data = {
+			name: item,
+			dir: stat.isDirectory(),
+			size: stat.size
+		};
+		
+		if (data.dir) 
+			data.children = yield new Promise.coroutine(listFiles)(dir + '/' + data.name, true);
+			
+		output.push(data);
+	
+	}
+
+	console.log('listFiles exiting dir', dir);
+	if (!subDir) console.dir(output,{depth:null})
+	return output;
 }
 
 // create default project settings

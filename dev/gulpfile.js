@@ -9,6 +9,7 @@ var babelify = require('babelify');
 var source = require('vinyl-source-stream');
 var sourcemaps = require('gulp-sourcemaps');
 var buffer = require('vinyl-buffer');
+var less = require('gulp-less');
 
 var host = '192.168.7.2';
 var user = 'root';
@@ -30,8 +31,18 @@ gulp.task('watch', ['killnode', 'browserify', 'upload', 'restartnode'], function
 	// when the scope browser js changes, browserify it
 	gulp.watch(['../IDE/public/scope/js/src/**'], ['scope-browserify']);
 	
+	// when the less changes, compile it and stick it in public/css
+	gulp.watch(['../IDE/public/less/**'], ['less']);
+	
 	// when the browser sources change, upload them without killing node
-	gulp.watch(['../IDE/public/**', '!../IDE/public/js/bundle.js.map', '!../IDE/public/scope/js/bundle.js.map', '!../IDE/public/js/src/**', '!../IDE/public/js/ace/**', '!../IDE/public/scope/js/src/**'], ['upload-no-kill']);
+	gulp.watch(['../IDE/public/**', 
+		'!../IDE/public/js/bundle.js.map', 
+		'!../IDE/public/scope/js/bundle.js.map', 
+		'!../IDE/public/js/src/**', 
+		'!../IDE/public/js/ace/**', 
+		'!../IDE/public/scope/js/src/**',
+		'!../IDE/public/less/**'
+	], ['upload-no-kill']);
 	
 	// watch all IDE files (except ace and node_modules) and upload them when changed
 	//gulp.watch(['../IDE/**', '!../IDE/public/js/ace/**', '!../IDE/node_modules/**'], ['upload']);
@@ -122,6 +133,14 @@ gulp.task('scope-browserify', () => {
 		.pipe(sourcemaps.init({loadMaps: true}))
         .pipe(sourcemaps.write('./'))
         .pipe(gulp.dest('../IDE/public/scope/js/'));
+});
+
+gulp.task('less', () => {
+	gulp.src('../IDE/public/less/*.less')
+		.pipe(sourcemaps.init())
+		.pipe(less())
+		.pipe(sourcemaps.write())
+		.pipe(gulp.dest('../IDE/public/css/'));
 });
 
 function startNode(callback){

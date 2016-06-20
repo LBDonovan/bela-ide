@@ -144,7 +144,7 @@ gitView.on('console', text => consoleView.emit('log', text, 'git') );
 gitView.on('console-warn', text => consoleView.emit('warn', text) );
 
 // refresh files
-setInterval( () => socket.emit('list-files', models.project.getKey('currentProject')), 5000);
+//setInterval( () => socket.emit('list-files', models.project.getKey('currentProject')), 5000);
 
 // setup socket
 var socket = io('/IDE');
@@ -167,7 +167,7 @@ socket.on('init', (data) => {
 	//models.project.print();
 	//models.settings.print();
 	
-	socket.emit('set-time', getDateString());
+	socket.emit('set-time', new Date().toString());
 	
 	documentationView.emit('init');
 	
@@ -276,10 +276,11 @@ socket.on('run-on-boot-log', text => consoleView.emit('log', text) );
 socket.on('run-on-boot-project', project => $('#runOnBoot option[value="'+project+'"]').attr('selected', 'selected') );
 
 // shell
-socket.on('sh-stdout', data => consoleView.emit('log', data, 'shell') );
+/*socket.on('sh-stdout', data => consoleView.emit('log', data, 'shell') );
 socket.on('sh-stderr', data => consoleView.emit('warn', data) );
 socket.on('sh-cwd', cwd => consoleView.emit('cwd', cwd) );
-socket.on('sh-tabcomplete', data => consoleView.emit('sh-tabcomplete', data) );
+socket.on('sh-tabcomplete', data => consoleView.emit('sh-tabcomplete', data) );*/
+socket.on('shell-event', (evt, data) => consoleView.emit('shell-'+evt, data) )
 
 
 // model events

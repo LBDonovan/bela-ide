@@ -18,7 +18,7 @@ class FileView extends View {
 		});
 		
 		// drag and drop file upload on editor
-		$('#editor').on('dragenter dragover drop', (e) => {
+		$('body').on('dragenter dragover drop', (e) => {
 			e.stopPropagation();
 			if (e.type === 'drop'){
 				for (let file of e.originalEvent.dataTransfer.files){
@@ -62,11 +62,13 @@ class FileView extends View {
 		}
 	}
 	openFile(e){
-		this.emit('message', 'project-event', {func: 'openFile', newFile: $(e.currentTarget).html()})
+		this.emit('message', 'project-event', {func: 'openFile', newFile: $(e.currentTarget).data('file')})
 	}
 	
 	// model events
 	_fileList(files, data){
+	console.log(files);
+	if (!files[0].name) return;
 
 		var $files = $('#fileList')
 		$files.empty();
@@ -74,45 +76,65 @@ class FileView extends View {
 		var headers = [];
 		var sources = [];
 		var resources = [];
+		var directories = [];
 		
-		for (let i=0; i<files.length; i++){
+		for (let item of files){
+		
+			if (item.dir){
 			
-			let ext = files[i].split('.');
-			ext = ext[ext.length-1];
+				directories.push(item);
+				
+			} else {
 			
-			if (sourceIndeces.indexOf(ext) !== -1){
-				sources.push(files[i]);
-			} else if (headerIndeces.indexOf(ext) !== -1){
-				headers.push(files[i]);
-			} else if (files[i]){
-				resources.push(files[i]);
+				let ext = item.name.split('.').pop();
+			
+				if (sourceIndeces.indexOf(ext) !== -1){
+					sources.push(item);
+				} else if (headerIndeces.indexOf(ext) !== -1){
+					headers.push(item);
+				} else if (item){
+					resources.push(item);
+				}
+				
 			}
 			
 		}
 		
-		headers.sort();
-		sources.sort();
-		resources.sort();
+		//console.log(headers, sources, resources, directories);
+
+		headers.sort( (a, b) => a.name - b.name );
+		sources.sort( (a, b) => a.name - b.name );
+		resources.sort( (a, b) => a.name - b.name );
+		directories.sort( (a, b) => a.name - b.name );
+		
+		//console.log(headers, sources, resources, directories);
 				
 		if (headers.length){
 			$('<li></li>').html('Headers:').appendTo($files);
 		}
 		for (let i=0; i<headers.length; i++){
-			$('<li></li>').addClass('sourceFile').html(headers[i]).appendTo($files).on('click', (e) => this.openFile(e));
+			$('<li></li>').addClass('sourceFile').html(headers[i].name).data('file', headers[i].name).appendTo($files).on('click', (e) => this.openFile(e));
 		}
 		
 		if (sources.length){
 			$('<li></li>').html('Sources:').appendTo($files);
 		}
 		for (let i=0; i<sources.length; i++){
-			$('<li></li>').addClass('sourceFile').html(sources[i]).appendTo($files).on('click', (e) => this.openFile(e));
+			$('<li></li>').addClass('sourceFile').html(sources[i].name).data('file', sources[i].name).appendTo($files).on('click', (e) => this.openFile(e));
 		}
 		
 		if (resources.length){
 			$('<li></li>').html('Resources:').appendTo($files);
 		}
 		for (let i=0; i<resources.length; i++){
-			$('<li></li>').addClass('sourceFile').html(resources[i]).appendTo($files).on('click', (e) => this.openFile(e));
+			$('<li></li>').addClass('sourceFile').html(resources[i].name).data('file', resources[i].name).appendTo($files).on('click', (e) => this.openFile(e));
+		}
+		
+		if (directories.length){
+			$('<li></li>').html('Directories:').appendTo($files);
+		}
+		for (let dir of directories){
+			$files.append(this.subDirs(dir));
 		}
 		
 		if (data && data.fileName) this._fileName(data.fileName);
@@ -121,25 +143,39 @@ class FileView extends View {
 
 		// select the opened file in the file manager tab
 		$('.selectedFile').removeClass('selectedFile');
-		$('#fileList>li').each(function(){
-			if ($(this).html() === file){
+		
+		var foundFile = false
+		$('#fileList li').each(function(){
+			if ($(this).data('file') === file){
 				$(this).addClass('selectedFile');
+				foundFile = true;
 			}
 		});
-		
+				
 		if (data && data.currentProject){
 			// set download link
 			$('#downloadFileLink').attr('href', '/download?project='+data.currentProject+'&file='+file);
 		}
 	}
 	
+	subDirs(dir){
+		var ul = $('<ul></ul>').html(dir.name+':');
+		for (let child of dir.children){
+			if (!child.dir)
+				$('<li></li>').addClass('sourceFile').html(child.name).data('file', (dir.dirPath || dir.name)+'/'+child.name).appendTo(ul).on('click', (e) => this.openFile(e));
+			else {
+				child.dirPath = (dir.dirPath || dir.name) + '/' + child.name;
+				ul.append(this.subDirs(child));
+			}
+		}
+		return ul;
+	}
+	
 }
 
 module.exports = FileView;
 
-// replace ' ' with '_' and all non alpha-numeric chars other than '_' and '.' with '#'
+// replace all non alpha-numeric chars other than '-' and '.' with '_'
 function sanitise(name){
-	return name
-		.split(' ').join('_')
-		.replace(/[^a-zA-Z0-9_\.]/g, '#');
+	return name.replace(/[^a-zA-Z0-9\.\-/]/g, '_');
 }

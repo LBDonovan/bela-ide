@@ -306,6 +306,20 @@ models.debug.on('change', (data, changedKeys) => {
 	}
 });
 
+// top-bar
+models.project.on('set', (data, changedKeys) => {
+
+	var projectName = data.exampleName ? data.exampleName.split('/').pop() : data.currentProject;
+	
+	// set the browser tab title
+	$('title').html((data.fileName ? data.fileName+', ' : '')+projectName);
+	
+	// set the top-line stuff
+	$('#top-open-project').html(projectName);
+	$('#top-open-file').html(data.fileName);
+
+});
+
 
 // history
 {
@@ -316,13 +330,6 @@ models.debug.on('change', (data, changedKeys) => {
 		if (changedKeys.indexOf('currentProject') !== -1 || changedKeys.indexOf('fileName') !== -1){
 			var state = {file: data.fileName, project: data.currentProject};
 			if (state.project !== lastState.project || state.file !== lastState.file){
-				
-				// set the browser tab title
-				$('title').html(data.fileName+', '+data.currentProject);
-				
-				// set the top-line stuff
-				$('#top-open-project').html(data.currentProject);
-				$('#top-open-file').html(data.fileName);
 				
 				if (!poppingState){
 					//console.log('push', state);

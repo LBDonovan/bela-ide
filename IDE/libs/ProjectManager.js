@@ -68,6 +68,7 @@ module.exports = {
 	*openExample(data){
 		yield fs.emptyDirAsync(projectPath+exampleTempProject);
 		yield fs.copyAsync(examplePath+data.currentProject, projectPath+exampleTempProject);
+		data.exampleName = data.currentProject;
 		data.currentProject = exampleTempProject;
 		return yield _co(this, 'openProject', data);
 	},

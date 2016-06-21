@@ -14,8 +14,9 @@ var git = require('./GitManager');
 var belaPath = '/root/Bela/';
 var projectPath = belaPath+'projects/';
 var examplePath = belaPath+'examples/';
-var newProjectPath = examplePath+'minimal';
+var templatePath = belaPath+'IDE/templates/';
 var mediaPath = belaPath+'IDE/public/media/';
+var newProjectPath = templatePath+'minimal';
 
 //files
 var blockedFiles = ['build', 'settings.json'];

@@ -1,4 +1,10 @@
-
+@font-face {
+    font-family: 'sofia';
+    src: url('fonts/sofia-webfont-copy.woff2') format('woff2'),
+         url('fonts/sofia-webfont-copy.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
 
 #container {
     align: left;

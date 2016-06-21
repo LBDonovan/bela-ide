@@ -1154,13 +1154,14 @@ input {
 	display: none;
 	min-height: 100px;
 	background: white;
-	border: 2px solid black;
+	border: 2px solid #666;
+	border-radius: 10px;
 	position: absolute;
 	top: calc((100% / 2) - 150px);
 	left: calc((100% / 2) - 200px);
 	font-size: 14px;
 	width: 400px;
-	padding: 20px 20px 30px;
+	padding: 0 20px 30px;
 	margin-bottom: 10px;
 }
 	#popup.active {
@@ -1172,7 +1173,8 @@ input {
     	font-size: 25px;
     	color: #82C889;
     	display: inline;
-    	line-height: 40px;
+    	line-height: 70px;
+    	padding-bottom: 20px;
 	}
 	#popup p {
 		font-family: sofia;
@@ -1180,12 +1182,17 @@ input {
 		color: #999;	
 	}
 	#popup input {
-		margin-top: 10px;
-		width: 150px;
-		padding: 10px 5px;
+		margin: 10px 0 20px;
+		width: 250px;
+		padding: 10px;
+		font-size: 16px;
+	}
+	#popup input::-webkit-input-placeholder {
+		font-style: italic;
+		color: #bdbdbd;
 	}
 	#popup button {
-		margin: 10px;
+		margin: 10px 5px 0;
 		float: right;
 	}
 

@@ -1629,18 +1629,34 @@ class ProjectView extends View {
 	}
 	
 	newProject(func){
-		$('#overlay').css({"display": "inline"});
-		$('#popup').css({"display": "inline", "z-index": "9999"});
+		$('#overlay, #popup').addClass('active');
 		$('#popup-content').html(
-			"<h1>Creating a new project</h1><p>Enter the name of your new project:</p><input type='text'>" 
-			);
+			"<h1>Creating a new project</h1><p>Enter the name of your new project:</p><input type='text'><br /><button class='button' name='cancel'>Cancel</button><button class='button' name='create_newProj' data-func='newProjectButton'>Save project</button>" 
+		), $( '#popup-content button' ).bind( 'click', function( e ){
+			e.preventDefault();
+			if ( $( this ).attr( "name" ) == "cancel" ) {
+				$('#overlay, #popup').removeClass('active');
+				$('#popup-content').html( null );
+			}
+			if ( $( this ).attr( "name" ) == "create_newProj" ) {
+				var proj_name = $('#popup-content input').val();
+				if (proj_name !== null) {
+					this.emit('message', 'project-event', {func, newProject: sanitise(proj_name)})
+					console.log("Project is called: " + proj_name);		
+					$('#overlay, #popup').removeClass('active');
+					$('#popup-content').html( null );
+				}
+			}
+		});
 		// var name = prompt("Enter the name of the new project");
 		// var file_name = $('input').attr(value);
-		console.log("new file button has been clicked");
 		// if (file_name !== null){
 		// 	this.emit('message', 'project-event', {func, newProject: sanitise(file_name)})
 		// 	console.log(file_name);
 		// }
+	
+	
+		
 	}
 	saveAs(func){
 		var name = prompt("Enter the name of the new project");

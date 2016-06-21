@@ -1146,6 +1146,9 @@ input {
 	height: 100%;
 	z-index: 9998;
 }
+	#overlay.active {
+		display: inline;
+	}
 
 #popup {
 	display: none;
@@ -1157,5 +1160,32 @@ input {
 	left: calc((100% / 2) - 200px);
 	font-size: 14px;
 	width: 400px;
+	padding: 20px 20px 30px;
+	margin-bottom: 10px;
 }
+	#popup.active {
+		display: inline;
+		z-index: 9999;
+	}
+	#popup h1 {
+    	font-family: sofia;
+    	font-size: 25px;
+    	color: #82C889;
+    	display: inline;
+    	line-height: 40px;
+	}
+	#popup p {
+		font-family: sofia;
+		font-size: 14px;
+		color: #999;	
+	}
+	#popup input {
+		margin-top: 10px;
+		width: 150px;
+		padding: 10px 5px;
+	}
+	#popup button {
+		margin: 10px;
+		float: right;
+	}
 

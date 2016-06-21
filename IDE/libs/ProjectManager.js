@@ -167,6 +167,18 @@ module.exports = {
 				console.log('could not open file', data.newFile);
 				console.log(e.toString());
 				
+				var projectContents = yield fs.readdirAsync(projectDir);
+				
+				if (projectContents.length){
+					for (let item of projectContents){
+						if (blockedFiles.indexOf(item) === -1 && (yield fs.statAsync(projectDir+'/'+item).then( stat => stat.isFile() ).catch( () => false ))){
+							//data.newFile = item;
+							console.log('attempting to open '+item+' instead');
+							//return (yield this.openFile(data));
+						}
+					}
+				}
+				
 				// return an error
 				data.error = 'Could not open file '+data.newFile;
 				data.fileData = '';

@@ -62,7 +62,7 @@ fileView.on('message', (event, data) => {
 
 // editor view
 var editorView = new (require('./Views/EditorView'))('editor', [models.project, models.error, models.settings, models.debug], models.settings);
-editorView.on('change', (fileData) => {
+editorView.on('upload', fileData => {
 	socket.emit('process-event', {
 		event			: 'upload',
 		currentProject	: models.project.getKey('currentProject'),
@@ -71,7 +71,7 @@ editorView.on('change', (fileData) => {
 		checkSyntax		: parseInt(models.settings.getKey('liveSyntaxChecking'))
 	});
 });
-editorView.on('breakpoint', (line) => {
+editorView.on('breakpoint', line => {
 	var breakpoints = models.project.getKey('breakpoints');
 	for (let i=0; i<breakpoints.length; i++){
 		if (breakpoints[i].line === line && breakpoints[i].file === models.project.getKey('fileName')){
@@ -91,6 +91,9 @@ editorView.on('breakpoint', (line) => {
 });
 editorView.on('open-notification', data => consoleView.emit('openNotification', data) );
 editorView.on('close-notification', data => consoleView.emit('closeNotification', data) );
+editorView.on('editor-changed', () => {
+	if (models.project.getKey('exampleName')) projectView.emit('example-changed');
+});
 
 // toolbar view
 var toolbarView = new (require('./Views/ToolbarView'))('toolBar', [models.project, models.error, models.status, models.settings, models.debug]);

@@ -4,16 +4,22 @@ class ProjectView extends View {
 	
 	constructor(className, models){
 		super(className, models);
+		
+		this.exampleChanged = false;
+		this.on('example-changed', () => this.exampleChanged = true );
 	}
 	
 	// UI events
 	selectChanged($element, e){
-		//console.log($element.prop('id'));
-		//if ($element.prop('id') === 'projects'){
-			this.emit('message', 'project-event', {func: $element.data().func, currentProject: $element.val()})
-		//} else if ($element.prop('id') === 'examples'){
-			//this.emit('message', 'example-event', {func: $element.data().func, example: $element.val()})
-		//}
+	
+		if (this.exampleChanged && !confirm('example changed! You will lose all changes if you continue')){
+			$element.find('option').filter(':selected').attr('selected', '');
+			$element.val($('#projects > option:first').val())
+			return;
+		}
+
+		this.emit('message', 'project-event', {func: $element.data().func, currentProject: $element.val()})
+		
 	}
 	buttonClicked($element, e){
 		var func = $element.data().func;
@@ -23,10 +29,15 @@ class ProjectView extends View {
 	}
 	
 	newProject(func){
+		
+		if (this.exampleChanged && !confirm('example changed! You will lose all changes if you continue'))
+			return;
+			
 		var name = prompt("Enter the name of the new project");
 		if (name !== null){
 			this.emit('message', 'project-event', {func, newProject: sanitise(name)})
 		}
+		
 	}
 	saveAs(func){
 		var name = prompt("Enter the name of the new project");
@@ -75,12 +86,17 @@ class ProjectView extends View {
 			for (let child of item.children){
 				$('<li></li>').addClass('sourceFile').html(child).appendTo(ul)
 					.on('click', (e) => {
+					
+						if (this.exampleChanged && !confirm('example changed! You will lose all changes if you continue'))
+							return;
+							
 						this.emit('message', 'project-event', {
 							func: 'openExample',
 							currentProject: item.name+'/'+child
 						});
 						$('.selectedExample').removeClass('selectedExample');
 						$(e.target).addClass('selectedExample');
+						
 					});
 			}
 			ul.appendTo($examples);
@@ -104,6 +120,11 @@ class ProjectView extends View {
 		
 		// set download link
 		$('#downloadLink').attr('href', '/download?project='+project);
+		
+	}
+	
+	__currentProject(){
+		this.exampleChanged = false;
 	}
 	
 	subDirs(dir){

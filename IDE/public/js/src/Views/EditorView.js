@@ -61,8 +61,9 @@ class EditorView extends View {
 	}
 	
 	editorChanged(){
+		this.emit('editor-changed');
 		clearTimeout(this.uploadTimeout);
-		this.uploadTimeout = setTimeout( () => this.emit('change', this.editor.getValue()), uploadDelay );
+		this.uploadTimeout = setTimeout( () => this.emit('upload', this.editor.getValue()), uploadDelay );
 	}
 	
 	// model events

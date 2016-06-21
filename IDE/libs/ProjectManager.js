@@ -167,6 +167,7 @@ module.exports = {
 				console.log('could not open file', data.newFile);
 				console.log(e.toString());
 				
+				// attempt to open a different file
 				var projectContents = yield fs.readdirAsync(projectDir);
 				
 				if (projectContents.length){
@@ -269,6 +270,21 @@ module.exports = {
 					// newFile was not opened succesfully
 					console.log('could not open file', data.newFile);
 					console.log(e.toString());
+					
+					// attempt to open a different file
+					var projectContents = yield fs.readdirAsync(projectDir);
+				
+					if (projectContents.length){
+						for (let item of projectContents){
+							if (blockedFiles.indexOf(item) === -1 && 
+								(yield fs.statAsync(projectDir+'/'+item).then( stat => stat.isFile() ).catch( () => false )) && 
+								item !== data.currentProject){
+									data.error = 'could not open '+data.newFile+', opening '+item+' instead';
+									data.newFile = item;
+									return yield _co(this, 'openProject', data);
+							}
+						}
+					}
 				
 					// return an error
 					data.error = 'Could not open file '+data.newFile;

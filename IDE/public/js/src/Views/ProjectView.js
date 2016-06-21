@@ -64,21 +64,6 @@ class ProjectView extends View {
 		
 	}
 	_exampleList(examplesDir){
-	
-		/*var $examples = $('#examples');
-		$examples.empty();
-		
-		// add an empty option to menu and select it
-		var opt = $('<option></option>').attr({'value': '', 'selected': 'selected'}).html('--Examples--').appendTo($examples);
-		
-		// fill project menu with examples
-		for (let i=0; i<examples.length; i++){
-			if (examples[i] && examples[i] !== 'undefined' && examples[i] !== 'exampleTempProject' && examples[i][0] !== '.'){
-				var opt = $('<option></option>').attr('value', examples[i]).html(examples[i]).appendTo($examples);
-			}
-		}*/
-		
-		console.log(examplesDir);
 
 		var $examples = $('#examples');
 		$examples.empty();

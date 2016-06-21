@@ -315,7 +315,14 @@ models.debug.on('change', (data, changedKeys) => {
 		if (changedKeys.indexOf('currentProject') !== -1 || changedKeys.indexOf('fileName') !== -1){
 			var state = {file: data.fileName, project: data.currentProject};
 			if (state.project !== lastState.project || state.file !== lastState.file){
+				
+				// set the browser tab title
 				$('title').html(data.fileName+', '+data.currentProject);
+				
+				// set the top-line stuff
+				$('#top-open-project').html(data.currentProject);
+				$('#top-open-file').html(data.fileName);
+				
 				if (!poppingState){
 					//console.log('push', state);
 					history.pushState(state, null, null);

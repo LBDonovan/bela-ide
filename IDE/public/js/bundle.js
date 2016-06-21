@@ -316,7 +316,14 @@ models.debug.on('change', (data, changedKeys) => {
 		if (changedKeys.indexOf('currentProject') !== -1 || changedKeys.indexOf('fileName') !== -1){
 			var state = {file: data.fileName, project: data.currentProject};
 			if (state.project !== lastState.project || state.file !== lastState.file){
+				
+				// set the browser tab title
 				$('title').html(data.fileName+', '+data.currentProject);
+				
+				// set the top-line stuff
+				$('#top-open-project').html(data.currentProject);
+				$('#top-open-file').html(data.fileName);
+				
 				if (!poppingState){
 					//console.log('push', state);
 					history.pushState(state, null, null);
@@ -1670,21 +1677,6 @@ class ProjectView extends View {
 		
 	}
 	_exampleList(examplesDir){
-	
-		/*var $examples = $('#examples');
-		$examples.empty();
-		
-		// add an empty option to menu and select it
-		var opt = $('<option></option>').attr({'value': '', 'selected': 'selected'}).html('--Examples--').appendTo($examples);
-		
-		// fill project menu with examples
-		for (let i=0; i<examples.length; i++){
-			if (examples[i] && examples[i] !== 'undefined' && examples[i] !== 'exampleTempProject' && examples[i][0] !== '.'){
-				var opt = $('<option></option>').attr('value', examples[i]).html(examples[i]).appendTo($examples);
-			}
-		}*/
-		
-		console.log(examplesDir);
 
 		var $examples = $('#examples');
 		$examples.empty();

@@ -306,6 +306,37 @@ models.debug.on('change', (data, changedKeys) => {
 	}
 });
 
+// top-bar
+models.project.on('change', (data, changedKeys) => {
+
+	var projectName = data.exampleName ? data.exampleName+' (example)' : data.currentProject;
+
+	// set the browser tab title
+	$('title').html((data.fileName ? data.fileName+', ' : '')+projectName);
+	
+	// set the top-line stuff
+	$('#top-open-project').html(projectName ? 'Open Project: '+projectName : '');
+	$('#top-open-file').html(data.fileName ? 'Open File: '+data.fileName : '');
+	
+	if (data.exampleName){
+		$('#top-example-docs').css('visibility', 'visible');
+		$('#top-example-docs-link').prop('href', 'documentation/01-'+data.exampleName+'-example.html');
+	} else {
+		$('#top-example-docs').css('visibility', 'hidden');	
+	}
+
+});
+models.status.on('change', (data, changedKeys) => {
+	if (changedKeys.indexOf('running') !== -1 || changedKeys.indexOf('building') !== -1){
+		if (data.running)
+			$('#top-bela-status').html('Running Project: '+(models.project.getKey('exampleName') || models.project.getKey('currentProject')));
+		else if (data.building)
+			$('#top-bela-status').html('Building Project: '+(models.project.getKey('exampleName') || models.project.getKey('currentProject')));
+		else
+			$('#top-bela-status').html('');
+	}
+});
+
 
 // history
 {
@@ -316,7 +347,7 @@ models.debug.on('change', (data, changedKeys) => {
 		if (changedKeys.indexOf('currentProject') !== -1 || changedKeys.indexOf('fileName') !== -1){
 			var state = {file: data.fileName, project: data.currentProject};
 			if (state.project !== lastState.project || state.file !== lastState.file){
-				$('title').html(data.fileName+', '+data.currentProject);
+				
 				if (!poppingState){
 					//console.log('push', state);
 					history.pushState(state, null, null);
@@ -1670,21 +1701,6 @@ class ProjectView extends View {
 		
 	}
 	_exampleList(examplesDir){
-	
-		/*var $examples = $('#examples');
-		$examples.empty();
-		
-		// add an empty option to menu and select it
-		var opt = $('<option></option>').attr({'value': '', 'selected': 'selected'}).html('--Examples--').appendTo($examples);
-		
-		// fill project menu with examples
-		for (let i=0; i<examples.length; i++){
-			if (examples[i] && examples[i] !== 'undefined' && examples[i] !== 'exampleTempProject' && examples[i][0] !== '.'){
-				var opt = $('<option></option>').attr('value', examples[i]).html(examples[i]).appendTo($examples);
-			}
-		}*/
-		
-		console.log(examplesDir);
 
 		var $examples = $('#examples');
 		$examples.empty();
@@ -1953,6 +1969,7 @@ class TabView extends View {
 	
 	openTabs(){
 		$('#editor').css('right', '500px');
+		$('#top-line').css('margin-right', '500px');
 		$('#right').css('left', window.innerWidth - 500 + 'px');
 		_tabsOpen = true;
 		this.emit('change');
@@ -1961,6 +1978,7 @@ class TabView extends View {
 
 	closeTabs(){
 		$('#editor').css('right', '60px');
+		$('#top-line').css('margin-right', '60px');
 		$('#right').css('left', window.innerWidth - 60 + 'px');
 		_tabsOpen = false;
 		this.emit('change');

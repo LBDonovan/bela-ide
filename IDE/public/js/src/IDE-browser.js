@@ -305,6 +305,37 @@ models.debug.on('change', (data, changedKeys) => {
 	}
 });
 
+// top-bar
+models.project.on('change', (data, changedKeys) => {
+
+	var projectName = data.exampleName ? data.exampleName+' (example)' : data.currentProject;
+
+	// set the browser tab title
+	$('title').html((data.fileName ? data.fileName+', ' : '')+projectName);
+	
+	// set the top-line stuff
+	$('#top-open-project').html(projectName ? 'Open Project: '+projectName : '');
+	$('#top-open-file').html(data.fileName ? 'Open File: '+data.fileName : '');
+	
+	if (data.exampleName){
+		$('#top-example-docs').css('visibility', 'visible');
+		$('#top-example-docs-link').prop('href', 'documentation/01-'+data.exampleName+'-example.html');
+	} else {
+		$('#top-example-docs').css('visibility', 'hidden');	
+	}
+
+});
+models.status.on('change', (data, changedKeys) => {
+	if (changedKeys.indexOf('running') !== -1 || changedKeys.indexOf('building') !== -1){
+		if (data.running)
+			$('#top-bela-status').html('Running Project: '+(models.project.getKey('exampleName') || models.project.getKey('currentProject')));
+		else if (data.building)
+			$('#top-bela-status').html('Building Project: '+(models.project.getKey('exampleName') || models.project.getKey('currentProject')));
+		else
+			$('#top-bela-status').html('');
+	}
+});
+
 
 // history
 {
@@ -315,7 +346,7 @@ models.debug.on('change', (data, changedKeys) => {
 		if (changedKeys.indexOf('currentProject') !== -1 || changedKeys.indexOf('fileName') !== -1){
 			var state = {file: data.fileName, project: data.currentProject};
 			if (state.project !== lastState.project || state.file !== lastState.file){
-				$('title').html(data.fileName+', '+data.currentProject);
+				
 				if (!poppingState){
 					//console.log('push', state);
 					history.pushState(state, null, null);

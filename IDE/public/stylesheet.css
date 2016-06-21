@@ -96,6 +96,11 @@ body {
 	white-space: nowrap;
 	text-align: left;
 }
+#top-line button{
+    float: right;
+    margin-right: 5px;
+    visibility: hidden;
+}
 
 #beaglert-console{
 	width: 100%;

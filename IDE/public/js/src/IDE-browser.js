@@ -316,11 +316,17 @@ models.project.on('change', (data, changedKeys) => {
 	// set the top-line stuff
 	$('#top-open-project').html(projectName ? 'Open Project: '+projectName : '');
 	$('#top-open-file').html(data.fileName ? 'Open File: '+data.fileName : '');
+	
+	if (data.exampleName){
+		$('#top-example-docs').css('visibility', 'visible');
+		$('#top-example-docs-link').prop('href', 'documentation/01-'+data.exampleName+'-example.html');
+	} else {
+		$('#top-example-docs').css('visibility', 'hidden');	
+	}
 
 });
 models.status.on('change', (data, changedKeys) => {
 	if (changedKeys.indexOf('running') !== -1 || changedKeys.indexOf('building') !== -1){
-	console.log(changedKeys, changedKeys.indexOf('running'), changedKeys.indexOf('building'));
 		if (data.running)
 			$('#top-bela-status').html('Running Project: '+(models.project.getKey('exampleName') || models.project.getKey('currentProject')));
 		else if (data.building)

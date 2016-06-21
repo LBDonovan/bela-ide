@@ -56,7 +56,7 @@ gulp.task('watch', ['killnode', 'browserify', 'upload', 'restartnode'], function
 
 gulp.task('upload', ['killnode'], (callback) => {
 
-	var ssh = spawn('rsync', ['-av', '--delete', '../IDE/', user+'@'+host+':'+remotePath]);
+	var ssh = spawn('rsync', ['-av', '--delete', '--exclude=settings.json', '../IDE/', user+'@'+host+':'+remotePath]);
 	
 	ssh.stdout.setEncoding('utf8');
 	ssh.stdout.on('data', function(data){

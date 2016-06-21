@@ -24,7 +24,10 @@ class ProjectView extends View {
 	
 	newProject(func){
 		$('#overlay').css({"display": "inline"});
-		$('#new-project-popup').css({"display": "inline", "z-index": "9999"});
+		$('#popup').css({"display": "inline", "z-index": "9999"});
+		$('#popup-content').html(
+			"<h1>Creating a new project</h1><p>Enter the name of your new project:</p><input type='text'>" 
+			);
 		// var name = prompt("Enter the name of the new project");
 		// var file_name = $('input').attr(value);
 		console.log("new file button has been clicked");

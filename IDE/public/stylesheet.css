@@ -1147,14 +1147,15 @@ input {
 	z-index: 9998;
 }
 
-#new-project-popup {
+#popup {
 	display: none;
-	background: pink;
+	min-height: 100px;
+	background: white;
+	border: 2px solid black;
 	position: absolute;
 	top: calc((100% / 2) - 150px);
 	left: calc((100% / 2) - 200px);
 	font-size: 14px;
 	width: 400px;
-	height: 300px;
 }
 

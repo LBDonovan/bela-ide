@@ -130,7 +130,7 @@ function socketEvents(socket){
 				}
 			})
 			.catch((error) => {
-				console.log(error, error.stack.split('\n'), error.toString());
+				console.log(error);
 				//socket.emit('report-error', error.toString() );
 				data.error = error.toString();
 				socket.emit('project-data', data);

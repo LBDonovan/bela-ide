@@ -18,7 +18,7 @@ var newProjectPath = examplePath+'minimal';
 var mediaPath = belaPath+'IDE/public/media/';
 
 //files
-var blockedFiles = ['build', 'settings.json'];
+var blockedFiles = ['build', 'settings.json', '.DS_Store'];
 var exampleTempProject = 'exampleTempProject';
 var sourceIndeces = ['cpp', 'c', 'S'];
 var headerIndeces = ['h', 'hh', 'hpp'];
@@ -172,9 +172,9 @@ module.exports = {
 				if (projectContents.length){
 					for (let item of projectContents){
 						if (blockedFiles.indexOf(item) === -1 && (yield fs.statAsync(projectDir+'/'+item).then( stat => stat.isFile() ).catch( () => false ))){
-							//data.newFile = item;
-							console.log('attempting to open '+item+' instead');
-							//return (yield this.openFile(data));
+							data.error = 'could not open '+data.newFile+', opening '+item+' instead';
+							data.newFile = item;
+							return yield _co(this, 'openProject', data);
 						}
 					}
 				}

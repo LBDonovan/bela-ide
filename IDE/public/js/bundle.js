@@ -1629,10 +1629,15 @@ class ProjectView extends View {
 	}
 	
 	newProject(func){
-		var name = prompt("Enter the name of the new project");
-		if (name !== null){
-			this.emit('message', 'project-event', {func, newProject: sanitise(name)})
-		}
+		$('#overlay').css({"display": "inline"});
+		$('#new-project-popup').css({"display": "inline", "z-index": "9999"});
+		// var name = prompt("Enter the name of the new project");
+		// var file_name = $('input').attr(value);
+		console.log("new file button has been clicked");
+		// if (file_name !== null){
+		// 	this.emit('message', 'project-event', {func, newProject: sanitise(file_name)})
+		// 	console.log(file_name);
+		// }
 	}
 	saveAs(func){
 		var name = prompt("Enter the name of the new project");

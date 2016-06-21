@@ -59,6 +59,7 @@ module.exports = {
 		for (let key in settings){
 			data[key] = settings[key];
 		}
+		if (data.currentProject !== exampleTempProject) data.exampleName = '';
 		if (!data.gitData) data.gitData = {};
 		data.gitData.currentProject = data.currentProject;
 		data.gitData = yield _co(git, 'info', data.gitData);
@@ -68,7 +69,7 @@ module.exports = {
 	*openExample(data){
 		yield fs.emptyDirAsync(projectPath+exampleTempProject);
 		yield fs.copyAsync(examplePath+data.currentProject, projectPath+exampleTempProject);
-		data.exampleName = data.currentProject;
+		data.exampleName = data.currentProject.split('/').pop();
 		data.currentProject = exampleTempProject;
 		return yield _co(this, 'openProject', data);
 	},

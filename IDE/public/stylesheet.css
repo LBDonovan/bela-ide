@@ -84,6 +84,7 @@ body {
 	line-height: 20px;
 	background: #e1f2d9;
 	padding-left: 40px;
+	margin-right: 60px;
 	font-family: inconsolata;
 	font-size: 12px;
 	color: #666;
@@ -91,8 +92,9 @@ body {
 #top-line > div{
 	display: inline-block;
 	vertical-align: center;
-	width: 6.25%;
+	margin: 0 15px;
 	white-space: nowrap;
+	text-align: left;
 }
 
 #beaglert-console{

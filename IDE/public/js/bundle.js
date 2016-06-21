@@ -319,6 +319,16 @@ models.project.on('set', (data, changedKeys) => {
 	$('#top-open-file').html(data.fileName);
 
 });
+models.status.on('change', (data, changedKeys) => {
+	if (changedKeys.indexOf('running') !== -1 || changedKeys.indexOf('building')){
+		if (data.running)
+			$('#top-bela-status').html('Running project '+models.project.getKey('currentProject'));
+		else if (data.building)
+			$('#top-bela-status').html('Building project '+models.project.getKey('currentProject'));
+		else
+			$('#top-bela-status').html('');
+	}
+});
 
 
 // history

@@ -37,7 +37,7 @@ var popup = {
 
 module.exports = popup;
 
-function example(cb, arg){
+function example(cb, arg, delay){
 
 	// build the popup content
 	popup.title('Save your changes?');
@@ -51,7 +51,7 @@ function example(cb, arg){
 		e.preventDefault();
 		setTimeout(function(){
 			cb(arg);
-		}, 500);
+		}, delay);
 		popup.hide();
 	});
 		

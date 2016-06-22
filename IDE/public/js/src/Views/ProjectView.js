@@ -30,15 +30,13 @@ class ProjectView extends View {
 	}
 	
 	newProject(func){
-		console.log(this);
+
 		if (this.exampleChanged){
 			this.exampleChanged = false;
-			popup.exampleChanged(this.newProject.bind(this), func);
+			popup.exampleChanged(this.newProject.bind(this), func, 500);
 			return;
 		}
-		
-		console.log('ho');
-		
+				
 		// build the popup content
 		popup.title('Creating a new project');
 		popup.subtitle('Choose what kind of project you would like to create, and enter the name of your new project');
@@ -94,7 +92,7 @@ class ProjectView extends View {
 
 	}
 	deleteProject(func){
-	
+
 		// build the popup content
 		popup.title('Deleting project');
 		popup.subtitle('Are you sure you wish to delete this project? This cannot be undone!');
@@ -152,8 +150,18 @@ class ProjectView extends View {
 				$('<li></li>').addClass('sourceFile').html(child).appendTo(ul)
 					.on('click', (e) => {
 					
-						if (this.exampleChanged && !confirm('example changed! You will lose all changes if you continue'))
+						if (this.exampleChanged){
+							this.exampleChanged = false;
+							popup.exampleChanged( () => {
+								this.emit('message', 'project-event', {
+									func: 'openExample',
+									currentProject: item.name+'/'+child
+								});
+								$('.selectedExample').removeClass('selectedExample');
+								$(e.target).addClass('selectedExample');
+							}, undefined, 0);
 							return;
+						}
 							
 						this.emit('message', 'project-event', {
 							func: 'openExample',

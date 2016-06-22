@@ -21,7 +21,7 @@ module.exports = {
 	find: selector => content.find(selector),
 	
 	title: text => titleEl.html(text),
-	subtitle: text => formEl.html(text),
+	subtitle: text => subEl.html(text),
 	formEl: text => formEl.html(text),
 	
 	append: child => content.append(child),

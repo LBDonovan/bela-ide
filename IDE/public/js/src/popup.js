@@ -5,7 +5,7 @@ var titleEl	= parent.find('h1');
 var subEl	= parent.find('p');
 var formEl	= parent.find('form');
 
-module.exports = {
+var popup = {
 	
 	show(){
 		overlay.addClass('active');
@@ -29,6 +29,36 @@ module.exports = {
 	
 	append: child => content.append(child),
 	
-	form: formEl
+	form: formEl,
+	
+	exampleChanged: example
 	
 };
+
+module.exports = popup;
+
+function example(cb, arg){
+
+	// build the popup content
+	popup.title('Save your changes?');
+	popup.subtitle('You have made changes to an example project. If you continue, your changes will be lost. To keep your changes, click cancel and then Save As in the project manager tab');
+	
+	var form = [];
+	form.push('<button type="submit" class="button popup-continue">Continue</button>');
+	form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+	
+	popup.form.append(form.join('')).off('submit').on('submit', e => {
+		e.preventDefault();
+		setTimeout(function(){
+			cb(arg);
+		}, 500);
+		popup.hide();
+	});
+		
+	popup.find('.popup-cancel').on('click', popup.hide );
+	
+	popup.show();
+	
+	popup.find('.popup-continue').trigger('focus');
+	
+}

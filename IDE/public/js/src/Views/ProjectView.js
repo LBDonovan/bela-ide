@@ -30,9 +30,14 @@ class ProjectView extends View {
 	}
 	
 	newProject(func){
-		
-		if (this.exampleChanged && !confirm('example changed! You will lose all changes if you continue'))
+		console.log(this);
+		if (this.exampleChanged){
+			this.exampleChanged = false;
+			popup.exampleChanged(this.newProject.bind(this), func);
 			return;
+		}
+		
+		console.log('ho');
 		
 		// build the popup content
 		popup.title('Creating a new project');

@@ -1681,7 +1681,10 @@ class ProjectView extends View {
 	}
 	
 	newProject(func){
-<<<<<<< HEAD
+		
+		if (this.exampleChanged && !confirm('example changed! You will lose all changes if you continue'))
+			return;
+			
 		$('#overlay, #popup').addClass('active');
 		$('#popup-content').html(
 			"<h1>Creating a new project</h1><p>Enter the name of your new project:</p><input type='text' placeholder='Enter your project name'><br /><button class='button' name='cancel'>Cancel</button><button class='button' name='create_newProj' data-func='newProjectButton'>Save project</button>" 
@@ -1709,16 +1712,7 @@ class ProjectView extends View {
 		// }
 	
 	
-=======
 		
-		if (this.exampleChanged && !confirm('example changed! You will lose all changes if you continue'))
-			return;
-			
-		var name = prompt("Enter the name of the new project");
-		if (name !== null){
-			this.emit('message', 'project-event', {func, newProject: sanitise(name)})
-		}
->>>>>>> master
 		
 	}
 	saveAs(func){
@@ -1830,6 +1824,7 @@ module.exports = ProjectView;
 function sanitise(name){
 	return name.replace(/[^a-zA-Z0-9\.\-]/g, '_');
 }
+
 },{"./View":13}],10:[function(require,module,exports){
 var View = require('./View');
 

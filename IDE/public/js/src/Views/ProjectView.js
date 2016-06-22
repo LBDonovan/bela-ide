@@ -100,7 +100,6 @@ class ProjectView extends View {
 		
 		popup.form.append(form.join('')).off('submit').on('submit', e => {
 			e.preventDefault();
-			console.log('hi');
 			this.emit('message', 'project-event', {func});
 			popup.hide();
 		});

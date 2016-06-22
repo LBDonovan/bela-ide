@@ -1361,6 +1361,7 @@ class EditorView extends View {
 module.exports = EditorView;
 },{"./View":13}],7:[function(require,module,exports){
 var View = require('./View');
+var popup = require('../popup');
 
 var sourceIndeces = ['cpp', 'c', 'S'];
 var headerIndeces = ['h', 'hh', 'hpp'];
@@ -1403,25 +1404,76 @@ class FileView extends View {
 	}
 	
 	newFile(func){
-		var name = prompt("Enter the name of the new file");
-		if (name !== null){
-			this.emit('message', 'project-event', {func, newFile: sanitise(name)})
-		}
+	
+		// build the popup content
+		popup.title('Creating a new file');
+		popup.subtitle('Enter the name of the new file. Only files with extensions .cpp, .c or .S will be compiled.');
+		
+		var form = [];
+		form.push('<input type="text" placeholder="Enter the file name">');
+		form.push('</br >');
+		form.push('<button type="submit" class="button popup-create">Create</button>');
+		form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+		
+		popup.form.append(form.join('')).off('submit').on('submit', e => {
+			e.preventDefault();
+			this.emit('message', 'project-event', {func, newFile: sanitise(popup.find('input[type=text]').val())});
+			popup.hide();
+		});
+		
+		popup.find('.popup-cancel').on('click', popup.hide );
+		
+		popup.show();
+
 	}
 	uploadFile(func){
 		$('#uploadFileInput').trigger('click');
 	}
 	renameFile(func){
-		var name = prompt("Enter the new name of the file");
-		if (name !== null){
-			this.emit('message', 'project-event', {func, newFile: sanitise(name)})
-		}
+		
+		// build the popup content
+		popup.title('Renaming this file');
+		popup.subtitle('Enter the new name of the file. Only files with extensions .cpp, .c or .S will be compiled.');
+		
+		var form = [];
+		form.push('<input type="text" placeholder="Enter the file name">');
+		form.push('</br >');
+		form.push('<button type="submit" class="button popup-rename">Rename</button>');
+		form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+		
+		popup.form.append(form.join('')).off('submit').on('submit', e => {
+			e.preventDefault();
+			this.emit('message', 'project-event', {func, newFile: sanitise(popup.find('input[type=text]').val())});
+			popup.hide();
+		});
+		
+		popup.find('.popup-cancel').on('click', popup.hide );
+		
+		popup.show();
+
 	}
 	deleteFile(func){
-		var cont = confirm("This can't be undone! Continue?");
-		if (cont){
-			this.emit('message', 'project-event', {func})
-		}
+	
+		// build the popup content
+		popup.title('Deleting file');
+		popup.subtitle('Are you sure you wish to delete this file? This cannot be undone!');
+		
+		var form = [];
+		form.push('<button type="submit" class="button popup-delete">Delete</button>');
+		form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+		
+		popup.form.append(form.join('')).off('submit').on('submit', e => {
+			e.preventDefault();
+			this.emit('message', 'project-event', {func});
+			popup.hide();
+		});
+		
+		popup.find('.popup-cancel').on('click', popup.hide );
+		
+		popup.show();
+		
+		popup.find('.popup-delete').trigger('focus');
+		
 	}
 	openFile(e){
 		this.emit('message', 'project-event', {func: 'openFile', newFile: $(e.currentTarget).data('file')})
@@ -1541,7 +1593,7 @@ module.exports = FileView;
 function sanitise(name){
 	return name.replace(/[^a-zA-Z0-9\.\-/]/g, '_');
 }
-},{"./View":13}],8:[function(require,module,exports){
+},{"../popup":16,"./View":13}],8:[function(require,module,exports){
 'use strict';
 var View = require('./View');
 
@@ -1752,7 +1804,6 @@ class ProjectView extends View {
 		
 		popup.form.append(form.join('')).off('submit').on('submit', e => {
 			e.preventDefault();
-			console.log('hi');
 			this.emit('message', 'project-event', {func});
 			popup.hide();
 		});

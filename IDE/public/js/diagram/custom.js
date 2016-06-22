@@ -17,7 +17,8 @@ $(document).ready(function() {
                 rect.node.setAttribute("class", classname);
                 rect.node.id = elem.id;
                 $('.tooltip').tooltipster({
-                    content: $('<div class="tipText">' + elem.text + '</div>')
+                    content: $('<div class="tipText">' + elem.text + '</div>'),
+                    multiple: true
                     // putting theme here breaks things
                 });
                 

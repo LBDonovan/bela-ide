@@ -974,9 +974,8 @@ right: calc(100% - 62px);
 #settingsTab{
 	line-height: 1.5;
 }
-#settingsTab > input, #settingsTab>select{
-	position: absolute;
-	right: 50px;
+#settingsTab input, #settingsTab select{
+	margin: 1px 0;
 }
 #C_L_ARGS{
 	left: 20px;
@@ -1157,6 +1156,10 @@ input {
     height: 19px;
     display: inline;
     border-radius: 2px;
+}
+input[type=checkbox]{
+	position: relative;
+	top: 5px;
 }
 
 #overlay {

@@ -35,7 +35,28 @@ class ProjectView extends View {
 			return;
 		
 		// build the popup content
-		var html = [];
+		popup.title('Creating a new project');
+		popup.subtitle('Enter the name of your new project');
+		
+		var form = [];
+		
+		form.push('<input type="text" placeholder="Enter your project name">');
+		form.push('</br >');
+		form.push('<button type="submit" class="button popup-save">Save</button>');
+		form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+		
+		popup.form.append(form.join('')).on('submit', e => {
+			e.preventDefault();
+			console.log('hi');
+			this.emit('message', 'project-event', {func, newProject: sanitise(popup.find('input').val())});
+			popup.hide();
+		});
+		
+		popup.find('.popup-cancel').on('click', popup.hide );
+		
+		popup.show();
+		
+		/*var html = [];
 		
 		html.push('<h1>Creating a new project</h1>');
 		html.push('<p>Enter the name of your new project:</p>');
@@ -49,7 +70,7 @@ class ProjectView extends View {
 			this.emit('message', 'project-event', {func, newProject: sanitise(popup.find('input').val())})
 			popup.hide();
 		});
-		popup.find('.popup-cancel').on('click', popup.hide );
+		popup.find('.popup-cancel').on('click', popup.hide );*/
 
 	}
 	saveAs(func){

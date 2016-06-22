@@ -1731,7 +1731,7 @@ class ProjectView extends View {
 		
 		popup.form.append(form.join('')).off('submit').on('submit', e => {
 			e.preventDefault();
-			this.emit('message', 'project-event', {func, newProject: sanitise(popup.find('input').val())});
+			this.emit('message', 'project-event', {func, newProject: sanitise(popup.find('input[type=text]').val())});
 			popup.hide();
 		});
 		
@@ -1741,10 +1741,28 @@ class ProjectView extends View {
 
 	}
 	deleteProject(func){
-		var cont = confirm("This can't be undone! Continue?");
-		if (cont){
-			this.emit('message', 'project-event', {func})
-		}
+	
+		// build the popup content
+		popup.title('Deleting project');
+		popup.subtitle('Are you sure you wish to delete this project? This cannot be undone!');
+		
+		var form = [];
+		form.push('<button type="submit" class="button popup-delete">Delete</button>');
+		form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+		
+		popup.form.append(form.join('')).off('submit').on('submit', e => {
+			e.preventDefault();
+			console.log('hi');
+			this.emit('message', 'project-event', {func});
+			popup.hide();
+		});
+		
+		popup.find('.popup-cancel').on('click', popup.hide );
+		
+		popup.show();
+		
+		popup.find('.popup-delete').trigger('focus');
+		
 	}
 	cleanProject(func){
 		this.emit('message', 'project-event', {func});

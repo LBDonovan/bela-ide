@@ -1914,6 +1914,7 @@ function sanitise(name){
 }
 },{"../popup":16,"./View":13}],10:[function(require,module,exports){
 var View = require('./View');
+var popup = require('../popup');
 
 class SettingsView extends View {
 	
@@ -1969,7 +1970,27 @@ class SettingsView extends View {
 		this.emit('project-settings', {func, key, value});
 	}
 	restoreDefaultCLArgs(func){
-		this.emit('project-settings', {func});
+		
+		// build the popup content
+		popup.title('Restoring default project settings');
+		popup.subtitle('Are you sure you wish to continue? Your current project settings will be lost!');
+		
+		var form = [];
+		form.push('<button type="submit" class="button popup-continue">Continue</button>');
+		form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+		
+		popup.form.append(form.join('')).off('submit').on('submit', e => {
+			e.preventDefault();
+			this.emit('project-settings', {func});
+			popup.hide();
+		});
+		
+		popup.find('.popup-cancel').on('click', popup.hide );
+		
+		popup.show();
+		
+		popup.find('.popup-continue').trigger('focus');
+
 	}
 	
 	setIDESetting(func, key, value){
@@ -1977,7 +1998,27 @@ class SettingsView extends View {
 		this.emit('IDE-settings', {func, key, value: value});
 	}
 	restoreDefaultIDESettings(func){
-		this.emit('IDE-settings', {func});
+		
+		// build the popup content
+		popup.title('Restoring default IDE settings');
+		popup.subtitle('Are you sure you wish to continue? Your current IDE settings will be lost!');
+		
+		var form = [];
+		form.push('<button type="submit" class="button popup-continue">Continue</button>');
+		form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+		
+		popup.form.append(form.join('')).off('submit').on('submit', e => {
+			e.preventDefault();
+			this.emit('IDE-settings', {func});
+			popup.hide();
+		});
+		
+		popup.find('.popup-cancel').on('click', popup.hide );
+		
+		popup.show();
+		
+		popup.find('.popup-continue').trigger('focus');
+		
 	}
 	
 	// model events
@@ -2020,7 +2061,7 @@ class SettingsView extends View {
 }
 
 module.exports = SettingsView;
-},{"./View":13}],11:[function(require,module,exports){
+},{"../popup":16,"./View":13}],11:[function(require,module,exports){
 var View = require('./View');
 
 // private variables

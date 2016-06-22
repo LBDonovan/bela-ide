@@ -92,8 +92,8 @@ echo "The IDE was correctly updated"
 
 [ $FULL -eq 1 ] && ssh $BBB_ADDRESS "make --no-print-directory -C \"$BBB_BELA_HOME\" idestart"
 
-[ $ALWAYS_YES -eq 1 ] && printf "\nSetup complete.\n\n" || {
-  printf '\nSetup complete, press any key to continue . . .\n\n'
+[ $ALWAYS_YES -eq 1 ] || [ $FULL -eq 0 ] && printf "\nSetup complete.\n\n" || {
+  printf '\nIDE setup complete, press any key to continue . . .\n\n'
   read 
 }
 

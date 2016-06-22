@@ -67,9 +67,16 @@ function reportError(error){
 
 function socketConnected(socket){
 	
-	// send project lists and settings to the browser
-	Promise.all([ProjectManager.listProjects(), new Promise.coroutine(ProjectManager.listExamples)(), SettingsManager.getSettings()])
-		.then( (result) => socket.emit('init', result) );
+	// send init info to browser
+	Promise.all([
+		ProjectManager.listProjects(), 
+		new Promise.coroutine(ProjectManager.listExamples)(), 
+		SettingsManager.getSettings(),
+		runOnBootProject()
+	]).then( result => {
+		result.push(ProcessManager.getStatus());
+		socket.emit('init', result)
+	});
 	
 	// listen for messages
 	socketEvents(socket);
@@ -78,7 +85,7 @@ function socketConnected(socket){
 	TerminalManager.pwd();
 	
 	// check the run-on-boot project
-	runOnBootProject( project => socket.emit('run-on-boot-project', project) );
+	//runOnBootProject( project => socket.emit('run-on-boot-project', project) );
 
 }
 
@@ -341,9 +348,9 @@ var SettingsManager = {
 
 };
 
-function runOnBootProject(callback){
+function runOnBootProject(){
 	// parse Bela_startup.sh
-	fs.readFileAsync(startupScript, 'utf-8')
+	return fs.readFileAsync(startupScript, 'utf-8')
 		.then( file => {
 			var project;
 			var lines = file.split('\n');
@@ -352,8 +359,7 @@ function runOnBootProject(callback){
 			} else {
 				project = lines[5].trim().split(' ')[6].split('/').pop();
 			}
-			console.log(project);
-			callback(project);
+			return project;
 		})
 		.catch( e => console.log('run-on-boot error', e) );
 }

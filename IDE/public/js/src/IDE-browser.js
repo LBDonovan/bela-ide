@@ -170,6 +170,10 @@ socket.on('init', (data) => {
 	models.project.setData({projectList: data[0], exampleList: data[1], currentProject: data[2].project});
 	models.settings.setData(data[2]);
 	
+	$('#runOnBoot').val(data[3]);
+	
+	models.status.setData(data[4]);
+	
 	//models.project.print();
 	//models.settings.print();
 	
@@ -284,7 +288,7 @@ socket.on('debugger-variables', (project, variables) => {
 
 // run-on-boot
 socket.on('run-on-boot-log', text => consoleView.emit('log', text) );
-socket.on('run-on-boot-project', project => setTimeout( () => $('#runOnBoot').val(project), 100) );
+//socket.on('run-on-boot-project', project => setTimeout( () => $('#runOnBoot').val(project), 100) );
 
 // shell
 socket.on('shell-event', (evt, data) => consoleView.emit('shell-'+evt, data) )

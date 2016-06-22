@@ -36,10 +36,42 @@ class ProjectView extends View {
 		
 		// build the popup content
 		popup.title('Creating a new project');
-		popup.subtitle('Enter the name of your new project');
+		popup.subtitle('Choose what kind of project you would like to create, and enter the name of your new project');
 		
 		var form = [];
+		form.push('<input id="popup-C" type="radio" name="project-type" data-type="C" checked>');
+		form.push('<label for="popup-C">C++</label>')
+		form.push('</br>');
+		form.push('<input id="popup-PD" type="radio" name="project-type" data-type="PD">');
+		form.push('<label for="popup-PD">Pure Data</label>')
+		form.push('</br>');
+		form.push('<input type="text" placeholder="Enter your project name">');
+		form.push('</br>');
+		form.push('<button type="submit" class="button popup-save">Save</button>');
+		form.push('<button type="button" class="button popup-cancel">Cancel</button>');
 		
+		popup.form.append(form.join('')).off('submit').on('submit', e => {
+			e.preventDefault();
+			this.emit('message', 'project-event', {
+				func, 
+				newProject	: sanitise(popup.find('input[type=text]').val()),
+				projectType	: popup.find('input[type=radio]:checked').data('type')
+			});
+			popup.hide();
+		});
+		
+		popup.find('.popup-cancel').on('click', popup.hide );
+		
+		popup.show();
+
+	}
+	saveAs(func){
+	
+		// build the popup content
+		popup.title('Saving project');
+		popup.subtitle('Enter the name of your project');
+		
+		var form = [];
 		form.push('<input type="text" placeholder="Enter your project name">');
 		form.push('</br >');
 		form.push('<button type="submit" class="button popup-save">Save</button>');
@@ -55,12 +87,6 @@ class ProjectView extends View {
 		
 		popup.show();
 
-	}
-	saveAs(func){
-		var name = prompt("Enter the name of the new project");
-		if (name !== null){
-			this.emit('message', 'project-event', {func, newProject: sanitise(name)})
-		}
 	}
 	deleteProject(func){
 		var cont = confirm("This can't be undone! Continue?");

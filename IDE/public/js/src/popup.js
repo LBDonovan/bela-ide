@@ -10,7 +10,7 @@ module.exports = {
 	show(){
 		overlay.addClass('active');
 		parent.addClass('active');
-		content.find('input').first().trigger('focus');
+		content.find('input[type=text]').first().trigger('focus');
 	},
 	
 	hide(){

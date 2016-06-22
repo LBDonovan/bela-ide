@@ -1684,36 +1684,24 @@ class ProjectView extends View {
 		
 		if (this.exampleChanged && !confirm('example changed! You will lose all changes if you continue'))
 			return;
-			
-		$('#overlay, #popup').addClass('active');
-		$('#popup-content').html(
-			"<h1>Creating a new project</h1><p>Enter the name of your new project:</p><input type='text' placeholder='Enter your project name'><br /><button class='button' name='cancel'>Cancel</button><button class='button' name='create_newProj' data-func='newProjectButton'>Save project</button>" 
-		), $( '#popup-content button' ).bind( 'click', function( e ){
-			e.preventDefault();
-			if ( $( this ).attr( "name" ) == "cancel" ) {
-				$('#overlay, #popup').removeClass('active');
-				$('#popup-content').html( null );
-			}
-			if ( $( this ).attr( "name" ) == "create_newProj" ) {
-				var proj_name = $('#popup-content input').val();
-				if (proj_name !== null) {
-					$(proj_name).emit('message', 'project-event', {func, newProject: sanitise(proj_name)})
-					console.log("Project is called: " + proj_name);		
-					$('#overlay, #popup').removeClass('active');
-					$('#popup-content').html( null );
-				}
-			}
+		
+		// build the popup content
+		var html = [];
+		
+		html.push('<h1>Creating a new project</h1>');
+		html.push('<p>Enter the name of your new project:</p>');
+		html.push('<input type="text" placeholder="Enter your project name"><br />');
+		html.push('<button class="button popup-cancel">Cancel</button>');
+		html.push('<button class="button popup-save">Save</button>');
+		
+		popup.show(html.join(''));
+		
+		popup.find('.popup-save').on('click', e => {
+			this.emit('message', 'project-event', {func, newProject: sanitise(popup.find('input').val())})
+			popup.hide();
 		});
-		// var name = prompt("Enter the name of the new project");
-		// var file_name = $('input').attr(value);
-		// if (file_name !== null){
-		// 	this.emit('message', 'project-event', {func, newProject: sanitise(file_name)})
-		// 	console.log(file_name);
-		// }
-	
-	
-		
-		
+		popup.find('.popup-cancel').on('click', () => popup.hide() );
+
 	}
 	saveAs(func){
 		var name = prompt("Enter the name of the new project");
@@ -1825,6 +1813,29 @@ function sanitise(name){
 	return name.replace(/[^a-zA-Z0-9\.\-]/g, '_');
 }
 
+var popup = {
+	
+	overlay	: $('#overlay'),
+	parent	: $('#popup'),
+	content	: $('#popup-content'),
+	
+	show(html){
+		this.overlay.addClass('active');
+		this.parent.addClass('active');
+		this.content.html(html);
+	},
+	
+	find(selector){
+		return this.content.find(selector);
+	},
+	
+	hide(){
+		this.overlay.removeClass('active');
+		this.parent.removeClass('active');
+		this.content.html('');
+	}
+	
+};
 },{"./View":13}],10:[function(require,module,exports){
 var View = require('./View');
 

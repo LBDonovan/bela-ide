@@ -607,7 +607,7 @@ function _equals(a, b, log){
 	
 	
 	
-},{"events":16}],3:[function(require,module,exports){
+},{"events":17}],3:[function(require,module,exports){
 'use strict';
 var View = require('./View');
 var _console = require('../console');
@@ -1651,6 +1651,7 @@ module.exports = GitView;
 
 },{"./View":13}],9:[function(require,module,exports){
 var View = require('./View');
+var popup = require('../popup');
 
 class ProjectView extends View {
 	
@@ -1700,7 +1701,7 @@ class ProjectView extends View {
 			this.emit('message', 'project-event', {func, newProject: sanitise(popup.find('input').val())})
 			popup.hide();
 		});
-		popup.find('.popup-cancel').on('click', () => popup.hide() );
+		popup.find('.popup-cancel').on('click', popup.hide );
 
 	}
 	saveAs(func){
@@ -1812,31 +1813,7 @@ module.exports = ProjectView;
 function sanitise(name){
 	return name.replace(/[^a-zA-Z0-9\.\-]/g, '_');
 }
-
-var popup = {
-	
-	overlay	: $('#overlay'),
-	parent	: $('#popup'),
-	content	: $('#popup-content'),
-	
-	show(html){
-		this.overlay.addClass('active');
-		this.parent.addClass('active');
-		this.content.html(html);
-	},
-	
-	find(selector){
-		return this.content.find(selector);
-	},
-	
-	hide(){
-		this.overlay.removeClass('active');
-		this.parent.removeClass('active');
-		this.content.html('');
-	}
-	
-};
-},{"./View":13}],10:[function(require,module,exports){
+},{"../popup":16,"./View":13}],10:[function(require,module,exports){
 var View = require('./View');
 
 class SettingsView extends View {
@@ -2303,7 +2280,7 @@ class View extends EventEmitter{
 }
 
 module.exports = View;
-},{"events":16}],14:[function(require,module,exports){
+},{"events":17}],14:[function(require,module,exports){
 'use strict';
 var EventEmitter = require('events').EventEmitter;
 //var $ = require('jquery-browserify');
@@ -2469,7 +2446,7 @@ module.exports = new Console();
 		}
 	}, 500);
 }*/
-},{"events":16}],15:[function(require,module,exports){
+},{"events":17}],15:[function(require,module,exports){
 //var $ = require('jquery-browserify');
 var IDE;
 
@@ -2479,6 +2456,28 @@ $(() => {
 
 
 },{"./IDE-browser":1}],16:[function(require,module,exports){
+var overlay	= $('#overlay');
+var parent	= $('#popup');
+var content	= $('#popup-content');
+
+module.exports = {
+	
+	show(html){
+		overlay.addClass('active');
+		parent.addClass('active');
+		content.html(html);
+	},
+	
+	find: selector => content.find(selector),
+	
+	hide(){
+		overlay.removeClass('active');
+		parent.removeClass('active');
+		content.html('');
+	}
+	
+};
+},{}],17:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a

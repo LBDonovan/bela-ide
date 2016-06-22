@@ -1,4 +1,5 @@
 var View = require('./View');
+var popup = require('../popup');
 
 class ProjectView extends View {
 	
@@ -48,7 +49,7 @@ class ProjectView extends View {
 			this.emit('message', 'project-event', {func, newProject: sanitise(popup.find('input').val())})
 			popup.hide();
 		});
-		popup.find('.popup-cancel').on('click', () => popup.hide() );
+		popup.find('.popup-cancel').on('click', popup.hide );
 
 	}
 	saveAs(func){
@@ -160,27 +161,3 @@ module.exports = ProjectView;
 function sanitise(name){
 	return name.replace(/[^a-zA-Z0-9\.\-]/g, '_');
 }
-
-var popup = {
-	
-	overlay	: $('#overlay'),
-	parent	: $('#popup'),
-	content	: $('#popup-content'),
-	
-	show(html){
-		this.overlay.addClass('active');
-		this.parent.addClass('active');
-		this.content.html(html);
-	},
-	
-	find(selector){
-		return this.content.find(selector);
-	},
-	
-	hide(){
-		this.overlay.removeClass('active');
-		this.parent.removeClass('active');
-		this.content.html('');
-	}
-	
-};

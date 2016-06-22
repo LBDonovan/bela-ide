@@ -336,9 +336,9 @@ models.project.on('change', (data, changedKeys) => {
 models.status.on('change', (data, changedKeys) => {
 	if (changedKeys.indexOf('running') !== -1 || changedKeys.indexOf('building') !== -1){
 		if (data.running)
-			$('#top-bela-status').html('Running Project: '+(models.project.getKey('exampleName') || models.project.getKey('currentProject')));
+			$('#top-bela-status').html('Running Project: '+data.runProject);
 		else if (data.building)
-			$('#top-bela-status').html('Building Project: '+(models.project.getKey('exampleName') || models.project.getKey('currentProject')));
+			$('#top-bela-status').html('Building Project: '+data.buildProject);
 		else
 			$('#top-bela-status').html('');
 	}

@@ -18,6 +18,7 @@ class MakeProcess extends EventEmitter{
 		this.args = ['--no-print-directory', '-C', makePath];
 		this.stdout = [];
 		this.stderr = [];
+		this.project = '';
 	}
 	
 	/*execute(){

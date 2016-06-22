@@ -279,7 +279,7 @@ socket.on('debugger-variables', (project, variables) => {
 
 // run-on-boot
 socket.on('run-on-boot-log', text => consoleView.emit('log', text) );
-socket.on('run-on-boot-project', project => $('#runOnBoot option[value="'+project+'"]').attr('selected', 'selected') );
+socket.on('run-on-boot-project', project => setTimeout( () => $('#runOnBoot').val(project), 100) );
 
 // shell
 /*socket.on('sh-stdout', data => consoleView.emit('log', data, 'shell') );

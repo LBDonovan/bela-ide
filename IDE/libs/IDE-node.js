@@ -26,7 +26,6 @@ var cpuMonitoring = false;
 
 // constructor function for IDE object
 function IDE(){
-	var runOnBootProject;
 
 	console.log('starting IDE');
 	
@@ -40,30 +39,15 @@ function IDE(){
 	
 	// CPU & project monitoring
 	setInterval(function(){
-		/*ProjectManager.listProjects()
-			.then( result => {
-				allSockets.emit('project-list', undefined, result);
-				if (runOnBootProject) allSockets.emit('run-on-boot-project', runOnBootProject);
-			});*/
+	
+		ProjectManager.listProjects()
+			.then( result => allSockets.emit('project-list', undefined, result) );
 		
 		if (!cpuMonitoring) return;
 		co(ProcessManager, 'checkCPU')
-			.then((output) => allSockets.emit('cpu-usage', output));
+			.then( output => allSockets.emit('cpu-usage', output) );
+			
 	}, 1000);
-	
-	// parse Bela_startup.sh
-	fs.readFileAsync(startupScript, 'utf-8')
-		.then( file => {
-			var project;
-			var lines = file.split('\n');
-			if (lines[5] === '# Run on startup disabled -- nothing to do here'){
-				project = 'none';
-			} else {
-				project = lines[5].trim().split(' ')[6].split('/').pop();
-			}
-			runOnBootProject = project;
-		})
-		.catch( e => console.log('run-on-boot error', e) );
 	
 	// scope
 	scope.init(io);
@@ -92,6 +76,9 @@ function socketConnected(socket){
 	
 	// refresh the shell location
 	TerminalManager.pwd();
+	
+	// check the run-on-boot project
+	runOnBootProject( project => socket.emit('run-on-boot-project', project) );
 
 }
 
@@ -354,7 +341,22 @@ var SettingsManager = {
 
 };
 
-
+function runOnBootProject(callback){
+	// parse Bela_startup.sh
+	fs.readFileAsync(startupScript, 'utf-8')
+		.then( file => {
+			var project;
+			var lines = file.split('\n');
+			if (lines[5] === '# Run on startup disabled -- nothing to do here'){
+				project = 'none';
+			} else {
+				project = lines[5].trim().split(' ')[6].split('/').pop();
+			}
+			console.log(project);
+			callback(project);
+		})
+		.catch( e => console.log('run-on-boot error', e) );
+}
 
 process.on('uncaughtException', (err) => {
 	console.log('uncaughtException');

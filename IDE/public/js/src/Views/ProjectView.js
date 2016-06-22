@@ -189,10 +189,11 @@ class ProjectView extends View {
 		
 		if (project === 'exampleTempProject'){
 			// select no project
-			$('#projects').val($('#projects > option:first').val())
+			$('#projects').val($('#projects > option:first').val());
 		} else {
 			// select new project
-			$('#projects option[value="'+project+'"]').attr('selected', 'selected');
+			//$('#projects option[value="'+project+'"]').attr('selected', 'selected');
+			$('#projects').val($('#projects > option[value="'+project+'"]').val());
 			// unselect currently selected example
 			$('.selectedExample').removeClass('selectedExample');
 		}

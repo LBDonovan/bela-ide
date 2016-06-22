@@ -280,7 +280,7 @@ socket.on('debugger-variables', (project, variables) => {
 
 // run-on-boot
 socket.on('run-on-boot-log', text => consoleView.emit('log', text) );
-socket.on('run-on-boot-project', project => $('#runOnBoot option[value="'+project+'"]').attr('selected', 'selected') );
+socket.on('run-on-boot-project', project => setTimeout( () => $('#runOnBoot').val(project), 100) );
 
 // shell
 /*socket.on('sh-stdout', data => consoleView.emit('log', data, 'shell') );
@@ -1958,10 +1958,11 @@ class ProjectView extends View {
 		
 		if (project === 'exampleTempProject'){
 			// select no project
-			$('#projects').val($('#projects > option:first').val())
+			$('#projects').val($('#projects > option:first').val());
 		} else {
 			// select new project
-			$('#projects option[value="'+project+'"]').attr('selected', 'selected');
+			//$('#projects option[value="'+project+'"]').attr('selected', 'selected');
+			$('#projects').val($('#projects > option[value="'+project+'"]').val());
 			// unselect currently selected example
 			$('.selectedExample').removeClass('selectedExample');
 		}
@@ -2171,7 +2172,7 @@ class SettingsView extends View {
 		$projects.empty();
 		
 		// add an empty option to menu and select it
-		$('<option></option>').attr({'value': '', 'selected': 'selected'}).html('--select--').appendTo($projects);
+		$('<option></option>').html('--select--').appendTo($projects);
 		
 		// add a 'none' option
 		$('<option></option>').attr('value', 'none').html('none').appendTo($projects);

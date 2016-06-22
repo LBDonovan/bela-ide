@@ -172,7 +172,7 @@ class SettingsView extends View {
 		$projects.empty();
 		
 		// add an empty option to menu and select it
-		$('<option></option>').attr({'value': '', 'selected': 'selected'}).html('--select--').appendTo($projects);
+		$('<option></option>').html('--select--').appendTo($projects);
 		
 		// add a 'none' option
 		$('<option></option>').attr('value', 'none').html('none').appendTo($projects);

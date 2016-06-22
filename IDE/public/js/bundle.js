@@ -1963,7 +1963,7 @@ class ProjectView extends View {
 			// select new project
 			$('#projects option[value="'+project+'"]').attr('selected', 'selected');
 			// unselect currently selected example
-			$('#examples').val($('#examples > option:first').val())
+			$('.selectedExample').removeClass('selectedExample');
 		}
 		
 		// set download link

@@ -1,4 +1,5 @@
 var View = require('./View');
+var popup = require('../popup');
 
 class ProjectView extends View {
 	
@@ -29,27 +30,89 @@ class ProjectView extends View {
 	}
 	
 	newProject(func){
-		
-		if (this.exampleChanged && !confirm('example changed! You will lose all changes if you continue'))
+
+		if (this.exampleChanged){
+			this.exampleChanged = false;
+			popup.exampleChanged(this.newProject.bind(this), func, 500);
 			return;
-			
-		var name = prompt("Enter the name of the new project");
-		if (name !== null){
-			this.emit('message', 'project-event', {func, newProject: sanitise(name)})
 		}
+				
+		// build the popup content
+		popup.title('Creating a new project');
+		popup.subtitle('Choose what kind of project you would like to create, and enter the name of your new project');
 		
+		var form = [];
+		form.push('<input id="popup-C" type="radio" name="project-type" data-type="C" checked>');
+		form.push('<label for="popup-C">C++</label>')
+		form.push('</br>');
+		form.push('<input id="popup-PD" type="radio" name="project-type" data-type="PD">');
+		form.push('<label for="popup-PD">Pure Data</label>')
+		form.push('</br>');
+		form.push('<input type="text" placeholder="Enter your project name">');
+		form.push('</br>');
+		form.push('<button type="submit" class="button popup-save">Save</button>');
+		form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+		
+		popup.form.append(form.join('')).off('submit').on('submit', e => {
+			e.preventDefault();
+			this.emit('message', 'project-event', {
+				func, 
+				newProject	: sanitise(popup.find('input[type=text]').val()),
+				projectType	: popup.find('input[type=radio]:checked').data('type')
+			});
+			popup.hide();
+		});
+		
+		popup.find('.popup-cancel').on('click', popup.hide );
+		
+		popup.show();
+
 	}
 	saveAs(func){
-		var name = prompt("Enter the name of the new project");
-		if (name !== null){
-			this.emit('message', 'project-event', {func, newProject: sanitise(name)})
-		}
+	
+		// build the popup content
+		popup.title('Saving project');
+		popup.subtitle('Enter the name of your project');
+		
+		var form = [];
+		form.push('<input type="text" placeholder="Enter the new project name">');
+		form.push('</br >');
+		form.push('<button type="submit" class="button popup-save">Save</button>');
+		form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+		
+		popup.form.append(form.join('')).off('submit').on('submit', e => {
+			e.preventDefault();
+			this.emit('message', 'project-event', {func, newProject: sanitise(popup.find('input[type=text]').val())});
+			popup.hide();
+		});
+		
+		popup.find('.popup-cancel').on('click', popup.hide );
+		
+		popup.show();
+
 	}
 	deleteProject(func){
-		var cont = confirm("This can't be undone! Continue?");
-		if (cont){
-			this.emit('message', 'project-event', {func})
-		}
+
+		// build the popup content
+		popup.title('Deleting project');
+		popup.subtitle('Are you sure you wish to delete this project? This cannot be undone!');
+		
+		var form = [];
+		form.push('<button type="submit" class="button popup-delete">Delete</button>');
+		form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+		
+		popup.form.append(form.join('')).off('submit').on('submit', e => {
+			e.preventDefault();
+			this.emit('message', 'project-event', {func});
+			popup.hide();
+		});
+		
+		popup.find('.popup-cancel').on('click', popup.hide );
+		
+		popup.show();
+		
+		popup.find('.popup-delete').trigger('focus');
+		
 	}
 	cleanProject(func){
 		this.emit('message', 'project-event', {func});
@@ -87,8 +150,18 @@ class ProjectView extends View {
 				$('<li></li>').addClass('sourceFile').html(child).appendTo(ul)
 					.on('click', (e) => {
 					
-						if (this.exampleChanged && !confirm('example changed! You will lose all changes if you continue'))
+						if (this.exampleChanged){
+							this.exampleChanged = false;
+							popup.exampleChanged( () => {
+								this.emit('message', 'project-event', {
+									func: 'openExample',
+									currentProject: item.name+'/'+child
+								});
+								$('.selectedExample').removeClass('selectedExample');
+								$(e.target).addClass('selectedExample');
+							}, undefined, 0);
 							return;
+						}
 							
 						this.emit('message', 'project-event', {
 							func: 'openExample',

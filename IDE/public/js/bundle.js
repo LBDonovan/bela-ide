@@ -34,7 +34,10 @@ settingsView.on('IDE-settings', (data) => {
 	socket.emit('IDE-settings', data);
 });
 settingsView.on('run-on-boot', project => socket.emit('run-on-boot', project) );
-settingsView.on('halt', () => socket.emit('sh-command', 'halt') );
+settingsView.on('halt', () => {
+	socket.emit('sh-command', 'halt');
+	consoleView.emit('warn', 'Shutting down...');
+});
 
 // project view
 var projectView = new (require('./Views/ProjectView'))('projectManager', [models.project]);
@@ -190,7 +193,7 @@ socket.on('project-data', (data) => {
 		models.debug.setData(debug);
 	}
 	if (data.gitData) models.git.setData(data.gitData);
-	console.log(data);
+	//console.log(data);
 	//models.settings.setData(data.settings);
 	//models.project.print();
 });
@@ -607,7 +610,7 @@ function _equals(a, b, log){
 	
 	
 	
-},{"events":16}],3:[function(require,module,exports){
+},{"events":17}],3:[function(require,module,exports){
 'use strict';
 var View = require('./View');
 var _console = require('../console');
@@ -1361,6 +1364,7 @@ class EditorView extends View {
 module.exports = EditorView;
 },{"./View":13}],7:[function(require,module,exports){
 var View = require('./View');
+var popup = require('../popup');
 
 var sourceIndeces = ['cpp', 'c', 'S'];
 var headerIndeces = ['h', 'hh', 'hpp'];
@@ -1403,25 +1407,76 @@ class FileView extends View {
 	}
 	
 	newFile(func){
-		var name = prompt("Enter the name of the new file");
-		if (name !== null){
-			this.emit('message', 'project-event', {func, newFile: sanitise(name)})
-		}
+	
+		// build the popup content
+		popup.title('Creating a new file');
+		popup.subtitle('Enter the name of the new file. Only files with extensions .cpp, .c or .S will be compiled.');
+		
+		var form = [];
+		form.push('<input type="text" placeholder="Enter the file name">');
+		form.push('</br >');
+		form.push('<button type="submit" class="button popup-create">Create</button>');
+		form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+		
+		popup.form.append(form.join('')).off('submit').on('submit', e => {
+			e.preventDefault();
+			this.emit('message', 'project-event', {func, newFile: sanitise(popup.find('input[type=text]').val())});
+			popup.hide();
+		});
+		
+		popup.find('.popup-cancel').on('click', popup.hide );
+		
+		popup.show();
+
 	}
 	uploadFile(func){
 		$('#uploadFileInput').trigger('click');
 	}
 	renameFile(func){
-		var name = prompt("Enter the new name of the file");
-		if (name !== null){
-			this.emit('message', 'project-event', {func, newFile: sanitise(name)})
-		}
+		
+		// build the popup content
+		popup.title('Renaming this file');
+		popup.subtitle('Enter the new name of the file. Only files with extensions .cpp, .c or .S will be compiled.');
+		
+		var form = [];
+		form.push('<input type="text" placeholder="Enter the new file name">');
+		form.push('</br >');
+		form.push('<button type="submit" class="button popup-rename">Rename</button>');
+		form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+		
+		popup.form.append(form.join('')).off('submit').on('submit', e => {
+			e.preventDefault();
+			this.emit('message', 'project-event', {func, newFile: sanitise(popup.find('input[type=text]').val())});
+			popup.hide();
+		});
+		
+		popup.find('.popup-cancel').on('click', popup.hide );
+		
+		popup.show();
+
 	}
 	deleteFile(func){
-		var cont = confirm("This can't be undone! Continue?");
-		if (cont){
-			this.emit('message', 'project-event', {func})
-		}
+	
+		// build the popup content
+		popup.title('Deleting file');
+		popup.subtitle('Are you sure you wish to delete this file? This cannot be undone!');
+		
+		var form = [];
+		form.push('<button type="submit" class="button popup-delete">Delete</button>');
+		form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+		
+		popup.form.append(form.join('')).off('submit').on('submit', e => {
+			e.preventDefault();
+			this.emit('message', 'project-event', {func});
+			popup.hide();
+		});
+		
+		popup.find('.popup-cancel').on('click', popup.hide );
+		
+		popup.show();
+		
+		popup.find('.popup-delete').trigger('focus');
+		
 	}
 	openFile(e){
 		this.emit('message', 'project-event', {func: 'openFile', newFile: $(e.currentTarget).data('file')})
@@ -1541,9 +1596,10 @@ module.exports = FileView;
 function sanitise(name){
 	return name.replace(/[^a-zA-Z0-9\.\-/]/g, '_');
 }
-},{"./View":13}],8:[function(require,module,exports){
+},{"../popup":16,"./View":13}],8:[function(require,module,exports){
 'use strict';
 var View = require('./View');
+var popup = require('../popup');
 
 class GitView extends View{
 
@@ -1582,16 +1638,77 @@ class GitView extends View{
 	}
 	
 	commit(){
-		var message = prompt('enter a commit message');
-		this.emit('git-event', {func: 'command', command: 'commit -am "'+message+'"'});
+	
+		// build the popup content
+		popup.title('Committing to the project repository');
+		popup.subtitle('Enter a commit message');
+		
+		var form = [];
+		form.push('<input type="text" placeholder="Enter your commit message">');
+		form.push('</br >');
+		form.push('<button type="submit" class="button popup-commit">Commit</button>');
+		form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+		
+		popup.form.append(form.join('')).off('submit').on('submit', e => {
+			e.preventDefault();
+			this.emit('git-event', {func: 'command', command: 'commit -am "'+popup.find('input[type=text]').val()+'"'});
+			popup.hide();
+		});
+		
+		popup.find('.popup-cancel').on('click', popup.hide );
+		
+		popup.show();
+
 	}
 	branch(){
-		var message = prompt('enter a name for the new branch');
-		this.emit('git-event', {func: 'command', command: 'checkout -b '+message});
+		
+		// build the popup content
+		popup.title('Creating a new branch');
+		popup.subtitle('Enter a name for the branch');
+		
+		var form = [];
+		form.push('<input type="text" placeholder="Enter your new branch name">');
+		form.push('</br >');
+		form.push('<button type="submit" class="button popup-create">Create</button>');
+		form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+		
+		popup.form.append(form.join('')).off('submit').on('submit', e => {
+			e.preventDefault();
+			this.emit('git-event', {func: 'command', command: 'checkout -b '+popup.find('input[type=text]').val()});
+			popup.hide();
+		});
+		
+		popup.find('.popup-cancel').on('click', popup.hide );
+		
+		popup.show();
+
+	}
+	
+	discardChanges(){
+		
+		// build the popup content
+		popup.title('Discarding changes');
+		popup.subtitle('You are about to discard all changes made in your project since the last commit. The command used is "git checkout -- .". Are you sure you wish to continue? This cannot be undone.');
+		
+		var form = [];
+		form.push('<button type="submit" class="button popup-continue">Continue</button>');
+		form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+		
+		popup.form.append(form.join('')).off('submit').on('submit', e => {
+			e.preventDefault();
+			this.emit('git-event', {func: 'command', command: 'checkout -- .'});
+			popup.hide();
+		});
+		
+		popup.find('.popup-create').on('click', popup.hide );
+		
+		popup.show();
+		
+		popup.find('.popup-continue').trigger('focus');
+		
 	}
 	
 	_repoExists(exists){
-		console.log('REPO', exists);
 		if (exists){
 			$('#repo').css('display', 'block');
 			$('#noRepo').css('display', 'none');
@@ -1621,7 +1738,7 @@ class GitView extends View{
 				}
 			} else {
 				//$('<option></option>').html(commit).appendTo($commits);
-				if (commit !== ['']) console.log('skipped commit', commit);
+				if (!(commit.length == 1 && commit[0] === '')) console.log('skipped commit', commit);
 			}
 		}
 		
@@ -1649,8 +1766,9 @@ class GitView extends View{
 
 module.exports = GitView;
 
-},{"./View":13}],9:[function(require,module,exports){
+},{"../popup":16,"./View":13}],9:[function(require,module,exports){
 var View = require('./View');
+var popup = require('../popup');
 
 class ProjectView extends View {
 	
@@ -1681,27 +1799,89 @@ class ProjectView extends View {
 	}
 	
 	newProject(func){
-		
-		if (this.exampleChanged && !confirm('example changed! You will lose all changes if you continue'))
+
+		if (this.exampleChanged){
+			this.exampleChanged = false;
+			popup.exampleChanged(this.newProject.bind(this), func, 500);
 			return;
-			
-		var name = prompt("Enter the name of the new project");
-		if (name !== null){
-			this.emit('message', 'project-event', {func, newProject: sanitise(name)})
 		}
+				
+		// build the popup content
+		popup.title('Creating a new project');
+		popup.subtitle('Choose what kind of project you would like to create, and enter the name of your new project');
 		
+		var form = [];
+		form.push('<input id="popup-C" type="radio" name="project-type" data-type="C" checked>');
+		form.push('<label for="popup-C">C++</label>')
+		form.push('</br>');
+		form.push('<input id="popup-PD" type="radio" name="project-type" data-type="PD">');
+		form.push('<label for="popup-PD">Pure Data</label>')
+		form.push('</br>');
+		form.push('<input type="text" placeholder="Enter your project name">');
+		form.push('</br>');
+		form.push('<button type="submit" class="button popup-save">Save</button>');
+		form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+		
+		popup.form.append(form.join('')).off('submit').on('submit', e => {
+			e.preventDefault();
+			this.emit('message', 'project-event', {
+				func, 
+				newProject	: sanitise(popup.find('input[type=text]').val()),
+				projectType	: popup.find('input[type=radio]:checked').data('type')
+			});
+			popup.hide();
+		});
+		
+		popup.find('.popup-cancel').on('click', popup.hide );
+		
+		popup.show();
+
 	}
 	saveAs(func){
-		var name = prompt("Enter the name of the new project");
-		if (name !== null){
-			this.emit('message', 'project-event', {func, newProject: sanitise(name)})
-		}
+	
+		// build the popup content
+		popup.title('Saving project');
+		popup.subtitle('Enter the name of your project');
+		
+		var form = [];
+		form.push('<input type="text" placeholder="Enter the new project name">');
+		form.push('</br >');
+		form.push('<button type="submit" class="button popup-save">Save</button>');
+		form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+		
+		popup.form.append(form.join('')).off('submit').on('submit', e => {
+			e.preventDefault();
+			this.emit('message', 'project-event', {func, newProject: sanitise(popup.find('input[type=text]').val())});
+			popup.hide();
+		});
+		
+		popup.find('.popup-cancel').on('click', popup.hide );
+		
+		popup.show();
+
 	}
 	deleteProject(func){
-		var cont = confirm("This can't be undone! Continue?");
-		if (cont){
-			this.emit('message', 'project-event', {func})
-		}
+
+		// build the popup content
+		popup.title('Deleting project');
+		popup.subtitle('Are you sure you wish to delete this project? This cannot be undone!');
+		
+		var form = [];
+		form.push('<button type="submit" class="button popup-delete">Delete</button>');
+		form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+		
+		popup.form.append(form.join('')).off('submit').on('submit', e => {
+			e.preventDefault();
+			this.emit('message', 'project-event', {func});
+			popup.hide();
+		});
+		
+		popup.find('.popup-cancel').on('click', popup.hide );
+		
+		popup.show();
+		
+		popup.find('.popup-delete').trigger('focus');
+		
 	}
 	cleanProject(func){
 		this.emit('message', 'project-event', {func});
@@ -1739,8 +1919,18 @@ class ProjectView extends View {
 				$('<li></li>').addClass('sourceFile').html(child).appendTo(ul)
 					.on('click', (e) => {
 					
-						if (this.exampleChanged && !confirm('example changed! You will lose all changes if you continue'))
+						if (this.exampleChanged){
+							this.exampleChanged = false;
+							popup.exampleChanged( () => {
+								this.emit('message', 'project-event', {
+									func: 'openExample',
+									currentProject: item.name+'/'+child
+								});
+								$('.selectedExample').removeClass('selectedExample');
+								$(e.target).addClass('selectedExample');
+							}, undefined, 0);
 							return;
+						}
 							
 						this.emit('message', 'project-event', {
 							func: 'openExample',
@@ -1800,8 +1990,9 @@ module.exports = ProjectView;
 function sanitise(name){
 	return name.replace(/[^a-zA-Z0-9\.\-]/g, '_');
 }
-},{"./View":13}],10:[function(require,module,exports){
+},{"../popup":16,"./View":13}],10:[function(require,module,exports){
 var View = require('./View');
+var popup = require('../popup');
 
 class SettingsView extends View {
 	
@@ -1819,7 +2010,6 @@ class SettingsView extends View {
 			if ($('#runOnBoot').val()) 
 				this.emit('run-on-boot', $('#runOnBoot').val());
 		});
-		$('#shutdownBBB').on('click', () => this.emit('halt') );
 		
 	}
 	
@@ -1857,7 +2047,27 @@ class SettingsView extends View {
 		this.emit('project-settings', {func, key, value});
 	}
 	restoreDefaultCLArgs(func){
-		this.emit('project-settings', {func});
+		
+		// build the popup content
+		popup.title('Restoring default project settings');
+		popup.subtitle('Are you sure you wish to continue? Your current project settings will be lost!');
+		
+		var form = [];
+		form.push('<button type="submit" class="button popup-continue">Continue</button>');
+		form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+		
+		popup.form.append(form.join('')).off('submit').on('submit', e => {
+			e.preventDefault();
+			this.emit('project-settings', {func});
+			popup.hide();
+		});
+		
+		popup.find('.popup-cancel').on('click', popup.hide );
+		
+		popup.show();
+		
+		popup.find('.popup-continue').trigger('focus');
+
 	}
 	
 	setIDESetting(func, key, value){
@@ -1865,7 +2075,71 @@ class SettingsView extends View {
 		this.emit('IDE-settings', {func, key, value: value});
 	}
 	restoreDefaultIDESettings(func){
-		this.emit('IDE-settings', {func});
+		
+		// build the popup content
+		popup.title('Restoring default IDE settings');
+		popup.subtitle('Are you sure you wish to continue? Your current IDE settings will be lost!');
+		
+		var form = [];
+		form.push('<button type="submit" class="button popup-continue">Continue</button>');
+		form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+		
+		popup.form.append(form.join('')).off('submit').on('submit', e => {
+			e.preventDefault();
+			this.emit('IDE-settings', {func});
+			popup.hide();
+		});
+		
+		popup.find('.popup-cancel').on('click', popup.hide );
+		
+		popup.show();
+		
+		popup.find('.popup-continue').trigger('focus');
+		
+	}
+	
+	shutdownBBB(){
+	
+		// build the popup content
+		popup.title('Shutting down Bela');
+		popup.subtitle('Are you sure you wish to continue? The BeagleBone will shutdown gracefully, and the IDE will disconnect.');
+		
+		var form = [];
+		form.push('<button type="submit" class="button popup-continue">Continue</button>');
+		form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+		
+		popup.form.append(form.join('')).off('submit').on('submit', e => {
+			e.preventDefault();
+			this.emit('halt');
+			popup.hide();
+		});
+		
+		popup.find('.popup-cancel').on('click', popup.hide );
+		
+		popup.show();
+		
+		popup.find('.popup-continue').trigger('focus');
+	
+	}
+	
+	aboutPopup(){
+		
+		// build the popup content
+		popup.title('About Bela');
+		popup.subtitle('LLLLow LLLLLatency');
+		
+		var form = [];
+		form.push('<button type="submit" class="button popup-continue">Continue</button>');
+		
+		popup.form.append(form.join('')).off('submit').on('submit', e => {
+			e.preventDefault();
+			popup.hide();
+		});
+				
+		popup.show();
+		
+		popup.find('.popup-continue').trigger('focus');
+		
 	}
 	
 	// model events
@@ -1908,7 +2182,7 @@ class SettingsView extends View {
 }
 
 module.exports = SettingsView;
-},{"./View":13}],11:[function(require,module,exports){
+},{"../popup":16,"./View":13}],11:[function(require,module,exports){
 var View = require('./View');
 
 // private variables
@@ -2267,7 +2541,7 @@ class View extends EventEmitter{
 }
 
 module.exports = View;
-},{"events":16}],14:[function(require,module,exports){
+},{"events":17}],14:[function(require,module,exports){
 'use strict';
 var EventEmitter = require('events').EventEmitter;
 //var $ = require('jquery-browserify');
@@ -2433,7 +2707,7 @@ module.exports = new Console();
 		}
 	}, 500);
 }*/
-},{"events":16}],15:[function(require,module,exports){
+},{"events":17}],15:[function(require,module,exports){
 //var $ = require('jquery-browserify');
 var IDE;
 
@@ -2443,6 +2717,71 @@ $(() => {
 
 
 },{"./IDE-browser":1}],16:[function(require,module,exports){
+var overlay	= $('#overlay');
+var parent	= $('#popup');
+var content	= $('#popup-content');
+var titleEl	= parent.find('h1');
+var subEl	= parent.find('p');
+var formEl	= parent.find('form');
+
+var popup = {
+	
+	show(){
+		overlay.addClass('active');
+		parent.addClass('active');
+		content.find('input[type=text]').first().trigger('focus');
+	},
+	
+	hide(){
+		overlay.removeClass('active');
+		parent.removeClass('active');
+		titleEl.empty();
+		subEl.empty();
+		formEl.empty();
+	},
+	
+	find: selector => content.find(selector),
+	
+	title: text => titleEl.text(text),
+	subtitle: text => subEl.text(text),
+	formEl: html => formEl.html(html),
+	
+	append: child => content.append(child),
+	
+	form: formEl,
+	
+	exampleChanged: example
+	
+};
+
+module.exports = popup;
+
+function example(cb, arg, delay){
+
+	// build the popup content
+	popup.title('Save your changes?');
+	popup.subtitle('You have made changes to an example project. If you continue, your changes will be lost. To keep your changes, click cancel and then Save As in the project manager tab');
+	
+	var form = [];
+	form.push('<button type="submit" class="button popup-continue">Continue</button>');
+	form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+	
+	popup.form.append(form.join('')).off('submit').on('submit', e => {
+		e.preventDefault();
+		setTimeout(function(){
+			cb(arg);
+		}, delay);
+		popup.hide();
+	});
+		
+	popup.find('.popup-cancel').on('click', popup.hide );
+	
+	popup.show();
+	
+	popup.find('.popup-continue').trigger('focus');
+	
+}
+},{}],17:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a

@@ -1,5 +1,6 @@
 'use strict';
 var View = require('./View');
+var popup = require('../popup');
 
 class GitView extends View{
 
@@ -38,16 +39,77 @@ class GitView extends View{
 	}
 	
 	commit(){
-		var message = prompt('enter a commit message');
-		this.emit('git-event', {func: 'command', command: 'commit -am "'+message+'"'});
+	
+		// build the popup content
+		popup.title('Committing to the project repository');
+		popup.subtitle('Enter a commit message');
+		
+		var form = [];
+		form.push('<input type="text" placeholder="Enter your commit message">');
+		form.push('</br >');
+		form.push('<button type="submit" class="button popup-commit">Commit</button>');
+		form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+		
+		popup.form.append(form.join('')).off('submit').on('submit', e => {
+			e.preventDefault();
+			this.emit('git-event', {func: 'command', command: 'commit -am "'+popup.find('input[type=text]').val()+'"'});
+			popup.hide();
+		});
+		
+		popup.find('.popup-cancel').on('click', popup.hide );
+		
+		popup.show();
+
 	}
 	branch(){
-		var message = prompt('enter a name for the new branch');
-		this.emit('git-event', {func: 'command', command: 'checkout -b '+message});
+		
+		// build the popup content
+		popup.title('Creating a new branch');
+		popup.subtitle('Enter a name for the branch');
+		
+		var form = [];
+		form.push('<input type="text" placeholder="Enter your new branch name">');
+		form.push('</br >');
+		form.push('<button type="submit" class="button popup-create">Create</button>');
+		form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+		
+		popup.form.append(form.join('')).off('submit').on('submit', e => {
+			e.preventDefault();
+			this.emit('git-event', {func: 'command', command: 'checkout -b '+popup.find('input[type=text]').val()});
+			popup.hide();
+		});
+		
+		popup.find('.popup-cancel').on('click', popup.hide );
+		
+		popup.show();
+
+	}
+	
+	discardChanges(){
+		
+		// build the popup content
+		popup.title('Discarding changes');
+		popup.subtitle('You are about to discard all changes made in your project since the last commit. The command used is "git checkout -- .". Are you sure you wish to continue? This cannot be undone.');
+		
+		var form = [];
+		form.push('<button type="submit" class="button popup-continue">Continue</button>');
+		form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+		
+		popup.form.append(form.join('')).off('submit').on('submit', e => {
+			e.preventDefault();
+			this.emit('git-event', {func: 'command', command: 'checkout -- .'});
+			popup.hide();
+		});
+		
+		popup.find('.popup-create').on('click', popup.hide );
+		
+		popup.show();
+		
+		popup.find('.popup-continue').trigger('focus');
+		
 	}
 	
 	_repoExists(exists){
-		console.log('REPO', exists);
 		if (exists){
 			$('#repo').css('display', 'block');
 			$('#noRepo').css('display', 'none');
@@ -77,7 +139,7 @@ class GitView extends View{
 				}
 			} else {
 				//$('<option></option>').html(commit).appendTo($commits);
-				if (commit !== ['']) console.log('skipped commit', commit);
+				if (!(commit.length == 1 && commit[0] === '')) console.log('skipped commit', commit);
 			}
 		}
 		

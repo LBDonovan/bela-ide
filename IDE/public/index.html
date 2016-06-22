@@ -215,11 +215,11 @@
 								<table class="tabTable">
 									<tr>
 										<td>Shut down Bela cape:</td>
-										<td><button id="shutdownBBB">Bela shutdown</button></td>
+										<td><button id="shutdownBBB" class="settingsManager" data-func="shutdownBBB">Bela shutdown</button></td>
 									</tr>
 									<tr>
 										<td>Credits and info:</td>
-										<td><button id="about-popup">About Bela</button></td>
+										<td><button id="about-popup" class="settingsManager" data-func="aboutPopup">About Bela</button></td>
 
 
 									</tr>
@@ -292,7 +292,7 @@
 
 								   <button class="gitManager" data-func="command" data-command="add -A">stage all</button>
 								   <button class="gitManager" data-func="commit" >commit</button>
-								   <button class="gitManager" data-func="command" data-command="checkout -- .">discard changes</button>
+								   <button class="gitManager" data-func="discardChanges" data-command="checkout -- .">discard changes</button>
 								   <!--<button class="gitManager" data-func="command" data-command="revert HEAD">revert previous commit</button>--></br>
 
 								   <select id="commits" class="gitManager" data-func="checkout"></select></br>
@@ -519,6 +519,16 @@
 				</div>
 				<input type="submit" style="visibility: hidden; display: none;" />
 			</form>
+		</div>
+		<div id="overlay">
+		</div>
+		
+		<div id="popup">
+			<div id="popup-content">
+				<h1></h1>
+				<p></p>
+				<form></form>
+			</div>
 		</div>
 
 		<!-- enable this and change bundle.js to bundleES5.js to enable es5 transpilation <script src="js/polyfill.js"></script>-->

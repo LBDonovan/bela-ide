@@ -16,7 +16,6 @@ var projectPath = belaPath+'projects/';
 var examplePath = belaPath+'examples/';
 var templatePath = belaPath+'IDE/templates/';
 var mediaPath = belaPath+'IDE/public/media/';
-var newProjectPath = templatePath+'minimal';
 
 //files
 var blockedFiles = ['build', 'settings.json', '.DS_Store'];
@@ -82,8 +81,8 @@ module.exports = {
 			data.error = 'failed, project '+data.newProject+' already exists!';
 			return data;
 		}
-		
-		yield fs.copyAsync(newProjectPath, projectPath+data.newProject, {clobber: true});
+	console.log('hi', templatePath + (data.projectType || 'C'));
+		yield fs.copyAsync(templatePath + (data.projectType || 'C'), projectPath+data.newProject, {clobber: true});
 		data.projectList = yield this.listProjects();
 		data.currentProject = data.newProject;
 		data.newProject = undefined;

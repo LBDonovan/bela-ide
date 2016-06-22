@@ -1782,9 +1782,15 @@ class ProjectView extends View {
 	// UI events
 	selectChanged($element, e){
 	
-		if (this.exampleChanged && !confirm('example changed! You will lose all changes if you continue')){
-			$element.find('option').filter(':selected').attr('selected', '');
-			$element.val($('#projects > option:first').val())
+		if (this.exampleChanged){
+			this.exampleChanged = false;
+			popup.exampleChanged( () => {
+				this.emit('message', 'project-event', {func: $element.data().func, currentProject: $element.val()});
+			}, undefined, 0, () => {
+				$element.find('option').filter(':selected').attr('selected', '');
+				$element.val($('#projects > option:first').val());
+				this.exampleChanged = true;
+			});
 			return;
 		}
 
@@ -1802,7 +1808,7 @@ class ProjectView extends View {
 
 		if (this.exampleChanged){
 			this.exampleChanged = false;
-			popup.exampleChanged(this.newProject.bind(this), func, 500);
+			popup.exampleChanged(this.newProject.bind(this), func, 500, () => this.exampleChanged = true );
 			return;
 		}
 				
@@ -1928,7 +1934,7 @@ class ProjectView extends View {
 								});
 								$('.selectedExample').removeClass('selectedExample');
 								$(e.target).addClass('selectedExample');
-							}, undefined, 0);
+							}, undefined, 0, () => this.exampleChanged = true );
 							return;
 						}
 							
@@ -2756,7 +2762,7 @@ var popup = {
 
 module.exports = popup;
 
-function example(cb, arg, delay){
+function example(cb, arg, delay, cancelCb){
 
 	// build the popup content
 	popup.title('Save your changes?');
@@ -2774,7 +2780,10 @@ function example(cb, arg, delay){
 		popup.hide();
 	});
 		
-	popup.find('.popup-cancel').on('click', popup.hide );
+	popup.find('.popup-cancel').on('click', () => {
+		popup.hide();
+		if (cancelCb) cancelCb();
+	});
 	
 	popup.show();
 	

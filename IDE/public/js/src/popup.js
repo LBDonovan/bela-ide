@@ -37,7 +37,7 @@ var popup = {
 
 module.exports = popup;
 
-function example(cb, arg, delay){
+function example(cb, arg, delay, cancelCb){
 
 	// build the popup content
 	popup.title('Save your changes?');
@@ -55,7 +55,10 @@ function example(cb, arg, delay){
 		popup.hide();
 	});
 		
-	popup.find('.popup-cancel').on('click', popup.hide );
+	popup.find('.popup-cancel').on('click', () => {
+		popup.hide();
+		if (cancelCb) cancelCb();
+	});
 	
 	popup.show();
 	

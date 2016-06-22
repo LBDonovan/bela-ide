@@ -16,13 +16,16 @@ module.exports = {
 	hide(){
 		overlay.removeClass('active');
 		parent.removeClass('active');
+		titleEl.empty();
+		subEl.empty();
+		formEl.empty();
 	},
 	
 	find: selector => content.find(selector),
 	
-	title: text => titleEl.html(text),
-	subtitle: text => subEl.html(text),
-	formEl: text => formEl.html(text),
+	title: text => titleEl.text(text),
+	subtitle: text => subEl.text(text),
+	formEl: html => formEl.html(html),
 	
 	append: child => content.append(child),
 	

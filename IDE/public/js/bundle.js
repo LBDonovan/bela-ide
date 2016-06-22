@@ -34,7 +34,10 @@ settingsView.on('IDE-settings', (data) => {
 	socket.emit('IDE-settings', data);
 });
 settingsView.on('run-on-boot', project => socket.emit('run-on-boot', project) );
-settingsView.on('halt', () => socket.emit('sh-command', 'halt') );
+settingsView.on('halt', () => {
+	socket.emit('sh-command', 'halt');
+	consoleView.emit('warn', 'Shutting down...');
+});
 
 // project view
 var projectView = new (require('./Views/ProjectView'))('projectManager', [models.project]);
@@ -1932,7 +1935,6 @@ class SettingsView extends View {
 			if ($('#runOnBoot').val()) 
 				this.emit('run-on-boot', $('#runOnBoot').val());
 		});
-		$('#shutdownBBB').on('click', () => this.emit('halt') );
 		
 	}
 	
@@ -2015,6 +2017,50 @@ class SettingsView extends View {
 		
 		popup.find('.popup-cancel').on('click', popup.hide );
 		
+		popup.show();
+		
+		popup.find('.popup-continue').trigger('focus');
+		
+	}
+	
+	shutdownBBB(){
+	
+		// build the popup content
+		popup.title('Shutting down Bela');
+		popup.subtitle('Are you sure you wish to continue? The BeagleBone will shutdown gracefully, and the IDE will disconnect.');
+		
+		var form = [];
+		form.push('<button type="submit" class="button popup-continue">Continue</button>');
+		form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+		
+		popup.form.append(form.join('')).off('submit').on('submit', e => {
+			e.preventDefault();
+			this.emit('halt');
+			popup.hide();
+		});
+		
+		popup.find('.popup-cancel').on('click', popup.hide );
+		
+		popup.show();
+		
+		popup.find('.popup-continue').trigger('focus');
+	
+	}
+	
+	aboutPopup(){
+		
+		// build the popup content
+		popup.title('About Bela');
+		popup.subtitle('LLLLow LLLLLatency');
+		
+		var form = [];
+		form.push('<button type="submit" class="button popup-continue">Continue</button>');
+		
+		popup.form.append(form.join('')).off('submit').on('submit', e => {
+			e.preventDefault();
+			popup.hide();
+		});
+				
 		popup.show();
 		
 		popup.find('.popup-continue').trigger('focus');

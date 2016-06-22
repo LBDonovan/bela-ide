@@ -393,6 +393,10 @@ module.exports = {
 	*getCLArgs(project){
 		var settings = yield _getSettings(project);
 		return settings.CLArgs;
+	},
+	
+	listFiles(project){
+		return new Promise.coroutine(listFiles)(projectPath+project);
 	}
 }
 

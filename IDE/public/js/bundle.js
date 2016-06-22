@@ -151,7 +151,7 @@ gitView.on('console', text => consoleView.emit('log', text, 'git') );
 gitView.on('console-warn', text => consoleView.emit('warn', text) );
 
 // refresh files
-//setInterval( () => socket.emit('list-files', models.project.getKey('currentProject')), 5000);
+setInterval( () => socket.emit('list-files', models.project.getKey('currentProject')), 5000);
 
 // setup socket
 var socket = io('/IDE');
@@ -210,9 +210,14 @@ socket.on('project-list', (project, list) =>  {
 });
 socket.on('file-list', (project, list) => {
 	if (project === models.project.getKey('currentProject')){
-		if (list.indexOf(models.project.getKey('fileName')) === -1){
+		let currentFilenameFound = false;
+		for (let item of list){
+			if (item.name === models.project.getKey('fileName')){
+				currentFilenameFound = true;
+			}
+		}
+		if (!currentFilenameFound){
 			// this file has just been deleted
-			console.log('file-list', 'openProject');
 			socket.emit('project-event', {func: 'openProject', currentProject: project});
 		}
 		models.project.setKey('fileList', list);
@@ -283,10 +288,6 @@ socket.on('run-on-boot-log', text => consoleView.emit('log', text) );
 socket.on('run-on-boot-project', project => setTimeout( () => $('#runOnBoot').val(project), 100) );
 
 // shell
-/*socket.on('sh-stdout', data => consoleView.emit('log', data, 'shell') );
-socket.on('sh-stderr', data => consoleView.emit('warn', data) );
-socket.on('sh-cwd', cwd => consoleView.emit('cwd', cwd) );
-socket.on('sh-tabcomplete', data => consoleView.emit('sh-tabcomplete', data) );*/
 socket.on('shell-event', (evt, data) => consoleView.emit('shell-'+evt, data) )
 
 

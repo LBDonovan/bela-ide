@@ -74,7 +74,7 @@ class FileView extends View {
 		popup.subtitle('Enter the new name of the file. Only files with extensions .cpp, .c or .S will be compiled.');
 		
 		var form = [];
-		form.push('<input type="text" placeholder="Enter the file name">');
+		form.push('<input type="text" placeholder="Enter the new file name">');
 		form.push('</br >');
 		form.push('<button type="submit" class="button popup-rename">Rename</button>');
 		form.push('<button type="button" class="button popup-cancel">Cancel</button>');

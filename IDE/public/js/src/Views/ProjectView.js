@@ -72,7 +72,7 @@ class ProjectView extends View {
 		popup.subtitle('Enter the name of your project');
 		
 		var form = [];
-		form.push('<input type="text" placeholder="Enter your project name">');
+		form.push('<input type="text" placeholder="Enter the new project name">');
 		form.push('</br >');
 		form.push('<button type="submit" class="button popup-save">Save</button>');
 		form.push('<button type="button" class="button popup-cancel">Cancel</button>');

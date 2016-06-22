@@ -62,11 +62,22 @@ class ConsoleView extends View{
 		window.addEventListener('keydown', (e) => {
 			if (this.inputFocused){
 				if (e.which === 38){	// up arrow
+				
 					if (this.history[this.history.length - ++this.historyIndex]){
 						this.input.value = this.history[this.history.length - this.historyIndex];
 					} else {
 						this.historyIndex -= 1;
 					}
+					
+					// force the cursor to the end
+					setTimeout( () => {
+						if(this.input.setSelectionRange !== undefined) {
+							this.input.setSelectionRange(this.input.value.length, this.input.value.length);
+						} else {
+							$(this.input).val(this.input.value);
+						}
+					}, 0);
+					
 				} else if (e.which === 40){		// down arrow
 					if (--this.historyIndex === 0){
 						this.input.value = '';

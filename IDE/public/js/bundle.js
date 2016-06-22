@@ -63,7 +63,7 @@ fileView.on('message', (event, data) => {
 
 // editor view
 var editorView = new (require('./Views/EditorView'))('editor', [models.project, models.error, models.settings, models.debug], models.settings);
-editorView.on('change', (fileData) => {
+editorView.on('upload', fileData => {
 	socket.emit('process-event', {
 		event			: 'upload',
 		currentProject	: models.project.getKey('currentProject'),
@@ -72,7 +72,7 @@ editorView.on('change', (fileData) => {
 		checkSyntax		: parseInt(models.settings.getKey('liveSyntaxChecking'))
 	});
 });
-editorView.on('breakpoint', (line) => {
+editorView.on('breakpoint', line => {
 	var breakpoints = models.project.getKey('breakpoints');
 	for (let i=0; i<breakpoints.length; i++){
 		if (breakpoints[i].line === line && breakpoints[i].file === models.project.getKey('fileName')){
@@ -92,6 +92,9 @@ editorView.on('breakpoint', (line) => {
 });
 editorView.on('open-notification', data => consoleView.emit('openNotification', data) );
 editorView.on('close-notification', data => consoleView.emit('closeNotification', data) );
+editorView.on('editor-changed', () => {
+	if (models.project.getKey('exampleName')) projectView.emit('example-changed');
+});
 
 // toolbar view
 var toolbarView = new (require('./Views/ToolbarView'))('toolBar', [models.project, models.error, models.status, models.settings, models.debug]);
@@ -306,6 +309,37 @@ models.debug.on('change', (data, changedKeys) => {
 	}
 });
 
+// top-bar
+models.project.on('change', (data, changedKeys) => {
+
+	var projectName = data.exampleName ? data.exampleName+' (example)' : data.currentProject;
+
+	// set the browser tab title
+	$('title').html((data.fileName ? data.fileName+', ' : '')+projectName);
+	
+	// set the top-line stuff
+	$('#top-open-project').html(projectName ? 'Open Project: '+projectName : '');
+	$('#top-open-file').html(data.fileName ? 'Open File: '+data.fileName : '');
+	
+	if (data.exampleName){
+		$('#top-example-docs').css('visibility', 'visible');
+		$('#top-example-docs-link').prop('href', 'documentation/01-'+data.exampleName+'-example.html');
+	} else {
+		$('#top-example-docs').css('visibility', 'hidden');	
+	}
+
+});
+models.status.on('change', (data, changedKeys) => {
+	if (changedKeys.indexOf('running') !== -1 || changedKeys.indexOf('building') !== -1){
+		if (data.running)
+			$('#top-bela-status').html('Running Project: '+(models.project.getKey('exampleName') || models.project.getKey('currentProject')));
+		else if (data.building)
+			$('#top-bela-status').html('Building Project: '+(models.project.getKey('exampleName') || models.project.getKey('currentProject')));
+		else
+			$('#top-bela-status').html('');
+	}
+});
+
 
 // history
 {
@@ -316,7 +350,7 @@ models.debug.on('change', (data, changedKeys) => {
 		if (changedKeys.indexOf('currentProject') !== -1 || changedKeys.indexOf('fileName') !== -1){
 			var state = {file: data.fileName, project: data.currentProject};
 			if (state.project !== lastState.project || state.file !== lastState.file){
-				$('title').html(data.fileName+', '+data.currentProject);
+				
 				if (!poppingState){
 					//console.log('push', state);
 					history.pushState(state, null, null);
@@ -638,11 +672,22 @@ class ConsoleView extends View{
 		window.addEventListener('keydown', (e) => {
 			if (this.inputFocused){
 				if (e.which === 38){	// up arrow
+				
 					if (this.history[this.history.length - ++this.historyIndex]){
 						this.input.value = this.history[this.history.length - this.historyIndex];
 					} else {
 						this.historyIndex -= 1;
 					}
+					
+					// force the cursor to the end
+					setTimeout( () => {
+						if(this.input.setSelectionRange !== undefined) {
+							this.input.setSelectionRange(this.input.value.length, this.input.value.length);
+						} else {
+							$(this.input).val(this.input.value);
+						}
+					}, 0);
+					
 				} else if (e.which === 40){		// down arrow
 					if (--this.historyIndex === 0){
 						this.input.value = '';
@@ -1125,8 +1170,9 @@ class EditorView extends View {
 	}
 	
 	editorChanged(){
+		this.emit('editor-changed');
 		clearTimeout(this.uploadTimeout);
-		this.uploadTimeout = setTimeout( () => this.emit('change', this.editor.getValue()), uploadDelay );
+		this.uploadTimeout = setTimeout( () => this.emit('upload', this.editor.getValue()), uploadDelay );
 	}
 	
 	// model events
@@ -1610,16 +1656,22 @@ class ProjectView extends View {
 	
 	constructor(className, models){
 		super(className, models);
+		
+		this.exampleChanged = false;
+		this.on('example-changed', () => this.exampleChanged = true );
 	}
 	
 	// UI events
 	selectChanged($element, e){
-		//console.log($element.prop('id'));
-		//if ($element.prop('id') === 'projects'){
-			this.emit('message', 'project-event', {func: $element.data().func, currentProject: $element.val()})
-		//} else if ($element.prop('id') === 'examples'){
-			//this.emit('message', 'example-event', {func: $element.data().func, example: $element.val()})
-		//}
+	
+		if (this.exampleChanged && !confirm('example changed! You will lose all changes if you continue')){
+			$element.find('option').filter(':selected').attr('selected', '');
+			$element.val($('#projects > option:first').val())
+			return;
+		}
+
+		this.emit('message', 'project-event', {func: $element.data().func, currentProject: $element.val()})
+		
 	}
 	buttonClicked($element, e){
 		var func = $element.data().func;
@@ -1629,6 +1681,7 @@ class ProjectView extends View {
 	}
 	
 	newProject(func){
+<<<<<<< HEAD
 		$('#overlay, #popup').addClass('active');
 		$('#popup-content').html(
 			"<h1>Creating a new project</h1><p>Enter the name of your new project:</p><input type='text' placeholder='Enter your project name'><br /><button class='button' name='cancel'>Cancel</button><button class='button' name='create_newProj' data-func='newProjectButton'>Save project</button>" 
@@ -1656,6 +1709,16 @@ class ProjectView extends View {
 		// }
 	
 	
+=======
+		
+		if (this.exampleChanged && !confirm('example changed! You will lose all changes if you continue'))
+			return;
+			
+		var name = prompt("Enter the name of the new project");
+		if (name !== null){
+			this.emit('message', 'project-event', {func, newProject: sanitise(name)})
+		}
+>>>>>>> master
 		
 	}
 	saveAs(func){
@@ -1694,21 +1757,6 @@ class ProjectView extends View {
 		
 	}
 	_exampleList(examplesDir){
-	
-		/*var $examples = $('#examples');
-		$examples.empty();
-		
-		// add an empty option to menu and select it
-		var opt = $('<option></option>').attr({'value': '', 'selected': 'selected'}).html('--Examples--').appendTo($examples);
-		
-		// fill project menu with examples
-		for (let i=0; i<examples.length; i++){
-			if (examples[i] && examples[i] !== 'undefined' && examples[i] !== 'exampleTempProject' && examples[i][0] !== '.'){
-				var opt = $('<option></option>').attr('value', examples[i]).html(examples[i]).appendTo($examples);
-			}
-		}*/
-		
-		console.log(examplesDir);
 
 		var $examples = $('#examples');
 		$examples.empty();
@@ -1720,12 +1768,17 @@ class ProjectView extends View {
 			for (let child of item.children){
 				$('<li></li>').addClass('sourceFile').html(child).appendTo(ul)
 					.on('click', (e) => {
+					
+						if (this.exampleChanged && !confirm('example changed! You will lose all changes if you continue'))
+							return;
+							
 						this.emit('message', 'project-event', {
 							func: 'openExample',
 							currentProject: item.name+'/'+child
 						});
 						$('.selectedExample').removeClass('selectedExample');
 						$(e.target).addClass('selectedExample');
+						
 					});
 			}
 			ul.appendTo($examples);
@@ -1749,6 +1802,11 @@ class ProjectView extends View {
 		
 		// set download link
 		$('#downloadLink').attr('href', '/download?project='+project);
+		
+	}
+	
+	__currentProject(){
+		this.exampleChanged = false;
 	}
 	
 	subDirs(dir){
@@ -1977,6 +2035,7 @@ class TabView extends View {
 	
 	openTabs(){
 		$('#editor').css('right', '500px');
+		$('#top-line').css('margin-right', '500px');
 		$('#right').css('left', window.innerWidth - 500 + 'px');
 		_tabsOpen = true;
 		this.emit('change');
@@ -1985,6 +2044,7 @@ class TabView extends View {
 
 	closeTabs(){
 		$('#editor').css('right', '60px');
+		$('#top-line').css('margin-right', '60px');
 		$('#right').css('left', window.innerWidth - 60 + 'px');
 		_tabsOpen = false;
 		this.emit('change');

@@ -4,16 +4,22 @@ class ProjectView extends View {
 	
 	constructor(className, models){
 		super(className, models);
+		
+		this.exampleChanged = false;
+		this.on('example-changed', () => this.exampleChanged = true );
 	}
 	
 	// UI events
 	selectChanged($element, e){
-		//console.log($element.prop('id'));
-		//if ($element.prop('id') === 'projects'){
-			this.emit('message', 'project-event', {func: $element.data().func, currentProject: $element.val()})
-		//} else if ($element.prop('id') === 'examples'){
-			//this.emit('message', 'example-event', {func: $element.data().func, example: $element.val()})
-		//}
+	
+		if (this.exampleChanged && !confirm('example changed! You will lose all changes if you continue')){
+			$element.find('option').filter(':selected').attr('selected', '');
+			$element.val($('#projects > option:first').val())
+			return;
+		}
+
+		this.emit('message', 'project-event', {func: $element.data().func, currentProject: $element.val()})
+		
 	}
 	buttonClicked($element, e){
 		var func = $element.data().func;
@@ -23,6 +29,10 @@ class ProjectView extends View {
 	}
 	
 	newProject(func){
+		
+		if (this.exampleChanged && !confirm('example changed! You will lose all changes if you continue'))
+			return;
+			
 		$('#overlay, #popup').addClass('active');
 		$('#popup-content').html(
 			"<h1>Creating a new project</h1><p>Enter the name of your new project:</p><input type='text' placeholder='Enter your project name'><br /><button class='button' name='cancel'>Cancel</button><button class='button' name='create_newProj' data-func='newProjectButton'>Save project</button>" 
@@ -50,6 +60,7 @@ class ProjectView extends View {
 		// }
 	
 	
+		
 		
 	}
 	saveAs(func){
@@ -88,21 +99,6 @@ class ProjectView extends View {
 		
 	}
 	_exampleList(examplesDir){
-	
-		/*var $examples = $('#examples');
-		$examples.empty();
-		
-		// add an empty option to menu and select it
-		var opt = $('<option></option>').attr({'value': '', 'selected': 'selected'}).html('--Examples--').appendTo($examples);
-		
-		// fill project menu with examples
-		for (let i=0; i<examples.length; i++){
-			if (examples[i] && examples[i] !== 'undefined' && examples[i] !== 'exampleTempProject' && examples[i][0] !== '.'){
-				var opt = $('<option></option>').attr('value', examples[i]).html(examples[i]).appendTo($examples);
-			}
-		}*/
-		
-		console.log(examplesDir);
 
 		var $examples = $('#examples');
 		$examples.empty();
@@ -114,12 +110,17 @@ class ProjectView extends View {
 			for (let child of item.children){
 				$('<li></li>').addClass('sourceFile').html(child).appendTo(ul)
 					.on('click', (e) => {
+					
+						if (this.exampleChanged && !confirm('example changed! You will lose all changes if you continue'))
+							return;
+							
 						this.emit('message', 'project-event', {
 							func: 'openExample',
 							currentProject: item.name+'/'+child
 						});
 						$('.selectedExample').removeClass('selectedExample');
 						$(e.target).addClass('selectedExample');
+						
 					});
 			}
 			ul.appendTo($examples);
@@ -143,6 +144,11 @@ class ProjectView extends View {
 		
 		// set download link
 		$('#downloadLink').attr('href', '/download?project='+project);
+		
+	}
+	
+	__currentProject(){
+		this.exampleChanged = false;
 	}
 	
 	subDirs(dir){

@@ -94,6 +94,7 @@ class TabView extends View {
 	
 	openTabs(){
 		$('#editor').css('right', '500px');
+		$('#top-line').css('margin-right', '500px');
 		$('#right').css('left', window.innerWidth - 500 + 'px');
 		_tabsOpen = true;
 		this.emit('change');
@@ -102,6 +103,7 @@ class TabView extends View {
 
 	closeTabs(){
 		$('#editor').css('right', '60px');
+		$('#top-line').css('margin-right', '60px');
 		$('#right').css('left', window.innerWidth - 60 + 'px');
 		_tabsOpen = false;
 		this.emit('change');

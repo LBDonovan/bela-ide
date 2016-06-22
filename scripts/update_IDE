@@ -81,7 +81,7 @@ printf "done\n" || { printf "\nError while copying files: error $?\n"; exit 1; }
 ssh $BBB_ADDRESS "cd $BBB_BELA_HOME/; mkdir -p $BBB_BELA_HOME/IDE/public/media; mkdir -p projects/; [ -d projects/basic ] || cp -r examples/basic projects/" &&\
 
 # If there are any C/C++ files, rebuild node dependencies
-find $SCRIPTDIR/../IDE | grep '\(\.cpp\|\.cc\|\.c\|\.hpp\|\.hh\|\.h\)$' >/dev/null 2>&1 &&\
+find $SCRIPTDIR/../IDE/node_modules | grep '\(\.cpp\|\.cc\|\.c\|\.hpp\|\.hh\|\.h\)$' >/dev/null 2>&1 &&\
 { 
 	printf "Rebuilding node dependencies..."
 	ssh $BBB_ADDRESS "cd $BBB_BELA_HOME/IDE/; npm rebuild &>/dev/null" &&\
@@ -91,3 +91,9 @@ find $SCRIPTDIR/../IDE | grep '\(\.cpp\|\.cc\|\.c\|\.hpp\|\.hh\|\.h\)$' >/dev/nu
 echo "The IDE was correctly updated"
 
 [ $FULL -eq 1 ] && ssh $BBB_ADDRESS "make --no-print-directory -C \"$BBB_BELA_HOME\" idestart"
+
+[ $ALWAYS_YES -eq 1 ] && printf "\nSetup complete.\n\n" || {
+  printf '\nSetup complete, press any key to continue . . .\n\n'
+  read 
+}
+

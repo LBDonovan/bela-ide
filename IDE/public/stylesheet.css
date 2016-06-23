@@ -770,7 +770,7 @@ right: calc(100% - 62px);
     	margin: 0 auto;
     }
 
-    #tab-1:checked + label>span{
+    #tab-3:checked + label>span{
     	background: url("images/icons/gear_active.png") no-repeat;
     	cursor: default;
     }
@@ -792,7 +792,7 @@ right: calc(100% - 62px);
     	display: block;
     	margin: 0 auto;
     }
-    #tab-3:checked + label>span{
+    #tab-4:checked + label>span{
     	background: url("images/icons/bug_active2.png") no-repeat;
     	cursor: default;
     }
@@ -803,7 +803,7 @@ right: calc(100% - 62px);
     	display: block;
     	margin: 0 auto;
     }
-    #tab-6:checked + label>span {
+    #tab-1:checked + label>span {
     	background: url("images/icons/bulb_active.png") no-repeat;
     	cursor: default;
     }
@@ -814,7 +814,7 @@ right: calc(100% - 62px);
     	display: block;
     	margin: 0 auto;
     }
-    #tab-4:checked + label>span{
+    #tab-5:checked + label>span{
     	background: url("images/icons/gpio_active.png") no-repeat;
     	cursor: default;
     }
@@ -832,7 +832,7 @@ right: calc(100% - 62px);
     	display: block;
     	margin: 0 auto;
     }
-    #tab-5:checked + label>span{
+    #tab-6:checked + label>span{
     	background: url("images/icons/book_active.png") no-repeat;
     }
 

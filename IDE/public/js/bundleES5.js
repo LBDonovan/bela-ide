@@ -1734,36 +1734,29 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 		var sourceIndeces = ['cpp', 'c', 'S'];
 		var headerIndeces = ['h', 'hh', 'hpp'];
 
+		var askForOverwrite = true;
+
 		var FileView = function (_View5) {
 			_inherits(FileView, _View5);
 
 			function FileView(className, models) {
 				_classCallCheck(this, FileView);
 
-				// hack to upload file
-
 				var _this8 = _possibleConstructorReturn(this, Object.getPrototypeOf(FileView).call(this, className, models));
 
+				_this8.listOfFiles = [];
+
+				// hack to upload file
 				$('#uploadFileInput').on('change', function (e) {
 					var _iteratorNormalCompletion9 = true;
 					var _didIteratorError9 = false;
 					var _iteratorError9 = undefined;
 
 					try {
-						var _loop = function _loop() {
-							var file = _step9.value;
-							reader = new FileReader();
-
-							reader.onload = function (ev) {
-								return _this8.emit('message', 'project-event', { func: 'uploadFile', newFile: sanitise(file.name), fileData: ev.target.result });
-							};
-							reader.readAsArrayBuffer(file);
-						};
-
 						for (var _iterator9 = e.target.files[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
-							var reader;
+							var file = _step9.value;
 
-							_loop();
+							_this8.doFileUpload(file);
 						}
 					} catch (err) {
 						_didIteratorError9 = true;
@@ -1790,20 +1783,10 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 						var _iteratorError10 = undefined;
 
 						try {
-							var _loop2 = function _loop2() {
-								var file = _step10.value;
-								reader = new FileReader();
-
-								reader.onload = function (ev) {
-									return _this8.emit('message', 'project-event', { func: 'uploadFile', newFile: sanitise(file.name), fileData: ev.target.result });
-								};
-								reader.readAsArrayBuffer(file);
-							};
-
 							for (var _iterator10 = e.originalEvent.dataTransfer.files[Symbol.iterator](), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
-								var reader;
+								var file = _step10.value;
 
-								_loop2();
+								_this8.doFileUpload(file);
 							}
 						} catch (err) {
 							_didIteratorError10 = true;
@@ -1929,6 +1912,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 				key: "_fileList",
 				value: function _fileList(files, data) {
 					var _this12 = this;
+
+					this.listOfFiles = files;
 
 					var $files = $('#fileList');
 					$files.empty();
@@ -2112,6 +2097,78 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 					return ul;
 				}
+			}, {
+				key: "doFileUpload",
+				value: function doFileUpload(file) {
+					var _this14 = this;
+
+					var fileExists = false;
+					var _iteratorNormalCompletion14 = true;
+					var _didIteratorError14 = false;
+					var _iteratorError14 = undefined;
+
+					try {
+						for (var _iterator14 = this.listOfFiles[Symbol.iterator](), _step14; !(_iteratorNormalCompletion14 = (_step14 = _iterator14.next()).done); _iteratorNormalCompletion14 = true) {
+							var item = _step14.value;
+
+							if (item.name === file.name) fileExists = true;
+						}
+					} catch (err) {
+						_didIteratorError14 = true;
+						_iteratorError14 = err;
+					} finally {
+						try {
+							if (!_iteratorNormalCompletion14 && _iterator14.return) {
+								_iterator14.return();
+							}
+						} finally {
+							if (_didIteratorError14) {
+								throw _iteratorError14;
+							}
+						}
+					}
+
+					if (fileExists && askForOverwrite) {
+
+						// build the popup content
+						popup.title('Overwriting file');
+						popup.subtitle('The file ' + file.name + ' already exists in this project. Would you like to overwrite it?');
+
+						var form = [];
+						form.push('<input id="popup-remember-upload" type="checkbox">');
+						form.push('<label for="popup-remember-upload">don\'t ask me again this session</label>');
+						form.push('</br >');
+						form.push('<button type="submit" class="button popup-upload">Upload</button>');
+						form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+
+						popup.form.append(form.join('')).off('submit').on('submit', function (e) {
+							e.preventDefault();
+							if (popup.find('input[type=checkbox]').is(':checked')) askForOverwrite = false;
+							_this14.actuallyDoFileUpload(file, true);
+							popup.hide();
+						});
+
+						popup.find('.popup-cancel').on('click', popup.hide);
+
+						popup.show();
+
+						popup.find('.popup-cancel').focus();
+					} else {
+
+						this.actuallyDoFileUpload(file, !askForOverwrite);
+					}
+				}
+			}, {
+				key: "actuallyDoFileUpload",
+				value: function actuallyDoFileUpload(file, force) {
+					var _this15 = this;
+
+					var reader = new FileReader();
+					reader.onload = function (ev) {
+						return _this15.emit('message', 'project-event', { func: 'uploadFile', newFile: sanitise(file.name), fileData: ev.target.result, force: force });
+					};
+					reader.readAsArrayBuffer(file);
+				}
 			}]);
 
 			return FileView;
@@ -2135,21 +2192,21 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			function GitView(className, models, settings) {
 				_classCallCheck(this, GitView);
 
-				var _this14 = _possibleConstructorReturn(this, Object.getPrototypeOf(GitView).call(this, className, models, settings));
+				var _this16 = _possibleConstructorReturn(this, Object.getPrototypeOf(GitView).call(this, className, models, settings));
 
-				_this14.$form = $('#gitForm');
-				_this14.$input = $('#gitInput');
+				_this16.$form = $('#gitForm');
+				_this16.$input = $('#gitInput');
 
 				// git input events
-				_this14.$form.on('submit', function (e) {
+				_this16.$form.on('submit', function (e) {
 					e.preventDefault();
-					_this14.emit('git-event', {
+					_this16.emit('git-event', {
 						func: 'command',
-						command: _this14.$input.val()
+						command: _this16.$input.val()
 					});
-					_this14.$input.val('');
+					_this16.$input.val('');
 				});
-				return _this14;
+				return _this16;
 			}
 
 			_createClass(GitView, [{
@@ -2174,7 +2231,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			}, {
 				key: "commit",
 				value: function commit() {
-					var _this15 = this;
+					var _this17 = this;
 
 					// build the popup content
 					popup.title('Committing to the project repository');
@@ -2188,7 +2245,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 					popup.form.append(form.join('')).off('submit').on('submit', function (e) {
 						e.preventDefault();
-						_this15.emit('git-event', { func: 'command', command: 'commit -am "' + popup.find('input[type=text]').val() + '"' });
+						_this17.emit('git-event', { func: 'command', command: 'commit -am "' + popup.find('input[type=text]').val() + '"' });
 						popup.hide();
 					});
 
@@ -2199,7 +2256,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			}, {
 				key: "branch",
 				value: function branch() {
-					var _this16 = this;
+					var _this18 = this;
 
 					// build the popup content
 					popup.title('Creating a new branch');
@@ -2213,7 +2270,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 					popup.form.append(form.join('')).off('submit').on('submit', function (e) {
 						e.preventDefault();
-						_this16.emit('git-event', { func: 'command', command: 'checkout -b ' + popup.find('input[type=text]').val() });
+						_this18.emit('git-event', { func: 'command', command: 'checkout -b ' + popup.find('input[type=text]').val() });
 						popup.hide();
 					});
 
@@ -2224,7 +2281,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			}, {
 				key: "discardChanges",
 				value: function discardChanges() {
-					var _this17 = this;
+					var _this19 = this;
 
 					// build the popup content
 					popup.title('Discarding changes');
@@ -2236,7 +2293,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 					popup.form.append(form.join('')).off('submit').on('submit', function (e) {
 						e.preventDefault();
-						_this17.emit('git-event', { func: 'command', command: 'checkout -- .' });
+						_this19.emit('git-event', { func: 'command', command: 'checkout -- .' });
 						popup.hide();
 					});
 
@@ -2323,13 +2380,13 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			function ProjectView(className, models) {
 				_classCallCheck(this, ProjectView);
 
-				var _this18 = _possibleConstructorReturn(this, Object.getPrototypeOf(ProjectView).call(this, className, models));
+				var _this20 = _possibleConstructorReturn(this, Object.getPrototypeOf(ProjectView).call(this, className, models));
 
-				_this18.exampleChanged = false;
-				_this18.on('example-changed', function () {
-					return _this18.exampleChanged = true;
+				_this20.exampleChanged = false;
+				_this20.on('example-changed', function () {
+					return _this20.exampleChanged = true;
 				});
-				return _this18;
+				return _this20;
 			}
 
 			// UI events
@@ -2338,16 +2395,16 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			_createClass(ProjectView, [{
 				key: "selectChanged",
 				value: function selectChanged($element, e) {
-					var _this19 = this;
+					var _this21 = this;
 
 					if (this.exampleChanged) {
 						this.exampleChanged = false;
 						popup.exampleChanged(function () {
-							_this19.emit('message', 'project-event', { func: $element.data().func, currentProject: $element.val() });
+							_this21.emit('message', 'project-event', { func: $element.data().func, currentProject: $element.val() });
 						}, undefined, 0, function () {
 							$element.find('option').filter(':selected').attr('selected', '');
 							$element.val($('#projects > option:first').val());
-							_this19.exampleChanged = true;
+							_this21.exampleChanged = true;
 						});
 						return;
 					}
@@ -2365,12 +2422,12 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			}, {
 				key: "newProject",
 				value: function newProject(func) {
-					var _this20 = this;
+					var _this22 = this;
 
 					if (this.exampleChanged) {
 						this.exampleChanged = false;
 						popup.exampleChanged(this.newProject.bind(this), func, 500, function () {
-							return _this20.exampleChanged = true;
+							return _this22.exampleChanged = true;
 						});
 						return;
 					}
@@ -2393,7 +2450,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 					popup.form.append(form.join('')).off('submit').on('submit', function (e) {
 						e.preventDefault();
-						_this20.emit('message', 'project-event', {
+						_this22.emit('message', 'project-event', {
 							func: func,
 							newProject: sanitise(popup.find('input[type=text]').val()),
 							projectType: popup.find('input[type=radio]:checked').data('type')
@@ -2408,7 +2465,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			}, {
 				key: "saveAs",
 				value: function saveAs(func) {
-					var _this21 = this;
+					var _this23 = this;
 
 					// build the popup content
 					popup.title('Saving project');
@@ -2422,7 +2479,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 					popup.form.append(form.join('')).off('submit').on('submit', function (e) {
 						e.preventDefault();
-						_this21.emit('message', 'project-event', { func: func, newProject: sanitise(popup.find('input[type=text]').val()) });
+						_this23.emit('message', 'project-event', { func: func, newProject: sanitise(popup.find('input[type=text]').val()) });
 						popup.hide();
 					});
 
@@ -2433,7 +2490,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			}, {
 				key: "deleteProject",
 				value: function deleteProject(func) {
-					var _this22 = this;
+					var _this24 = this;
 
 					// build the popup content
 					popup.title('Deleting project');
@@ -2445,7 +2502,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 					popup.form.append(form.join('')).off('submit').on('submit', function (e) {
 						e.preventDefault();
-						_this22.emit('message', 'project-event', { func: func });
+						_this24.emit('message', 'project-event', { func: func });
 						popup.hide();
 					});
 
@@ -2485,48 +2542,48 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			}, {
 				key: "_exampleList",
 				value: function _exampleList(examplesDir) {
-					var _this23 = this;
+					var _this25 = this;
 
 					var $examples = $('#examples');
 					$examples.empty();
 
 					if (!examplesDir.length) return;
 
-					var _iteratorNormalCompletion14 = true;
-					var _didIteratorError14 = false;
-					var _iteratorError14 = undefined;
+					var _iteratorNormalCompletion15 = true;
+					var _didIteratorError15 = false;
+					var _iteratorError15 = undefined;
 
 					try {
-						var _loop3 = function _loop3() {
-							var item = _step14.value;
+						var _loop = function _loop() {
+							var item = _step15.value;
 
 							var ul = $('<ul></ul>').html(item.name + ':');
-							var _iteratorNormalCompletion15 = true;
-							var _didIteratorError15 = false;
-							var _iteratorError15 = undefined;
+							var _iteratorNormalCompletion16 = true;
+							var _didIteratorError16 = false;
+							var _iteratorError16 = undefined;
 
 							try {
-								var _loop4 = function _loop4() {
-									var child = _step15.value;
+								var _loop2 = function _loop2() {
+									var child = _step16.value;
 
 									$('<li></li>').addClass('sourceFile').html(child).appendTo(ul).on('click', function (e) {
 
-										if (_this23.exampleChanged) {
-											_this23.exampleChanged = false;
+										if (_this25.exampleChanged) {
+											_this25.exampleChanged = false;
 											popup.exampleChanged(function () {
-												_this23.emit('message', 'project-event', {
+												_this25.emit('message', 'project-event', {
 													func: 'openExample',
 													currentProject: item.name + '/' + child
 												});
 												$('.selectedExample').removeClass('selectedExample');
 												$(e.target).addClass('selectedExample');
 											}, undefined, 0, function () {
-												return _this23.exampleChanged = true;
+												return _this25.exampleChanged = true;
 											});
 											return;
 										}
 
-										_this23.emit('message', 'project-event', {
+										_this25.emit('message', 'project-event', {
 											func: 'openExample',
 											currentProject: item.name + '/' + child
 										});
@@ -2535,20 +2592,20 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 									});
 								};
 
-								for (var _iterator15 = item.children[Symbol.iterator](), _step15; !(_iteratorNormalCompletion15 = (_step15 = _iterator15.next()).done); _iteratorNormalCompletion15 = true) {
-									_loop4();
+								for (var _iterator16 = item.children[Symbol.iterator](), _step16; !(_iteratorNormalCompletion16 = (_step16 = _iterator16.next()).done); _iteratorNormalCompletion16 = true) {
+									_loop2();
 								}
 							} catch (err) {
-								_didIteratorError15 = true;
-								_iteratorError15 = err;
+								_didIteratorError16 = true;
+								_iteratorError16 = err;
 							} finally {
 								try {
-									if (!_iteratorNormalCompletion15 && _iterator15.return) {
-										_iterator15.return();
+									if (!_iteratorNormalCompletion16 && _iterator16.return) {
+										_iterator16.return();
 									}
 								} finally {
-									if (_didIteratorError15) {
-										throw _iteratorError15;
+									if (_didIteratorError16) {
+										throw _iteratorError16;
 									}
 								}
 							}
@@ -2556,20 +2613,20 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 							ul.appendTo($examples);
 						};
 
-						for (var _iterator14 = examplesDir[Symbol.iterator](), _step14; !(_iteratorNormalCompletion14 = (_step14 = _iterator14.next()).done); _iteratorNormalCompletion14 = true) {
-							_loop3();
+						for (var _iterator15 = examplesDir[Symbol.iterator](), _step15; !(_iteratorNormalCompletion15 = (_step15 = _iterator15.next()).done); _iteratorNormalCompletion15 = true) {
+							_loop();
 						}
 					} catch (err) {
-						_didIteratorError14 = true;
-						_iteratorError14 = err;
+						_didIteratorError15 = true;
+						_iteratorError15 = err;
 					} finally {
 						try {
-							if (!_iteratorNormalCompletion14 && _iterator14.return) {
-								_iterator14.return();
+							if (!_iteratorNormalCompletion15 && _iterator15.return) {
+								_iterator15.return();
 							}
 						} finally {
-							if (_didIteratorError14) {
-								throw _iteratorError14;
+							if (_didIteratorError15) {
+								throw _iteratorError15;
 							}
 						}
 					}
@@ -2604,13 +2661,13 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 				key: "subDirs",
 				value: function subDirs(dir) {
 					var ul = $('<ul></ul>').html(dir.name + ':');
-					var _iteratorNormalCompletion16 = true;
-					var _didIteratorError16 = false;
-					var _iteratorError16 = undefined;
+					var _iteratorNormalCompletion17 = true;
+					var _didIteratorError17 = false;
+					var _iteratorError17 = undefined;
 
 					try {
-						for (var _iterator16 = dir.children[Symbol.iterator](), _step16; !(_iteratorNormalCompletion16 = (_step16 = _iterator16.next()).done); _iteratorNormalCompletion16 = true) {
-							var _child = _step16.value;
+						for (var _iterator17 = dir.children[Symbol.iterator](), _step17; !(_iteratorNormalCompletion17 = (_step17 = _iterator17.next()).done); _iteratorNormalCompletion17 = true) {
+							var _child = _step17.value;
 
 							if (!_child.dir) $('<li></li>').addClass('sourceFile').html(_child.name).data('file', (dir.dirPath || dir.name) + '/' + _child.name).appendTo(ul);else {
 								_child.dirPath = (dir.dirPath || dir.name) + '/' + _child.name;
@@ -2618,16 +2675,16 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 							}
 						}
 					} catch (err) {
-						_didIteratorError16 = true;
-						_iteratorError16 = err;
+						_didIteratorError17 = true;
+						_iteratorError17 = err;
 					} finally {
 						try {
-							if (!_iteratorNormalCompletion16 && _iterator16.return) {
-								_iterator16.return();
+							if (!_iteratorNormalCompletion17 && _iterator17.return) {
+								_iterator17.return();
 							}
 						} finally {
-							if (_didIteratorError16) {
-								throw _iteratorError16;
+							if (_didIteratorError17) {
+								throw _iteratorError17;
 							}
 						}
 					}
@@ -2657,22 +2714,22 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 				//this.$elements.filter('input').on('change', (e) => this.selectChanged($(e.currentTarget), e));
 
-				var _this24 = _possibleConstructorReturn(this, Object.getPrototypeOf(SettingsView).call(this, className, models, settings));
+				var _this26 = _possibleConstructorReturn(this, Object.getPrototypeOf(SettingsView).call(this, className, models, settings));
 
-				_this24.settings.on('change', function (data) {
-					return _this24._IDESettings(data);
+				_this26.settings.on('change', function (data) {
+					return _this26._IDESettings(data);
 				});
-				_this24.$elements.filterByData = function (prop, val) {
+				_this26.$elements.filterByData = function (prop, val) {
 					return this.filter(function () {
 						return $(this).data(prop) == val;
 					});
 				};
 
 				$('#runOnBoot').on('change', function () {
-					if ($('#runOnBoot').val()) _this24.emit('run-on-boot', $('#runOnBoot').val());
+					if ($('#runOnBoot').val()) _this26.emit('run-on-boot', $('#runOnBoot').val());
 				});
 
-				return _this24;
+				return _this26;
 			}
 
 			_createClass(SettingsView, [{
@@ -2718,7 +2775,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			}, {
 				key: "restoreDefaultCLArgs",
 				value: function restoreDefaultCLArgs(func) {
-					var _this25 = this;
+					var _this27 = this;
 
 					// build the popup content
 					popup.title('Restoring default project settings');
@@ -2730,7 +2787,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 					popup.form.append(form.join('')).off('submit').on('submit', function (e) {
 						e.preventDefault();
-						_this25.emit('project-settings', { func: func });
+						_this27.emit('project-settings', { func: func });
 						popup.hide();
 					});
 
@@ -2749,7 +2806,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			}, {
 				key: "restoreDefaultIDESettings",
 				value: function restoreDefaultIDESettings(func) {
-					var _this26 = this;
+					var _this28 = this;
 
 					// build the popup content
 					popup.title('Restoring default IDE settings');
@@ -2761,7 +2818,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 					popup.form.append(form.join('')).off('submit').on('submit', function (e) {
 						e.preventDefault();
-						_this26.emit('IDE-settings', { func: func });
+						_this28.emit('IDE-settings', { func: func });
 						popup.hide();
 					});
 
@@ -2774,7 +2831,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			}, {
 				key: "shutdownBBB",
 				value: function shutdownBBB() {
-					var _this27 = this;
+					var _this29 = this;
 
 					// build the popup content
 					popup.title('Shutting down Bela');
@@ -2786,7 +2843,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 					popup.form.append(form.join('')).off('submit').on('submit', function (e) {
 						e.preventDefault();
-						_this27.emit('halt');
+						_this29.emit('halt');
 						popup.hide();
 					});
 
@@ -2881,13 +2938,13 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 				// open/close tabs
 
-				var _this28 = _possibleConstructorReturn(this, Object.getPrototypeOf(TabView).call(this, 'tab'));
+				var _this30 = _possibleConstructorReturn(this, Object.getPrototypeOf(TabView).call(this, 'tab'));
 
 				$('#flexit').on('click', function () {
 					if (_tabsOpen) {
-						_this28.closeTabs();
+						_this30.closeTabs();
 					} else {
-						_this28.openTabs();
+						_this30.openTabs();
 					}
 				});
 
@@ -2895,7 +2952,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 					if (!_tabsOpen) {
 						if ($(e.currentTarget).prop('id') === 'tab-0' && $('[type=radio]:checked ~ label').prop('id') === 'tab-0') $('#file-explorer').parent().trigger('click');
 
-						_this28.openTabs();
+						_this30.openTabs();
 						e.stopPropagation();
 					}
 				});
@@ -2952,21 +3009,21 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 				layout.init();
 				layout.on('initialised', function () {
-					return _this28.emit('change');
+					return _this30.emit('change');
 				});
 				layout.on('stateChanged', function () {
-					return _this28.emit('change');
+					return _this30.emit('change');
 				});
 
 				$(window).on('resize', function () {
 					if (_tabsOpen) {
-						_this28.openTabs();
+						_this30.openTabs();
 					} else {
-						_this28.closeTabs();
+						_this30.closeTabs();
 					}
 				});
 
-				return _this28;
+				return _this30;
 			}
 
 			_createClass(TabView, [{
@@ -3006,13 +3063,13 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			function ToolbarView(className, models) {
 				_classCallCheck(this, ToolbarView);
 
-				var _this29 = _possibleConstructorReturn(this, Object.getPrototypeOf(ToolbarView).call(this, className, models));
+				var _this31 = _possibleConstructorReturn(this, Object.getPrototypeOf(ToolbarView).call(this, className, models));
 
-				_this29.$elements.on('click', function (e) {
-					return _this29.buttonClicked($(e.currentTarget), e);
+				_this31.$elements.on('click', function (e) {
+					return _this31.buttonClicked($(e.currentTarget), e);
 				});
 
-				_this29.on('disconnected', function () {
+				_this31.on('disconnected', function () {
 					$('#run').removeClass('spinning');
 				});
 
@@ -3051,7 +3108,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 				}).mouseout(function () {
 					$('#control-text-3').html('');
 				});
-				return _this29;
+				return _this31;
 			}
 
 			// UI events
@@ -3203,74 +3260,44 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			function View(CSSClassName, models, settings) {
 				_classCallCheck(this, View);
 
-				var _this30 = _possibleConstructorReturn(this, Object.getPrototypeOf(View).call(this));
+				var _this32 = _possibleConstructorReturn(this, Object.getPrototypeOf(View).call(this));
 
-				_this30.className = CSSClassName;
-				_this30.models = models;
-				_this30.settings = settings;
-				_this30.$elements = $('.' + CSSClassName);
-				_this30.$parents = $('.' + CSSClassName + '-parent');
+				_this32.className = CSSClassName;
+				_this32.models = models;
+				_this32.settings = settings;
+				_this32.$elements = $('.' + CSSClassName);
+				_this32.$parents = $('.' + CSSClassName + '-parent');
 
 				if (models) {
 					for (var i = 0; i < models.length; i++) {
 						models[i].on('change', function (data, changedKeys) {
-							_this30.modelChanged(data, changedKeys);
+							_this32.modelChanged(data, changedKeys);
 						});
 						models[i].on('set', function (data, changedKeys) {
-							_this30.modelSet(data, changedKeys);
+							_this32.modelSet(data, changedKeys);
 						});
 					}
 				}
 
-				_this30.$elements.filter('select').on('change', function (e) {
-					return _this30.selectChanged($(e.currentTarget), e);
+				_this32.$elements.filter('select').on('change', function (e) {
+					return _this32.selectChanged($(e.currentTarget), e);
 				});
-				_this30.$elements.filter('input').on('input', function (e) {
-					return _this30.inputChanged($(e.currentTarget), e);
+				_this32.$elements.filter('input').on('input', function (e) {
+					return _this32.inputChanged($(e.currentTarget), e);
 				});
-				_this30.$elements.filter('input[type=checkbox]').on('change', function (e) {
-					return _this30.inputChanged($(e.currentTarget), e);
+				_this32.$elements.filter('input[type=checkbox]').on('change', function (e) {
+					return _this32.inputChanged($(e.currentTarget), e);
 				});
-				_this30.$elements.filter('button').on('click', function (e) {
-					return _this30.buttonClicked($(e.currentTarget), e);
+				_this32.$elements.filter('button').on('click', function (e) {
+					return _this32.buttonClicked($(e.currentTarget), e);
 				});
 
-				return _this30;
+				return _this32;
 			}
 
 			_createClass(View, [{
 				key: "modelChanged",
 				value: function modelChanged(data, changedKeys) {
-					var _iteratorNormalCompletion17 = true;
-					var _didIteratorError17 = false;
-					var _iteratorError17 = undefined;
-
-					try {
-						for (var _iterator17 = changedKeys[Symbol.iterator](), _step17; !(_iteratorNormalCompletion17 = (_step17 = _iterator17.next()).done); _iteratorNormalCompletion17 = true) {
-							var value = _step17.value;
-
-							if (this['_' + value]) {
-								this['_' + value](data[value], data, changedKeys);
-							}
-						}
-					} catch (err) {
-						_didIteratorError17 = true;
-						_iteratorError17 = err;
-					} finally {
-						try {
-							if (!_iteratorNormalCompletion17 && _iterator17.return) {
-								_iterator17.return();
-							}
-						} finally {
-							if (_didIteratorError17) {
-								throw _iteratorError17;
-							}
-						}
-					}
-				}
-			}, {
-				key: "modelSet",
-				value: function modelSet(data, changedKeys) {
 					var _iteratorNormalCompletion18 = true;
 					var _didIteratorError18 = false;
 					var _iteratorError18 = undefined;
@@ -3279,8 +3306,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 						for (var _iterator18 = changedKeys[Symbol.iterator](), _step18; !(_iteratorNormalCompletion18 = (_step18 = _iterator18.next()).done); _iteratorNormalCompletion18 = true) {
 							var value = _step18.value;
 
-							if (this['__' + value]) {
-								this['__' + value](data[value], data, changedKeys);
+							if (this['_' + value]) {
+								this['_' + value](data[value], data, changedKeys);
 							}
 						}
 					} catch (err) {
@@ -3294,6 +3321,36 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 						} finally {
 							if (_didIteratorError18) {
 								throw _iteratorError18;
+							}
+						}
+					}
+				}
+			}, {
+				key: "modelSet",
+				value: function modelSet(data, changedKeys) {
+					var _iteratorNormalCompletion19 = true;
+					var _didIteratorError19 = false;
+					var _iteratorError19 = undefined;
+
+					try {
+						for (var _iterator19 = changedKeys[Symbol.iterator](), _step19; !(_iteratorNormalCompletion19 = (_step19 = _iterator19.next()).done); _iteratorNormalCompletion19 = true) {
+							var value = _step19.value;
+
+							if (this['__' + value]) {
+								this['__' + value](data[value], data, changedKeys);
+							}
+						}
+					} catch (err) {
+						_didIteratorError19 = true;
+						_iteratorError19 = err;
+					} finally {
+						try {
+							if (!_iteratorNormalCompletion19 && _iterator19.return) {
+								_iterator19.return();
+							}
+						} finally {
+							if (_didIteratorError19) {
+								throw _iteratorError19;
 							}
 						}
 					}
@@ -3334,11 +3391,11 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			function Console() {
 				_classCallCheck(this, Console);
 
-				var _this31 = _possibleConstructorReturn(this, Object.getPrototypeOf(Console).call(this));
+				var _this33 = _possibleConstructorReturn(this, Object.getPrototypeOf(Console).call(this));
 
-				_this31.$element = $('#beaglert-consoleWrapper');
-				_this31.parent = document.getElementById('beaglert-console');
-				return _this31;
+				_this33.$element = $('#beaglert-consoleWrapper');
+				_this33.parent = document.getElementById('beaglert-console');
+				return _this33;
 			}
 
 			_createClass(Console, [{
@@ -3402,17 +3459,17 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			}, {
 				key: "newErrors",
 				value: function newErrors(errors) {
-					var _this32 = this;
+					var _this34 = this;
 
 					$('.beaglert-console-ierror, .beaglert-console-iwarning').remove();
 
-					var _iteratorNormalCompletion19 = true;
-					var _didIteratorError19 = false;
-					var _iteratorError19 = undefined;
+					var _iteratorNormalCompletion20 = true;
+					var _didIteratorError20 = false;
+					var _iteratorError20 = undefined;
 
 					try {
-						var _loop5 = function _loop5() {
-							var err = _step19.value;
+						var _loop3 = function _loop3() {
+							var err = _step20.value;
 
 
 							// create the element and add it to the error object
@@ -3423,36 +3480,36 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 							anchor = $('<a></a>').html(err.text).appendTo(div);
 
 
-							div.appendTo(_this32.$element);
+							div.appendTo(_this34.$element);
 
 							if (err.currentFile) {
 								div.on('click', function () {
-									return _this32.emit('focus', { line: err.row + 1, column: err.column - 1 });
+									return _this34.emit('focus', { line: err.row + 1, column: err.column - 1 });
 								});
 							} else {
 								div.on('click', function () {
-									return _this32.emit('open-file', err.file, { line: err.row + 1, column: err.column - 1 });
+									return _this34.emit('open-file', err.file, { line: err.row + 1, column: err.column - 1 });
 								});
 							}
 						};
 
-						for (var _iterator19 = errors[Symbol.iterator](), _step19; !(_iteratorNormalCompletion19 = (_step19 = _iterator19.next()).done); _iteratorNormalCompletion19 = true) {
+						for (var _iterator20 = errors[Symbol.iterator](), _step20; !(_iteratorNormalCompletion20 = (_step20 = _iterator20.next()).done); _iteratorNormalCompletion20 = true) {
 							var div;
 							var anchor;
 
-							_loop5();
+							_loop3();
 						}
 					} catch (err) {
-						_didIteratorError19 = true;
-						_iteratorError19 = err;
+						_didIteratorError20 = true;
+						_iteratorError20 = err;
 					} finally {
 						try {
-							if (!_iteratorNormalCompletion19 && _iterator19.return) {
-								_iterator19.return();
+							if (!_iteratorNormalCompletion20 && _iterator20.return) {
+								_iterator20.return();
 							}
 						} finally {
-							if (_didIteratorError19) {
-								throw _iteratorError19;
+							if (_didIteratorError20) {
+								throw _iteratorError20;
 							}
 						}
 					}
@@ -3534,10 +3591,10 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			}, {
 				key: "scroll",
 				value: function scroll() {
-					var _this33 = this;
+					var _this35 = this;
 
 					setTimeout(function () {
-						return _this33.parent.scrollTop = _this33.parent.scrollHeight;
+						return _this35.parent.scrollTop = _this35.parent.scrollHeight;
 					}, 0);
 				}
 			}, {

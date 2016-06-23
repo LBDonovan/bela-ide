@@ -369,12 +369,14 @@ function runOnBootProject(){
 }
 
 function uploadUpdate(data){
-	allSockets.emit('std-log', 'saving update file...');
+
+	allSockets.emit('std-log', 'Upload completed, saving update file...');
+	
 	fs.emptyDirAsync(updatePath)
 		.then( () => fs.outputFileAsync(updatePath+data.name, data.file) )
 		.then( () => {
 			
-			allSockets.emit('std-log', 'unzipping and validating update...');
+			//allSockets.emit('std-log', 'unzipping and validating update...');
 			
 			return new Promise( (resolve, reject) => {
 				
@@ -405,7 +407,7 @@ function uploadUpdate(data){
 		})
 		.then( () => {
 			
-			allSockets.emit('std-log', 'applying update...');
+			allSockets.emit('std-log', 'Applying update...');
 			
 			return new Promise( (resolve, reject) => {
 				
@@ -429,7 +431,7 @@ function uploadUpdate(data){
 				
 				proc.on('close', () => {
 					if (stderr.length) reject(stderr);
-					else allSockets.emit('std-log', 'update completed!');
+					else allSockets.emit('std-log', 'Update completed!');
 				});
 				
 			});

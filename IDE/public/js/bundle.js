@@ -2224,16 +2224,27 @@ class SettingsView extends View {
 		});*/
 		
 		popup.form.append(form.join('')).off('submit').on('submit', e => {
+			
 			e.preventDefault();
+			
 			var file = popup.find('input[type=file]').prop('files')[0];
 			if (file && file.type === 'application/zip'){
+			
+				this.emit('warning', 'beginning the update - this may take several minutes');
+				this.emit('warning', 'the browser may become unresponsive and will temporarily disconnect');
+				
 				var reader = new FileReader();
 				reader.onload = (ev) => this.emit('upload-update', {name: file.name, file: ev.target.result} );
 				reader.readAsArrayBuffer(file);
+				
 			} else {
+			
 				this.emit('warning', 'not a valid update zip archive');
+				
 			}
+			
 			popup.hide();
+			
 		});
 		
 		popup.find('.popup-cancel').on('click', popup.hide );

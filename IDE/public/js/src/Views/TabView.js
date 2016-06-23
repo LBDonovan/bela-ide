@@ -99,6 +99,12 @@ class TabView extends View {
 		_tabsOpen = true;
 		this.emit('change');
 		$('#tab-0').addClass('open');
+		
+		// fix pd patch
+		$('#pd-svg-parent').css({
+			'max-width'	: $('#editor').width()+'px',
+			'max-height': $('#editor').height()+'px'
+		});
 	}
 
 	closeTabs(){
@@ -108,6 +114,13 @@ class TabView extends View {
 		_tabsOpen = false;
 		this.emit('change');
 		$('#tab-0').removeClass('open');
+		
+		// fix pd patch
+		$('#pd-svg-parent').css({
+			'max-width'	: $('#editor').width()+'px',
+			'max-height': $('#editor').height()+'px'
+		});
+		
 	}
 	
 }

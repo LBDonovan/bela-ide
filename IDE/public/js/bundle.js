@@ -797,6 +797,12 @@ class ConsoleView extends View{
 	__belaLog(log, data){
 		_console.log(log, 'bela');
 	}
+	__belaLogErr(log, data){
+		_console.warn(log, 'bela');
+	}
+	__belaResult(data){
+		//console.log(data);
+	}
 	
 	_building(status, data){
 		var timestamp = performance.now();
@@ -2232,6 +2238,7 @@ class SettingsView extends View {
 			
 				this.emit('warning', 'beginning the update - this may take several minutes');
 				this.emit('warning', 'the browser may become unresponsive and will temporarily disconnect');
+				this.emit('warning', 'do not use the IDE during the update process!');
 				
 				var reader = new FileReader();
 				reader.onload = (ev) => this.emit('upload-update', {name: file.name, file: ev.target.result} );

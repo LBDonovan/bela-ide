@@ -1374,6 +1374,8 @@ var popup = require('../popup');
 var sourceIndeces = ['cpp', 'c', 'S'];
 var headerIndeces = ['h', 'hh', 'hpp'];
 
+var askForOverwrite = true;
+
 class FileView extends View {
 	
 	constructor(className, models){
@@ -1600,20 +1602,22 @@ class FileView extends View {
 			if (item.name === file.name) fileExists = true;
 		}
 		
-		if (fileExists){
-		
+		if (fileExists && askForOverwrite){
+
 			// build the popup content
 			popup.title('Overwriting file');
 			popup.subtitle('The file '+file.name+' already exists in this project. Would you like to overwrite it?');
 		
 			var form = [];
-			//form.push('<input type="text" placeholder="Enter the file name">');
-			//form.push('</br >');
+			form.push('<input id="popup-remember-upload" type="checkbox">');
+			form.push('<label for="popup-remember-upload">don\'t ask me again this session</label>')
+			form.push('</br >');
 			form.push('<button type="submit" class="button popup-upload">Upload</button>');
 			form.push('<button type="button" class="button popup-cancel">Cancel</button>');
 		
 			popup.form.append(form.join('')).off('submit').on('submit', e => {
 				e.preventDefault();
+				if (popup.find('input[type=checkbox]').is(':checked')) askForOverwrite = false;
 				this.actuallyDoFileUpload(file, true);
 				popup.hide();
 			});
@@ -1625,7 +1629,9 @@ class FileView extends View {
 			popup.find('.popup-cancel').focus();
 			
 		} else {
-			this.actuallyDoFileUpload(file);
+		
+			this.actuallyDoFileUpload(file, !askForOverwrite);
+			
 		}
 	}
 	

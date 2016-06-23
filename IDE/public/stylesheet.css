@@ -308,8 +308,14 @@ body {
     transform: rotateZ(360deg);
   }
 }
-.spinning{
+.running-button{
 	animation-duration: 0.5s;
+	animation-name: spin;
+	animation-iteration-count: infinite;
+	animation-timing-function: linear;
+}
+.building-button{
+	animation-duration: 1s;
 	animation-name: spin;
 	animation-iteration-count: infinite;
 	animation-timing-function: linear;
@@ -381,8 +387,12 @@ body {
 	background: url("images/icons/run_greenFF.png");
 	margin-right: 3px;
 }
-#run.spinning{
+#run.running-button{
 	background: url("images/icons/run_greenFF.png");
+	margin-right: 3px;
+}
+#run.building-button{
+	background: url("images/icons/run_buildFF.png");
 	margin-right: 3px;
 }
 

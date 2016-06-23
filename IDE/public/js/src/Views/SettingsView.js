@@ -209,7 +209,7 @@ class SettingsView extends View {
 				args += key+'='+data[key]+' ';
 			} else if (key === 'user'){
 				args += data[key];
-			} else {
+			} else if (key !== 'make'){
 				args += key+data[key]+' ';
 			}
 		}

@@ -118,12 +118,12 @@ class belaProcess extends MakeProcess{
 							args += key+'='+CLArgs[key]+' ';
 						} else if (key === 'user'){
 							args += CLArgs[key];
-						} else {
+						} else if (key !== 'make'){
 							args += key+CLArgs[key]+' ';
 						}
 					}
 				}
-				super.start(project, args);
+				super.start(project, args, CLArgs.make);
 			});
 		
 		return this;

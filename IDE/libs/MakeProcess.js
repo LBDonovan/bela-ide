@@ -26,7 +26,7 @@ class MakeProcess extends EventEmitter{
 		this.start();
 	}*/
 	
-	start(project, _args){
+	start(project, _args, makeParams){
 	
 		if (this.active){
 			console.log('process '+this.target+' already active');
@@ -45,6 +45,10 @@ class MakeProcess extends EventEmitter{
 		
 		if (_args){
 			args.push('CL='+_args);
+		}
+		
+		if (makeParams){
+			args.push(makeParams);
 		}
 		
 		this.active = true;

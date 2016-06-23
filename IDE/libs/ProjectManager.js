@@ -520,10 +520,11 @@ function _defaultSettings(){
 		"-G": "1",		// use digital
 		"-M": "0", 		// mute speaker
 		"-D": "0",		// dac level
-		"-A": "0", 	// adc level
+		"-A": "0", 		// adc level
 		"--pga-gain-left": "10",
 		"--pga-gain-right": "10",
-		"user": ''		// user-defined clargs
+		"user": '',		// user-defined clargs
+		"make": ''		// user-defined Makefile parameters
 	};
 	return {
 		"fileName"		: "render.cpp",

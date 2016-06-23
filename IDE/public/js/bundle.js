@@ -1658,7 +1658,7 @@ module.exports = FileView;
 
 // replace all non alpha-numeric chars other than '-' and '.' with '_'
 function sanitise(name){
-	return name.replace(/[^a-zA-Z0-9\.\-/]/g, '_');
+	return name.replace(/[^a-zA-Z0-9\.\-\/~]/g, '_');
 }
 },{"../popup":16,"./View":13}],8:[function(require,module,exports){
 'use strict';
@@ -2262,12 +2262,27 @@ class SettingsView extends View {
 	
 	// model events
 	_CLArgs(data){
-		var fullString = '';
+		var args = '';
+		for (let key in data) {
+			console.log(key, data[key], (data[key] == 1), (data[key] === 1));
+			// set the input element
+			this.$elements.filterByData('key', key).val(data[key]).prop('checked', (data[key] == 1));
+			
+			// fill in the full string
+			if (key[0] === '-' && key[1] === '-'){
+				args += key+'='+data[key]+' ';
+			} else if (key === 'user'){
+				args += data[key];
+			} else {
+				args += key+data[key]+' ';
+			}
+		}
+		/*var fullString = '';
 		for (let key in data){
 			this.$elements.filterByData('key', key).val(data[key]).prop('checked', data[key]);
 			fullString += ((key === 'user') ? '' : key)+data[key]+' ';
-		}
-		$('#C_L_ARGS').val(fullString);
+		}*/
+		$('#C_L_ARGS').val(args);
 	}
 	_IDESettings(data){
 		for (let key in data){

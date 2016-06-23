@@ -520,12 +520,9 @@ function _defaultSettings(){
 		"-G": "1",		// use digital
 		"-M": "0", 		// mute speaker
 		"-D": "0",		// dac level
-		"-A": "-6", 	// adc level
-		"-R": "9998",	// recieve port
-		"-T": "9999", 	// transmit port
-		"-S": "127.0.0.1", // server
-		"--pga-gain-left": "16",
-		"--pga-gain-right": "16",
+		"-A": "0", 	// adc level
+		"--pga-gain-left": "10",
+		"--pga-gain-right": "10",
 		"user": ''		// user-defined clargs
 	};
 	return {

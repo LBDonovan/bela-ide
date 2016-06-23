@@ -277,5 +277,5 @@ module.exports = FileView;
 
 // replace all non alpha-numeric chars other than '-' and '.' with '_'
 function sanitise(name){
-	return name.replace(/[^a-zA-Z0-9\.\-/]/g, '_');
+	return name.replace(/[^a-zA-Z0-9\.\-\/~]/g, '_');
 }

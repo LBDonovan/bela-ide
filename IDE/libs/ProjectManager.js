@@ -177,7 +177,7 @@ module.exports = {
 						if (blockedFiles.indexOf(item) === -1 && 
 							(yield fs.statAsync(projectDir+'/'+item).then( stat => stat.isFile() ).catch( () => false )) && 
 							item !== data.currentProject){
-								data.error = 'could not open '+data.newFile+', opening '+item+' instead';
+								if (!data.exampleName) data.error = 'could not open '+data.newFile+', opening '+item+' instead';
 								data.newFile = item;
 								return yield _co(this, 'openProject', data);
 						}

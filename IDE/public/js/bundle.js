@@ -38,6 +38,8 @@ settingsView.on('halt', () => {
 	socket.emit('sh-command', 'halt');
 	consoleView.emit('warn', 'Shutting down...');
 });
+settingsView.on('warning', text => consoleView.emit('warn', text) );
+settingsView.on('upload-update', data => socket.emit('upload-update', data) );
 
 // project view
 var projectView = new (require('./Views/ProjectView'))('projectManager', [models.project]);
@@ -294,6 +296,9 @@ socket.on('run-on-boot-log', text => consoleView.emit('log', text) );
 // shell
 socket.on('shell-event', (evt, data) => consoleView.emit('shell-'+evt, data) )
 
+// generic log and warn
+socket.on('std-log', text => consoleView.emit('log', text) );
+socket.on('std-warn', text => consoleView.emit('warn', text) );
 
 // model events
 // build errors
@@ -2181,7 +2186,6 @@ class SettingsView extends View {
 		popup.find('.popup-continue').trigger('focus');
 	
 	}
-	
 	aboutPopup(){
 		
 		// build the popup content
@@ -2199,6 +2203,42 @@ class SettingsView extends View {
 		popup.show();
 		
 		popup.find('.popup-continue').trigger('focus');
+		
+	}
+	updateBela(){
+	
+		// build the popup content
+		popup.title('Updating Bela');
+		popup.subtitle('Please select the update zip archive');
+		
+		var form = [];
+		form.push('<input id="popup-update-file" type="file">');
+		form.push('</br>');
+		form.push('<button type="submit" class="button popup-upload">Upload</button>');
+		form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+
+		/*popup.form.prop({
+			action	: 'updates',
+			method	: 'get',
+			enctype	: 'multipart/form-data'
+		});*/
+		
+		popup.form.append(form.join('')).off('submit').on('submit', e => {
+			e.preventDefault();
+			var file = popup.find('input[type=file]').prop('files')[0];
+			if (file && file.type === 'application/zip'){
+				var reader = new FileReader();
+				reader.onload = (ev) => this.emit('upload-update', {name: file.name, file: ev.target.result} );
+				reader.readAsArrayBuffer(file);
+			} else {
+				this.emit('warning', 'not a valid update zip archive');
+			}
+			popup.hide();
+		});
+		
+		popup.find('.popup-cancel').on('click', popup.hide );
+				
+		popup.show();
 		
 	}
 	

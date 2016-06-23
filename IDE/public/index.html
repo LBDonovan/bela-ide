@@ -299,13 +299,15 @@
 								<table class="tabTable">
 									<tr>
 										<td>Shut down Beaglebone:</td>
-										<td><button id="shutdownBBB" class="settingsManager" data-func="shutdownBBB">Shutdown Board</button></td>
+										<td><button class="settingsManager" data-func="updateBela">Update Bela</button></td>
+									</tr>
+									<tr>
+										<td>Shut down Beaglebone:</td>
+										<td><button class="settingsManager" data-func="shutdownBBB">Shutdown Board</button></td>
 									</tr>
 									<tr>
 										<td>Credits and info:</td>
-										<td><button id="about-popup" class="settingsManager" data-func="aboutPopup">About Bela</button></td>
-
-
+										<td><button class="settingsManager" data-func="aboutPopup">About Bela</button></td>
 									</tr>
 								</table>							
 						
@@ -479,14 +481,14 @@
 		<script src="js/pd-fileutils.js"></script>
 		<script src="js/goldenlayout.js"></script>
 		
-		<!-- es5 -->
+		<!-- es5
 		<script src="js/polyfill.js"></script>
 		<script src="js/bundleES5.js"></script>
-		
-		
-		<!-- es6
-		<script src="js/bundle.js"></script>
 		-->
+		
+		<!-- es6 -->
+		<script src="js/bundle.js"></script>
+		
 
 	</body>
 	

@@ -1221,6 +1221,11 @@ input[type=checkbox]{
 		top: 5px;
 		position: relative;
 	}
+	#popup input[type=file]{
+		background: initial;
+		border: initial;
+		width: initial;
+	}
 	#popup input::-webkit-input-placeholder {
 		font-style: italic;
 		color: #bdbdbd;

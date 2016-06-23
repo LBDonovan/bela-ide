@@ -128,7 +128,6 @@ class SettingsView extends View {
 		popup.find('.popup-continue').trigger('focus');
 	
 	}
-	
 	aboutPopup(){
 		
 		// build the popup content
@@ -146,6 +145,42 @@ class SettingsView extends View {
 		popup.show();
 		
 		popup.find('.popup-continue').trigger('focus');
+		
+	}
+	updateBela(){
+	
+		// build the popup content
+		popup.title('Updating Bela');
+		popup.subtitle('Please select the update zip archive');
+		
+		var form = [];
+		form.push('<input id="popup-update-file" type="file">');
+		form.push('</br>');
+		form.push('<button type="submit" class="button popup-upload">Upload</button>');
+		form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+
+		/*popup.form.prop({
+			action	: 'updates',
+			method	: 'get',
+			enctype	: 'multipart/form-data'
+		});*/
+		
+		popup.form.append(form.join('')).off('submit').on('submit', e => {
+			e.preventDefault();
+			var file = popup.find('input[type=file]').prop('files')[0];
+			if (file && file.type === 'application/zip'){
+				var reader = new FileReader();
+				reader.onload = (ev) => this.emit('upload-update', {name: file.name, file: ev.target.result} );
+				reader.readAsArrayBuffer(file);
+			} else {
+				this.emit('warning', 'not a valid update zip archive');
+			}
+			popup.hide();
+		});
+		
+		popup.find('.popup-cancel').on('click', popup.hide );
+				
+		popup.show();
 		
 	}
 	

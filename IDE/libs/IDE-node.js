@@ -19,6 +19,7 @@ var TerminalManager = require('./TerminalManager');
 // module variables - only accesible from this file
 var allSockets;
 var belaPath = '/root/Bela/';
+var updatePath = belaPath+'updates/';
 var startupScript = '/root/Bela_startup.sh';
 
 // settings
@@ -268,6 +269,9 @@ function socketEvents(socket){
 	// shell
 	socket.on('sh-command', cmd => TerminalManager.execute(cmd) );
 	socket.on('sh-tab', cmd => TerminalManager.tab(cmd) );
+	
+	// update
+	socket.on('upload-update', uploadUpdate);
 
 }
 
@@ -362,6 +366,77 @@ function runOnBootProject(){
 			return project;
 		})
 		.catch( e => console.log('run-on-boot error', e) );
+}
+
+function uploadUpdate(data){
+
+	allSockets.emit('std-log', 'Upload completed, saving update file...');
+	
+	fs.emptyDirAsync(updatePath)
+		.then( () => fs.outputFileAsync(updatePath+data.name, data.file) )
+		.then( () => {
+			
+			//allSockets.emit('std-log', 'unzipping and validating update...');
+			
+			return new Promise( (resolve, reject) => {
+				
+				let stdout = [], stderr = [];
+				
+				var proc = spawn('make', ['checkupdate'], {cwd: belaPath});
+				
+				proc.stdout.setEncoding('utf8');
+				proc.stderr.setEncoding('utf8');
+				
+				proc.stdout.on('data', (data) => {
+					console.log('stdout', data);
+					stdout.push(data);
+					allSockets.emit('std-log', data);
+				});
+				proc.stderr.on('data', (data) => {
+					console.log('stderr', data);
+					stderr.push(data);
+					allSockets.emit('std-warn', data);
+				});
+				
+				proc.on('close', () => {
+					if (stderr.length) reject(stderr);
+					else resolve(stdout);
+				});
+				
+			});
+		})
+		.then( () => {
+			
+			allSockets.emit('std-log', 'Applying update...');
+			
+			return new Promise( (resolve, reject) => {
+				
+				let stdout = [], stderr = [];
+				
+				var proc = spawn('make', ['update'], {cwd: belaPath});
+				
+				proc.stdout.setEncoding('utf8');
+				proc.stderr.setEncoding('utf8');
+				
+				proc.stdout.on('data', (data) => {
+					console.log('stdout', data);
+					stdout.push(data);
+					allSockets.emit('std-log', data);
+				});
+				proc.stderr.on('data', (data) => {
+					console.log('stderr', data);
+					stderr.push(data);
+					allSockets.emit('std-warn', data);
+				});
+				
+				proc.on('close', () => {
+					if (stderr.length) reject(stderr);
+					else allSockets.emit('std-log', 'Update completed!');
+				});
+				
+			});
+		})
+		.catch( e => console.log('update error', e.toString()) );
 }
 
 process.on('uncaughtException', (err) => {

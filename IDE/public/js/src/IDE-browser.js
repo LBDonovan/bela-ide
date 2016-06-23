@@ -37,6 +37,8 @@ settingsView.on('halt', () => {
 	socket.emit('sh-command', 'halt');
 	consoleView.emit('warn', 'Shutting down...');
 });
+settingsView.on('warning', text => consoleView.emit('warn', text) );
+settingsView.on('upload-update', data => socket.emit('upload-update', data) );
 
 // project view
 var projectView = new (require('./Views/ProjectView'))('projectManager', [models.project]);
@@ -293,6 +295,9 @@ socket.on('run-on-boot-log', text => consoleView.emit('log', text) );
 // shell
 socket.on('shell-event', (evt, data) => consoleView.emit('shell-'+evt, data) )
 
+// generic log and warn
+socket.on('std-log', text => consoleView.emit('log', text) );
+socket.on('std-warn', text => consoleView.emit('warn', text) );
 
 // model events
 // build errors

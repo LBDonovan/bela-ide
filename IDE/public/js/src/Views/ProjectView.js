@@ -153,6 +153,7 @@ class ProjectView extends View {
 		for (let item of examplesDir){
 			let ul = $('<ul></ul>').html(item.name+':');
 			for (let child of item.children){
+				if (child && child.length && child[0] === '.') continue;
 				$('<li></li>').addClass('sourceFile').html(child).appendTo(ul)
 					.on('click', (e) => {
 					

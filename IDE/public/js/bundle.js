@@ -1986,6 +1986,7 @@ class ProjectView extends View {
 		for (let item of examplesDir){
 			let ul = $('<ul></ul>').html(item.name+':');
 			for (let child of item.children){
+				if (child && child.length && child[0] === '.') continue;
 				$('<li></li>').addClass('sourceFile').html(child).appendTo(ul)
 					.on('click', (e) => {
 					
@@ -2264,7 +2265,7 @@ class SettingsView extends View {
 	_CLArgs(data){
 		var args = '';
 		for (let key in data) {
-			console.log(key, data[key], (data[key] == 1), (data[key] === 1));
+
 			// set the input element
 			this.$elements.filterByData('key', key).val(data[key]).prop('checked', (data[key] == 1));
 			
@@ -2277,11 +2278,7 @@ class SettingsView extends View {
 				args += key+data[key]+' ';
 			}
 		}
-		/*var fullString = '';
-		for (let key in data){
-			this.$elements.filterByData('key', key).val(data[key]).prop('checked', data[key]);
-			fullString += ((key === 'user') ? '' : key)+data[key]+' ';
-		}*/
+
 		$('#C_L_ARGS').val(args);
 	}
 	_IDESettings(data){

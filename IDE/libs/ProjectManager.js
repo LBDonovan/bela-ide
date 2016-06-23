@@ -322,9 +322,9 @@ module.exports = {
 	
 	*uploadFile(data){
 	
-		// if the file already exists, reject the request
-		console.log(projectPath+data.currentProject+'/'+data.newFile, yield fileExists(projectPath+data.currentProject+'/'+data.newFile));
-		if (yield fileExists(projectPath+data.currentProject+'/'+data.newFile)){
+		// if the file already exists and the force flag is not set, reject the request
+		console.log(projectPath+data.currentProject+'/'+data.newFile, yield fileExists(projectPath+data.currentProject+'/'+data.newFile), data.force);
+		if (!data.force && (yield fileExists(projectPath+data.currentProject+'/'+data.newFile))){
 			data.error = 'failed, file '+data.newFile+' already exists!';
 			data.fileData = undefined;
 			return data;

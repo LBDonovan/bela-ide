@@ -1379,12 +1379,12 @@ class FileView extends View {
 	constructor(className, models){
 		super(className, models);
 		
+		this.listOfFiles = [];
+
 		// hack to upload file
 		$('#uploadFileInput').on('change', (e) => {
 			for (let file of e.target.files){
-				var reader = new FileReader();
-				reader.onload = (ev) => this.emit('message', 'project-event', {func: 'uploadFile', newFile: sanitise(file.name), fileData: ev.target.result} );
-				reader.readAsArrayBuffer(file);
+				this.doFileUpload(file);
 			}
 		});
 		
@@ -1393,9 +1393,7 @@ class FileView extends View {
 			e.stopPropagation();
 			if (e.type === 'drop'){
 				for (let file of e.originalEvent.dataTransfer.files){
-					var reader = new FileReader();
-					reader.onload = (ev) => this.emit('message', 'project-event', {func: 'uploadFile', newFile: sanitise(file.name), fileData: ev.target.result} );
-					reader.readAsArrayBuffer(file);
+					this.doFileUpload(file);
 				}
 			}
 			return false;
@@ -1489,6 +1487,8 @@ class FileView extends View {
 	
 	// model events
 	_fileList(files, data){
+	
+		this.listOfFiles = files;
 
 		var $files = $('#fileList')
 		$files.empty();
@@ -1591,6 +1591,48 @@ class FileView extends View {
 			}
 		}
 		return ul;
+	}
+	
+	doFileUpload(file){
+	
+		var fileExists = false;
+		for (let item of this.listOfFiles){
+			if (item.name === file.name) fileExists = true;
+		}
+		
+		if (fileExists){
+		
+			// build the popup content
+			popup.title('Overwriting file');
+			popup.subtitle('The file '+file.name+' already exists in this project. Would you like to overwrite it?');
+		
+			var form = [];
+			//form.push('<input type="text" placeholder="Enter the file name">');
+			//form.push('</br >');
+			form.push('<button type="submit" class="button popup-upload">Upload</button>');
+			form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+		
+			popup.form.append(form.join('')).off('submit').on('submit', e => {
+				e.preventDefault();
+				this.actuallyDoFileUpload(file, true);
+				popup.hide();
+			});
+		
+			popup.find('.popup-cancel').on('click', popup.hide );
+		
+			popup.show();
+			
+			popup.find('.popup-cancel').focus();
+			
+		} else {
+			this.actuallyDoFileUpload(file);
+		}
+	}
+	
+	actuallyDoFileUpload(file, force){
+		var reader = new FileReader();
+		reader.onload = (ev) => this.emit('message', 'project-event', {func: 'uploadFile', newFile: sanitise(file.name), fileData: ev.target.result, force} );
+		reader.readAsArrayBuffer(file);
 	}
 	
 }

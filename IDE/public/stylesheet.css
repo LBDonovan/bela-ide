@@ -121,12 +121,12 @@ body {
 	width: 100%;
 	font-size: 10pt;
 }
-.beaglert-console-log-in::before{
+/*.beaglert-console-log-in::before{
 	content: '>';
 	color: inherit;
 	padding-right: 0.65em;
 	opacity: 0.6;
-}
+}*/
 .beaglert-console-log-in{
 	text-indent: -1.65em;
 	border-bottom: 1px solid rgba(0, 0, 0, 0.2);
@@ -137,6 +137,7 @@ body {
 	color: inherit;
 	padding-right: 0.65em;
 	opacity: 0.6;
+	margin: 0 14px;
 }
 .beaglert-console-shell{
 	text-indent: -1.65em;
@@ -149,6 +150,7 @@ body {
 	color: inherit;
 	padding-right: 0.65em;
 	opacity: 0.6;
+	margin: 0 7px;
 }
 .beaglert-console-git{
 	text-indent: -1.65em;
@@ -187,6 +189,7 @@ body {
 	content: '!';
 	color: yellow;
 	padding-right: 0.65em;
+	margin: 0 14px;
 }
 .beaglert-console-warning{
 	text-indent: -1.65em;
@@ -198,6 +201,7 @@ body {
 	content: '!';
 	color: red;
 	padding-right: 0.65em;
+	margin: 0 14px;
 }
 .beaglert-console-error{
 	text-indent: -1.65em;
@@ -208,8 +212,9 @@ body {
 
 .beaglert-console-iwarning::before{
 	content: '!';
-	color: yellow;
+	color: red;
 	padding-right: 0.65em;
+	margin: 0 14px;
 }
 .beaglert-console-iwarning{
 	text-indent: -1.65em;
@@ -221,6 +226,7 @@ body {
 	content: '!';
 	color: red;
 	padding-right: 0.65em;
+	margin: 0 14px;
 }
 .beaglert-console-ierror{
 	text-indent: -1.65em;
@@ -232,6 +238,7 @@ body {
 	content: 'i';
 	color: green;
 	padding-right: 0.65em;
+	margin: 0 14px;
 }
 .beaglert-console-notify{
 	text-indent: -1.65em;

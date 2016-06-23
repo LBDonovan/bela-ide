@@ -978,6 +978,20 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 					_console.log(log, 'bela');
 				}
 			}, {
+				key: "__belaLogErr",
+				value: function __belaLogErr(log, data) {
+					//_console.warn(log);
+					//_console.warn(log.split(' ').join('&nbsp;'));
+				}
+			}, {
+				key: "__belaResult",
+				value: function __belaResult(data) {
+					// TODO: work this shit out
+					if (data.stderr && data.stderr.split) _console.log(data.stderr.split(' ').join('&nbsp;'));
+					if (data.signal) _console.warn(data.signal);
+					console.log(data.signal);
+				}
+			}, {
 				key: "_building",
 				value: function _building(status, data) {
 					var timestamp = performance.now();
@@ -2192,7 +2206,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 		// replace all non alpha-numeric chars other than '-' and '.' with '_'
 		function sanitise(name) {
-			return name.replace(/[^a-zA-Z0-9\.\-/]/g, '_');
+			return name.replace(/[^a-zA-Z0-9\.\-\/~]/g, '_');
 		}
 	}, { "../popup": 16, "./View": 13 }], 8: [function (require, module, exports) {
 		'use strict';
@@ -2580,6 +2594,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 								var _loop2 = function _loop2() {
 									var child = _step16.value;
 
+									if (child && child.length && child[0] === '.') return "continue";
 									$('<li></li>').addClass('sourceFile').html(child).appendTo(ul).on('click', function (e) {
 
 										if (_this25.exampleChanged) {
@@ -2607,7 +2622,9 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 								};
 
 								for (var _iterator16 = item.children[Symbol.iterator](), _step16; !(_iteratorNormalCompletion16 = (_step16 = _iterator16.next()).done); _iteratorNormalCompletion16 = true) {
-									_loop2();
+									var _ret3 = _loop2();
+
+									if (_ret3 === "continue") continue;
 								}
 							} catch (err) {
 								_didIteratorError16 = true;
@@ -2917,6 +2934,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 							_this30.emit('warning', 'beginning the update - this may take several minutes');
 							_this30.emit('warning', 'the browser may become unresponsive and will temporarily disconnect');
+							_this30.emit('warning', 'do not use the IDE during the update process!');
 
 							var reader = new FileReader();
 							reader.onload = function (ev) {
@@ -2941,12 +2959,23 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			}, {
 				key: "_CLArgs",
 				value: function _CLArgs(data) {
-					var fullString = '';
+					var args = '';
 					for (var key in data) {
-						this.$elements.filterByData('key', key).val(data[key]).prop('checked', data[key]);
-						fullString += (key === 'user' ? '' : key) + data[key] + ' ';
+
+						// set the input element
+						this.$elements.filterByData('key', key).val(data[key]).prop('checked', data[key] == 1);
+
+						// fill in the full string
+						if (key[0] === '-' && key[1] === '-') {
+							args += key + '=' + data[key] + ' ';
+						} else if (key === 'user') {
+							args += data[key];
+						} else if (key !== 'make') {
+							args += key + data[key] + ' ';
+						}
 					}
-					$('#C_L_ARGS').val(fullString);
+
+					$('#C_L_ARGS').val(args);
 				}
 			}, {
 				key: "_IDESettings",
@@ -3097,6 +3126,12 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 					_tabsOpen = true;
 					this.emit('change');
 					$('#tab-0').addClass('open');
+
+					// fix pd patch
+					$('#pd-svg-parent').css({
+						'max-width': $('#editor').width() + 'px',
+						'max-height': $('#editor').height() + 'px'
+					});
 				}
 			}, {
 				key: "closeTabs",
@@ -3107,6 +3142,12 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 					_tabsOpen = false;
 					this.emit('change');
 					$('#tab-0').removeClass('open');
+
+					// fix pd patch
+					$('#pd-svg-parent').css({
+						'max-width': $('#editor').width() + 'px',
+						'max-height': $('#editor').height() + 'px'
+					});
 				}
 			}]);
 
@@ -3206,13 +3247,18 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 				key: "__running",
 				value: function __running(status) {
 					if (status) {
-						if (!$('#run').hasClass('spinning')) {
-							$('#run').addClass('spinning');
-						}
+						$('#run').removeClass('building-button').addClass('running-button');
 					} else {
-						if ($('#run').hasClass('spinning')) {
-							$('#run').removeClass('spinning');
-						}
+						$('#run').removeClass('running-button');
+					}
+				}
+			}, {
+				key: "__building",
+				value: function __building(status) {
+					if (status) {
+						$('#run').removeClass('running-button').addClass('building-button');
+					} else {
+						$('#run').removeClass('building-button');
 					}
 				}
 			}, {

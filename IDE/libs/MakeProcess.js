@@ -83,11 +83,11 @@ class MakeProcess extends EventEmitter{
 			var stderr = this.stderr.join ? this.stderr.join('') : this.stderr;
 			if (this.dying){
 				this.closed();
-				this.emit('cancelled', {project: this.project, stdout, stderr, signal: (signal || 'undefined')});
+				this.emit('cancelled', {project: this.project, stdout, stderr, signal});
 				this.project = undefined;
 			} else {
 				this.closed();
-				this.emit('finished', {project: this.project, stdout, stderr, signal: (signal || 'undefined')});
+				this.emit('finished', {project: this.project, stdout, stderr, signal});
 				this.project = undefined;
 			}
 			

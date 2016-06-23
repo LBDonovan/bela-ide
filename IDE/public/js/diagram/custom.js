@@ -16,9 +16,9 @@ $(document).ready(function() {
                 var rect = paper.rect(elem.x, elem.y, elem.width, elem.height);
                 rect.node.setAttribute("class", classname);
                 rect.node.id = elem.id;
-                $('.tooltip').tooltipster({
+                $(rect.node).tooltipster({
                     content: $('<div class="tipText">' + elem.text + '</div>'),
-                    multiple: true
+                    multiple: false
                     // putting theme here breaks things
                 });
                 

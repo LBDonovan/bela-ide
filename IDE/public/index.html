@@ -45,10 +45,94 @@
 				       <div class="tabContent">
 				    	</div> 
 				    </div>
+				    
+				    <div class="tab"><!-- Start Examples, Tab 1 -->
+				       <input type="radio" id="tab-1" name="tab-group-1">
+				       <label for="tab-1"><span id="example-tab" title="Code Examples" /></label>
+				       <div class="tabContent">
+				            <h1>Code Examples</h1>
+							<h2>Open Example Project:</h2>
+							<ul class="projectManager" id="examples" data-func="openExample"></ul>
+				       </div> 
+				    </div><!-- End Examples -->
+				    
+				    <div class="tab"><!-- Begin File Explorer, Tab 2 -->
+				        <input type="radio" id="tab-2" name="tab-group-1">
+				        <label for="tab-2"><span id="file-explorer" title="File Explorer" /></label>
+				        <div class="tabContent projectManager-parent fileManager-parent"> 
+				        	<!-- <div class="settingsManager-parent"> -->
+								<h1 class="tabTitle">Project Explorer</h1>
+										<h2>Open existing project:</h2>
+											<select id="projects" class="projectManager" data-func="openProject">
+												<option selected>Choose project from your board</option>
+												<option>Thing 1</option>
+												<option>Thing 2</option>
+												<option>Thing 3</option>
+											</select>
+									<hr class="sep" />
+
+										<h2>Manage projects:</h2>
+										<button class="button projectManager" id="new" data-func="newProject">New project</button>
+										<button class="button projectManager" id="saveas" data-func="saveAs">Save as ...</button>
+										<button class="button projectManager" id="deleteProject" data-func="deleteProject">Delete project</button>
+										<button class="button projectManager" id="cleanProject" data-func="cleanProject">Clean</button>
+										
+									<hr class="sep" />
+										<h2>Manage project files:</h2>
+										<button class="button fileManager" data-func="newFile">New</button>
+										<button class="button fileManager" data-func="uploadFile" id="uploadFile">Upload</button>
+										<a id="downloadFileLink" href="/download" download><button id="downloadFile"  class="button fileManager">Download</button></a>
+										<button class="button fileManager" data-func="renameFile">Rename</button>
+										<button  class="button fileManager" data-func="deleteFile">Delete</button>
+										<input type="file" id="uploadFileInput" multiple></input>
+
+									
+									<hr class="sep" />
+										<h2>Current project files:</h2>
+										<ul id="fileList">
+										</ul>
+
+
+
+							<!-- </div> -->
+
+<!-- 							<div class="fileManager-parent"> -->
+<!-- 									<div class="proj-expl">
+										<h2 id="fileListTitle">Manage Files:</h2>
+
+									</div> -->
+						   
+						    <hr class="sep" />
+							<div class="gitManager-parent">
+							   <h2>Git:</h2>
+							   <div id="noRepo">
+							   		<button class="gitManager" data-func="init">Initialise Repo</button>
+							   </div>
+							   <div id="repo" style="display:none">
+								   <button class="gitManager" data-func="command" data-command="status">status</button>
+								   <button class="gitManager" data-func="command" data-command="log --pretty=oneline">log</button></br>
+
+								   <select id="branches" class="gitManager" data-func="checkout"></select>
+								   <button class="gitManager" data-func="branch">new branch</button></br>
+
+								   <button class="gitManager" data-func="command" data-command="add -A">stage all</button>
+								   <button class="gitManager" data-func="commit" >commit</button>
+								   <button class="gitManager" data-func="discardChanges" data-command="checkout -- .">discard changes</button>
+								   <!--<button class="gitManager" data-func="command" data-command="revert HEAD">revert previous commit</button>--></br>
+
+								   <select id="commits" class="gitManager" data-func="checkout"></select></br>
+								   	<form id="gitForm" class="gitManager">
+								   		git <input id="gitInput" type="text">
+								   	</form>
+								</div>
+							</div>				           
+				           </br></br></br>
+				        </div> 
+				    </div><!-- end File Explorer tab -->
 				   
-				   	<div class="tab"><!-- Begin Project Settings, Tab 1 -->
-				        <input type="radio" id="tab-1" name="tab-group-1">
-				        <label for="tab-1"><span id="settings" title="Settings"/></label>
+				   	<div class="tab"><!-- Begin Project Settings, Tab 3 -->
+				        <input type="radio" id="tab-3" name="tab-group-1">
+				        <label for="tab-3"><span id="settings" title="Settings"/></label>
 				        <div id="settingsTab" class="tabContent">
 				        	<div class="settingsManager-parent">
 								<!-- TAB 1: PROJECT SETTINGS -->
@@ -229,85 +313,9 @@
 				        </div> <!-- end tabContent -->
 				    </div><!-- end Project Settings tab -->
 
-
-				    
-				    <div class="tab"><!-- Begin File Explorer, Tab 2 -->
-				        <input type="radio" id="tab-2" name="tab-group-1">
-				        <label for="tab-2"><span id="file-explorer" title="File Explorer" /></label>
-				        <div class="tabContent projectManager-parent fileManager-parent"> 
-				        	<!-- <div class="settingsManager-parent"> -->
-								<h1 class="tabTitle">Project Explorer</h1>
-										<h2>Open existing project:</h2>
-											<select id="projects" class="projectManager" data-func="openProject">
-												<option selected>Choose project from your board</option>
-												<option>Thing 1</option>
-												<option>Thing 2</option>
-												<option>Thing 3</option>
-											</select>
-									<hr class="sep" />
-
-										<h2>Manage projects:</h2>
-										<button class="button projectManager" id="new" data-func="newProject">New project</button>
-										<button class="button projectManager" id="saveas" data-func="saveAs">Save as ...</button>
-										<button class="button projectManager" id="deleteProject" data-func="deleteProject">Delete project</button>
-										<button class="button projectManager" id="cleanProject" data-func="cleanProject">Clean</button>
-										
-									<hr class="sep" />
-										<h2>Manage project files:</h2>
-										<button class="button fileManager" data-func="newFile">New</button>
-										<button class="button fileManager" data-func="uploadFile" id="uploadFile">Upload</button>
-										<a id="downloadFileLink" href="/download" download><button id="downloadFile"  class="button fileManager">Download</button></a>
-										<button class="button fileManager" data-func="renameFile">Rename</button>
-										<button  class="button fileManager" data-func="deleteFile">Delete</button>
-										<input type="file" id="uploadFileInput" multiple></input>
-
-									
-									<hr class="sep" />
-										<h2>Current project files:</h2>
-										<ul id="fileList">
-										</ul>
-
-
-
-							<!-- </div> -->
-
-<!-- 							<div class="fileManager-parent"> -->
-<!-- 									<div class="proj-expl">
-										<h2 id="fileListTitle">Manage Files:</h2>
-
-									</div> -->
-						   
-						    <hr class="sep" />
-							<div class="gitManager-parent">
-							   <h2>Git:</h2>
-							   <div id="noRepo">
-							   		<button class="gitManager" data-func="init">Initialise Repo</button>
-							   </div>
-							   <div id="repo" style="display:none">
-								   <button class="gitManager" data-func="command" data-command="status">status</button>
-								   <button class="gitManager" data-func="command" data-command="log --pretty=oneline">log</button></br>
-
-								   <select id="branches" class="gitManager" data-func="checkout"></select>
-								   <button class="gitManager" data-func="branch">new branch</button></br>
-
-								   <button class="gitManager" data-func="command" data-command="add -A">stage all</button>
-								   <button class="gitManager" data-func="commit" >commit</button>
-								   <button class="gitManager" data-func="discardChanges" data-command="checkout -- .">discard changes</button>
-								   <!--<button class="gitManager" data-func="command" data-command="revert HEAD">revert previous commit</button>--></br>
-
-								   <select id="commits" class="gitManager" data-func="checkout"></select></br>
-								   	<form id="gitForm" class="gitManager">
-								   		git <input id="gitInput" type="text">
-								   	</form>
-								</div>
-							</div>				           
-				           </br></br></br>
-				        </div> 
-				    </div><!-- end File Explorer tab -->
-				    
-				    <div class="tab" ><!-- begin Debugger, Tab 3 -->
-						<input type="radio" id="tab-3" name="tab-group-1">
-						<label for="tab-3"><span id="debugger" title="Debugger" /></label>
+				    <div class="tab" ><!-- begin Debugger, Tab 4 -->
+						<input type="radio" id="tab-4" name="tab-group-1">
+						<label for="tab-4"><span id="debugger" title="Debugger" /></label>
 						<div class="tabContent debugger-parent">
 						<h1>Debugger settings</h1>
 						
@@ -353,19 +361,9 @@
 				       </div> 
 				   </div><!-- End debugger tab -->
 
-				   	<div class="tab"><!-- Start Examples, Tab 6 -->
-				       <input type="radio" id="tab-6" name="tab-group-1">
-				       <label for="tab-6"><span id="example-tab" title="Code Examples" /></label>
-				       <div class="tabContent">
-				            <h1>Code Examples</h1>
-							<h2>Open Example Project:</h2>
-							<ul class="projectManager" id="examples" data-func="openExample"></ul>
-				       </div> 
-				    </div><!-- End Examples -->
-
-				   	<div class="tab"><!-- Start GPIO, Tab 4 -->
-				       <input type="radio" id="tab-4" name="tab-group-1">
-				       <label for="tab-4"><span id="gpio-ref" title="Pin Diagram" /></label>
+				   	<div class="tab"><!-- Start pin diagram, Tab 5 -->
+				       <input type="radio" id="tab-5" name="tab-group-1">
+				       <label for="tab-5"><span id="gpio-ref" title="Pin Diagram" /></label>
 				       <div class="tabContent">
 				            <h1>Pin Diagram</h1>
 							<object data="diagram.html"> 
@@ -374,9 +372,9 @@
 				       </div> 
 				    </div><!-- End GPIO -->
 
-				    <div class="tab"><!-- Start Doc, Tab 5 -->
-				       <input type="radio" id="tab-5" name="tab-group-1">
-				       <label for="tab-5"><span id="api-ref" title="API Reference" /></label>
+				    <div class="tab"><!-- Start Doc, Tab 6 -->
+				       <input type="radio" id="tab-6" name="tab-group-1">
+				       <label for="tab-6"><span id="api-ref" title="API Reference" /></label>
 				       <div class="tabContent">
 				           <h1>Documentation</h1>
 				           <a href="documentation" target="_blank"><button class="doc-button">Full documentation</button></a>

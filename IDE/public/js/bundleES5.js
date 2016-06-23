@@ -66,6 +66,12 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			socket.emit('sh-command', 'halt');
 			consoleView.emit('warn', 'Shutting down...');
 		});
+		settingsView.on('warning', function (text) {
+			return consoleView.emit('warn', text);
+		});
+		settingsView.on('upload-update', function (data) {
+			return socket.emit('upload-update', data);
+		});
 
 		// project view
 		var projectView = new (require('./Views/ProjectView'))('projectManager', [models.project]);
@@ -372,6 +378,14 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 		// shell
 		socket.on('shell-event', function (evt, data) {
 			return consoleView.emit('shell-' + evt, data);
+		});
+
+		// generic log and warn
+		socket.on('std-log', function (text) {
+			return consoleView.emit('log', text);
+		});
+		socket.on('std-warn', function (text) {
+			return consoleView.emit('warn', text);
 		});
 
 		// model events
@@ -2873,6 +2887,54 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 					popup.find('.popup-continue').trigger('focus');
 				}
+			}, {
+				key: "updateBela",
+				value: function updateBela() {
+					var _this30 = this;
+
+					// build the popup content
+					popup.title('Updating Bela');
+					popup.subtitle('Please select the update zip archive');
+
+					var form = [];
+					form.push('<input id="popup-update-file" type="file">');
+					form.push('</br>');
+					form.push('<button type="submit" class="button popup-upload">Upload</button>');
+					form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+
+					/*popup.form.prop({
+     	action	: 'updates',
+     	method	: 'get',
+     	enctype	: 'multipart/form-data'
+     });*/
+
+					popup.form.append(form.join('')).off('submit').on('submit', function (e) {
+
+						e.preventDefault();
+
+						var file = popup.find('input[type=file]').prop('files')[0];
+						if (file && file.type === 'application/zip') {
+
+							_this30.emit('warning', 'beginning the update - this may take several minutes');
+							_this30.emit('warning', 'the browser may become unresponsive and will temporarily disconnect');
+
+							var reader = new FileReader();
+							reader.onload = function (ev) {
+								return _this30.emit('upload-update', { name: file.name, file: ev.target.result });
+							};
+							reader.readAsArrayBuffer(file);
+						} else {
+
+							_this30.emit('warning', 'not a valid update zip archive');
+						}
+
+						popup.hide();
+					});
+
+					popup.find('.popup-cancel').on('click', popup.hide);
+
+					popup.show();
+				}
 
 				// model events
 
@@ -2938,13 +3000,13 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 				// open/close tabs
 
-				var _this30 = _possibleConstructorReturn(this, Object.getPrototypeOf(TabView).call(this, 'tab'));
+				var _this31 = _possibleConstructorReturn(this, Object.getPrototypeOf(TabView).call(this, 'tab'));
 
 				$('#flexit').on('click', function () {
 					if (_tabsOpen) {
-						_this30.closeTabs();
+						_this31.closeTabs();
 					} else {
-						_this30.openTabs();
+						_this31.openTabs();
 					}
 				});
 
@@ -2952,7 +3014,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 					if (!_tabsOpen) {
 						if ($(e.currentTarget).prop('id') === 'tab-0' && $('[type=radio]:checked ~ label').prop('id') === 'tab-0') $('#file-explorer').parent().trigger('click');
 
-						_this30.openTabs();
+						_this31.openTabs();
 						e.stopPropagation();
 					}
 				});
@@ -3009,21 +3071,21 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 				layout.init();
 				layout.on('initialised', function () {
-					return _this30.emit('change');
+					return _this31.emit('change');
 				});
 				layout.on('stateChanged', function () {
-					return _this30.emit('change');
+					return _this31.emit('change');
 				});
 
 				$(window).on('resize', function () {
 					if (_tabsOpen) {
-						_this30.openTabs();
+						_this31.openTabs();
 					} else {
-						_this30.closeTabs();
+						_this31.closeTabs();
 					}
 				});
 
-				return _this30;
+				return _this31;
 			}
 
 			_createClass(TabView, [{
@@ -3063,13 +3125,13 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			function ToolbarView(className, models) {
 				_classCallCheck(this, ToolbarView);
 
-				var _this31 = _possibleConstructorReturn(this, Object.getPrototypeOf(ToolbarView).call(this, className, models));
+				var _this32 = _possibleConstructorReturn(this, Object.getPrototypeOf(ToolbarView).call(this, className, models));
 
-				_this31.$elements.on('click', function (e) {
-					return _this31.buttonClicked($(e.currentTarget), e);
+				_this32.$elements.on('click', function (e) {
+					return _this32.buttonClicked($(e.currentTarget), e);
 				});
 
-				_this31.on('disconnected', function () {
+				_this32.on('disconnected', function () {
 					$('#run').removeClass('spinning');
 				});
 
@@ -3108,7 +3170,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 				}).mouseout(function () {
 					$('#control-text-3').html('');
 				});
-				return _this31;
+				return _this32;
 			}
 
 			// UI events
@@ -3260,39 +3322,39 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			function View(CSSClassName, models, settings) {
 				_classCallCheck(this, View);
 
-				var _this32 = _possibleConstructorReturn(this, Object.getPrototypeOf(View).call(this));
+				var _this33 = _possibleConstructorReturn(this, Object.getPrototypeOf(View).call(this));
 
-				_this32.className = CSSClassName;
-				_this32.models = models;
-				_this32.settings = settings;
-				_this32.$elements = $('.' + CSSClassName);
-				_this32.$parents = $('.' + CSSClassName + '-parent');
+				_this33.className = CSSClassName;
+				_this33.models = models;
+				_this33.settings = settings;
+				_this33.$elements = $('.' + CSSClassName);
+				_this33.$parents = $('.' + CSSClassName + '-parent');
 
 				if (models) {
 					for (var i = 0; i < models.length; i++) {
 						models[i].on('change', function (data, changedKeys) {
-							_this32.modelChanged(data, changedKeys);
+							_this33.modelChanged(data, changedKeys);
 						});
 						models[i].on('set', function (data, changedKeys) {
-							_this32.modelSet(data, changedKeys);
+							_this33.modelSet(data, changedKeys);
 						});
 					}
 				}
 
-				_this32.$elements.filter('select').on('change', function (e) {
-					return _this32.selectChanged($(e.currentTarget), e);
+				_this33.$elements.filter('select').on('change', function (e) {
+					return _this33.selectChanged($(e.currentTarget), e);
 				});
-				_this32.$elements.filter('input').on('input', function (e) {
-					return _this32.inputChanged($(e.currentTarget), e);
+				_this33.$elements.filter('input').on('input', function (e) {
+					return _this33.inputChanged($(e.currentTarget), e);
 				});
-				_this32.$elements.filter('input[type=checkbox]').on('change', function (e) {
-					return _this32.inputChanged($(e.currentTarget), e);
+				_this33.$elements.filter('input[type=checkbox]').on('change', function (e) {
+					return _this33.inputChanged($(e.currentTarget), e);
 				});
-				_this32.$elements.filter('button').on('click', function (e) {
-					return _this32.buttonClicked($(e.currentTarget), e);
+				_this33.$elements.filter('button').on('click', function (e) {
+					return _this33.buttonClicked($(e.currentTarget), e);
 				});
 
-				return _this32;
+				return _this33;
 			}
 
 			_createClass(View, [{
@@ -3391,11 +3453,11 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			function Console() {
 				_classCallCheck(this, Console);
 
-				var _this33 = _possibleConstructorReturn(this, Object.getPrototypeOf(Console).call(this));
+				var _this34 = _possibleConstructorReturn(this, Object.getPrototypeOf(Console).call(this));
 
-				_this33.$element = $('#beaglert-consoleWrapper');
-				_this33.parent = document.getElementById('beaglert-console');
-				return _this33;
+				_this34.$element = $('#beaglert-consoleWrapper');
+				_this34.parent = document.getElementById('beaglert-console');
+				return _this34;
 			}
 
 			_createClass(Console, [{
@@ -3459,7 +3521,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			}, {
 				key: "newErrors",
 				value: function newErrors(errors) {
-					var _this34 = this;
+					var _this35 = this;
 
 					$('.beaglert-console-ierror, .beaglert-console-iwarning').remove();
 
@@ -3480,15 +3542,15 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 							anchor = $('<a></a>').html(err.text).appendTo(div);
 
 
-							div.appendTo(_this34.$element);
+							div.appendTo(_this35.$element);
 
 							if (err.currentFile) {
 								div.on('click', function () {
-									return _this34.emit('focus', { line: err.row + 1, column: err.column - 1 });
+									return _this35.emit('focus', { line: err.row + 1, column: err.column - 1 });
 								});
 							} else {
 								div.on('click', function () {
-									return _this34.emit('open-file', err.file, { line: err.row + 1, column: err.column - 1 });
+									return _this35.emit('open-file', err.file, { line: err.row + 1, column: err.column - 1 });
 								});
 							}
 						};
@@ -3591,10 +3653,10 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			}, {
 				key: "scroll",
 				value: function scroll() {
-					var _this35 = this;
+					var _this36 = this;
 
 					setTimeout(function () {
-						return _this35.parent.scrollTop = _this35.parent.scrollHeight;
+						return _this36.parent.scrollTop = _this36.parent.scrollHeight;
 					}, 0);
 				}
 			}, {

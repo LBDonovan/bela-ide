@@ -2201,10 +2201,9 @@ class SettingsView extends View {
 		
 		// build the popup content
 		popup.title('About Bela');
-		popup.subtitle('LLLLow LLLLLatency');
-		
+		popup.subtitle('You are using Bela Version 0.1, July 2016. Bela is an open source project licensed under GPL, and is a product of the Augmented Instruments Laboratory at Queen Mary University of London. For more information, visit http://bela.io');
 		var form = [];
-		form.push('<button type="submit" class="button popup-continue">Continue</button>');
+		form.push('<button type="submit" class="button popup-continue">Close</button>');
 		
 		popup.form.append(form.join('')).off('submit').on('submit', e => {
 			e.preventDefault();
@@ -2241,9 +2240,9 @@ class SettingsView extends View {
 			var file = popup.find('input[type=file]').prop('files')[0];
 			if (file && file.type === 'application/zip'){
 			
-				this.emit('warning', 'beginning the update - this may take several minutes');
-				this.emit('warning', 'the browser may become unresponsive and will temporarily disconnect');
-				this.emit('warning', 'do not use the IDE during the update process!');
+				this.emit('warning', 'Beginning the update - this may take several minutes');
+				this.emit('warning', 'The browser may become unresponsive and will temporarily disconnect');
+				this.emit('warning', 'Do not use the IDE during the update process!');
 				
 				var reader = new FileReader();
 				reader.onload = (ev) => this.emit('upload-update', {name: file.name, file: ev.target.result} );

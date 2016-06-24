@@ -80,6 +80,12 @@ body {
     font-style: normal;
 }
 
+p {
+	font-family: sofia;
+	font-size: 12px;
+	line-height: 14px;
+}
+
 #top-line {
 	line-height: 20px;
 	background: #e1f2d9;
@@ -387,11 +393,11 @@ body {
 }
 
 #stop {
-	background: url("images/icons/stop_grey6.png");
+	background: url("images/icons/stop_inactive07.png");
 	
 }
 #stop:hover {
-	background: url("images/icons/stop_active6.png");
+	background: url("images/icons/active07.png");
 }
 .one {
 	margin: 0;
@@ -673,7 +679,7 @@ right: calc(100% - 62px);
       height: 30px;
       display: block;t
       border-bottom: 0.25px solid #e9e9e9;
-      transition: 0.2s ease-out;
+      // transition: 0.2s;
     }
     .tab span {
     	padding-top: 40px;
@@ -921,10 +927,6 @@ right: calc(100% - 62px);
 	display: none;
 }
 
-#commits{
-	max-width: 50%;
-}
-
 
 .settingsManager-parent {
 	font-family: sofia;
@@ -1159,11 +1161,30 @@ input {
     border-radius: 2px;
 }
 
-// hr {
-//     border: 0; 
-//     height: 1px; 
-//     background: #ccc; 
-//     background-image: linear-gradient(to right, #ccc, #333, #ccc); 
-//     width: 90%;
-// }
+.gitTable td {
+	padding: 5px 0 0 5px;
 
+}
+
+button.gitManager {
+	margin: 0 2px;
+}
+
+#examples {
+	line-height: 16px;
+	padding-bottom: 4px;
+}
+
+.subsections div > h2 {
+	line-height: 17px;
+	margin-bottom: 10px;
+}
+
+.subsections div > h3 {
+	padding: 0;
+	line-height: 17px;
+}
+
+.subsections div > p {
+	padding-top: 10px;
+}

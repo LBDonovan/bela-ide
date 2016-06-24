@@ -279,26 +279,36 @@
 						   
 						    <hr class="sep" />
 							<div class="gitManager-parent">
-							   <h2>Git:</h2>
+							<h2>Git:</h2>
 							   <div id="noRepo">
 							   		<button class="gitManager" data-func="init">Initialise Repo</button>
 							   </div>
 							   <div id="repo" style="display:none">
-								   <button class="gitManager" data-func="command" data-command="status">status</button>
-								   <button class="gitManager" data-func="command" data-command="log --pretty=oneline">log</button></br>
+							   <table class="gitTable">
+								    <tr>
+								    	<td><button class="gitManager" data-func="command" data-command="status">status</button><button class="gitManager" data-func="command" data-command="log --pretty=oneline">log</button></td>
+								    </tr>
 
-								   <select id="branches" class="gitManager" data-func="checkout"></select>
-								   <button class="gitManager" data-func="branch">new branch</button></br>
+								    <tr>
+								    	<td><select id="branches" class="gitManager" data-func="checkout"></select><button class="gitManager" data-func="branch">new branch</button></td>
+									</tr>
 
-								   <button class="gitManager" data-func="command" data-command="add -A">stage all</button>
-								   <button class="gitManager" data-func="commit" >commit</button>
-								   <button class="gitManager" data-func="command" data-command="checkout -- .">discard changes</button>
-								   <!--<button class="gitManager" data-func="command" data-command="revert HEAD">revert previous commit</button>--></br>
+									<tr>
+										<td><button class="gitManager" data-func="command" data-command="add -A">stage all</button><button class="gitManager" data-func="commit" >commit</button><button class="gitManager" data-func="command" data-command="checkout -- .">discard changes</button></td>
+								   <!--<button class="gitManager" data-func="command" data-command="revert HEAD">revert previous commit</button>-->
+								   </tr>
+								   <tr>
+								   		<td><select id="commits" class="gitManager" data-func="checkout"></select></td>
+								   	</tr>
 
-								   <select id="commits" class="gitManager" data-func="checkout"></select></br>
-								   	<form id="gitForm" class="gitManager">
-								   		git <input id="gitInput" type="text">
-								   	</form>
+								   	<tr>
+								   		<td><form id="gitForm" class="gitManager">
+								   		
+								   		<p>git:</p> <input id="gitInput" type="text">
+								   			</form>
+								   		</td>
+								   	</tr>
+								</table>
 								</div>
 							</div>				           
 				           </br></br></br>
@@ -334,6 +344,7 @@
 								<td><span id="debuggerLocation" class="debugger">n/a</span></td>
 							</tr>
 						</table>
+
 						<div class="debug-buttons">
 							<button id="debugContinue" class="debugger" data-func="debugContinue">Continue</button>
 							<button id="debugStep" class="debugger" data-func="debugStep">Step into</button>

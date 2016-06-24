@@ -47,8 +47,10 @@ class MakeProcess extends EventEmitter{
 			args.push('CL='+_args);
 		}
 		
-		if (makeParams){
-			args.push(makeParams);
+		if (makeParams && makeParams.split){
+			let makeArgs = makeParams.split(';');
+			for (let arg of makeArgs)
+				args.push(arg);
 		}
 		
 		this.active = true;
@@ -57,9 +59,9 @@ class MakeProcess extends EventEmitter{
 		this.stderr = [];
 		
 		this.emit('started');
-		
+
 		var childProcess = spawn('make', args);
-	//console.log('spawning', 'make', args, childProcess.pid);
+	console.log('spawning', 'make', args.join(' '));
 		this.pid = childProcess.pid;
 		
 		childProcess.stdout.setEncoding('utf8');

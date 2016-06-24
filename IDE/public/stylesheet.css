@@ -1003,6 +1003,9 @@ right: calc(100% - 62px);
     margin-bottom: 30px;
 	background-color: gainsboro;
 }
+#make-params{
+	width: 200px;
+}
 
 /* Project explorer */
 /*

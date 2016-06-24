@@ -154,7 +154,9 @@ class ProcessManager extends EventEmitter {
 		return {
 			checkingSyntax	: this.checkingSyntax(),
 			building		: this.building(),
-			running			: this.running()
+			buildProject	: (this.building() ? buildProcess.project : ''),
+			running			: this.running(),
+			runProject		: (this.running() ? belaProcess.project : ''),
 		};	
 	}
 	

@@ -19,6 +19,7 @@ var TerminalManager = require('./TerminalManager');
 // module variables - only accesible from this file
 var allSockets;
 var belaPath = '/root/Bela/';
+var updatePath = belaPath+'updates/';
 var startupScript = '/root/Bela_startup.sh';
 
 // settings
@@ -26,7 +27,6 @@ var cpuMonitoring = false;
 
 // constructor function for IDE object
 function IDE(){
-	var runOnBootProject;
 
 	console.log('starting IDE');
 	
@@ -40,30 +40,15 @@ function IDE(){
 	
 	// CPU & project monitoring
 	setInterval(function(){
-		/*ProjectManager.listProjects()
-			.then( result => {
-				allSockets.emit('project-list', undefined, result);
-				if (runOnBootProject) allSockets.emit('run-on-boot-project', runOnBootProject);
-			});*/
+	
+		ProjectManager.listProjects()
+			.then( result => allSockets.emit('project-list', undefined, result) );
 		
 		if (!cpuMonitoring) return;
 		co(ProcessManager, 'checkCPU')
-			.then((output) => allSockets.emit('cpu-usage', output));
+			.then( output => allSockets.emit('cpu-usage', output) );
+			
 	}, 1000);
-	
-	// parse Bela_startup.sh
-	fs.readFileAsync(startupScript, 'utf-8')
-		.then( file => {
-			var project;
-			var lines = file.split('\n');
-			if (lines[5] === '# Run on startup disabled -- nothing to do here'){
-				project = 'none';
-			} else {
-				project = lines[5].trim().split(' ')[6].split('/').pop();
-			}
-			runOnBootProject = project;
-		})
-		.catch( e => console.log('run-on-boot error', e) );
 	
 	// scope
 	scope.init(io);
@@ -83,15 +68,25 @@ function reportError(error){
 
 function socketConnected(socket){
 	
-	// send project lists and settings to the browser
-	Promise.all([ProjectManager.listProjects(), new Promise.coroutine(ProjectManager.listExamples)(), SettingsManager.getSettings()])
-		.then( (result) => socket.emit('init', result) );
+	// send init info to browser
+	Promise.all([
+		ProjectManager.listProjects(), 
+		new Promise.coroutine(ProjectManager.listExamples)(), 
+		SettingsManager.getSettings(),
+		runOnBootProject()
+	]).then( result => {
+		result.push(ProcessManager.getStatus());
+		socket.emit('init', result)
+	});
 	
 	// listen for messages
 	socketEvents(socket);
 	
 	// refresh the shell location
 	TerminalManager.pwd();
+	
+	// check the run-on-boot project
+	//runOnBootProject( project => socket.emit('run-on-boot-project', project) );
 
 }
 
@@ -274,6 +269,9 @@ function socketEvents(socket){
 	// shell
 	socket.on('sh-command', cmd => TerminalManager.execute(cmd) );
 	socket.on('sh-tab', cmd => TerminalManager.tab(cmd) );
+	
+	// update
+	socket.on('upload-update', uploadUpdate);
 
 }
 
@@ -354,7 +352,92 @@ var SettingsManager = {
 
 };
 
+function runOnBootProject(){
+	// parse Bela_startup.sh
+	return fs.readFileAsync(startupScript, 'utf-8')
+		.then( file => {
+			var project;
+			var lines = file.split('\n');
+			if (lines[5] === '# Run on startup disabled -- nothing to do here'){
+				project = 'none';
+			} else {
+				project = lines[5].trim().split(' ')[6].split('/').pop();
+			}
+			return project;
+		})
+		.catch( e => console.log('run-on-boot error', e) );
+}
 
+function uploadUpdate(data){
+
+	allSockets.emit('std-log', 'Upload completed, saving update file...');
+	
+	fs.emptyDirAsync(updatePath)
+		.then( () => fs.outputFileAsync(updatePath+data.name, data.file) )
+		.then( () => {
+			
+			//allSockets.emit('std-log', 'unzipping and validating update...');
+			
+			return new Promise( (resolve, reject) => {
+				
+				let stdout = [], stderr = [];
+				
+				var proc = spawn('make', ['checkupdate'], {cwd: belaPath});
+				
+				proc.stdout.setEncoding('utf8');
+				proc.stderr.setEncoding('utf8');
+				
+				proc.stdout.on('data', (data) => {
+					console.log('stdout', data);
+					stdout.push(data);
+					allSockets.emit('std-log', data);
+				});
+				proc.stderr.on('data', (data) => {
+					console.log('stderr', data);
+					stderr.push(data);
+					allSockets.emit('std-warn', data);
+				});
+				
+				proc.on('close', () => {
+					if (stderr.length) reject(stderr);
+					else resolve(stdout);
+				});
+				
+			});
+		})
+		.then( () => {
+			
+			allSockets.emit('std-log', 'Applying update...');
+			
+			return new Promise( (resolve, reject) => {
+				
+				let stdout = [], stderr = [];
+				
+				var proc = spawn('make', ['update'], {cwd: belaPath});
+				
+				proc.stdout.setEncoding('utf8');
+				proc.stderr.setEncoding('utf8');
+				
+				proc.stdout.on('data', (data) => {
+					console.log('stdout', data);
+					stdout.push(data);
+					allSockets.emit('std-log', data);
+				});
+				proc.stderr.on('data', (data) => {
+					console.log('stderr', data);
+					stderr.push(data);
+					allSockets.emit('std-warn', data);
+				});
+				
+				proc.on('close', () => {
+					if (stderr.length) reject(stderr);
+					else allSockets.emit('std-log', 'Update completed!');
+				});
+				
+			});
+		})
+		.catch( e => console.log('update error', e.toString()) );
+}
 
 process.on('uncaughtException', (err) => {
 	console.log('uncaughtException');

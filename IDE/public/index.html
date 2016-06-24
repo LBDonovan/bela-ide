@@ -13,7 +13,7 @@
 
 
 		<!-- <div id="content"> -->
-			<div id="innerContent">
+		<div id="innerContent">
 			<!-- this is the whole left pane, the entire editor is included here: -->
 			
 			<div id="top-line">
@@ -127,21 +127,6 @@
 										<td>ADC level (dB):</td>
 										<td><input id="adc-level" class="settingsManager" data-func="setCLArg" type="number" max="0" min="-63.5" step="0.1" data-key="-A"></input></td>
 									</tr>
-									
-									<tr>
-										<td>Receive Port:</td>
-										<td><input id="receive-port" class="settingsManager" data-func="setCLArg" type="number" max="9999" min="0" step="1" data-key="-R"></input></td>
-									</tr>
-
-									<tr>
-										<td>Transmit Port:</td> 
-										<td><input id="transmit-port" class="settingsManager" data-func="setCLArg" type="number" max="9999" min="0" step="1" data-key="-T"></input></td>
-									</tr>
-
-									<tr>
-										<td>IP Address:</td>
-										<td><input id="ip-address" class="settingsManager" data-func="setCLArg" type="text" data-key="-S"></input></td>
-									</tr>
 
 									<tr>
 										<td>PGA Gain left (dB):</td>
@@ -161,6 +146,11 @@
 									<tr>
 										<td>Full Command Line String:</td>
 										<td><input id="C_L_ARGS" type="text" placeholder="C_L_ARGS" readonly></input></td>
+									</tr>
+									
+									<tr>
+										<td>Make Parameters:</td>
+										<td><input id="make-params" class="settingsManager" data-func="setCLArg" type="text" data-key="make"></input></td>
 									</tr>
 
 								</table>
@@ -214,14 +204,20 @@
 								<h2>Other system functions</h2>
 								<table class="tabTable">
 									<tr>
-										<td>Shut down Bela cape:</td>
-										<td><button id="shutdownBBB">Bela shutdown</button></td>
+										<td>Shut down Beaglebone:</td>
+										<td><button class="settingsManager" data-func="shutdownBBB">Shutdown Board</button></td>
+									</tr>
+									<tr>
+										<td>Download entire projects directory:</td>
+										<td><a href="download?all=all" download><button class="settingsManager">Download All</button></a></td>
+									</tr>
+									<tr>
+										<td>Upload an update patch:</td>
+										<td><button class="settingsManager" data-func="updateBela">Update Bela</button></td>
 									</tr>
 									<tr>
 										<td>Credits and info:</td>
-										<td><button id="about-popup">About Bela</button></td>
-
-
+										<td><button class="settingsManager" data-func="aboutPopup">About Bela</button></td>
 									</tr>
 								</table>							
 						
@@ -423,7 +419,7 @@
 				</div><!-- end tabs -->
 			</div> <!-- end right -->
 
-			<!-- NEW TOOLBAR -->
+			<!-- TOOLBAR -->
 			<div id="toolbar">
 				<div class="toolbar-wrapper toolBar-parent">
 					<div class="toolbar-control">	 
@@ -459,66 +455,9 @@
 
 				</div><!-- end toolbar wrapper -->
 			</div> <!-- end toolbar -->
-		
 
-
-	
 		</div> <!-- end innerContent -->
 
-		
-
-		<!-- <div id="xml">
-			<section>
-				<title>The Audio Context</title>
-				<subtitle>audioFrames</subtitle>
-				<content>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</content>
-
-				<subtitle>audioIn[]</subtitle>
-				<content>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</content>
-
-				<subtitle>audioChannels</subtitle>
-				<content>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</content>
-
-				<subtitle>timeDomainIn[]</subtitle>
-				<content>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</content>
-			</section>
-			
-			<section>
-				<title>The API</title>
-				<subTitle>Setup</subTitle>
-				<content>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus sed purus velit. Pellentesque sit amet consequat quam, at congue quam. Maecenas consequat justo vel sem mattis lacinia nec vitae lectus.</content>
-
-				<subTitle>Render</subTitle>
-				<content>LMauris porttitor malesuada dui, nec euismod purus pretium non. Sed eleifend ex at risus placerat pretium. Vivamus nec interdum ex. Nam vel efficitur risus, vitae semper ante. Nulla vel augue ut velit condimentum volutpat.</content>
-
-				<subTitle>Cleanup</subTitle>
-				<content>Morbi quis augue eu felis finibus porttitor. Maecenas porta facilisis ligula id consectetur. In ut arcu non ipsum pellentesque faucibus. Pellentesque vitae tortor malesuada, varius nibh in, rhoncus dolor.</content>
-			</section>
-
-			<section>
-				<title>Using Bela for Audio</title>
-				<subTitle>Filter Calculations</subTitle>
-				<content>Nulla quis pulvinar neque, id blandit mauris. Duis sed est porta, viverra nisi sed, ullamcorper lectus. Morbi non nibh nec massa hendrerit blandit ac ut urna.</content>
-
-				<subTitle>Generating Output</subTitle>
-				<content>Nulla quis pulvinar neque, id blandit mauris. Duis sed est porta, viverra nisi sed, ullamcorper lectus. Morbi non nibh nec massa hendrerit blandit ac ut urna. Quisque egestas nisl non tincidunt pretium. Morbi iaculis vel magna commodo molestie. Nunc posuere elit tempor dolor luctus, condimentum viverra ante rhoncus.</content>
-
-				<subTitle>Subsection 2.3</subTitle>
-				<content>Nulla quis pulvinar neque, id blandit mauris. Duis sed est porta, viverra nisi sed, ullamcorper lectus. Morbi non nibh nec massa hendrerit blandit ac ut urna. Quisque egestas nisl non tincidunt pretium. Morbi iaculis vel magna commodo molestie. Nunc posuere elit tempor dolor luctus, condimentum viverra ante rhoncus. In pellentesque, risus non hendrerit vulputate, massa justo porta ipsum, vel efficitur nisi ex non magna. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aenean convallis metus in congue cursus. Phasellus sed rutrum orci. Nunc commodo, dui sit amet lobortis volutpat, nibh purus congue quam, a blandit nibh lectus sed eros. Suspendisse fermentum risus lectus, ut luctus odio egestas in.</content>
-			</section>
-
-			<section>
-				<title>Working with Sensors</title>
-				<subTitle>Digital GPIO</subTitle>
-				<content>Suspendisse mattis, sapien non dictum interdum, mauris sapien aliquam dolor, vitae aliquet nisl sem eu est.</content>
-				<subTitle>Analogue GPIO</subTitle>
-				<content>Donec in ante lacinia, consectetur ligula in, tempus dui. Nam id ullamcorper nulla. In viverra mauris eget gravida eleifend. Sed ut faucibus ex. Nulla tempor feugiat est et porta. Fusce non justo blandit, gravida felis nec, suscipit mi. Vivamus vitae dapibus metus.</content>
-			</section>
-
-		</div> -->
-		
-		
-		
 		<div id="beaglert-console">
 			<div id="beaglert-consoleWrapper"></div>
 			<form id="beaglert-consoleForm">
@@ -531,61 +470,32 @@
 				<input type="submit" style="visibility: hidden; display: none;" />
 			</form>
 		</div>
+		
+		<div id="overlay">
+		</div>
+		<div id="popup">
+			<div id="popup-content">
+				<h1></h1>
+				<p></p>
+				<form></form>
+			</div>
+		</div>
 
-		<!-- enable this and change bundle.js to bundleES5.js to enable es5 transpilation <script src="js/polyfill.js"></script>-->
 		<script src="js/ace/ace.js"></script>
 		<script src="js/ace/ext-language_tools.js"></script>
 		<script src="socket.io/socket.io.js"></script>
 		<script src="js/jquery.js"></script>
 		<script src="js/pd-fileutils.js"></script>
-		<script src="js/bundle.js"></script>
 		<script src="js/goldenlayout.js"></script>
-		<script>
-			// Script to collect XML into the documentation tab.
-/*
-			var xml = $("#xml");
-
-			var sections = $('section');
-
-			var li = "";
-
-			console.log(sections);
-			var n = 0;
-			for (var i = 0; i < sections.length; i++) {
-				var title = sections[i].getElementsByTagName("title");
-				li += "<li><input type='checkbox' class='docs' id='tit"+ i +"' /><label for='tit" + i + "' class='docSectionHeader'>" + title[0].innerText + "</label>";
-				var subs = sections[i].getElementsByTagName("subtitle");
-				if (subs.length > 0) {
-					li += "<ul class='subsections'>"
-				}
-				var content = sections[i].getElementsByTagName("content");
-				for (var j = 0; j < subs.length; j++) {
-					li += "<li><input type='checkbox' class='docs' id='sub" + n + j + "' /><label for='sub" + n + j + "' class='docSectionHeader sub'>" + subs[j].innerText + "</label>";
-					li += "<p>" + content[j].innerText + "</p></li>"
-					n++;
-				}
-				if (subs.length > 0) {
-					li += "</ul>"
-				}
-				li += "</li>";
-			}
-			$('ul.sections').append(li);
-			var tabsOpen = false;*/
-
-			// $('#tab-parent').find('label').bind('click', function(){
-
-			// });
-			
-
-		</script>
-
-
-
-
-
-
-
-
+		
+		<!-- es5 -->
+		<script src="js/polyfill.js"></script>
+		<script src="js/bundleES5.js"></script>
+		
+		
+		<!-- es6 
+		<script src="js/bundle.js"></script>
+		 -->
 
 	</body>
 	

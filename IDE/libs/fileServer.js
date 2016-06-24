@@ -39,6 +39,16 @@ app.get('/download', function(req, res){
 			archive.directory(belaPath+'projects/'+req.query.project, req.query.project, {name: req.query.project+'.zip'});
 			archive.finalize();
 		}
+	} else if (req.query.all){
+		
+		res.setHeader('Content-disposition', 'attachment; filename=projects.zip');
+		res.setHeader('Content-type', 'application/zip');
+
+		var archive = archiver('zip');
+		archive.pipe(res);
+		archive.directory(belaPath+'projects', 'projects', {name: 'projects.zip'});
+		archive.finalize();
+			
 	}
 	
 });

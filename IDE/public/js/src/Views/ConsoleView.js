@@ -174,6 +174,16 @@ class ConsoleView extends View{
 	__belaLog(log, data){
 		_console.log(log, 'bela');
 	}
+	__belaLogErr(log, data){
+		//_console.warn(log);
+		//_console.warn(log.split(' ').join('&nbsp;'));
+	}
+	__belaResult(data){
+		// TODO: work this shit out
+		if (data.stderr && data.stderr.split) _console.log(data.stderr.split(' ').join('&nbsp;'));
+		if (data.signal) _console.warn(data.signal);
+		console.log(data.signal)
+	}
 	
 	_building(status, data){
 		var timestamp = performance.now();

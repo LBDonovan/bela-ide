@@ -35,6 +35,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 		models.status = new Model();
 		models.error = new Model();
 		models.debug = new Model();
+		models.git = new Model();
 
 		// hack to prevent first status update causing wrong notifications
 		models.status.setData({ running: false, building: false });
@@ -57,6 +58,19 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			data.currentProject = models.project.getKey('currentProject');
 			//console.log('IDE-settings', data);
 			socket.emit('IDE-settings', data);
+		});
+		settingsView.on('run-on-boot', function (project) {
+			return socket.emit('run-on-boot', project);
+		});
+		settingsView.on('halt', function () {
+			socket.emit('sh-command', 'halt');
+			consoleView.emit('warn', 'Shutting down...');
+		});
+		settingsView.on('warning', function (text) {
+			return consoleView.emit('warn', text);
+		});
+		settingsView.on('upload-update', function (data) {
+			return socket.emit('upload-update', data);
 		});
 
 		// project view
@@ -86,7 +100,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 		// editor view
 		var editorView = new (require('./Views/EditorView'))('editor', [models.project, models.error, models.settings, models.debug], models.settings);
-		editorView.on('change', function (fileData) {
+		editorView.on('upload', function (fileData) {
 			socket.emit('process-event', {
 				event: 'upload',
 				currentProject: models.project.getKey('currentProject'),
@@ -113,18 +127,30 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			//console.log('after', breakpoints);
 			//models.project.setKey('breakpoints', breakpoints);
 		});
+		editorView.on('open-notification', function (data) {
+			return consoleView.emit('openNotification', data);
+		});
+		editorView.on('close-notification', function (data) {
+			return consoleView.emit('closeNotification', data);
+		});
+		editorView.on('editor-changed', function () {
+			if (models.project.getKey('exampleName')) projectView.emit('example-changed');
+		});
 
 		// toolbar view
 		var toolbarView = new (require('./Views/ToolbarView'))('toolBar', [models.project, models.error, models.status, models.settings, models.debug]);
 		toolbarView.on('process-event', function (event) {
 			var breakpoints;
 			if (models.debug.getKey('debugMode')) breakpoints = models.project.getKey('breakpoints');
-			socket.emit('process-event', {
+			var data = {
 				event: event,
 				currentProject: models.project.getKey('currentProject'),
 				debug: models.debug.getKey('debugMode'),
 				breakpoints: breakpoints
-			});
+			};
+			//data.timestamp = performance.now();
+			if (event === 'stop') consoleView.emit('openProcessNotification', 'Stopping Bela...');
+			socket.emit('process-event', data);
 		});
 		toolbarView.on('clear-console', function () {
 			return consoleView.emit('clear');
@@ -145,11 +171,10 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			socket.emit('project-event', data);
 		});
 		consoleView.on('input', function (value) {
-			if (value) {
-				var val = value.split(' ');
-				var command = val.splice(0, 1);
-				if (command[0] === 'gdb' && models.debug.getKey('debugMode')) socket.emit('debugger-event', 'exec', val.join(' '));
-			}
+			return socket.emit('sh-command', value);
+		});
+		consoleView.on('tab', function (cmd) {
+			return socket.emit('sh-tab', cmd);
 		});
 
 		// debugger view
@@ -161,6 +186,29 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			return models.debug.setKey('debugMode', status);
 		});
 
+		// documentation view
+		var documentationView = new (require('./Views/DocumentationView'))();
+
+		// git view
+		var gitView = new (require('./Views/GitView'))('gitManager', [models.git]);
+		gitView.on('git-event', function (data) {
+			data.currentProject = models.project.getKey('currentProject');
+			data.timestamp = performance.now();
+			consoleView.emit('openNotification', data);
+			socket.emit('git-event', data);
+		});
+		gitView.on('console', function (text) {
+			return consoleView.emit('log', text, 'git');
+		});
+		gitView.on('console-warn', function (text) {
+			return consoleView.emit('warn', text);
+		});
+
+		// refresh files
+		setInterval(function () {
+			return socket.emit('list-files', models.project.getKey('currentProject'));
+		}, 5000);
+
 		// setup socket
 		var socket = io('/IDE');
 
@@ -171,7 +219,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 		socket.on('init', function (data) {
 
-			$('#console-disconnect').remove();
+			consoleView.connect();
 
 			//console.log(data);
 			var timestamp = performance.now();
@@ -181,10 +229,16 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			models.project.setData({ projectList: data[0], exampleList: data[1], currentProject: data[2].project });
 			models.settings.setData(data[2]);
 
+			$('#runOnBoot').val(data[3]);
+
+			models.status.setData(data[4]);
+
 			//models.project.print();
 			//models.settings.print();
 
-			socket.emit('set-time', getDateString());
+			socket.emit('set-time', new Date().toString());
+
+			documentationView.emit('init');
 		});
 
 		// project events
@@ -199,8 +253,13 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			if (debug) {
 				models.debug.setData(debug);
 			}
+			if (data.gitData) models.git.setData(data.gitData);
+			//console.log(data);
 			//models.settings.setData(data.settings);
 			//models.project.print();
+		});
+		socket.on('stop-reply', function (data) {
+			consoleView.emit('closeNotification', data);
 		});
 		socket.on('project-list', function (project, list) {
 			if (list.indexOf(models.project.getKey('currentProject')) === -1) {
@@ -212,9 +271,36 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 		});
 		socket.on('file-list', function (project, list) {
 			if (project === models.project.getKey('currentProject')) {
-				if (list.indexOf(models.project.getKey('fileName')) === -1) {
+				var currentFilenameFound = false;
+				var _iteratorNormalCompletion = true;
+				var _didIteratorError = false;
+				var _iteratorError = undefined;
+
+				try {
+					for (var _iterator = list[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+						var item = _step.value;
+
+						if (item.name === models.project.getKey('fileName')) {
+							currentFilenameFound = true;
+						}
+					}
+				} catch (err) {
+					_didIteratorError = true;
+					_iteratorError = err;
+				} finally {
+					try {
+						if (!_iteratorNormalCompletion && _iterator.return) {
+							_iterator.return();
+						}
+					} finally {
+						if (_didIteratorError) {
+							throw _iteratorError;
+						}
+					}
+				}
+
+				if (!currentFilenameFound) {
 					// this file has just been deleted
-					console.log('file-list', 'openProject');
 					socket.emit('project-event', { func: 'openProject', currentProject: project });
 				}
 				models.project.setKey('fileList', list);
@@ -250,6 +336,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 		socket.on('disconnect', function () {
 			consoleView.disconnect();
+			toolbarView.emit('disconnected');
 			models.project.setKey('readOnly', true);
 		});
 
@@ -282,6 +369,25 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			}
 		});
 
+		// run-on-boot
+		socket.on('run-on-boot-log', function (text) {
+			return consoleView.emit('log', text);
+		});
+		//socket.on('run-on-boot-project', project => setTimeout( () => $('#runOnBoot').val(project), 100) );
+
+		// shell
+		socket.on('shell-event', function (evt, data) {
+			return consoleView.emit('shell-' + evt, data);
+		});
+
+		// generic log and warn
+		socket.on('std-log', function (text) {
+			return consoleView.emit('log', text);
+		});
+		socket.on('std-warn', function (text) {
+			return consoleView.emit('warn', text);
+		});
+
 		// model events
 		// build errors
 		models.status.on('set', function (data, changedKeys) {
@@ -304,6 +410,31 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			}
 		});
 
+		// top-bar
+		models.project.on('change', function (data, changedKeys) {
+
+			var projectName = data.exampleName ? data.exampleName + ' (example)' : data.currentProject;
+
+			// set the browser tab title
+			$('title').html((data.fileName ? data.fileName + ', ' : '') + projectName);
+
+			// set the top-line stuff
+			$('#top-open-project').html(projectName ? 'Open Project: ' + projectName : '');
+			$('#top-open-file').html(data.fileName ? 'Open File: ' + data.fileName : '');
+
+			if (data.exampleName) {
+				$('#top-example-docs').css('visibility', 'visible');
+				$('#top-example-docs-link').prop('href', 'documentation/01-' + data.exampleName + '-example.html');
+			} else {
+				$('#top-example-docs').css('visibility', 'hidden');
+			}
+		});
+		models.status.on('change', function (data, changedKeys) {
+			if (changedKeys.indexOf('running') !== -1 || changedKeys.indexOf('building') !== -1) {
+				if (data.running) $('#top-bela-status').html('Running Project: ' + data.runProject);else if (data.building) $('#top-bela-status').html('Building Project: ' + data.buildProject);else $('#top-bela-status').html('');
+			}
+		});
+
 		// history
 		{
 			(function () {
@@ -315,7 +446,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 					if (changedKeys.indexOf('currentProject') !== -1 || changedKeys.indexOf('fileName') !== -1) {
 						var state = { file: data.fileName, project: data.currentProject };
 						if (state.project !== lastState.project || state.file !== lastState.file) {
-							$('title').html(data.fileName + ', ' + data.currentProject);
+
 							if (!poppingState) {
 								//console.log('push', state);
 								history.pushState(state, null, null);
@@ -414,13 +545,13 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 			var currentFileErrors = [],
 			    otherFileErrors = [];
-			var _iteratorNormalCompletion = true;
-			var _didIteratorError = false;
-			var _iteratorError = undefined;
+			var _iteratorNormalCompletion2 = true;
+			var _didIteratorError2 = false;
+			var _iteratorError2 = undefined;
 
 			try {
-				for (var _iterator = errors[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-					var err = _step.value;
+				for (var _iterator2 = errors[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+					var err = _step2.value;
 
 					if (!err.file || err.file === models.project.getKey('fileName')) {
 						err.currentFile = true;
@@ -432,16 +563,16 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 					}
 				}
 			} catch (err) {
-				_didIteratorError = true;
-				_iteratorError = err;
+				_didIteratorError2 = true;
+				_iteratorError2 = err;
 			} finally {
 				try {
-					if (!_iteratorNormalCompletion && _iterator.return) {
-						_iterator.return();
+					if (!_iteratorNormalCompletion2 && _iterator2.return) {
+						_iterator2.return();
 					}
 				} finally {
-					if (_didIteratorError) {
-						throw _iteratorError;
+					if (_didIteratorError2) {
+						throw _iteratorError2;
 					}
 				}
 			}
@@ -502,7 +633,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 			return str;
 		}
-	}, { "./Models/Model": 2, "./Views/ConsoleView": 3, "./Views/DebugView": 4, "./Views/EditorView": 5, "./Views/FileView": 6, "./Views/ProjectView": 7, "./Views/SettingsView": 8, "./Views/TabView": 9, "./Views/ToolbarView": 10 }], 2: [function (require, module, exports) {
+	}, { "./Models/Model": 2, "./Views/ConsoleView": 3, "./Views/DebugView": 4, "./Views/DocumentationView": 5, "./Views/EditorView": 6, "./Views/FileView": 7, "./Views/GitView": 8, "./Views/ProjectView": 9, "./Views/SettingsView": 10, "./Views/TabView": 11, "./Views/ToolbarView": 12 }], 2: [function (require, module, exports) {
 		var EventEmitter = require('events').EventEmitter;
 
 		var Model = function (_EventEmitter) {
@@ -599,13 +730,15 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 				return Object.is(a, b);
 			}
 		}
-	}, { "events": 14 }], 3: [function (require, module, exports) {
+	}, { "events": 17 }], 3: [function (require, module, exports) {
 		'use strict';
 
 		var View = require('./View');
 		var _console = require('../console');
 
 		var verboseDebugOutput = false;
+
+		var shellCWD = '~';
 
 		var ConsoleView = function (_View) {
 			_inherits(ConsoleView, _View);
@@ -627,6 +760,11 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 				_this2.on('openNotification', _this2.openNotification);
 				_this2.on('closeNotification', _this2.closeNotification);
+				_this2.on('openProcessNotification', _this2.openProcessNotification);
+
+				_this2.on('log', function (text, css) {
+					return _console.log(text, css);
+				});
 				_this2.on('warn', function (warning, id) {
 					console.log(warning);
 					_console.warn(warning, id);
@@ -636,10 +774,95 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 				_this2.input = document.getElementById('beaglert-consoleInput');
 
 				// console command line input events
+				_this2.history = [];
+				_this2.historyIndex = 0;
+				_this2.inputFocused = false;
+
 				_this2.form.addEventListener('submit', function (e) {
 					e.preventDefault();
+
+					_this2.history.push(_this2.input.value);
+					_this2.historyIndex = 0;
+
 					_this2.emit('input', _this2.input.value);
+					_console.log(shellCWD + ' ' + _this2.input.value, 'log-in');
 					_this2.input.value = '';
+				});
+
+				$('#beaglert-consoleInput-pre').on('click', function () {
+					return $(_this2.input).trigger('focus');
+				});
+
+				$('#beaglert-consoleInput-pre, #beaglert-consoleInput').on('mouseover', function () {
+					$('#beaglert-consoleInput-pre').css('opacity', 1);
+				}).on('mouseout', function () {
+					if (!_this2.inputFocused) $('#beaglert-consoleInput-pre').css('opacity', 0.2);
+				});
+
+				_this2.input.addEventListener('focus', function () {
+					_this2.inputFocused = true;
+					$('#beaglert-consoleInput-pre').css('opacity', 1); //.html(shellCWD);
+				});
+				_this2.input.addEventListener('blur', function () {
+					_this2.inputFocused = false;
+					$('#beaglert-consoleInput-pre').css('opacity', 0.2); //.html('>');
+				});
+				window.addEventListener('keydown', function (e) {
+					if (_this2.inputFocused) {
+						if (e.which === 38) {
+							// up arrow
+
+							if (_this2.history[_this2.history.length - ++_this2.historyIndex]) {
+								_this2.input.value = _this2.history[_this2.history.length - _this2.historyIndex];
+							} else {
+								_this2.historyIndex -= 1;
+							}
+
+							// force the cursor to the end
+							setTimeout(function () {
+								if (_this2.input.setSelectionRange !== undefined) {
+									_this2.input.setSelectionRange(_this2.input.value.length, _this2.input.value.length);
+								} else {
+									$(_this2.input).val(_this2.input.value);
+								}
+							}, 0);
+						} else if (e.which === 40) {
+							// down arrow
+							if (--_this2.historyIndex === 0) {
+								_this2.input.value = '';
+							} else if (_this2.history[_this2.history.length - _this2.historyIndex]) {
+								_this2.input.value = _this2.history[_this2.history.length - _this2.historyIndex];
+							} else {
+								_this2.historyIndex += 1;
+							}
+						} else if (e.which === 9) {
+							// tab
+							e.preventDefault();
+							_this2.emit('tab', _this2.input.value);
+						}
+					}
+				});
+
+				$('#beaglert-console').on('click', function () {
+					return $(_this2.input).trigger('focus');
+				});
+				$('#beaglert-consoleWrapper').on('click', function (e) {
+					return e.stopPropagation();
+				});
+
+				_this2.on('shell-stdout', function (data) {
+					return _this2.emit('log', data, 'shell');
+				});
+				_this2.on('shell-stderr', function (data) {
+					return _this2.emit('warn', data);
+				});
+				_this2.on('shell-cwd', function (cwd) {
+					//console.log('cwd', cwd);
+					shellCWD = 'root@arm ' + cwd.replace('/root', '~') + '#';
+					$('#beaglert-consoleInput-pre').html(shellCWD);
+				});
+				_this2.on('shell-tabcomplete', function (data) {
+					return $('#beaglert-consoleInput').val(data);
 				});
 				return _this2;
 			}
@@ -647,10 +870,16 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			_createClass(ConsoleView, [{
 				key: "openNotification",
 				value: function openNotification(data) {
-					if (!funcKey[data.func]) console.log(data.func);
-					var output = funcKey[data.func];
-					if (data.newProject || data.currentProject) output += ' ' + (data.newProject || data.currentProject);
-					if (data.newFile || data.fileName) output += ' ' + (data.newFile || data.fileName);
+					//if (!funcKey[data.func]) console.log(data.func);
+					if (data.func === 'command') {
+						var output = 'Executing git ' + (data.command || '');
+					} else if (data.func === 'editor') {
+						var output = data.text;
+					} else {
+						var output = funcKey[data.func];
+						if (data.newProject || data.currentProject) output += ' ' + (data.newProject || data.currentProject);
+						if (data.newFile || data.fileName) output += ' ' + (data.newFile || data.fileName);
+					}
 					_console.notify(output + '...', data.timestamp);
 				}
 			}, {
@@ -663,10 +892,24 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 					}
 				}
 			}, {
+				key: "openProcessNotification",
+				value: function openProcessNotification(text) {
+					var timestamp = performance.now();
+					_console.notify(text, timestamp);
+					_console.fulfill('', timestamp, false);
+				}
+			}, {
+				key: "connect",
+				value: function connect() {
+					$('#console-disconnect').remove();
+					_console.unblock();
+				}
+			}, {
 				key: "disconnect",
 				value: function disconnect() {
 					console.log('disconnected');
 					_console.warn('You have been disconnected from the Bela IDE and any more changes you make will not be saved. Please check your USB connection and reboot your BeagleBone', 'console-disconnect');
+					_console.block();
 				}
 
 				// model events
@@ -683,27 +926,27 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 				key: "__verboseSyntaxError",
 				value: function __verboseSyntaxError(log, data) {
 					if (parseInt(this.settings.getKey('verboseErrors'))) {
-						var _iteratorNormalCompletion2 = true;
-						var _didIteratorError2 = false;
-						var _iteratorError2 = undefined;
+						var _iteratorNormalCompletion3 = true;
+						var _didIteratorError3 = false;
+						var _iteratorError3 = undefined;
 
 						try {
-							for (var _iterator2 = log[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-								var line = _step2.value;
+							for (var _iterator3 = log[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+								var line = _step3.value;
 
-								_console.log(line.split(' ').join('&nbsp;'));
+								_console.log(line.split(' ').join('&nbsp;'), 'make');
 							}
 						} catch (err) {
-							_didIteratorError2 = true;
-							_iteratorError2 = err;
+							_didIteratorError3 = true;
+							_iteratorError3 = err;
 						} finally {
 							try {
-								if (!_iteratorNormalCompletion2 && _iterator2.return) {
-									_iterator2.return();
+								if (!_iteratorNormalCompletion3 && _iterator3.return) {
+									_iterator3.return();
 								}
 							} finally {
-								if (_didIteratorError2) {
-									throw _iteratorError2;
+								if (_didIteratorError3) {
+									throw _iteratorError3;
 								}
 							}
 						}
@@ -723,7 +966,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 				value: function _buildLog(log, data) {
 					//console.log(log, data);
 					//if (this.settings.fullBuildOutput){
-					_console.log(log);
+					_console.log(log, 'make');
 					//}
 				}
 
@@ -732,7 +975,21 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			}, {
 				key: "__belaLog",
 				value: function __belaLog(log, data) {
-					_console.log(log);
+					_console.log(log, 'bela');
+				}
+			}, {
+				key: "__belaLogErr",
+				value: function __belaLogErr(log, data) {
+					//_console.warn(log);
+					//_console.warn(log.split(' ').join('&nbsp;'));
+				}
+			}, {
+				key: "__belaResult",
+				value: function __belaResult(data) {
+					// TODO: work this shit out
+					if (data.stderr && data.stderr.split) _console.log(data.stderr.split(' ').join('&nbsp;'));
+					if (data.signal) _console.warn(data.signal);
+					console.log(data.signal);
 				}
 			}, {
 				key: "_building",
@@ -824,9 +1081,10 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			'uploadFile': 'Uploading file',
 			'renameFile': 'Renaming file',
 			'deleteFile': 'Deleting file',
-			'init': 'Initialising'
+			'init': 'Initialising',
+			'stop': 'Stopping'
 		};
-	}, { "../console": 12, "./View": 11 }], 4: [function (require, module, exports) {
+	}, { "../console": 14, "./View": 13 }], 4: [function (require, module, exports) {
 		var View = require('./View');
 
 		var DebugView = function (_View2) {
@@ -927,46 +1185,15 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 				value: function _variables(variables) {
 					console.log(variables);
 					this.clearVariableList();
-					var _iteratorNormalCompletion3 = true;
-					var _didIteratorError3 = false;
-					var _iteratorError3 = undefined;
-
-					try {
-						for (var _iterator3 = variables[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-							var variable = _step3.value;
-
-							this.addVariable($('#expList'), variable);
-						}
-					} catch (err) {
-						_didIteratorError3 = true;
-						_iteratorError3 = err;
-					} finally {
-						try {
-							if (!_iteratorNormalCompletion3 && _iterator3.return) {
-								_iterator3.return();
-							}
-						} finally {
-							if (_didIteratorError3) {
-								throw _iteratorError3;
-							}
-						}
-					}
-
-					prepareList();
-				}
-			}, {
-				key: "_backtrace",
-				value: function _backtrace(trace) {
-					this.clearBacktrace();
 					var _iteratorNormalCompletion4 = true;
 					var _didIteratorError4 = false;
 					var _iteratorError4 = undefined;
 
 					try {
-						for (var _iterator4 = trace[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-							var item = _step4.value;
+						for (var _iterator4 = variables[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+							var variable = _step4.value;
 
-							$('<li></li>').text(item).appendTo($('#backtraceList'));
+							this.addVariable($('#expList'), variable);
 						}
 					} catch (err) {
 						_didIteratorError4 = true;
@@ -979,6 +1206,37 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 						} finally {
 							if (_didIteratorError4) {
 								throw _iteratorError4;
+							}
+						}
+					}
+
+					prepareList();
+				}
+			}, {
+				key: "_backtrace",
+				value: function _backtrace(trace) {
+					this.clearBacktrace();
+					var _iteratorNormalCompletion5 = true;
+					var _didIteratorError5 = false;
+					var _iteratorError5 = undefined;
+
+					try {
+						for (var _iterator5 = trace[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+							var item = _step5.value;
+
+							$('<li></li>').text(item).appendTo($('#backtraceList'));
+						}
+					} catch (err) {
+						_didIteratorError5 = true;
+						_iteratorError5 = err;
+					} finally {
+						try {
+							if (!_iteratorNormalCompletion5 && _iterator5.return) {
+								_iterator5.return();
+							}
+						} finally {
+							if (_didIteratorError5) {
+								throw _iteratorError5;
 							}
 						}
 					}
@@ -1023,27 +1281,27 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 					li.attr('id', variable.name).appendTo(parent);
 					if (variable.numchild && variable.children && variable.children.length) {
 						var ul = $('<ul></ul>').appendTo(li);
-						var _iteratorNormalCompletion5 = true;
-						var _didIteratorError5 = false;
-						var _iteratorError5 = undefined;
+						var _iteratorNormalCompletion6 = true;
+						var _didIteratorError6 = false;
+						var _iteratorError6 = undefined;
 
 						try {
-							for (var _iterator5 = variable.children[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-								var child = _step5.value;
+							for (var _iterator6 = variable.children[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+								var child = _step6.value;
 
 								this.addVariable(ul, child);
 							}
 						} catch (err) {
-							_didIteratorError5 = true;
-							_iteratorError5 = err;
+							_didIteratorError6 = true;
+							_iteratorError6 = err;
 						} finally {
 							try {
-								if (!_iteratorNormalCompletion5 && _iterator5.return) {
-									_iterator5.return();
+								if (!_iteratorNormalCompletion6 && _iterator6.return) {
+									_iterator6.return();
 								}
 							} finally {
-								if (_didIteratorError5) {
-									throw _iteratorError5;
+								if (_didIteratorError6) {
+									throw _iteratorError6;
 								}
 							}
 						}
@@ -1072,7 +1330,123 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 				}
 			});
 		};
-	}, { "./View": 11 }], 5: [function (require, module, exports) {
+	}, { "./View": 13 }], 5: [function (require, module, exports) {
+		var View = require('./View');
+
+		var apiFuncs = ['setup', 'render', 'cleanup', 'Bela_createAuxiliaryTask', 'Bela_scheduleAuxiliaryTask'];
+
+		var DocumentationView = function (_View3) {
+			_inherits(DocumentationView, _View3);
+
+			function DocumentationView(className, models) {
+				_classCallCheck(this, DocumentationView);
+
+				var _this4 = _possibleConstructorReturn(this, Object.getPrototypeOf(DocumentationView).call(this, className, models));
+
+				_this4.on('init', _this4.init);
+				return _this4;
+			}
+
+			_createClass(DocumentationView, [{
+				key: "init",
+				value: function init() {
+
+					// The API
+					$.ajax({
+						type: "GET",
+						url: "documentation_xml?file=Bela_8h",
+						dataType: "xml",
+						success: function success(xml) {
+							//console.log(xml);
+							var counter = 0;
+							var _iteratorNormalCompletion7 = true;
+							var _didIteratorError7 = false;
+							var _iteratorError7 = undefined;
+
+							try {
+								for (var _iterator7 = apiFuncs[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
+									var item = _step7.value;
+
+									var li = createlifrommemberdef($(xml).find('memberdef:has(name:contains(' + item + '))'), 'APIDocs' + counter);
+									li.appendTo($('#APIDocs'));
+									counter += 1;
+								}
+							} catch (err) {
+								_didIteratorError7 = true;
+								_iteratorError7 = err;
+							} finally {
+								try {
+									if (!_iteratorNormalCompletion7 && _iterator7.return) {
+										_iterator7.return();
+									}
+								} finally {
+									if (_didIteratorError7) {
+										throw _iteratorError7;
+									}
+								}
+							}
+						}
+					});
+
+					// The Audio Context
+					$.ajax({
+						type: "GET",
+						url: "documentation_xml?file=structBelaContext",
+						dataType: "xml",
+						success: function success(xml) {
+							//console.log(xml);
+							var counter = 0;
+							$(xml).find('memberdef').each(function () {
+								var li = createlifrommemberdef($(this), 'contextDocs' + counter);
+								li.appendTo($('#contextDocs'));
+								counter += 1;
+							});
+						}
+					});
+
+					// Utilities
+					$.ajax({
+						type: "GET",
+						url: "documentation_xml?file=Utilities_8h",
+						dataType: "xml",
+						success: function success(xml) {
+							//console.log(xml);
+							var counter = 0;
+							$(xml).find('memberdef').each(function () {
+								var li = createlifrommemberdef($(this), 'utilityDocs' + counter);
+								li.appendTo($('#utilityDocs'));
+								counter += 1;
+							});
+						}
+					});
+				}
+			}]);
+
+			return DocumentationView;
+		}(View);
+
+		module.exports = DocumentationView;
+
+		function createlifrommemberdef($xml, id) {
+			var li = $('<li></li>');
+			li.append($('<input></input>').prop('type', 'checkbox').addClass('docs').prop('id', id));
+			li.append($('<label></label>').prop('for', id).addClass('docSectionHeader').addClass('sub').html($xml.find('name').html()));
+
+			var content = $('<div></div>');
+
+			// title
+			content.append($('<h2></h2>').html($xml.find('definition').html() + $xml.find('argsstring').html()));
+
+			// subtitle
+			content.append($('<h3></h3>').html($xml.find('briefdescription > para').html() || ''));
+
+			// main text
+			content.append($('<p></p>').html($xml.find('detaileddescription > para').html() || ''));
+
+			li.append(content);
+			return li;
+		}
+	}, { "./View": 13 }], 6: [function (require, module, exports) {
 		var View = require('./View');
 		var Range = ace.require('ace/range').Range;
 
@@ -1080,67 +1454,74 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 		var uploadBlocked = false;
 		var currentFile;
+		var imageUrl;
 
-		var EditorView = function (_View3) {
-			_inherits(EditorView, _View3);
+		var EditorView = function (_View4) {
+			_inherits(EditorView, _View4);
 
 			function EditorView(className, models) {
 				_classCallCheck(this, EditorView);
 
-				var _this4 = _possibleConstructorReturn(this, Object.getPrototypeOf(EditorView).call(this, className, models));
+				var _this5 = _possibleConstructorReturn(this, Object.getPrototypeOf(EditorView).call(this, className, models));
 
-				_this4.editor = ace.edit('editor');
+				_this5.editor = ace.edit('editor');
 				ace.require("ace/ext/language_tools");
 
 				// set syntax mode
-				_this4.editor.session.setMode('ace/mode/c_cpp');
-				_this4.editor.$blockScrolling = Infinity;
+				_this5.editor.session.setMode('ace/mode/c_cpp');
+				_this5.editor.$blockScrolling = Infinity;
 
 				// set theme
-				_this4.editor.setTheme("ace/theme/github");
+				_this5.editor.setTheme("ace/theme/chrome");
+				_this5.editor.setShowPrintMargin(false);
 
 				// autocomplete settings
-				_this4.editor.setOptions({
+				_this5.editor.setOptions({
 					enableBasicAutocompletion: true,
 					enableLiveAutocompletion: false,
 					enableSnippets: true
 				});
 
 				// this function is called when the user modifies the editor
-				_this4.editor.session.on('change', function (e) {
+				_this5.editor.session.on('change', function (e) {
 					//console.log('upload', !uploadBlocked);
-					if (!uploadBlocked) _this4.editorChanged();
+					if (!uploadBlocked) _this5.editorChanged();
 				});
 
 				// set/clear breakpoints when the gutter is clicked
-				_this4.editor.on("guttermousedown", function (e) {
+				_this5.editor.on("guttermousedown", function (e) {
 					var target = e.domEvent.target;
 					if (target.className.indexOf("ace_gutter-cell") == -1) return;
-					if (!_this4.editor.isFocused()) return;
+					if (!_this5.editor.isFocused()) return;
 					if (e.clientX > 25 + target.getBoundingClientRect().left) return;
 
 					var row = e.getDocumentPosition().row;
 
-					_this4.emit('breakpoint', row);
+					_this5.emit('breakpoint', row);
 
 					e.stop();
 				});
 
-				_this4.on('resize', function () {
-					return _this4.editor.resize();
+				$('#audioControl').find('button').on('click', function () {
+					return audioSource.start(0);
 				});
 
-				return _this4;
+				_this5.on('resize', function () {
+					return _this5.editor.resize();
+				});
+
+				return _this5;
 			}
 
 			_createClass(EditorView, [{
 				key: "editorChanged",
 				value: function editorChanged() {
-					var _this5 = this;
+					var _this6 = this;
 
+					this.emit('editor-changed');
 					clearTimeout(this.uploadTimeout);
 					this.uploadTimeout = setTimeout(function () {
-						return _this5.emit('change', _this5.editor.getValue());
+						return _this6.emit('upload', _this6.editor.getValue());
 					}, uploadDelay);
 				}
 
@@ -1148,33 +1529,93 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 				// new file saved
 
 			}, {
-				key: "_fileData",
-				value: function _fileData(data, opts) {
+				key: "__fileData",
+				value: function __fileData(data, opts) {
 
-					if (data instanceof ArrayBuffer) {
-						//console.log('arraybuffer');
-						try {
-							data = String.fromCharCode.apply(null, new Uint8Array(data));
-						} catch (e) {
-							console.log(e);
-							return;
+					// hide the pd patch and image displays if present, and the editor
+					$('#pd-svg-parent, #img-display-parent, #editor, #audio-parent').css('display', 'none');
+
+					if (!opts.fileType) opts.fileType = '0';
+
+					if (opts.fileType.indexOf('image') !== -1) {
+
+						// opening image file
+						$('#img-display-parent, #img-display').css({
+							'max-width': $('#editor').width() + 'px',
+							'max-height': $('#editor').height() + 'px'
+						});
+						$('#img-display-parent').css('display', 'block');
+
+						$('#img-display').prop('src', 'media/' + opts.fileName);
+					} else if (opts.fileType.indexOf('audio') !== -1) {
+
+						//console.log('opening audio file');
+
+						$('#audio-parent').css({
+							'display': 'block',
+							'max-width': $('#editor').width() + 'px',
+							'max-height': $('#editor').height() + 'px'
+						});
+
+						$('#audio').prop('src', 'media/' + opts.fileName);
+					} else {
+
+						if (opts.fileType === 'pd') {
+
+							// we're opening a pd patch
+							var timestamp = performance.now();
+							this.emit('open-notification', {
+								func: 'editor',
+								timestamp: timestamp,
+								text: 'Rendering pd patch'
+							});
+
+							// render pd patch
+							try {
+
+								$('#pd-svg').html(pdfu.renderSvg(pdfu.parse(data), { svgFile: false })).css({
+									'max-width': $('#editor').width() + 'px',
+									'max-height': $('#editor').height() + 'px'
+								});
+
+								$('#pd-svg-parent').css({
+									'display': 'block',
+									'max-width': $('#editor').width() + 'px',
+									'max-height': $('#editor').height() + 'px'
+								});
+
+								this.emit('close-notification', { timestamp: timestamp });
+							} catch (e) {
+								this.emit('close-notification', {
+									timestamp: timestamp,
+									text: 'failed!'
+								});
+								throw e;
+							}
+
+							// load an empty string into the editor
+							data = '';
+						} else {
+
+							// show the editor
+							$('#editor').css('display', 'block');
 						}
+
+						// block upload
+						uploadBlocked = true;
+
+						// put the file into the editor
+						this.editor.session.setValue(data, -1);
+
+						// unblock upload
+						uploadBlocked = false;
+
+						// force a syntax check
+						this.emit('change');
+
+						// focus the editor
+						this._focus(opts.focus);
 					}
-
-					// block upload
-					uploadBlocked = true;
-
-					// put the file into the editor
-					this.editor.session.setValue(data, -1);
-
-					// unblock upload
-					uploadBlocked = false;
-
-					// force a syntax check
-					this.emit('change');
-
-					// focus the editor
-					this._focus(opts.focus);
 				}
 				// editor focus has changed
 
@@ -1237,29 +1678,29 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 				value: function __breakpoints(breakpoints, data) {
 					//console.log('setting breakpoints', breakpoints);
 					this.editor.session.clearBreakpoints();
-					var _iteratorNormalCompletion6 = true;
-					var _didIteratorError6 = false;
-					var _iteratorError6 = undefined;
+					var _iteratorNormalCompletion8 = true;
+					var _didIteratorError8 = false;
+					var _iteratorError8 = undefined;
 
 					try {
-						for (var _iterator6 = breakpoints[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
-							var breakpoint = _step6.value;
+						for (var _iterator8 = breakpoints[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
+							var breakpoint = _step8.value;
 
 							if (breakpoint.file === data.fileName) {
 								this.editor.session.setBreakpoint(breakpoint.line);
 							}
 						}
 					} catch (err) {
-						_didIteratorError6 = true;
-						_iteratorError6 = err;
+						_didIteratorError8 = true;
+						_iteratorError8 = err;
 					} finally {
 						try {
-							if (!_iteratorNormalCompletion6 && _iterator6.return) {
-								_iterator6.return();
+							if (!_iteratorNormalCompletion8 && _iterator8.return) {
+								_iterator8.return();
 							}
 						} finally {
-							if (_didIteratorError6) {
-								throw _iteratorError6;
+							if (_didIteratorError8) {
+								throw _iteratorError8;
 							}
 						}
 					}
@@ -1297,14 +1738,14 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			}, {
 				key: "removeDebuggerMarker",
 				value: function removeDebuggerMarker() {
-					var _this6 = this;
+					var _this7 = this;
 
 					var markers = this.editor.session.getMarkers();
 
 					// remove existing marker
 					Object.keys(markers).forEach(function (key, index) {
 						if (markers[key].clazz === 'breakpointMarker') {
-							_this6.editor.session.removeMarker(markers[key].id);
+							_this7.editor.session.removeMarker(markers[key].id);
 						}
 					});
 				}
@@ -1314,94 +1755,78 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 		}(View);
 
 		module.exports = EditorView;
-	}, { "./View": 11 }], 6: [function (require, module, exports) {
+	}, { "./View": 13 }], 7: [function (require, module, exports) {
 		var View = require('./View');
+		var popup = require('../popup');
 
 		var sourceIndeces = ['cpp', 'c', 'S'];
 		var headerIndeces = ['h', 'hh', 'hpp'];
 
-		var FileView = function (_View4) {
-			_inherits(FileView, _View4);
+		var askForOverwrite = true;
+
+		var FileView = function (_View5) {
+			_inherits(FileView, _View5);
 
 			function FileView(className, models) {
 				_classCallCheck(this, FileView);
 
+				var _this8 = _possibleConstructorReturn(this, Object.getPrototypeOf(FileView).call(this, className, models));
+
+				_this8.listOfFiles = [];
+
 				// hack to upload file
-
-				var _this7 = _possibleConstructorReturn(this, Object.getPrototypeOf(FileView).call(this, className, models));
-
 				$('#uploadFileInput').on('change', function (e) {
-					var _iteratorNormalCompletion7 = true;
-					var _didIteratorError7 = false;
-					var _iteratorError7 = undefined;
+					var _iteratorNormalCompletion9 = true;
+					var _didIteratorError9 = false;
+					var _iteratorError9 = undefined;
 
 					try {
-						var _loop = function _loop() {
-							var file = _step7.value;
-							reader = new FileReader();
+						for (var _iterator9 = e.target.files[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
+							var file = _step9.value;
 
-							reader.onload = function (ev) {
-								return _this7.emit('message', 'project-event', { func: 'uploadFile', newFile: file.name, fileData: ev.target.result });
-							};
-							reader.readAsArrayBuffer(file);
-						};
-
-						for (var _iterator7 = e.target.files[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
-							var reader;
-
-							_loop();
+							_this8.doFileUpload(file);
 						}
 					} catch (err) {
-						_didIteratorError7 = true;
-						_iteratorError7 = err;
+						_didIteratorError9 = true;
+						_iteratorError9 = err;
 					} finally {
 						try {
-							if (!_iteratorNormalCompletion7 && _iterator7.return) {
-								_iterator7.return();
+							if (!_iteratorNormalCompletion9 && _iterator9.return) {
+								_iterator9.return();
 							}
 						} finally {
-							if (_didIteratorError7) {
-								throw _iteratorError7;
+							if (_didIteratorError9) {
+								throw _iteratorError9;
 							}
 						}
 					}
 				});
 
 				// drag and drop file upload on editor
-				$('#editor').on('dragenter dragover drop', function (e) {
+				$('body').on('dragenter dragover drop', function (e) {
 					e.stopPropagation();
 					if (e.type === 'drop') {
-						var _iteratorNormalCompletion8 = true;
-						var _didIteratorError8 = false;
-						var _iteratorError8 = undefined;
+						var _iteratorNormalCompletion10 = true;
+						var _didIteratorError10 = false;
+						var _iteratorError10 = undefined;
 
 						try {
-							var _loop2 = function _loop2() {
-								var file = _step8.value;
-								reader = new FileReader();
+							for (var _iterator10 = e.originalEvent.dataTransfer.files[Symbol.iterator](), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
+								var file = _step10.value;
 
-								reader.onload = function (ev) {
-									return _this7.emit('message', 'project-event', { func: 'uploadFile', newFile: file.name, fileData: ev.target.result });
-								};
-								reader.readAsArrayBuffer(file);
-							};
-
-							for (var _iterator8 = e.originalEvent.dataTransfer.files[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
-								var reader;
-
-								_loop2();
+								_this8.doFileUpload(file);
 							}
 						} catch (err) {
-							_didIteratorError8 = true;
-							_iteratorError8 = err;
+							_didIteratorError10 = true;
+							_iteratorError10 = err;
 						} finally {
 							try {
-								if (!_iteratorNormalCompletion8 && _iterator8.return) {
-									_iterator8.return();
+								if (!_iteratorNormalCompletion10 && _iterator10.return) {
+									_iterator10.return();
 								}
 							} finally {
-								if (_didIteratorError8) {
-									throw _iteratorError8;
+								if (_didIteratorError10) {
+									throw _iteratorError10;
 								}
 							}
 						}
@@ -1409,7 +1834,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 					return false;
 				});
 
-				return _this7;
+				return _this8;
 			}
 
 			// UI events
@@ -1426,10 +1851,27 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			}, {
 				key: "newFile",
 				value: function newFile(func) {
-					var name = prompt("Enter the name of the new file");
-					if (name !== null) {
-						this.emit('message', 'project-event', { func: func, newFile: name });
-					}
+					var _this9 = this;
+
+					// build the popup content
+					popup.title('Creating a new file');
+					popup.subtitle('Enter the name of the new file. Only files with extensions .cpp, .c or .S will be compiled.');
+
+					var form = [];
+					form.push('<input type="text" placeholder="Enter the file name">');
+					form.push('</br >');
+					form.push('<button type="submit" class="button popup-create">Create</button>');
+					form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+
+					popup.form.append(form.join('')).off('submit').on('submit', function (e) {
+						e.preventDefault();
+						_this9.emit('message', 'project-event', { func: func, newFile: sanitise(popup.find('input[type=text]').val()) });
+						popup.hide();
+					});
+
+					popup.find('.popup-cancel').on('click', popup.hide);
+
+					popup.show();
 				}
 			}, {
 				key: "uploadFile",
@@ -1439,23 +1881,57 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			}, {
 				key: "renameFile",
 				value: function renameFile(func) {
-					var name = prompt("Enter the new name of the file");
-					if (name !== null) {
-						this.emit('message', 'project-event', { func: func, newFile: name });
-					}
+					var _this10 = this;
+
+					// build the popup content
+					popup.title('Renaming this file');
+					popup.subtitle('Enter the new name of the file. Only files with extensions .cpp, .c or .S will be compiled.');
+
+					var form = [];
+					form.push('<input type="text" placeholder="Enter the new file name">');
+					form.push('</br >');
+					form.push('<button type="submit" class="button popup-rename">Rename</button>');
+					form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+
+					popup.form.append(form.join('')).off('submit').on('submit', function (e) {
+						e.preventDefault();
+						_this10.emit('message', 'project-event', { func: func, newFile: sanitise(popup.find('input[type=text]').val()) });
+						popup.hide();
+					});
+
+					popup.find('.popup-cancel').on('click', popup.hide);
+
+					popup.show();
 				}
 			}, {
 				key: "deleteFile",
 				value: function deleteFile(func) {
-					var cont = confirm("This can't be undone! Continue?");
-					if (cont) {
-						this.emit('message', 'project-event', { func: func });
-					}
+					var _this11 = this;
+
+					// build the popup content
+					popup.title('Deleting file');
+					popup.subtitle('Are you sure you wish to delete this file? This cannot be undone!');
+
+					var form = [];
+					form.push('<button type="submit" class="button popup-delete">Delete</button>');
+					form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+
+					popup.form.append(form.join('')).off('submit').on('submit', function (e) {
+						e.preventDefault();
+						_this11.emit('message', 'project-event', { func: func });
+						popup.hide();
+					});
+
+					popup.find('.popup-cancel').on('click', popup.hide);
+
+					popup.show();
+
+					popup.find('.popup-delete').trigger('focus');
 				}
 			}, {
 				key: "openFile",
 				value: function openFile(e) {
-					this.emit('message', 'project-event', { func: 'openFile', newFile: $(e.currentTarget).html() });
+					this.emit('message', 'project-event', { func: 'openFile', newFile: $(e.currentTarget).data('file') });
 				}
 
 				// model events
@@ -1463,57 +1939,130 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			}, {
 				key: "_fileList",
 				value: function _fileList(files, data) {
-					var _this8 = this;
+					var _this12 = this;
+
+					this.listOfFiles = files;
 
 					var $files = $('#fileList');
 					$files.empty();
 
+					if (!files.length) return;
+
 					var headers = [];
 					var sources = [];
 					var resources = [];
+					var directories = [];
 
-					for (var i = 0; i < files.length; i++) {
+					var _iteratorNormalCompletion11 = true;
+					var _didIteratorError11 = false;
+					var _iteratorError11 = undefined;
 
-						var ext = files[i].split('.')[1];
+					try {
+						for (var _iterator11 = files[Symbol.iterator](), _step11; !(_iteratorNormalCompletion11 = (_step11 = _iterator11.next()).done); _iteratorNormalCompletion11 = true) {
+							var item = _step11.value;
 
-						if (sourceIndeces.indexOf(ext) !== -1) {
-							sources.push(files[i]);
-						} else if (headerIndeces.indexOf(ext) !== -1) {
-							headers.push(files[i]);
-						} else if (files[i]) {
-							resources.push(files[i]);
+
+							if (item.dir) {
+
+								directories.push(item);
+							} else {
+
+								var ext = item.name.split('.').pop();
+
+								if (sourceIndeces.indexOf(ext) !== -1) {
+									sources.push(item);
+								} else if (headerIndeces.indexOf(ext) !== -1) {
+									headers.push(item);
+								} else if (item) {
+									resources.push(item);
+								}
+							}
+						}
+
+						//console.log(headers, sources, resources, directories);
+					} catch (err) {
+						_didIteratorError11 = true;
+						_iteratorError11 = err;
+					} finally {
+						try {
+							if (!_iteratorNormalCompletion11 && _iterator11.return) {
+								_iterator11.return();
+							}
+						} finally {
+							if (_didIteratorError11) {
+								throw _iteratorError11;
+							}
 						}
 					}
 
-					headers.sort();
-					sources.sort();
-					resources.sort();
+					headers.sort(function (a, b) {
+						return a.name - b.name;
+					});
+					sources.sort(function (a, b) {
+						return a.name - b.name;
+					});
+					resources.sort(function (a, b) {
+						return a.name - b.name;
+					});
+					directories.sort(function (a, b) {
+						return a.name - b.name;
+					});
+
+					//console.log(headers, sources, resources, directories);
 
 					if (headers.length) {
 						$('<li></li>').html('Headers:').appendTo($files);
 					}
-					for (var _i = 0; _i < headers.length; _i++) {
-						$('<li></li>').addClass('sourceFile').html(headers[_i]).appendTo($files).on('click', function (e) {
-							return _this8.openFile(e);
+					for (var i = 0; i < headers.length; i++) {
+						$('<li></li>').addClass('sourceFile').html(headers[i].name).data('file', headers[i].name).appendTo($files).on('click', function (e) {
+							return _this12.openFile(e);
 						});
 					}
 
 					if (sources.length) {
 						$('<li></li>').html('Sources:').appendTo($files);
 					}
-					for (var _i2 = 0; _i2 < sources.length; _i2++) {
-						$('<li></li>').addClass('sourceFile').html(sources[_i2]).appendTo($files).on('click', function (e) {
-							return _this8.openFile(e);
+					for (var _i = 0; _i < sources.length; _i++) {
+						$('<li></li>').addClass('sourceFile').html(sources[_i].name).data('file', sources[_i].name).appendTo($files).on('click', function (e) {
+							return _this12.openFile(e);
 						});
 					}
 
 					if (resources.length) {
 						$('<li></li>').html('Resources:').appendTo($files);
 					}
-					for (var _i3 = 0; _i3 < resources.length; _i3++) {
-						$('<li></li>').addClass('sourceFile').html(resources[_i3]).appendTo($files).on('click', function (e) {
-							return _this8.openFile(e);
+					for (var _i2 = 0; _i2 < resources.length; _i2++) {
+						$('<li></li>').addClass('sourceFile').html(resources[_i2].name).data('file', resources[_i2].name).appendTo($files).on('click', function (e) {
+							return _this12.openFile(e);
 						});
+					}
+
+					if (directories.length) {
+						$('<li></li>').html('Directories:').appendTo($files);
+					}
+					var _iteratorNormalCompletion12 = true;
+					var _didIteratorError12 = false;
+					var _iteratorError12 = undefined;
+
+					try {
+						for (var _iterator12 = directories[Symbol.iterator](), _step12; !(_iteratorNormalCompletion12 = (_step12 = _iterator12.next()).done); _iteratorNormalCompletion12 = true) {
+							var dir = _step12.value;
+
+							$files.append(this.subDirs(dir));
+						}
+					} catch (err) {
+						_didIteratorError12 = true;
+						_iteratorError12 = err;
+					} finally {
+						try {
+							if (!_iteratorNormalCompletion12 && _iterator12.return) {
+								_iterator12.return();
+							}
+						} finally {
+							if (_didIteratorError12) {
+								throw _iteratorError12;
+							}
+						}
 					}
 
 					if (data && data.fileName) this._fileName(data.fileName);
@@ -1524,9 +2073,12 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 					// select the opened file in the file manager tab
 					$('.selectedFile').removeClass('selectedFile');
-					$('#fileList>li').each(function () {
-						if ($(this).html() === file) {
+
+					var foundFile = false;
+					$('#fileList li').each(function () {
+						if ($(this).data('file') === file) {
 							$(this).addClass('selectedFile');
+							foundFile = true;
 						}
 					});
 
@@ -1535,22 +2087,334 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 						$('#downloadFileLink').attr('href', '/download?project=' + data.currentProject + '&file=' + file);
 					}
 				}
+			}, {
+				key: "subDirs",
+				value: function subDirs(dir) {
+					var _this13 = this;
+
+					var ul = $('<ul></ul>').html(dir.name + ':');
+					var _iteratorNormalCompletion13 = true;
+					var _didIteratorError13 = false;
+					var _iteratorError13 = undefined;
+
+					try {
+						for (var _iterator13 = dir.children[Symbol.iterator](), _step13; !(_iteratorNormalCompletion13 = (_step13 = _iterator13.next()).done); _iteratorNormalCompletion13 = true) {
+							var child = _step13.value;
+
+							if (!child.dir) $('<li></li>').addClass('sourceFile').html(child.name).data('file', (dir.dirPath || dir.name) + '/' + child.name).appendTo(ul).on('click', function (e) {
+								return _this13.openFile(e);
+							});else {
+								child.dirPath = (dir.dirPath || dir.name) + '/' + child.name;
+								ul.append(this.subDirs(child));
+							}
+						}
+					} catch (err) {
+						_didIteratorError13 = true;
+						_iteratorError13 = err;
+					} finally {
+						try {
+							if (!_iteratorNormalCompletion13 && _iterator13.return) {
+								_iterator13.return();
+							}
+						} finally {
+							if (_didIteratorError13) {
+								throw _iteratorError13;
+							}
+						}
+					}
+
+					return ul;
+				}
+			}, {
+				key: "doFileUpload",
+				value: function doFileUpload(file) {
+					var _this14 = this;
+
+					var fileExists = false;
+					var _iteratorNormalCompletion14 = true;
+					var _didIteratorError14 = false;
+					var _iteratorError14 = undefined;
+
+					try {
+						for (var _iterator14 = this.listOfFiles[Symbol.iterator](), _step14; !(_iteratorNormalCompletion14 = (_step14 = _iterator14.next()).done); _iteratorNormalCompletion14 = true) {
+							var item = _step14.value;
+
+							if (item.name === file.name) fileExists = true;
+						}
+					} catch (err) {
+						_didIteratorError14 = true;
+						_iteratorError14 = err;
+					} finally {
+						try {
+							if (!_iteratorNormalCompletion14 && _iterator14.return) {
+								_iterator14.return();
+							}
+						} finally {
+							if (_didIteratorError14) {
+								throw _iteratorError14;
+							}
+						}
+					}
+
+					if (fileExists && askForOverwrite) {
+
+						// build the popup content
+						popup.title('Overwriting file');
+						popup.subtitle('The file ' + file.name + ' already exists in this project. Would you like to overwrite it?');
+
+						var form = [];
+						form.push('<input id="popup-remember-upload" type="checkbox">');
+						form.push('<label for="popup-remember-upload">don\'t ask me again this session</label>');
+						form.push('</br >');
+						form.push('<button type="submit" class="button popup-upload">Upload</button>');
+						form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+
+						popup.form.append(form.join('')).off('submit').on('submit', function (e) {
+							e.preventDefault();
+							if (popup.find('input[type=checkbox]').is(':checked')) askForOverwrite = false;
+							_this14.actuallyDoFileUpload(file, true);
+							popup.hide();
+						});
+
+						popup.find('.popup-cancel').on('click', popup.hide);
+
+						popup.show();
+
+						popup.find('.popup-cancel').focus();
+					} else {
+
+						this.actuallyDoFileUpload(file, !askForOverwrite);
+					}
+				}
+			}, {
+				key: "actuallyDoFileUpload",
+				value: function actuallyDoFileUpload(file, force) {
+					var _this15 = this;
+
+					var reader = new FileReader();
+					reader.onload = function (ev) {
+						return _this15.emit('message', 'project-event', { func: 'uploadFile', newFile: sanitise(file.name), fileData: ev.target.result, force: force });
+					};
+					reader.readAsArrayBuffer(file);
+				}
 			}]);
 
 			return FileView;
 		}(View);
 
 		module.exports = FileView;
-	}, { "./View": 11 }], 7: [function (require, module, exports) {
-		var View = require('./View');
 
-		var ProjectView = function (_View5) {
-			_inherits(ProjectView, _View5);
+		// replace all non alpha-numeric chars other than '-' and '.' with '_'
+		function sanitise(name) {
+			return name.replace(/[^a-zA-Z0-9\.\-\/~]/g, '_');
+		}
+	}, { "../popup": 16, "./View": 13 }], 8: [function (require, module, exports) {
+		'use strict';
+
+		var View = require('./View');
+		var popup = require('../popup');
+
+		var GitView = function (_View6) {
+			_inherits(GitView, _View6);
+
+			function GitView(className, models, settings) {
+				_classCallCheck(this, GitView);
+
+				var _this16 = _possibleConstructorReturn(this, Object.getPrototypeOf(GitView).call(this, className, models, settings));
+
+				_this16.$form = $('#gitForm');
+				_this16.$input = $('#gitInput');
+
+				// git input events
+				_this16.$form.on('submit', function (e) {
+					e.preventDefault();
+					_this16.emit('git-event', {
+						func: 'command',
+						command: _this16.$input.val()
+					});
+					_this16.$input.val('');
+				});
+				return _this16;
+			}
+
+			_createClass(GitView, [{
+				key: "buttonClicked",
+				value: function buttonClicked($element, e) {
+					var func = $element.data().func;
+					if (this[func]) {
+						this[func]();
+						return;
+					}
+					var command = $element.data().command;
+					this.emit('git-event', { func: func, command: command });
+				}
+			}, {
+				key: "selectChanged",
+				value: function selectChanged($element, e) {
+					this.emit('git-event', {
+						func: 'command',
+						command: 'checkout ' + ($("option:selected", $element).data('hash') || $("option:selected", $element).val())
+					});
+				}
+			}, {
+				key: "commit",
+				value: function commit() {
+					var _this17 = this;
+
+					// build the popup content
+					popup.title('Committing to the project repository');
+					popup.subtitle('Enter a commit message');
+
+					var form = [];
+					form.push('<input type="text" placeholder="Enter your commit message">');
+					form.push('</br >');
+					form.push('<button type="submit" class="button popup-commit">Commit</button>');
+					form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+
+					popup.form.append(form.join('')).off('submit').on('submit', function (e) {
+						e.preventDefault();
+						_this17.emit('git-event', { func: 'command', command: 'commit -am "' + popup.find('input[type=text]').val() + '"' });
+						popup.hide();
+					});
+
+					popup.find('.popup-cancel').on('click', popup.hide);
+
+					popup.show();
+				}
+			}, {
+				key: "branch",
+				value: function branch() {
+					var _this18 = this;
+
+					// build the popup content
+					popup.title('Creating a new branch');
+					popup.subtitle('Enter a name for the branch');
+
+					var form = [];
+					form.push('<input type="text" placeholder="Enter your new branch name">');
+					form.push('</br >');
+					form.push('<button type="submit" class="button popup-create">Create</button>');
+					form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+
+					popup.form.append(form.join('')).off('submit').on('submit', function (e) {
+						e.preventDefault();
+						_this18.emit('git-event', { func: 'command', command: 'checkout -b ' + popup.find('input[type=text]').val() });
+						popup.hide();
+					});
+
+					popup.find('.popup-cancel').on('click', popup.hide);
+
+					popup.show();
+				}
+			}, {
+				key: "discardChanges",
+				value: function discardChanges() {
+					var _this19 = this;
+
+					// build the popup content
+					popup.title('Discarding changes');
+					popup.subtitle('You are about to discard all changes made in your project since the last commit. The command used is "git checkout -- .". Are you sure you wish to continue? This cannot be undone.');
+
+					var form = [];
+					form.push('<button type="submit" class="button popup-continue">Continue</button>');
+					form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+
+					popup.form.append(form.join('')).off('submit').on('submit', function (e) {
+						e.preventDefault();
+						_this19.emit('git-event', { func: 'command', command: 'checkout -- .' });
+						popup.hide();
+					});
+
+					popup.find('.popup-create').on('click', popup.hide);
+
+					popup.show();
+
+					popup.find('.popup-continue').trigger('focus');
+				}
+			}, {
+				key: "_repoExists",
+				value: function _repoExists(exists) {
+					if (exists) {
+						$('#repo').css('display', 'block');
+						$('#noRepo').css('display', 'none');
+					} else {
+						$('#repo').css('display', 'none');
+						$('#noRepo').css('display', 'block');
+					}
+				}
+			}, {
+				key: "__commits",
+				value: function __commits(commits, git) {
+
+					var commits = commits.split('\n');
+					var current = git.currentCommit.trim();
+					var branches = git.branches.split('\n');
+
+					// fill commits menu
+					var $commits = $('#commits');
+					$commits.empty();
+
+					var commit, hash, opt;
+					for (var i = 0; i < commits.length; i++) {
+						commit = commits[i].split(' ');
+						if (commit.length > 2) {
+							hash = commit.pop().trim();
+							opt = $('<option></option>').html(commit.join(' ')).data('hash', hash).appendTo($commits);
+							if (hash === current) {
+								$(opt).attr('selected', 'selected');
+							}
+						} else {
+							//$('<option></option>').html(commit).appendTo($commits);
+							if (!(commit.length == 1 && commit[0] === '')) console.log('skipped commit', commit);
+						}
+					}
+
+					// fill branches menu
+					var $branches = $('#branches');
+					$branches.empty();
+
+					for (var i = 0; i < branches.length; i++) {
+						if (branches[i]) {
+							opt = $('<option></option>').html(branches[i]).appendTo($branches);
+							if (branches[i][0] === '*') {
+								$(opt).attr('selected', 'selected');
+							}
+						}
+					}
+				}
+			}, {
+				key: "__stdout",
+				value: function __stdout(text, git) {
+					this.emit('console', text);
+				}
+			}, {
+				key: "__stderr",
+				value: function __stderr(text) {
+					this.emit('console', text);
+				}
+			}]);
+
+			return GitView;
+		}(View);
+
+		module.exports = GitView;
+	}, { "../popup": 16, "./View": 13 }], 9: [function (require, module, exports) {
+		var View = require('./View');
+		var popup = require('../popup');
+
+		var ProjectView = function (_View7) {
+			_inherits(ProjectView, _View7);
 
 			function ProjectView(className, models) {
 				_classCallCheck(this, ProjectView);
 
-				return _possibleConstructorReturn(this, Object.getPrototypeOf(ProjectView).call(this, className, models));
+				var _this20 = _possibleConstructorReturn(this, Object.getPrototypeOf(ProjectView).call(this, className, models));
+
+				_this20.exampleChanged = false;
+				_this20.on('example-changed', function () {
+					return _this20.exampleChanged = true;
+				});
+				return _this20;
 			}
 
 			// UI events
@@ -1559,12 +2423,21 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			_createClass(ProjectView, [{
 				key: "selectChanged",
 				value: function selectChanged($element, e) {
-					//console.log($element.prop('id'));
-					//if ($element.prop('id') === 'projects'){
+					var _this21 = this;
+
+					if (this.exampleChanged) {
+						this.exampleChanged = false;
+						popup.exampleChanged(function () {
+							_this21.emit('message', 'project-event', { func: $element.data().func, currentProject: $element.val() });
+						}, undefined, 0, function () {
+							$element.find('option').filter(':selected').attr('selected', '');
+							$element.val($('#projects > option:first').val());
+							_this21.exampleChanged = true;
+						});
+						return;
+					}
+
 					this.emit('message', 'project-event', { func: $element.data().func, currentProject: $element.val() });
-					//} else if ($element.prop('id') === 'examples'){
-					//this.emit('message', 'example-event', {func: $element.data().func, example: $element.val()})
-					//}
 				}
 			}, {
 				key: "buttonClicked",
@@ -1577,26 +2450,95 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			}, {
 				key: "newProject",
 				value: function newProject(func) {
-					var name = prompt("Enter the name of the new project");
-					if (name !== null) {
-						this.emit('message', 'project-event', { func: func, newProject: name });
+					var _this22 = this;
+
+					if (this.exampleChanged) {
+						this.exampleChanged = false;
+						popup.exampleChanged(this.newProject.bind(this), func, 500, function () {
+							return _this22.exampleChanged = true;
+						});
+						return;
 					}
+
+					// build the popup content
+					popup.title('Creating a new project');
+					popup.subtitle('Choose what kind of project you would like to create, and enter the name of your new project');
+
+					var form = [];
+					form.push('<input id="popup-C" type="radio" name="project-type" data-type="C" checked>');
+					form.push('<label for="popup-C">C++</label>');
+					form.push('</br>');
+					form.push('<input id="popup-PD" type="radio" name="project-type" data-type="PD">');
+					form.push('<label for="popup-PD">Pure Data</label>');
+					form.push('</br>');
+					form.push('<input type="text" placeholder="Enter your project name">');
+					form.push('</br>');
+					form.push('<button type="submit" class="button popup-save">Save</button>');
+					form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+
+					popup.form.append(form.join('')).off('submit').on('submit', function (e) {
+						e.preventDefault();
+						_this22.emit('message', 'project-event', {
+							func: func,
+							newProject: sanitise(popup.find('input[type=text]').val()),
+							projectType: popup.find('input[type=radio]:checked').data('type')
+						});
+						popup.hide();
+					});
+
+					popup.find('.popup-cancel').on('click', popup.hide);
+
+					popup.show();
 				}
 			}, {
 				key: "saveAs",
 				value: function saveAs(func) {
-					var name = prompt("Enter the name of the new project");
-					if (name !== null) {
-						this.emit('message', 'project-event', { func: func, newProject: name });
-					}
+					var _this23 = this;
+
+					// build the popup content
+					popup.title('Saving project');
+					popup.subtitle('Enter the name of your project');
+
+					var form = [];
+					form.push('<input type="text" placeholder="Enter the new project name">');
+					form.push('</br >');
+					form.push('<button type="submit" class="button popup-save">Save</button>');
+					form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+
+					popup.form.append(form.join('')).off('submit').on('submit', function (e) {
+						e.preventDefault();
+						_this23.emit('message', 'project-event', { func: func, newProject: sanitise(popup.find('input[type=text]').val()) });
+						popup.hide();
+					});
+
+					popup.find('.popup-cancel').on('click', popup.hide);
+
+					popup.show();
 				}
 			}, {
 				key: "deleteProject",
 				value: function deleteProject(func) {
-					var cont = confirm("This can't be undone! Continue?");
-					if (cont) {
-						this.emit('message', 'project-event', { func: func });
-					}
+					var _this24 = this;
+
+					// build the popup content
+					popup.title('Deleting project');
+					popup.subtitle('Are you sure you wish to delete this project? This cannot be undone!');
+
+					var form = [];
+					form.push('<button type="submit" class="button popup-delete">Delete</button>');
+					form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+
+					popup.form.append(form.join('')).off('submit').on('submit', function (e) {
+						e.preventDefault();
+						_this24.emit('message', 'project-event', { func: func });
+						popup.hide();
+					});
+
+					popup.find('.popup-cancel').on('click', popup.hide);
+
+					popup.show();
+
+					popup.find('.popup-delete').trigger('focus');
 				}
 			}, {
 				key: "cleanProject",
@@ -1627,18 +2569,96 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 				}
 			}, {
 				key: "_exampleList",
-				value: function _exampleList(examples) {
+				value: function _exampleList(examplesDir) {
+					var _this25 = this;
 
 					var $examples = $('#examples');
 					$examples.empty();
 
-					// add an empty option to menu and select it
-					var opt = $('<option></option>').attr({ 'value': '', 'selected': 'selected' }).html('--Examples--').appendTo($examples);
+					if (!examplesDir.length) return;
 
-					// fill project menu with examples
-					for (var i = 0; i < examples.length; i++) {
-						if (examples[i] && examples[i] !== 'undefined' && examples[i] !== 'exampleTempProject' && examples[i][0] !== '.') {
-							var opt = $('<option></option>').attr('value', examples[i]).html(examples[i]).appendTo($examples);
+					var _iteratorNormalCompletion15 = true;
+					var _didIteratorError15 = false;
+					var _iteratorError15 = undefined;
+
+					try {
+						var _loop = function _loop() {
+							var item = _step15.value;
+
+							var ul = $('<ul></ul>').html(item.name + ':');
+							var _iteratorNormalCompletion16 = true;
+							var _didIteratorError16 = false;
+							var _iteratorError16 = undefined;
+
+							try {
+								var _loop2 = function _loop2() {
+									var child = _step16.value;
+
+									if (child && child.length && child[0] === '.') return "continue";
+									$('<li></li>').addClass('sourceFile').html(child).appendTo(ul).on('click', function (e) {
+
+										if (_this25.exampleChanged) {
+											_this25.exampleChanged = false;
+											popup.exampleChanged(function () {
+												_this25.emit('message', 'project-event', {
+													func: 'openExample',
+													currentProject: item.name + '/' + child
+												});
+												$('.selectedExample').removeClass('selectedExample');
+												$(e.target).addClass('selectedExample');
+											}, undefined, 0, function () {
+												return _this25.exampleChanged = true;
+											});
+											return;
+										}
+
+										_this25.emit('message', 'project-event', {
+											func: 'openExample',
+											currentProject: item.name + '/' + child
+										});
+										$('.selectedExample').removeClass('selectedExample');
+										$(e.target).addClass('selectedExample');
+									});
+								};
+
+								for (var _iterator16 = item.children[Symbol.iterator](), _step16; !(_iteratorNormalCompletion16 = (_step16 = _iterator16.next()).done); _iteratorNormalCompletion16 = true) {
+									var _ret3 = _loop2();
+
+									if (_ret3 === "continue") continue;
+								}
+							} catch (err) {
+								_didIteratorError16 = true;
+								_iteratorError16 = err;
+							} finally {
+								try {
+									if (!_iteratorNormalCompletion16 && _iterator16.return) {
+										_iterator16.return();
+									}
+								} finally {
+									if (_didIteratorError16) {
+										throw _iteratorError16;
+									}
+								}
+							}
+
+							ul.appendTo($examples);
+						};
+
+						for (var _iterator15 = examplesDir[Symbol.iterator](), _step15; !(_iteratorNormalCompletion15 = (_step15 = _iterator15.next()).done); _iteratorNormalCompletion15 = true) {
+							_loop();
+						}
+					} catch (err) {
+						_didIteratorError15 = true;
+						_iteratorError15 = err;
+					} finally {
+						try {
+							if (!_iteratorNormalCompletion15 && _iterator15.return) {
+								_iterator15.return();
+							}
+						} finally {
+							if (_didIteratorError15) {
+								throw _iteratorError15;
+							}
 						}
 					}
 				}
@@ -1651,18 +2671,56 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 					if (project === 'exampleTempProject') {
 						// select no project
-						$('#projects option:first-child').attr('selected', 'selected');
+						$('#projects').val($('#projects > option:first').val());
 					} else {
 						// select new project
-						$('#projects option[value="' + project + '"]').attr('selected', 'selected');
+						//$('#projects option[value="'+project+'"]').attr('selected', 'selected');
+						$('#projects').val($('#projects > option[value="' + project + '"]').val());
 						// unselect currently selected example
-						$('#examples').find('option').filter(':selected').attr('selected', '');
-						// select no example
-						$('#examples option:first-child').attr('selected', 'selected');
+						$('.selectedExample').removeClass('selectedExample');
 					}
 
 					// set download link
 					$('#downloadLink').attr('href', '/download?project=' + project);
+				}
+			}, {
+				key: "__currentProject",
+				value: function __currentProject() {
+					this.exampleChanged = false;
+				}
+			}, {
+				key: "subDirs",
+				value: function subDirs(dir) {
+					var ul = $('<ul></ul>').html(dir.name + ':');
+					var _iteratorNormalCompletion17 = true;
+					var _didIteratorError17 = false;
+					var _iteratorError17 = undefined;
+
+					try {
+						for (var _iterator17 = dir.children[Symbol.iterator](), _step17; !(_iteratorNormalCompletion17 = (_step17 = _iterator17.next()).done); _iteratorNormalCompletion17 = true) {
+							var _child = _step17.value;
+
+							if (!_child.dir) $('<li></li>').addClass('sourceFile').html(_child.name).data('file', (dir.dirPath || dir.name) + '/' + _child.name).appendTo(ul);else {
+								_child.dirPath = (dir.dirPath || dir.name) + '/' + _child.name;
+								ul.append(this.subDirs(_child));
+							}
+						}
+					} catch (err) {
+						_didIteratorError17 = true;
+						_iteratorError17 = err;
+					} finally {
+						try {
+							if (!_iteratorNormalCompletion17 && _iterator17.return) {
+								_iterator17.return();
+							}
+						} finally {
+							if (_didIteratorError17) {
+								throw _iteratorError17;
+							}
+						}
+					}
+
+					return ul;
 				}
 			}]);
 
@@ -1670,28 +2728,39 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 		}(View);
 
 		module.exports = ProjectView;
-	}, { "./View": 11 }], 8: [function (require, module, exports) {
-		var View = require('./View');
 
-		var SettingsView = function (_View6) {
-			_inherits(SettingsView, _View6);
+		// replace all non alpha-numeric chars other than '-' and '.' with '_'
+		function sanitise(name) {
+			return name.replace(/[^a-zA-Z0-9\.\-]/g, '_');
+		}
+	}, { "../popup": 16, "./View": 13 }], 10: [function (require, module, exports) {
+		var View = require('./View');
+		var popup = require('../popup');
+
+		var SettingsView = function (_View8) {
+			_inherits(SettingsView, _View8);
 
 			function SettingsView(className, models, settings) {
 				_classCallCheck(this, SettingsView);
 
 				//this.$elements.filter('input').on('change', (e) => this.selectChanged($(e.currentTarget), e));
 
-				var _this10 = _possibleConstructorReturn(this, Object.getPrototypeOf(SettingsView).call(this, className, models, settings));
+				var _this26 = _possibleConstructorReturn(this, Object.getPrototypeOf(SettingsView).call(this, className, models, settings));
 
-				_this10.settings.on('change', function (data) {
-					return _this10._IDESettings(data);
+				_this26.settings.on('change', function (data) {
+					return _this26._IDESettings(data);
 				});
-				_this10.$elements.filterByData = function (prop, val) {
+				_this26.$elements.filterByData = function (prop, val) {
 					return this.filter(function () {
 						return $(this).data(prop) == val;
 					});
 				};
-				return _this10;
+
+				$('#runOnBoot').on('change', function () {
+					if ($('#runOnBoot').val()) _this26.emit('run-on-boot', $('#runOnBoot').val());
+				});
+
+				return _this26;
 			}
 
 			_createClass(SettingsView, [{
@@ -1737,7 +2806,27 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			}, {
 				key: "restoreDefaultCLArgs",
 				value: function restoreDefaultCLArgs(func) {
-					this.emit('project-settings', { func: func });
+					var _this27 = this;
+
+					// build the popup content
+					popup.title('Restoring default project settings');
+					popup.subtitle('Are you sure you wish to continue? Your current project settings will be lost!');
+
+					var form = [];
+					form.push('<button type="submit" class="button popup-continue">Continue</button>');
+					form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+
+					popup.form.append(form.join('')).off('submit').on('submit', function (e) {
+						e.preventDefault();
+						_this27.emit('project-settings', { func: func });
+						popup.hide();
+					});
+
+					popup.find('.popup-cancel').on('click', popup.hide);
+
+					popup.show();
+
+					popup.find('.popup-continue').trigger('focus');
 				}
 			}, {
 				key: "setIDESetting",
@@ -1748,7 +2837,121 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			}, {
 				key: "restoreDefaultIDESettings",
 				value: function restoreDefaultIDESettings(func) {
-					this.emit('IDE-settings', { func: func });
+					var _this28 = this;
+
+					// build the popup content
+					popup.title('Restoring default IDE settings');
+					popup.subtitle('Are you sure you wish to continue? Your current IDE settings will be lost!');
+
+					var form = [];
+					form.push('<button type="submit" class="button popup-continue">Continue</button>');
+					form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+
+					popup.form.append(form.join('')).off('submit').on('submit', function (e) {
+						e.preventDefault();
+						_this28.emit('IDE-settings', { func: func });
+						popup.hide();
+					});
+
+					popup.find('.popup-cancel').on('click', popup.hide);
+
+					popup.show();
+
+					popup.find('.popup-continue').trigger('focus');
+				}
+			}, {
+				key: "shutdownBBB",
+				value: function shutdownBBB() {
+					var _this29 = this;
+
+					// build the popup content
+					popup.title('Shutting down Bela');
+					popup.subtitle('Are you sure you wish to continue? The BeagleBone will shutdown gracefully, and the IDE will disconnect.');
+
+					var form = [];
+					form.push('<button type="submit" class="button popup-continue">Continue</button>');
+					form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+
+					popup.form.append(form.join('')).off('submit').on('submit', function (e) {
+						e.preventDefault();
+						_this29.emit('halt');
+						popup.hide();
+					});
+
+					popup.find('.popup-cancel').on('click', popup.hide);
+
+					popup.show();
+
+					popup.find('.popup-continue').trigger('focus');
+				}
+			}, {
+				key: "aboutPopup",
+				value: function aboutPopup() {
+
+					// build the popup content
+					popup.title('About Bela');
+					popup.subtitle('LLLLow LLLLLatency');
+
+					var form = [];
+					form.push('<button type="submit" class="button popup-continue">Continue</button>');
+
+					popup.form.append(form.join('')).off('submit').on('submit', function (e) {
+						e.preventDefault();
+						popup.hide();
+					});
+
+					popup.show();
+
+					popup.find('.popup-continue').trigger('focus');
+				}
+			}, {
+				key: "updateBela",
+				value: function updateBela() {
+					var _this30 = this;
+
+					// build the popup content
+					popup.title('Updating Bela');
+					popup.subtitle('Please select the update zip archive');
+
+					var form = [];
+					form.push('<input id="popup-update-file" type="file">');
+					form.push('</br>');
+					form.push('<button type="submit" class="button popup-upload">Upload</button>');
+					form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+
+					/*popup.form.prop({
+     	action	: 'updates',
+     	method	: 'get',
+     	enctype	: 'multipart/form-data'
+     });*/
+
+					popup.form.append(form.join('')).off('submit').on('submit', function (e) {
+
+						e.preventDefault();
+
+						var file = popup.find('input[type=file]').prop('files')[0];
+						if (file && file.type === 'application/zip') {
+
+							_this30.emit('warning', 'beginning the update - this may take several minutes');
+							_this30.emit('warning', 'the browser may become unresponsive and will temporarily disconnect');
+							_this30.emit('warning', 'do not use the IDE during the update process!');
+
+							var reader = new FileReader();
+							reader.onload = function (ev) {
+								return _this30.emit('upload-update', { name: file.name, file: ev.target.result });
+							};
+							reader.readAsArrayBuffer(file);
+						} else {
+
+							_this30.emit('warning', 'not a valid update zip archive');
+						}
+
+						popup.hide();
+					});
+
+					popup.find('.popup-cancel').on('click', popup.hide);
+
+					popup.show();
 				}
 
 				// model events
@@ -1756,12 +2959,23 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			}, {
 				key: "_CLArgs",
 				value: function _CLArgs(data) {
-					var fullString = '';
+					var args = '';
 					for (var key in data) {
-						this.$elements.filterByData('key', key).val(data[key]).prop('checked', data[key]);
-						fullString += (key === 'user' ? '' : key) + data[key] + ' ';
+
+						// set the input element
+						this.$elements.filterByData('key', key).val(data[key]).prop('checked', data[key] == 1);
+
+						// fill in the full string
+						if (key[0] === '-' && key[1] === '-') {
+							args += key + '=' + data[key] + ' ';
+						} else if (key === 'user') {
+							args += data[key];
+						} else if (key !== 'make') {
+							args += key + data[key] + ' ';
+						}
 					}
-					$('#C_L_ARGS').val(fullString);
+
+					$('#C_L_ARGS').val(args);
 				}
 			}, {
 				key: "_IDESettings",
@@ -1775,40 +2989,61 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 				value: function _breakpoints(value, keys) {
 					this.emit('project-settings', { func: 'setBreakpoints', value: value });
 				}
+			}, {
+				key: "_projectList",
+				value: function _projectList(projects, data) {
+
+					var $projects = $('#runOnBoot');
+					$projects.empty();
+
+					// add an empty option to menu and select it
+					$('<option></option>').html('--select--').appendTo($projects);
+
+					// add a 'none' option
+					$('<option></option>').attr('value', 'none').html('none').appendTo($projects);
+
+					// fill project menu with projects
+					for (var i = 0; i < projects.length; i++) {
+						if (projects[i] && projects[i] !== 'undefined' && projects[i] !== 'exampleTempProject' && projects[i][0] !== '.') {
+							$('<option></option>').attr('value', projects[i]).html(projects[i]).appendTo($projects);
+						}
+					}
+				}
 			}]);
 
 			return SettingsView;
 		}(View);
 
 		module.exports = SettingsView;
-	}, { "./View": 11 }], 9: [function (require, module, exports) {
+	}, { "../popup": 16, "./View": 13 }], 11: [function (require, module, exports) {
 		var View = require('./View');
 
 		// private variables
 		var _tabsOpen = false;
 
-		var TabView = function (_View7) {
-			_inherits(TabView, _View7);
+		var TabView = function (_View9) {
+			_inherits(TabView, _View9);
 
 			function TabView() {
 				_classCallCheck(this, TabView);
 
 				// open/close tabs
 
-				var _this11 = _possibleConstructorReturn(this, Object.getPrototypeOf(TabView).call(this, 'tab'));
+				var _this31 = _possibleConstructorReturn(this, Object.getPrototypeOf(TabView).call(this, 'tab'));
 
 				$('#flexit').on('click', function () {
-					//console.log("CLICKY");
 					if (_tabsOpen) {
-						_this11.closeTabs();
+						_this31.closeTabs();
 					} else {
-						_this11.openTabs();
+						_this31.openTabs();
 					}
 				});
 
-				$('label').on('click', function (e) {
+				$('.tab > label').on('click', function (e) {
 					if (!_tabsOpen) {
-						_this11.openTabs();
+						if ($(e.currentTarget).prop('id') === 'tab-0' && $('[type=radio]:checked ~ label').prop('id') === 'tab-0') $('#file-explorer').parent().trigger('click');
+
+						_this31.openTabs();
 						e.stopPropagation();
 					}
 				});
@@ -1865,40 +3100,54 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 				layout.init();
 				layout.on('initialised', function () {
-					return _this11.emit('change');
+					return _this31.emit('change');
 				});
 				layout.on('stateChanged', function () {
-					return _this11.emit('change');
+					return _this31.emit('change');
 				});
 
 				$(window).on('resize', function () {
 					if (_tabsOpen) {
-						_this11.openTabs();
+						_this31.openTabs();
 					} else {
-						_this11.closeTabs();
+						_this31.closeTabs();
 					}
 				});
 
-				return _this11;
+				return _this31;
 			}
 
 			_createClass(TabView, [{
 				key: "openTabs",
 				value: function openTabs() {
 					$('#editor').css('right', '500px');
+					$('#top-line').css('margin-right', '500px');
 					$('#right').css('left', window.innerWidth - 500 + 'px');
 					_tabsOpen = true;
 					this.emit('change');
 					$('#tab-0').addClass('open');
+
+					// fix pd patch
+					$('#pd-svg-parent').css({
+						'max-width': $('#editor').width() + 'px',
+						'max-height': $('#editor').height() + 'px'
+					});
 				}
 			}, {
 				key: "closeTabs",
 				value: function closeTabs() {
 					$('#editor').css('right', '60px');
+					$('#top-line').css('margin-right', '60px');
 					$('#right').css('left', window.innerWidth - 60 + 'px');
 					_tabsOpen = false;
 					this.emit('change');
 					$('#tab-0').removeClass('open');
+
+					// fix pd patch
+					$('#pd-svg-parent').css({
+						'max-width': $('#editor').width() + 'px',
+						'max-height': $('#editor').height() + 'px'
+					});
 				}
 			}]);
 
@@ -1906,20 +3155,25 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 		}(View);
 
 		module.exports = new TabView();
-	}, { "./View": 11 }], 10: [function (require, module, exports) {
+	}, { "./View": 13 }], 12: [function (require, module, exports) {
 		var View = require('./View');
 
-		var ToolbarView = function (_View8) {
-			_inherits(ToolbarView, _View8);
+		// ohhhhh i am a comment
+
+		var ToolbarView = function (_View10) {
+			_inherits(ToolbarView, _View10);
 
 			function ToolbarView(className, models) {
 				_classCallCheck(this, ToolbarView);
 
-				var _this12 = _possibleConstructorReturn(this, Object.getPrototypeOf(ToolbarView).call(this, className, models));
+				var _this32 = _possibleConstructorReturn(this, Object.getPrototypeOf(ToolbarView).call(this, className, models));
 
-				console.log(_this12.$elements);
-				_this12.$elements.on('click', function (e) {
-					return _this12.buttonClicked($(e.currentTarget), e);
+				_this32.$elements.on('click', function (e) {
+					return _this32.buttonClicked($(e.currentTarget), e);
+				});
+
+				_this32.on('disconnected', function () {
+					$('#run').removeClass('spinning');
 				});
 
 				$('#run').mouseover(function () {
@@ -1941,7 +3195,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 				});
 
 				$('#download').mouseover(function () {
-					$('#control-text-2').html('<p>Download project</p>');
+					$('#control-text-2').html('<p>Download</p>');
 				}).mouseout(function () {
 					$('#control-text-2').html('');
 				});
@@ -1957,7 +3211,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 				}).mouseout(function () {
 					$('#control-text-3').html('');
 				});
-				return _this12;
+				return _this32;
 			}
 
 			// UI events
@@ -1993,20 +3247,25 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 				key: "__running",
 				value: function __running(status) {
 					if (status) {
-						if (!$('#run').hasClass('spinning')) {
-							$('#run').addClass('spinning');
-						}
+						$('#run').removeClass('building-button').addClass('running-button');
 					} else {
-						if ($('#run').hasClass('spinning')) {
-							$('#run').removeClass('spinning');
-						}
+						$('#run').removeClass('running-button');
+					}
+				}
+			}, {
+				key: "__building",
+				value: function __building(status) {
+					if (status) {
+						$('#run').removeClass('running-button').addClass('building-button');
+					} else {
+						$('#run').removeClass('building-button');
 					}
 				}
 			}, {
 				key: "__checkingSyntax",
 				value: function __checkingSyntax(status) {
 					if (status) {
-						$('#status').css('background', 'url("images/toolbar.png") -210px 35px');
+						$('#status').css('background', 'url("images/icons/status_wait.png")').prop('title', 'checking syntax...');
 					} else {
 						//this.syntaxTimeout = setTimeout(() => $('#status').css('background', 'url("images/toolbar.png") -140px 35px'), 10);
 					}
@@ -2016,9 +3275,9 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 				value: function __allErrors(errors) {
 					//if (this.syntaxTimeout) clearTimeout(this.syntaxTimeout);
 					if (errors.length) {
-						$('#status').css('background', 'url("images/toolbar.png") -175px 35px');
+						$('#status').css('background', 'url("images/icons/status_stop.png")').prop('title', 'syntax errors found');
 					} else {
-						$('#status').css('background', 'url("images/toolbar.png") -140px 35px');
+						$('#status').css('background', 'url("images/icons/status_ok.png")').prop('title', 'syntax check clear');
 					}
 				}
 			}, {
@@ -2026,7 +3285,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 				value: function _CPU(data) {
 
 					var ide = data.syntaxCheckProcess + data.buildProcess + data.node + data.gdb;
-					var bela = 0;
+					var bela = 0,
+					    rootCPU = 1;
 
 					if (data.bela != 0) {
 
@@ -2052,6 +3312,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 									'msw': taskData[j][2],
 									'csw': taskData[j][3]
 								};
+								if (proc.name === 'ROOT') rootCPU = proc.cpu * 0.01;
 								// ignore uninteresting data
 								if (proc && proc.name && proc.name !== 'ROOT' && proc.name !== 'NAME' && proc.name !== 'IRQ29:') {
 									output.push(proc);
@@ -2066,8 +3327,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 						}
 					}
 
-					$('#ide-cpu').html('IDE: ' + ide.toFixed(1) + '%');
-					$('#bela-cpu').html('Bela: ' + bela.toFixed(1) + '%');
+					$('#ide-cpu').html('IDE: ' + (ide * rootCPU).toFixed(1) + '%');
+					$('#bela-cpu').html('Bela: ' + (bela ? bela.toFixed(1) + '%' : '--'));
 				}
 			}, {
 				key: "_cpuMonitoring",
@@ -2098,7 +3359,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 		}(View);
 
 		module.exports = ToolbarView;
-	}, { "./View": 11 }], 11: [function (require, module, exports) {
+	}, { "./View": 13 }], 13: [function (require, module, exports) {
 		var EventEmitter = require('events').EventEmitter;
 
 		var View = function (_EventEmitter2) {
@@ -2107,67 +3368,67 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			function View(CSSClassName, models, settings) {
 				_classCallCheck(this, View);
 
-				var _this13 = _possibleConstructorReturn(this, Object.getPrototypeOf(View).call(this));
+				var _this33 = _possibleConstructorReturn(this, Object.getPrototypeOf(View).call(this));
 
-				_this13.className = CSSClassName;
-				_this13.models = models;
-				_this13.settings = settings;
-				_this13.$elements = $('.' + CSSClassName);
-				_this13.$parents = $('.' + CSSClassName + '-parent');
+				_this33.className = CSSClassName;
+				_this33.models = models;
+				_this33.settings = settings;
+				_this33.$elements = $('.' + CSSClassName);
+				_this33.$parents = $('.' + CSSClassName + '-parent');
 
 				if (models) {
 					for (var i = 0; i < models.length; i++) {
 						models[i].on('change', function (data, changedKeys) {
-							_this13.modelChanged(data, changedKeys);
+							_this33.modelChanged(data, changedKeys);
 						});
 						models[i].on('set', function (data, changedKeys) {
-							_this13.modelSet(data, changedKeys);
+							_this33.modelSet(data, changedKeys);
 						});
 					}
 				}
 
-				_this13.$elements.filter('select').on('change', function (e) {
-					return _this13.selectChanged($(e.currentTarget), e);
+				_this33.$elements.filter('select').on('change', function (e) {
+					return _this33.selectChanged($(e.currentTarget), e);
 				});
-				_this13.$elements.filter('input').on('input', function (e) {
-					return _this13.inputChanged($(e.currentTarget), e);
+				_this33.$elements.filter('input').on('input', function (e) {
+					return _this33.inputChanged($(e.currentTarget), e);
 				});
-				_this13.$elements.filter('input[type=checkbox]').on('change', function (e) {
-					return _this13.inputChanged($(e.currentTarget), e);
+				_this33.$elements.filter('input[type=checkbox]').on('change', function (e) {
+					return _this33.inputChanged($(e.currentTarget), e);
 				});
-				_this13.$elements.filter('button').on('click', function (e) {
-					return _this13.buttonClicked($(e.currentTarget), e);
+				_this33.$elements.filter('button').on('click', function (e) {
+					return _this33.buttonClicked($(e.currentTarget), e);
 				});
 
-				return _this13;
+				return _this33;
 			}
 
 			_createClass(View, [{
 				key: "modelChanged",
 				value: function modelChanged(data, changedKeys) {
-					var _iteratorNormalCompletion9 = true;
-					var _didIteratorError9 = false;
-					var _iteratorError9 = undefined;
+					var _iteratorNormalCompletion18 = true;
+					var _didIteratorError18 = false;
+					var _iteratorError18 = undefined;
 
 					try {
-						for (var _iterator9 = changedKeys[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
-							var value = _step9.value;
+						for (var _iterator18 = changedKeys[Symbol.iterator](), _step18; !(_iteratorNormalCompletion18 = (_step18 = _iterator18.next()).done); _iteratorNormalCompletion18 = true) {
+							var value = _step18.value;
 
 							if (this['_' + value]) {
 								this['_' + value](data[value], data, changedKeys);
 							}
 						}
 					} catch (err) {
-						_didIteratorError9 = true;
-						_iteratorError9 = err;
+						_didIteratorError18 = true;
+						_iteratorError18 = err;
 					} finally {
 						try {
-							if (!_iteratorNormalCompletion9 && _iterator9.return) {
-								_iterator9.return();
+							if (!_iteratorNormalCompletion18 && _iterator18.return) {
+								_iterator18.return();
 							}
 						} finally {
-							if (_didIteratorError9) {
-								throw _iteratorError9;
+							if (_didIteratorError18) {
+								throw _iteratorError18;
 							}
 						}
 					}
@@ -2175,29 +3436,29 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			}, {
 				key: "modelSet",
 				value: function modelSet(data, changedKeys) {
-					var _iteratorNormalCompletion10 = true;
-					var _didIteratorError10 = false;
-					var _iteratorError10 = undefined;
+					var _iteratorNormalCompletion19 = true;
+					var _didIteratorError19 = false;
+					var _iteratorError19 = undefined;
 
 					try {
-						for (var _iterator10 = changedKeys[Symbol.iterator](), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
-							var value = _step10.value;
+						for (var _iterator19 = changedKeys[Symbol.iterator](), _step19; !(_iteratorNormalCompletion19 = (_step19 = _iterator19.next()).done); _iteratorNormalCompletion19 = true) {
+							var value = _step19.value;
 
 							if (this['__' + value]) {
 								this['__' + value](data[value], data, changedKeys);
 							}
 						}
 					} catch (err) {
-						_didIteratorError10 = true;
-						_iteratorError10 = err;
+						_didIteratorError19 = true;
+						_iteratorError19 = err;
 					} finally {
 						try {
-							if (!_iteratorNormalCompletion10 && _iterator10.return) {
-								_iterator10.return();
+							if (!_iteratorNormalCompletion19 && _iterator19.return) {
+								_iterator19.return();
 							}
 						} finally {
-							if (_didIteratorError10) {
-								throw _iteratorError10;
+							if (_didIteratorError19) {
+								throw _iteratorError19;
 							}
 						}
 					}
@@ -2219,11 +3480,13 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 		}(EventEmitter);
 
 		module.exports = View;
-	}, { "events": 14 }], 12: [function (require, module, exports) {
+	}, { "events": 17 }], 14: [function (require, module, exports) {
 		'use strict';
 
 		var EventEmitter = require('events').EventEmitter;
 		//var $ = require('jquery-browserify');
+
+		var enabled = true;
 
 		// module variables
 		var numElements = 0,
@@ -2236,16 +3499,27 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			function Console() {
 				_classCallCheck(this, Console);
 
-				var _this14 = _possibleConstructorReturn(this, Object.getPrototypeOf(Console).call(this));
+				var _this34 = _possibleConstructorReturn(this, Object.getPrototypeOf(Console).call(this));
 
-				_this14.$element = $('#beaglert-consoleWrapper');
-				_this14.parent = document.getElementById('beaglert-console');
-				return _this14;
+				_this34.$element = $('#beaglert-consoleWrapper');
+				_this34.parent = document.getElementById('beaglert-console');
+				return _this34;
 			}
 
 			_createClass(Console, [{
+				key: "block",
+				value: function block() {
+					enabled = false;
+				}
+			}, {
+				key: "unblock",
+				value: function unblock() {
+					enabled = true;
+				}
+			}, {
 				key: "print",
 				value: function print(text, className, id, onClick) {
+					if (!enabled) return;
 					var el = $('<div></div>').addClass('beaglert-console-' + className).appendTo(this.$element);
 					if (id) el.prop('id', id);
 					$('<span></span>').html(text).appendTo(el);
@@ -2258,11 +3532,11 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 			}, {
 				key: "log",
-				value: function log(text) {
+				value: function log(text, css) {
 					var msgs = text.split('\n');
 					for (var i = 0; i < msgs.length; i++) {
 						if (msgs[i] !== '' && msgs[i] !== ' ') {
-							this.print(msgs[i], 'log');
+							this.print(msgs[i], css || 'log');
 						}
 					}
 					this.scroll();
@@ -2293,17 +3567,17 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			}, {
 				key: "newErrors",
 				value: function newErrors(errors) {
-					var _this15 = this;
+					var _this35 = this;
 
 					$('.beaglert-console-ierror, .beaglert-console-iwarning').remove();
 
-					var _iteratorNormalCompletion11 = true;
-					var _didIteratorError11 = false;
-					var _iteratorError11 = undefined;
+					var _iteratorNormalCompletion20 = true;
+					var _didIteratorError20 = false;
+					var _iteratorError20 = undefined;
 
 					try {
 						var _loop3 = function _loop3() {
-							var err = _step11.value;
+							var err = _step20.value;
 
 
 							// create the element and add it to the error object
@@ -2314,36 +3588,36 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 							anchor = $('<a></a>').html(err.text).appendTo(div);
 
 
-							div.appendTo(_this15.$element);
+							div.appendTo(_this35.$element);
 
 							if (err.currentFile) {
 								div.on('click', function () {
-									return _this15.emit('focus', { line: err.row + 1, column: err.column - 1 });
+									return _this35.emit('focus', { line: err.row + 1, column: err.column - 1 });
 								});
 							} else {
 								div.on('click', function () {
-									return _this15.emit('open-file', err.file, { line: err.row + 1, column: err.column - 1 });
+									return _this35.emit('open-file', err.file, { line: err.row + 1, column: err.column - 1 });
 								});
 							}
 						};
 
-						for (var _iterator11 = errors[Symbol.iterator](), _step11; !(_iteratorNormalCompletion11 = (_step11 = _iterator11.next()).done); _iteratorNormalCompletion11 = true) {
+						for (var _iterator20 = errors[Symbol.iterator](), _step20; !(_iteratorNormalCompletion20 = (_step20 = _iterator20.next()).done); _iteratorNormalCompletion20 = true) {
 							var div;
 							var anchor;
 
 							_loop3();
 						}
 					} catch (err) {
-						_didIteratorError11 = true;
-						_iteratorError11 = err;
+						_didIteratorError20 = true;
+						_iteratorError20 = err;
 					} finally {
 						try {
-							if (!_iteratorNormalCompletion11 && _iterator11.return) {
-								_iterator11.return();
+							if (!_iteratorNormalCompletion20 && _iterator20.return) {
+								_iterator20.return();
 							}
 						} finally {
-							if (_didIteratorError11) {
-								throw _iteratorError11;
+							if (_didIteratorError20) {
+								throw _iteratorError20;
 							}
 						}
 					}
@@ -2358,6 +3632,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			}, {
 				key: "notify",
 				value: function notify(notice, id) {
+					if (!enabled) return;
 					$('#' + id).remove();
 					var el = this.print(notice, 'notify', id);
 					this.scroll();
@@ -2366,6 +3641,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			}, {
 				key: "fulfill",
 				value: function fulfill(message, id, persist) {
+					if (!enabled) return;
 					var el = document.getElementById(id);
 					//if (!el) el = this.notify(message, id);
 					var $el = $(el);
@@ -2423,10 +3699,10 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			}, {
 				key: "scroll",
 				value: function scroll() {
-					var _this16 = this;
+					var _this36 = this;
 
 					setTimeout(function () {
-						return _this16.parent.scrollTop = _this16.parent.scrollHeight;
+						return _this36.parent.scrollTop = _this36.parent.scrollHeight;
 					}, 0);
 				}
 			}, {
@@ -2453,14 +3729,90 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
   		}
   	}, 500);
   }*/
-	}, { "events": 14 }], 13: [function (require, module, exports) {
+	}, { "events": 17 }], 15: [function (require, module, exports) {
 		//var $ = require('jquery-browserify');
 		var IDE;
 
 		$(function () {
 			IDE = require('./IDE-browser');
 		});
-	}, { "./IDE-browser": 1 }], 14: [function (require, module, exports) {
+	}, { "./IDE-browser": 1 }], 16: [function (require, module, exports) {
+		var overlay = $('#overlay');
+		var parent = $('#popup');
+		var content = $('#popup-content');
+		var titleEl = parent.find('h1');
+		var subEl = parent.find('p');
+		var _formEl = parent.find('form');
+
+		var popup = {
+			show: function show() {
+				overlay.addClass('active');
+				parent.addClass('active');
+				content.find('input[type=text]').first().trigger('focus');
+			},
+			hide: function hide() {
+				overlay.removeClass('active');
+				parent.removeClass('active');
+				titleEl.empty();
+				subEl.empty();
+				_formEl.empty();
+			},
+
+
+			find: function find(selector) {
+				return content.find(selector);
+			},
+
+			title: function title(text) {
+				return titleEl.text(text);
+			},
+			subtitle: function subtitle(text) {
+				return subEl.text(text);
+			},
+			formEl: function formEl(html) {
+				return _formEl.html(html);
+			},
+
+			append: function append(child) {
+				return content.append(child);
+			},
+
+			form: _formEl,
+
+			exampleChanged: example
+
+		};
+
+		module.exports = popup;
+
+		function example(cb, arg, delay, cancelCb) {
+
+			// build the popup content
+			popup.title('Save your changes?');
+			popup.subtitle('You have made changes to an example project. If you continue, your changes will be lost. To keep your changes, click cancel and then Save As in the project manager tab');
+
+			var form = [];
+			form.push('<button type="submit" class="button popup-continue">Continue</button>');
+			form.push('<button type="button" class="button popup-cancel">Cancel</button>');
+
+			popup.form.append(form.join('')).off('submit').on('submit', function (e) {
+				e.preventDefault();
+				setTimeout(function () {
+					cb(arg);
+				}, delay);
+				popup.hide();
+			});
+
+			popup.find('.popup-cancel').on('click', function () {
+				popup.hide();
+				if (cancelCb) cancelCb();
+			});
+
+			popup.show();
+
+			popup.find('.popup-continue').trigger('focus');
+		}
+	}, {}], 17: [function (require, module, exports) {
 		// Copyright Joyent, Inc. and other Node contributors.
 		//
 		// Permission is hereby granted, free of charge, to any person obtaining a
@@ -2726,6 +4078,6 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 		function isUndefined(arg) {
 			return arg === void 0;
 		}
-	}, {}] }, {}, [13]);
+	}, {}] }, {}, [15]);
 
 //# sourceMappingURL=bundle.js.map

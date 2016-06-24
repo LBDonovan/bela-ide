@@ -85,13 +85,16 @@ class ToolbarView extends View {
 	// model events
 	__running(status){
 		if (status){
-			if (!$('#run').hasClass('spinning')){
-				$('#run').addClass('spinning');
-			}
+			$('#run').removeClass('building-button').addClass('running-button');
 		} else {
-			if ($('#run').hasClass('spinning')){
-				$('#run').removeClass('spinning');
-			}
+			$('#run').removeClass('running-button');
+		}
+	}
+	__building(status){
+		if (status){
+			$('#run').removeClass('running-button').addClass('building-button');
+		} else {
+			$('#run').removeClass('building-button');
 		}
 	}
 	__checkingSyntax(status){

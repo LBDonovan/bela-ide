@@ -18,6 +18,7 @@ class MakeProcess extends EventEmitter{
 		this.args = ['--no-print-directory', '-C', makePath];
 		this.stdout = [];
 		this.stderr = [];
+		this.project = '';
 	}
 	
 	/*execute(){
@@ -25,7 +26,7 @@ class MakeProcess extends EventEmitter{
 		this.start();
 	}*/
 	
-	start(project, _args){
+	start(project, _args, makeParams){
 	
 		if (this.active){
 			console.log('process '+this.target+' already active');
@@ -44,6 +45,10 @@ class MakeProcess extends EventEmitter{
 		
 		if (_args){
 			args.push('CL='+_args);
+		}
+		
+		if (makeParams){
+			args.push(makeParams);
 		}
 		
 		this.active = true;
@@ -78,11 +83,11 @@ class MakeProcess extends EventEmitter{
 			var stderr = this.stderr.join ? this.stderr.join('') : this.stderr;
 			if (this.dying){
 				this.closed();
-				this.emit('cancelled', {project: this.project, stdout, stderr, signal: (signal || 'undefined')});
+				this.emit('cancelled', {project: this.project, stdout, stderr, signal});
 				this.project = undefined;
 			} else {
 				this.closed();
-				this.emit('finished', {project: this.project, stdout, stderr, signal: (signal || 'undefined')});
+				this.emit('finished', {project: this.project, stdout, stderr, signal});
 				this.project = undefined;
 			}
 			

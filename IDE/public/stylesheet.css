@@ -127,12 +127,12 @@ p {
 	width: 100%;
 	font-size: 10pt;
 }
-.beaglert-console-log-in::before{
+/*.beaglert-console-log-in::before{
 	content: '>';
 	color: inherit;
 	padding-right: 0.65em;
 	opacity: 0.6;
-}
+}*/
 .beaglert-console-log-in{
 	text-indent: -1.65em;
 	border-bottom: 1px solid rgba(0, 0, 0, 0.2);
@@ -143,6 +143,7 @@ p {
 	color: inherit;
 	padding-right: 0.65em;
 	opacity: 0.6;
+	margin: 0 14px;
 }
 .beaglert-console-shell{
 	text-indent: -1.65em;
@@ -155,6 +156,7 @@ p {
 	color: inherit;
 	padding-right: 0.65em;
 	opacity: 0.6;
+	margin: 0 7px;
 }
 .beaglert-console-git{
 	text-indent: -1.65em;
@@ -193,6 +195,7 @@ p {
 	content: '!';
 	color: yellow;
 	padding-right: 0.65em;
+	margin: 0 14px;
 }
 .beaglert-console-warning{
 	text-indent: -1.65em;
@@ -204,6 +207,7 @@ p {
 	content: '!';
 	color: red;
 	padding-right: 0.65em;
+	margin: 0 14px;
 }
 .beaglert-console-error{
 	text-indent: -1.65em;
@@ -214,8 +218,9 @@ p {
 
 .beaglert-console-iwarning::before{
 	content: '!';
-	color: yellow;
+	color: red;
 	padding-right: 0.65em;
+	margin: 0 14px;
 }
 .beaglert-console-iwarning{
 	text-indent: -1.65em;
@@ -227,6 +232,7 @@ p {
 	content: '!';
 	color: red;
 	padding-right: 0.65em;
+	margin: 0 14px;
 }
 .beaglert-console-ierror{
 	text-indent: -1.65em;
@@ -238,6 +244,7 @@ p {
 	content: 'i';
 	color: green;
 	padding-right: 0.65em;
+	margin: 0 14px;
 }
 .beaglert-console-notify{
 	text-indent: -1.65em;
@@ -314,8 +321,14 @@ p {
     transform: rotateZ(360deg);
   }
 }
-.spinning{
+.running-button{
 	animation-duration: 0.5s;
+	animation-name: spin;
+	animation-iteration-count: infinite;
+	animation-timing-function: linear;
+}
+.building-button{
+	animation-duration: 1s;
 	animation-name: spin;
 	animation-iteration-count: infinite;
 	animation-timing-function: linear;
@@ -387,8 +400,12 @@ p {
 	background: url("images/icons/run_greenFF.png");
 	margin-right: 3px;
 }
-#run.spinning{
+#run.running-button{
 	background: url("images/icons/run_greenFF.png");
+	margin-right: 3px;
+}
+#run.building-button{
+	background: url("images/icons/run_buildFF.png");
 	margin-right: 3px;
 }
 
@@ -671,8 +688,6 @@ right: calc(100% - 62px);
 	height: 100%;
 	top: 0;
     z-index: 101;
-
-
     }
     /* == Style for each pullout tab == */
     .tab label {
@@ -843,7 +858,7 @@ right: calc(100% - 62px);
     [type=radio]:checked ~ label {
       background: #fff;
       z-index: 99;
-      border-left: 1px solid #e8e8e8;
+      /* border-left: 1px solid #e8e8e8; check popups & tabs when uncommenting this */
       // box-shadow: 0 2px 10px #e5e5e5;
     }
     [type=radio]:checked ~ label ~ .tabContent {
@@ -979,9 +994,8 @@ right: calc(100% - 62px);
 #settingsTab{
 	line-height: 1.5;
 }
-#settingsTab > input, #settingsTab>select{
-	position: absolute;
-	right: 50px;
+#settingsTab input, #settingsTab select{
+	margin: 1px 0;
 }
 #C_L_ARGS{
 	left: 20px;
@@ -1163,6 +1177,23 @@ input {
     display: inline;
     border-radius: 2px;
 }
+input[type=checkbox]{
+	position: relative;
+	top: 5px;
+}
+
+#overlay {
+	background-color: rgba(50, 50, 50, 0.2);
+	position: absolute;
+	top: 0;
+	display: none;
+	width: 100%;
+	height: 100%;
+	z-index: 9998;
+}
+	#overlay.active {
+		display: inline;
+	}
 
 .gitTable td {
 	padding: 5px 0 0 5px;
@@ -1182,6 +1213,65 @@ button.gitManager {
 	line-height: 17px;
 	margin-bottom: 10px;
 }
+#popup {
+	display: none;
+	min-height: 100px;
+	background: white;
+	border: 2px solid #666;
+	border-radius: 10px;
+	position: absolute;
+	top: calc((100% / 2) - 150px);
+	left: calc((100% / 2) - 200px);
+	font-size: 14px;
+	width: 400px;
+	padding: 0 20px 30px;
+	margin-bottom: 10px;
+}
+	#popup.active {
+		display: inline;
+		z-index: 9999;
+	}
+	#popup h1 {
+    	font-family: sofia;
+    	font-size: 25px;
+    	color: #82C889;
+    	display: inline;
+    	line-height: 70px;
+    	padding-bottom: 20px;
+	}
+	#popup p, #popup form {
+		font-family: sofia;
+		font-size: 14px;
+		color: #999;
+		margin-bottom: 10px;
+	}
+	#popup input {
+		padding: 10px;
+		font-size: 16px;
+	}
+	#popup input[type=text] {
+		margin: 10px 0 20px;
+		width: 250px;
+	}
+	#popup input[type=checkbox], #popup input[type=radio] {
+		width: initial;
+		margin: 2px 10px;
+		top: 5px;
+		position: relative;
+	}
+	#popup input[type=file]{
+		background: initial;
+		border: initial;
+		width: initial;
+	}
+	#popup input::-webkit-input-placeholder {
+		font-style: italic;
+		color: #bdbdbd;
+	}
+	#popup button {
+		margin: 10px 5px 0;
+		float: right;
+	}
 
 .subsections div > h3 {
 	padding: 0;

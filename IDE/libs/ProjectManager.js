@@ -16,7 +16,6 @@ var projectPath = belaPath+'projects/';
 var examplePath = belaPath+'examples/';
 var templatePath = belaPath+'IDE/templates/';
 var mediaPath = belaPath+'IDE/public/media/';
-var newProjectPath = templatePath+'minimal';
 
 //files
 var blockedFiles = ['build', 'settings.json', '.DS_Store'];
@@ -82,8 +81,8 @@ module.exports = {
 			data.error = 'failed, project '+data.newProject+' already exists!';
 			return data;
 		}
-		
-		yield fs.copyAsync(newProjectPath, projectPath+data.newProject, {clobber: true});
+	console.log('hi', templatePath + (data.projectType || 'C'));
+		yield fs.copyAsync(templatePath + (data.projectType || 'C'), projectPath+data.newProject, {clobber: true});
 		data.projectList = yield this.listProjects();
 		data.currentProject = data.newProject;
 		data.newProject = undefined;
@@ -178,7 +177,7 @@ module.exports = {
 						if (blockedFiles.indexOf(item) === -1 && 
 							(yield fs.statAsync(projectDir+'/'+item).then( stat => stat.isFile() ).catch( () => false )) && 
 							item !== data.currentProject){
-								data.error = 'could not open '+data.newFile+', opening '+item+' instead';
+								if (!data.exampleName) data.error = 'could not open '+data.newFile+', opening '+item+' instead';
 								data.newFile = item;
 								return yield _co(this, 'openProject', data);
 						}
@@ -323,9 +322,9 @@ module.exports = {
 	
 	*uploadFile(data){
 	
-		// if the file already exists, reject the request
-		console.log(projectPath+data.currentProject+'/'+data.newFile, yield fileExists(projectPath+data.currentProject+'/'+data.newFile));
-		if (yield fileExists(projectPath+data.currentProject+'/'+data.newFile)){
+		// if the file already exists and the force flag is not set, reject the request
+		console.log(projectPath+data.currentProject+'/'+data.newFile, yield fileExists(projectPath+data.currentProject+'/'+data.newFile), data.force);
+		if (!data.force && (yield fileExists(projectPath+data.currentProject+'/'+data.newFile))){
 			data.error = 'failed, file '+data.newFile+' already exists!';
 			data.fileData = undefined;
 			return data;
@@ -394,6 +393,10 @@ module.exports = {
 	*getCLArgs(project){
 		var settings = yield _getSettings(project);
 		return settings.CLArgs;
+	},
+	
+	listFiles(project){
+		return new Promise.coroutine(listFiles)(projectPath+project);
 	}
 }
 
@@ -517,13 +520,11 @@ function _defaultSettings(){
 		"-G": "1",		// use digital
 		"-M": "0", 		// mute speaker
 		"-D": "0",		// dac level
-		"-A": "-6", 	// adc level
-		"-R": "9998",	// recieve port
-		"-T": "9999", 	// transmit port
-		"-S": "127.0.0.1", // server
-		"--pga-gain-left": "16",
-		"--pga-gain-right": "16",
-		"user": ''		// user-defined clargs
+		"-A": "0", 		// adc level
+		"--pga-gain-left": "10",
+		"--pga-gain-right": "10",
+		"user": '',		// user-defined clargs
+		"make": ''		// user-defined Makefile parameters
 	};
 	return {
 		"fileName"		: "render.cpp",

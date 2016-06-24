@@ -33,7 +33,12 @@ settingsView.on('IDE-settings', (data) => {
 	socket.emit('IDE-settings', data);
 });
 settingsView.on('run-on-boot', project => socket.emit('run-on-boot', project) );
-settingsView.on('halt', () => socket.emit('sh-command', 'halt') );
+settingsView.on('halt', () => {
+	socket.emit('sh-command', 'halt');
+	consoleView.emit('warn', 'Shutting down...');
+});
+settingsView.on('warning', text => consoleView.emit('warn', text) );
+settingsView.on('upload-update', data => socket.emit('upload-update', data) );
 
 // project view
 var projectView = new (require('./Views/ProjectView'))('projectManager', [models.project]);
@@ -147,7 +152,7 @@ gitView.on('console', text => consoleView.emit('log', text, 'git') );
 gitView.on('console-warn', text => consoleView.emit('warn', text) );
 
 // refresh files
-//setInterval( () => socket.emit('list-files', models.project.getKey('currentProject')), 5000);
+setInterval( () => socket.emit('list-files', models.project.getKey('currentProject')), 5000);
 
 // setup socket
 var socket = io('/IDE');
@@ -166,6 +171,10 @@ socket.on('init', (data) => {
 	
 	models.project.setData({projectList: data[0], exampleList: data[1], currentProject: data[2].project});
 	models.settings.setData(data[2]);
+	
+	$('#runOnBoot').val(data[3]);
+	
+	models.status.setData(data[4]);
 	
 	//models.project.print();
 	//models.settings.print();
@@ -189,7 +198,7 @@ socket.on('project-data', (data) => {
 		models.debug.setData(debug);
 	}
 	if (data.gitData) models.git.setData(data.gitData);
-	console.log(data);
+	//console.log(data);
 	//models.settings.setData(data.settings);
 	//models.project.print();
 });
@@ -206,9 +215,14 @@ socket.on('project-list', (project, list) =>  {
 });
 socket.on('file-list', (project, list) => {
 	if (project === models.project.getKey('currentProject')){
-		if (list.indexOf(models.project.getKey('fileName')) === -1){
+		let currentFilenameFound = false;
+		for (let item of list){
+			if (item.name === models.project.getKey('fileName')){
+				currentFilenameFound = true;
+			}
+		}
+		if (!currentFilenameFound){
 			// this file has just been deleted
-			console.log('file-list', 'openProject');
 			socket.emit('project-event', {func: 'openProject', currentProject: project});
 		}
 		models.project.setKey('fileList', list);
@@ -276,15 +290,14 @@ socket.on('debugger-variables', (project, variables) => {
 
 // run-on-boot
 socket.on('run-on-boot-log', text => consoleView.emit('log', text) );
-socket.on('run-on-boot-project', project => $('#runOnBoot option[value="'+project+'"]').attr('selected', 'selected') );
+//socket.on('run-on-boot-project', project => setTimeout( () => $('#runOnBoot').val(project), 100) );
 
 // shell
-/*socket.on('sh-stdout', data => consoleView.emit('log', data, 'shell') );
-socket.on('sh-stderr', data => consoleView.emit('warn', data) );
-socket.on('sh-cwd', cwd => consoleView.emit('cwd', cwd) );
-socket.on('sh-tabcomplete', data => consoleView.emit('sh-tabcomplete', data) );*/
 socket.on('shell-event', (evt, data) => consoleView.emit('shell-'+evt, data) )
 
+// generic log and warn
+socket.on('std-log', text => consoleView.emit('log', text) );
+socket.on('std-warn', text => consoleView.emit('warn', text) );
 
 // model events
 // build errors
@@ -331,9 +344,9 @@ models.project.on('change', (data, changedKeys) => {
 models.status.on('change', (data, changedKeys) => {
 	if (changedKeys.indexOf('running') !== -1 || changedKeys.indexOf('building') !== -1){
 		if (data.running)
-			$('#top-bela-status').html('Running Project: '+(models.project.getKey('exampleName') || models.project.getKey('currentProject')));
+			$('#top-bela-status').html('Running Project: '+data.runProject);
 		else if (data.building)
-			$('#top-bela-status').html('Building Project: '+(models.project.getKey('exampleName') || models.project.getKey('currentProject')));
+			$('#top-bela-status').html('Building Project: '+data.buildProject);
 		else
 			$('#top-bela-status').html('');
 	}

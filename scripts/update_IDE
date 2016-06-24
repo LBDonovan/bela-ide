@@ -31,7 +31,7 @@ do
 	-y)
 		ALWAYS_YES=1
 	;;
-        -b)
+    -b)
 		shift
 		BBB_BELA_HOME=$1
 	;;
@@ -40,7 +40,7 @@ do
 	;;
 	*)
 		usage
-                exit 1
+        exit 1
 	;;
 	esac
 	shift
@@ -78,7 +78,7 @@ fi
 printf "done\n" || { printf "\nError while copying files: error $?\n"; exit 1; }
 
 # Make sure the projects folder exists and there is a project in it
-ssh $BBB_ADDRESS "cd $BBB_BELA_HOME/; mkdir -p $BBB_BELA_HOME/IDE/public/media; mkdir -p projects/; [ -d projects/basic ] || cp -r examples/basic projects/" &&\
+ssh $BBB_ADDRESS "cd $BBB_BELA_HOME/; mkdir -p $BBB_BELA_HOME/IDE/public/media; mkdir -p projects/; [ -d projects/basic ] || cp -r IDE/templates/basic projects/" &&\
 
 # If there are any C/C++ files, rebuild node dependencies
 find $SCRIPTDIR/../IDE/node_modules | grep '\(\.cpp\|\.cc\|\.c\|\.hpp\|\.hh\|\.h\)$' >/dev/null 2>&1 &&\
@@ -94,6 +94,6 @@ echo "The IDE was correctly updated"
 
 [ $ALWAYS_YES -eq 1 ] || [ $FULL -eq 0 ] && printf "\nSetup complete.\n\n" || {
   printf '\nIDE setup complete, press any key to continue . . .\n\n'
-  read 
+  read -n 1  
 }
 

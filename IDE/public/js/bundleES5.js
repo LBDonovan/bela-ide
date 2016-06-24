@@ -2890,10 +2890,9 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 					// build the popup content
 					popup.title('About Bela');
-					popup.subtitle('LLLLow LLLLLatency');
-
+					popup.subtitle('You are using Bela Version 0.1, July 2016. Bela is an open source project licensed under GPL, and is a product of the Augmented Instruments Laboratory at Queen Mary University of London. For more information, visit http://bela.io');
 					var form = [];
-					form.push('<button type="submit" class="button popup-continue">Continue</button>');
+					form.push('<button type="submit" class="button popup-continue">Close</button>');
 
 					popup.form.append(form.join('')).off('submit').on('submit', function (e) {
 						e.preventDefault();
@@ -2932,9 +2931,9 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 						var file = popup.find('input[type=file]').prop('files')[0];
 						if (file && file.type === 'application/zip') {
 
-							_this30.emit('warning', 'beginning the update - this may take several minutes');
-							_this30.emit('warning', 'the browser may become unresponsive and will temporarily disconnect');
-							_this30.emit('warning', 'do not use the IDE during the update process!');
+							_this30.emit('warning', 'Beginning the update - this may take several minutes');
+							_this30.emit('warning', 'The browser may become unresponsive and will temporarily disconnect');
+							_this30.emit('warning', 'Do not use the IDE during the update process!');
 
 							var reader = new FileReader();
 							reader.onload = function (ev) {

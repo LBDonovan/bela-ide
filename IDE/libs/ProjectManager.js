@@ -176,7 +176,8 @@ module.exports = {
 					for (let item of projectContents){
 						if (blockedFiles.indexOf(item) === -1 && 
 							(yield fs.statAsync(projectDir+'/'+item).then( stat => stat.isFile() ).catch( () => false )) && 
-							item !== data.currentProject){
+							item !== data.currentProject &&
+							(item.length && item[0] !== '.')){
 								if (!data.exampleName) data.error = 'could not open '+data.newFile+', opening '+item+' instead';
 								data.newFile = item;
 								return yield _co(this, 'openProject', data);
@@ -201,7 +202,7 @@ module.exports = {
 			let stat = yield fs.statAsync(projectDir + data.newFile).catch( () => {size: 0} );
 			console.log(data.newFile, stat);
 			
-			if (stat.size > maxFileSize){
+			if (stat && stat.size > maxFileSize){
 			
 				// newFile has a bad extension and is too big
 				console.log('file is too large:', data.newFile, stat.size);
@@ -280,7 +281,8 @@ module.exports = {
 						for (let item of projectContents){
 							if (blockedFiles.indexOf(item) === -1 && 
 								(yield fs.statAsync(projectDir+'/'+item).then( stat => stat.isFile() ).catch( () => false )) && 
-								item !== data.currentProject){
+								item !== data.currentProject &&
+								(item.length && item[0] !== '.')){
 									data.error = 'could not open '+data.newFile+', opening '+item+' instead';
 									data.newFile = item;
 									return yield _co(this, 'openProject', data);

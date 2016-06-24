@@ -488,7 +488,10 @@ hr.sep {
 	bottom: 0;
 	left: calc(100% - 60px);
 	background: #e8e8e8;
-
+ //    transition-duration: 0.3s;
+	// -webkit-transition-duration: 0.3s;
+ //    -moz-transition-duration: 0.3s;
+ //    -o-transition-duration: 0.3s;
 }
 #saveAsName{
 	height: 8px;
@@ -610,7 +613,6 @@ hr.sep {
 /* animations */
 .left-out {
 left: 300px;
-/*animation: left-out 1s both;*/
 }
 .left-in {
 left: 62px;
@@ -624,38 +626,38 @@ right: calc(100% - 300px);
 right: calc(100% - 62px);
 /*animation: right-in 1s both;*/
 }
-@keyframes left-out {
-0% {
-  width: 67%;
-  }
-100% {
-  width: 100%;
-  }
-}
-@keyframes left-in {
-0% {
-  width: 100%;
-  }
-100% {
-  width: 67%;
-  }
-}
-@keyframes right-out {
-0% {
-  right: 0;
-  }
-100% {
-  right: -33%;
-  }
-}
-@keyframes right-in {
-0% {
-  right: -33%;
-  }
-100% {
-  right: 0;
-  }
-}
+// @keyframes left-out {
+// 0% {
+//   width: 67%;
+//   }
+// 100% {
+//   width: 100%;
+//   }
+// }
+// @keyframes left-in {
+// 0% {
+//   width: 100%;
+//   }
+// 100% {
+//   width: 67%;
+//   }
+// }
+// @keyframes right-out {
+// 0% {
+//   right: 0;
+//   }
+// 100% {
+//   right: -33%;
+//   }
+// }
+// @keyframes right-in {
+// 0% {
+//   right: -33%;
+//   }
+// 100% {
+//   right: 0;
+//   }
+// }
 
 
 /* ======= TABS ======== */
@@ -669,6 +671,8 @@ right: calc(100% - 62px);
 	height: 100%;
 	top: 0;
     z-index: 101;
+
+
     }
     /* == Style for each pullout tab == */
     .tab label {
@@ -708,6 +712,7 @@ right: calc(100% - 62px);
       visibility: hidden;
       overflow: scroll;
       width: 405px;
+
     }
 
     .tab h1 {
@@ -738,17 +743,6 @@ right: calc(100% - 62px);
     	line-height: 18px;
     	padding-left: 20px;
     }
-    label.ticky {
-    	display: inline-block;
-    	height: 16px;
-    	padding: 0;
-	background: #fff;
-	width: 100%;
-	}
-		label.ticky:hover {
-			background: #fff;
-			cursor: default;
-		}
 
 
 
@@ -760,14 +754,17 @@ right: calc(100% - 62px);
     	display: block;
     	margin: 0 auto;
     	cursor: pointer;
+    	  
     }
     #tab-0 {
 		background: url("images/icons/arrow2_25.png") center center no-repeat #e8e8e8;
     	margin-bottom: -3px; 
     	height: 25px;
+    	transition: 0.2s;
     	}
 		#tab-0.open {
 			background: url("images/icons/x25.png") center center no-repeat;
+			transition: 0.5s;
 			}    
     
     #settings {
@@ -951,7 +948,12 @@ right: calc(100% - 62px);
 		text-align: left;
 	}
 
-.debug-table {
+.debug-table td {
+	width: 120px;
+}
+
+.debug-table p {
+	font-weight: bold;
 }
 
 .debug-buttons {

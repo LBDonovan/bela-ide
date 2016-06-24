@@ -63,17 +63,17 @@
 
 										<h2>Manage projects:</h2>
 										<button class="button projectManager" id="new" data-func="newProject">New project</button>
-										<button class="button projectManager" id="saveas" data-func="saveAs">Save as ...</button>
+										<button class="button projectManager" id="saveas" data-func="saveAs">Save project as ...</button>
 										<button class="button projectManager" id="deleteProject" data-func="deleteProject">Delete project</button>
-										<button class="button projectManager" id="cleanProject" data-func="cleanProject">Clean</button>
+										<button class="button projectManager" id="cleanProject" data-func="cleanProject">Clean project</button>
 										
 									<hr class="sep" />
 										<h2>Manage project files:</h2>
-										<button class="button fileManager" data-func="newFile">New</button>
-										<button class="button fileManager" data-func="uploadFile" id="uploadFile">Upload</button>
-										<a id="downloadFileLink" href="/download" download><button id="downloadFile"  class="button fileManager">Download</button></a>
-										<button class="button fileManager" data-func="renameFile">Rename</button>
-										<button  class="button fileManager" data-func="deleteFile">Delete</button>
+										<button class="button fileManager" data-func="newFile">New file</button>
+										<button class="button fileManager" data-func="uploadFile" id="uploadFile">Upload file</button>
+										<a id="downloadFileLink" href="/download" download><button id="downloadFile"  class="button fileManager">Download file</button></a>
+										<button class="button fileManager" data-func="renameFile">Rename file</button>
+										<button  class="button fileManager" data-func="deleteFile">Delete file</button>
 										<input type="file" id="uploadFileInput" multiple></input>
 
 									
@@ -101,15 +101,15 @@
 							   <div id="repo" style="display:none">
 							   <table class="gitTable">
 								    <tr>
-								    	<td><button class="gitManager" data-func="command" data-command="status">status</button><button class="gitManager" data-func="command" data-command="log --pretty=oneline">log</button></td>
+								    	<td><button class="gitManager" data-func="command" data-command="status">Git status</button><button class="gitManager" data-func="command" data-command="log --pretty=oneline">Git log</button></td>
 								    </tr>
 
 								    <tr>
-								    	<td><select id="branches" class="gitManager" data-func="checkout"></select><button class="gitManager" data-func="branch">new branch</button></td>
+								    	<td><select id="branches" class="gitManager" data-func="checkout"></select><button class="gitManager" data-func="branch">Create new branch</button></td>
 									</tr>
 
 									<tr>
-										<td><button class="gitManager" data-func="command" data-command="add -A">stage all</button><button class="gitManager" data-func="commit" >commit</button><button class="gitManager" data-func="command" data-command="checkout -- .">discard changes</button></td>
+										<td><button class="gitManager" data-func="command" data-command="add -A">Stage all changes</button><button class="gitManager" data-func="commit" >Commit</button><button class="gitManager" data-func="command" data-command="checkout -- .">Discard changes</button></td>
 								   <!--<button class="gitManager" data-func="command" data-command="revert HEAD">revert previous commit</button>-->
 								   </tr>
 								   <tr>
@@ -119,7 +119,7 @@
 								   	<tr>
 								   		<td><form id="gitForm" class="gitManager">
 								   		
-								   		<p>git:</p> <input id="gitInput" type="text">
+								   		<p>Git command: <input id="gitInput" type="text"></p>
 								   			</form>
 								   		</td>
 								   	</tr>

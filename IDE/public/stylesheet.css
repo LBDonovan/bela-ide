@@ -1205,6 +1205,10 @@ button.gitManager {
 	margin: 0 2px;
 }
 
+#gitInput {
+	width: 135px;
+}
+
 #examples {
 	line-height: 16px;
 	padding-bottom: 4px;

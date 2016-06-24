@@ -37,6 +37,7 @@ footer, header, hgroup, menu, nav, section {
 }
 body {
 	line-height: 1;
+	background: #ffffff;
 }
 ol, ul {
 	list-style: none;
@@ -454,6 +455,7 @@ p {
 	width: 130px;
 	float: right;
 	display: inline-block;
+	// background-image: url("images/logo_bar13.png");
 }
 
 #status {
@@ -723,7 +725,6 @@ right: calc(100% - 62px);
       right: 0;
       bottom: 0;
       padding: 20px 12px 20px 20px;
-      
       visibility: hidden;
       overflow: scroll;
       width: 405px;
@@ -1083,7 +1084,7 @@ button {
 label.docSectionHeader {
 	margin: 5px 0 0 0;
 	height: 15px;
-	width: 100%;
+	width: 96%;
 	padding-left: 20px;
 	background: #bdbdbd;
 	font-family: sofia, sans-serif;
@@ -1099,6 +1100,7 @@ label.docSectionHeader {
 	label.docSectionHeader.sub {
 		background: #e0e0e0;
 		margin-left: 20px;
+		width: 91%;
 	}
 	label.docSectionHeader.sub:hover {
 		background: #e1f2d9;
@@ -1207,6 +1209,10 @@ button.gitManager {
 	margin: 0 2px;
 }
 
+#gitInput {
+	width: 135px;
+}
+
 #examples {
 	line-height: 16px;
 	padding-bottom: 4px;
@@ -1283,4 +1289,8 @@ button.gitManager {
 
 .subsections div > p {
 	padding-top: 10px;
+}
+
+#control-text-3 {
+	margin-top: 8px;
 }

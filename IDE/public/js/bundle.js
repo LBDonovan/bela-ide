@@ -2554,7 +2554,7 @@ class ToolbarView extends View {
 	__allErrors(errors){
 		//if (this.syntaxTimeout) clearTimeout(this.syntaxTimeout); 
 		if (errors.length){
-			$('#status').css('background', 'url("images/icons/status_stop.png")').prop('title', 'syntax errors found');
+			$('#status').css('background', 'url("images/icons/status_stop.png")').prop('title', 'syntax errors found'); 
 		} else {
 			$('#status').css('background', 'url("images/icons/status_ok.png")').prop('title', 'syntax check clear');
 		}
